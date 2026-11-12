@@ -1,5 +1,13 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "stained-glass": {
+  "title": "彩色玻璃",
+  "trick": "把光线追回到玻璃函数：彩色光斑与带尘的光柱",
+  "notes": [
+   "阳光穿过铅条镶嵌的花窗照进昏暗的中殿：尘埃空气里是彩色光柱，石板地上是随太阳移动的彩色光斑。",
+   "花窗是一个函数，给出玻璃颜色或铅条；地面和穿过空气的每一步都沿阳光去查它。在画面上移动可以移动太阳。"
+  ]
+ },
  "lenia": {
   "title": "Lenia 连续生命",
   "trick": "环形核卷积加生长钟形曲线：Chan 的 Lenia，四个物种",
@@ -1740,6 +1748,8 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Dust": "尘埃",
+ "Sun": "阳光",
  "Population": "数量",
  "Hold": "停留",
  "Flakes": "雪花数",

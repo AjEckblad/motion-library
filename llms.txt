@@ -1,6 +1,6 @@
 # Motion Library
 
-> 217 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 218 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -106,6 +106,7 @@
 - [ASCII render](https://ajeckblad.github.io/motion-library/fx/ascii-render.html): Brightness picks a glyph, edges pick - / | \ by direction. `npx motion-library add ascii-render`
 - [Pixel sort](https://ajeckblad.github.io/motion-library/fx/pixel-sort.html): GPU odd-even transposition sort within bright runs per column. `npx motion-library add pixel-sort`
 - [Hyperbolic tiling](https://ajeckblad.github.io/motion-library/fx/hyperbolic-tiling.html): Fold pixels into one triangle by reflections; glide by Möbius map. `npx motion-library add hyperbolic-tiling`
+- [Stained glass](https://ajeckblad.github.io/motion-library/fx/stained-glass.html): Trace light back to a glass function: coloured pools and dusty shafts. `npx motion-library add stained-glass`
 
 ## Generative & math
 

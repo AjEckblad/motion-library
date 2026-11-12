@@ -1,5 +1,13 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "stained-glass": {
+  "title": "Vidriera",
+  "trick": "Seguir la luz hasta una función de vidrio: manchas de color y haces con polvo",
+  "notes": [
+   "El sol entra por una vidriera emplomada en una nave oscura: haces de color en el aire polvoriento y manchas en las losas que se desplazan con él.",
+   "La vidriera es una función que devuelve el color del vidrio o el plomo; el suelo y cada paso por el aire la consultan siguiendo la luz del sol. Mueve el puntero para mover el sol."
+  ]
+ },
  "lenia": {
   "title": "Lenia",
   "trick": "Convolución con núcleo de anillo y una campana de crecimiento: Lenia, cuatro especies",
@@ -1740,6 +1748,8 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Dust": "Polvo",
+ "Sun": "Sol",
  "Population": "Población",
  "Hold": "Pausa",
  "Flakes": "Copos",

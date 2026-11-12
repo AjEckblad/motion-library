@@ -1,5 +1,13 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "stained-glass": {
+  "title": "Vitrail",
+  "trick": "Remonter la lumière jusqu’à une fonction de verre : taches colorées et rayons de poussière",
+  "notes": [
+   "Le soleil traverse un vitrail au plomb dans une nef sombre : des rayons colorés dans l’air poussiéreux et des taches sur les dalles qui glissent avec lui.",
+   "Le vitrail est une fonction qui renvoie la couleur du verre ou le plomb ; le sol et chaque pas dans l’air la consultent le long de la lumière. Déplacez le pointeur pour bouger le soleil."
+  ]
+ },
  "lenia": {
   "title": "Lenia",
   "trick": "Convolution par noyau en anneau et cloche de croissance : Lenia, quatre espèces",
@@ -1740,6 +1748,8 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Dust": "Poussière",
+ "Sun": "Soleil",
  "Population": "Population",
  "Hold": "Pause",
  "Flakes": "Flocons",

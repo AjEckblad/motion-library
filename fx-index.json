@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 217,
+ "count": 218,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -3562,6 +3562,51 @@
      "min": 0,
      "max": 3,
      "step": 0.05
+    }
+   ]
+  },
+  {
+   "id": "stained-glass",
+   "title": "Stained glass",
+   "titleZh": "彩色玻璃",
+   "category": "Shaders & glitch",
+   "categoryId": "shaders",
+   "renderer": "WebGL",
+   "description": "Trace light back to a glass function: coloured pools and dusty shafts",
+   "descriptionZh": "把光线追回到玻璃函数：彩色光斑与带尘的光柱",
+   "page": "https://ajeckblad.github.io/motion-library/fx/stained-glass.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/stained-glass",
+   "npx": "npx motion-library add stained-glass",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 12869,
+   "settings": [
+    {
+     "key": "dust",
+     "flag": "--dust",
+     "label": "Dust",
+     "default": 1,
+     "min": 0,
+     "max": 2,
+     "step": 0.05
+    },
+    {
+     "key": "sun",
+     "flag": "--sun",
+     "label": "Sun",
+     "default": 1,
+     "min": 0.3,
+     "max": 2,
+     "step": 0.05
+    },
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Speed",
+     "default": 1,
+     "min": 0,
+     "max": 3,
+     "step": 0.1
     }
    ]
   },
