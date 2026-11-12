@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 221,
+ "count": 223,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -3116,6 +3116,51 @@
    ]
   },
   {
+   "id": "meadow",
+   "title": "Meadow",
+   "titleZh": "草甸",
+   "category": "Chrome & 3D",
+   "categoryId": "chrome",
+   "renderer": "WebGL",
+   "description": "Instanced blades bent by gust bands carried downwind across the field",
+   "descriptionZh": "实例化的草叶，被顺风推进的阵风带吹弯",
+   "page": "https://ajeckblad.github.io/motion-library/fx/meadow.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/meadow",
+   "npx": "npx motion-library add meadow",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 12974,
+   "settings": [
+    {
+     "key": "blades",
+     "flag": "--blades",
+     "label": "Blades",
+     "default": 60000,
+     "min": 10000,
+     "max": 120000,
+     "step": 5000
+    },
+    {
+     "key": "wind",
+     "flag": "--wind",
+     "label": "Wind",
+     "default": 1,
+     "min": 0,
+     "max": 2,
+     "step": 0.05
+    },
+    {
+     "key": "gusts",
+     "flag": "--gusts",
+     "label": "Gusts",
+     "default": 1,
+     "min": 0,
+     "max": 2,
+     "step": 0.05
+    }
+   ]
+  },
+  {
    "id": "crt-monitor",
    "title": "CRT monitor",
    "titleZh": "CRT 显示器",
@@ -5343,6 +5388,42 @@
      "default": 1,
      "min": 0.6,
      "max": 1.6,
+     "step": 0.05
+    }
+   ]
+  },
+  {
+   "id": "snowflake",
+   "title": "Snowflake growth",
+   "titleZh": "雪花生长",
+   "category": "Simulation",
+   "categoryId": "simulation",
+   "renderer": "WebGL",
+   "description": "Gravner–Griffeath model: vapour diffuses, sites freeze by neighbour rules",
+   "descriptionZh": "Gravner–Griffeath 模型：水汽扩散，按邻居规则逐格冻结",
+   "page": "https://ajeckblad.github.io/motion-library/fx/snowflake.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/snowflake",
+   "npx": "npx motion-library add snowflake",
+   "interactive": false,
+   "reducedMotion": true,
+   "bytes": 13555,
+   "settings": [
+    {
+     "key": "size",
+     "flag": "--size",
+     "label": "Size",
+     "default": 1,
+     "min": 0.6,
+     "max": 1.25,
+     "step": 0.05
+    },
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Speed",
+     "default": 1,
+     "min": 0.6,
+     "max": 1.4,
      "step": 0.05
     }
    ]

@@ -1,5 +1,21 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "snowflake": {
+  "title": "Flocon de neige",
+  "trick": "Gravner–Griffeath : la vapeur diffuse et gèle selon les voisins",
+  "notes": [
+   "La vapeur diffuse sur un réseau hexagonal ; un site du bord gèle quand sa couche liquide est assez épaisse, et les pointes dépassent les faces et se ramifient.",
+   "Chaque boucle fait pousser un cristal différent parmi quatre jeux de paramètres ; size règle le grossissement, speed la vitesse de croissance."
+  ]
+ },
+ "meadow": {
+  "title": "Prairie",
+  "trick": "Brins instanciés pliés par des rafales qui traversent le champ avec le vent",
+  "notes": [
+   "Un coteau d’herbes hautes à l’heure dorée : les rafales le parcourent en vagues qu’on peut suivre, et les brins s’illuminent là où le soleil bas les traverse. Déplacez le pointeur pour tourner le vent.",
+   "Soixante mille brins partagent une même bande qui se plie ; chacun penche selon le vent à sa racine, une poussée constante plus des bandes de bruit qui avancent avec le vent, si bien que chaque rafale traverse le champ."
+  ]
+ },
  "ocean": {
   "title": "Pleine mer",
   "trick": "Océan FFT à spectre JONSWAP ; les pentes non résolues élargissent le scintillement",
@@ -1772,6 +1788,9 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Size": "Taille",
+ "Blades": "Brins",
+ "Gusts": "Rafales",
  "Wind (m/s)": "Vent (m/s)",
  "Choppiness": "Clapot",
  "Sun height (°)": "Hauteur du soleil (°)",

@@ -1,6 +1,6 @@
 # Motion Library
 
-> 221 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 223 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -832,6 +832,17 @@ Rays bend into the water at the glass, so the scene is magnified and wraps at th
 Settings: --flakes 900 (200 to 3000, step 50; Flakes); --shake 1 (0.2 to 2, step 0.05; Shake); --every 9 (4 to 20, step 1; Shake every (s)).
 Renderer: WebGL. Size: 19.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/snow-globe.html
 
+### Meadow
+
+Meadow is a WebGL effect: instanced blades bent by gust bands carried downwind across the field. One plain JavaScript file with no dependencies; add it with npx motion-library add meadow.
+
+A hillside of long grass at golden hour: gusts roll across it in waves you can follow, and the blades glow where the low sun shines through them. Move across it to turn the wind.
+
+Sixty thousand blades share one bending strip; each leans by the wind at its root, a steady push plus bands of noise that travel downwind, so every gust crosses the field.
+
+Settings: --blades 60000 (10000 to 120000, step 5000; Blades); --wind 1 (0 to 2, step 0.05; Wind); --gusts 1 (0 to 2, step 0.05; Gusts).
+Renderer: WebGL. Size: 12.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/meadow.html
+
 
 ## Shaders & glitch
 
@@ -1401,6 +1412,17 @@ Nodes push away others in reach, ease toward their neighbours’ midpoint and sp
 
 Settings: --growth 1 (0.3 to 3, step 0.1; Growth); --spacing 1 (0.6 to 1.6, step 0.05; Fold spacing).
 Renderer: WebGL. Size: 19.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/diff-growth.html
+
+### Snowflake growth
+
+Snowflake growth is a WebGL effect: gravner–Griffeath model: vapour diffuses, sites freeze by neighbour rules. One plain JavaScript file with no dependencies; add it with npx motion-library add snowflake.
+
+Vapour diffuses on a hex lattice; edge sites freeze when their liquid layer is thick enough, and corners outgrow faces into branches.
+
+Each loop grows a different crystal from four parameter sets; size zooms the microscope, speed sets how fast it grows.
+
+Settings: --size 1 (0.6 to 1.25, step 0.05; Size); --speed 1 (0.6 to 1.4, step 0.05; Speed).
+Renderer: WebGL. Size: 13.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/snowflake.html
 
 
 ## Retro & signal

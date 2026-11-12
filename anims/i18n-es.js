@@ -1,5 +1,21 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "snowflake": {
+  "title": "Copo de nieve",
+  "trick": "Gravner–Griffeath: el vapor se difunde y se congela según los vecinos",
+  "notes": [
+   "El vapor se difunde en una red hexagonal; un borde se congela cuando su capa líquida es gruesa, y las puntas superan a las caras y se ramifican.",
+   "Cada vuelta crece un cristal distinto de cuatro juegos de parámetros; size acerca el microscopio y speed fija la velocidad de crecimiento."
+  ]
+ },
+ "meadow": {
+  "title": "Prado",
+  "trick": "Briznas instanciadas dobladas por ráfagas que cruzan el campo con el viento",
+  "notes": [
+   "Una ladera de hierba alta a la hora dorada: las ráfagas la recorren en olas que puedes seguir y las briznas brillan donde el sol bajo las atraviesa. Mueve el puntero para girar el viento.",
+   "Sesenta mil briznas comparten una tira que se dobla; cada una se inclina según el viento en su raíz, un empuje constante más bandas de ruido que avanzan con el viento, así que cada ráfaga cruza el campo."
+  ]
+ },
  "ocean": {
   "title": "Mar abierto",
   "trick": "Océano FFT con espectro JONSWAP; las pendientes no resueltas ensanchan el brillo",
@@ -1772,6 +1788,9 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Size": "Tamaño",
+ "Blades": "Briznas",
+ "Gusts": "Ráfagas",
  "Wind (m/s)": "Viento (m/s)",
  "Choppiness": "Picado",
  "Sun height (°)": "Altura del sol (°)",

@@ -1,5 +1,21 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "snowflake": {
+  "title": "雪花生长",
+  "trick": "Gravner–Griffeath 模型：水汽扩散，按邻居规则逐格冻结",
+  "notes": [
+   "水汽在六角格上扩散；边缘格子的液层够厚就冻结，角比面长得快，于是长出枝杈。",
+   "每轮从四组参数中长出不同的晶体；size 调显微镜放大倍数，speed 决定生长快慢。"
+  ]
+ },
+ "meadow": {
+  "title": "草甸",
+  "trick": "实例化的草叶，被顺风推进的阵风带吹弯",
+  "notes": [
+   "黄昏时分长满长草的山坡：一阵阵风像波浪一样掠过，低垂的太阳透过草叶，让它们发光。在画面上移动可以改变风向。",
+   "六万片草叶共用一条弯曲的条带；每片按根部的风倾斜，风是一股稳定的推力加上顺风移动的噪声带，所以每阵风都会穿过整片草地。"
+  ]
+ },
  "ocean": {
   "title": "开阔海洋",
   "trick": "FFT 海洋：JONSWAP 波谱，未解析的坡度拓宽日光闪烁带",
@@ -1772,6 +1788,9 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Size": "大小",
+ "Blades": "草叶数",
+ "Gusts": "阵风",
  "Wind (m/s)": "风速（米/秒）",
  "Choppiness": "浪尖锐度",
  "Sun height (°)": "太阳高度（°）",

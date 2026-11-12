@@ -510,4 +510,12 @@ export const MORE = [
     trick: 'Repel, align, split stretched edges: a growing ridge folds to fit',
     notes: ['A ridge grows longer than its space allows and folds into brain coral, then a glossy sea-slug mantle, until it fills the frame.', 'Nodes push away others in reach, ease toward their neighbours’ midpoint and split stretched edges. Growth sets how often roomy nodes split; Fold spacing sets fold width.'],
     params: { growth: P(0.3, 3, 0.1, 'Growth'), spacing: P(0.6, 1.6, 0.05, 'Fold spacing') } },
+  { id: 'snowflake', cat: 'simulation', title: 'Snowflake growth', kind: 'webgl', posterAt: 30500,
+    trick: 'Gravner–Griffeath model: vapour diffuses, sites freeze by neighbour rules',
+    notes: ['Vapour diffuses on a hex lattice; edge sites freeze when their liquid layer is thick enough, and corners outgrow faces into branches.', 'Each loop grows a different crystal from four parameter sets; size zooms the microscope, speed sets how fast it grows.'],
+    params: { size: P(0.6, 1.25, 0.05, 'Size'), speed: P(0.6, 1.4, 0.05, 'Speed') } },
+  { id: 'meadow', cat: 'chrome', title: 'Meadow', kind: 'webgl', posterAt: 6000, pointer: true,
+    trick: 'Instanced blades bent by gust bands carried downwind across the field',
+    notes: ['A hillside of long grass at golden hour: gusts roll across it in waves you can follow, and the blades glow where the low sun shines through them. Move across it to turn the wind.', 'Sixty thousand blades share one bending strip; each leans by the wind at its root, a steady push plus bands of noise that travel downwind, so every gust crosses the field.'],
+    params: { blades: P(10000, 120000, 5000, 'Blades'), wind: P(0, 2, 0.05, 'Wind'), gusts: P(0, 2, 0.05, 'Gusts') } },
 ];
