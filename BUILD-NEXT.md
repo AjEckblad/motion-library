@@ -31,7 +31,11 @@ NEXT: AJ's list (2026-11-12, late). Tick each off here as it ships (commit + pus
       colour. Logo draw keeps its own dark plum.
 - [x] Cut ink-drop (to _cut/, like Geode; Geode was already cut earlier on 2026-11-12). 212 pieces.
 Agents (2026-11-12): agent 1 has black-hole, lava-flow, fire-smoke; agent 2 has ferrofluid, sph-water, shatter. They edit
-only those files and report registry text; the lead applies registry/i18n/posters and commits.
+only those files and report registry text; the lead applies registry/i18n/posters and commits. Both were stopped once by
+the usage limit and resumed (agent 1: black hole nearly done, then volcano, fire; agent 2: tuning SPH water rest jitter,
+then shatter). If a new session finds them gone: their files hold uncommitted work; review each piece with
+`node tools/frames.mjs` (whole loop) before finishing it. When committing anything else meanwhile, build static pages
+in a temporary worktree without the agents' files (fx pages and llms-full.txt embed each piece's code and size).
 - [ ] Black hole → Gargantua, the FILM look (AJ chose it): thin disc lensed over the top and under the shadow, photon
       ring, even warm-white disc, NO Doppler beaming / colour shift. Ground it in the real ray-bending (Kerr-ish
       geodesics as DNGR did), not a 2D trick.
