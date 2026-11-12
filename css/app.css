@@ -105,7 +105,9 @@ svg { display: block; }
 .head-tools { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
 /* ───────── cards ───────── */
-.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px var(--gap); outline: none; }
+/* rows sit 64px apart, far more than the 14px between an image and its own title, so each card reads as one unit and
+   the rows separate the way boxed tiles would, without boxing them */
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 64px var(--gap); outline: none; }
 .card { position: relative; min-width: 0; }
 .card-hit { position: absolute; inset: -6px; z-index: 2; border: 0; background: none; border-radius: 12px; cursor: pointer; padding: 0; }
 .card-hit:focus-visible { outline-offset: 0; }
@@ -336,7 +338,7 @@ svg { display: block; }
   .bar { gap: 10px; padding: 0 16px; }
   .layout { --dial-w: 0px; padding-bottom: 150px; }
   .sheet { margin: 0; padding: 18px 18px 40px; }
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 12px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 12px; }
   .dial { top: auto; left: 0; height: 150px; width: auto; background: var(--frame); border-top: 1px solid var(--edge); }
   .tray { bottom: 162px; }
   .cmp-stages { grid-template-columns: 1fr; }
@@ -358,7 +360,7 @@ svg { display: block; }
 
 /* ───────── category sections (the full list) ───────── */
 .cat-sec { scroll-margin-top: calc(var(--bar-h) + 12px); }
-.cat-sec + .cat-sec { margin-top: 72px; }
+.cat-sec + .cat-sec { margin-top: 112px; }   /* a new category is a bigger break than a new row */
 .cat-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 22px; }
 .cat-head h2 { margin: 0; font-size: var(--fs-h1); line-height: 1.2; font-weight: 600; letter-spacing: -0.02em; }
 .cat-count { color: var(--muted); font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
