@@ -13,7 +13,9 @@ AJ's requests (2026-11-12 ~23:30). 1–5 DONE (2026-11-13, commit "Wix Madefor t
   detail view and stage add ?v=<hash>, so a changed effect always loads fresh. check.mjs fails if it is out of date.
 - Lead's own new pieces, all live: text/type-ribbon (ffd2ee5), transitions/page-turn (6440fcb), chrome/snow-globe
   (57a61a6), morph/dynamic-island (cf5f270): 216 effects. Next: review and register the agents' 8 pieces as they report.
-- Agents were stopped by the usage limit at ~01:00 and resumed after the 02:00 reset (SendMessage to their ids).
+- Agents were stopped by the usage limit at ~01:00 (resumed 02:00) and again before 07:00 (resumed 07:00 with a
+  2-hour budget, reporting each piece as it is done). Their untracked files: fluid/ocean.js, fluid/honey-coil.js,
+  simulation/lenia.js so far.
 Original list:
 1. A better, more professional UI font than IBM Plex (AJ dislikes it; Geist was rejected earlier as overused). Use the
    design stack (impeccable typeset, design-taste-frontend); AJ is away, so the lead picks and shows a comparison.
