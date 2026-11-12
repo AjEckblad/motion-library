@@ -18,7 +18,9 @@ This round:
 
 WAITING ON AJ
 - (done) npm 0.3.1 is published (2026-11-12) and matches the local build file for file
-- domain for SITE_URL (absolute links + sitemap.xml)
+- (done) live on GitHub Pages: https://ajeckblad.github.io/motion-library/ (repo github.com/AjEckblad/motion-library,
+  public, Pages from main /). After any catalogue change: SITE_URL=https://ajeckblad.github.io/motion-library node tools/build-static.mjs,
+  then commit and `git push` (gh is logged in as AjEckblad; commits use 355636509+AjEckblad@users.noreply.github.com).
 - the 80 UI demos are light app screens: convert to dark-mode mockups or keep?
 - ink-drop is the weakest card on black (Ink fluid covers it): cut?
 - (done) /review-animations ran 2026-11-12; all 8 fixes applied and guarded in tools/motion-check.mjs (18/18):
