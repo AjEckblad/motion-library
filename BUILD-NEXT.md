@@ -18,11 +18,15 @@ Finished this session:
 Frame-exact renders: `node tools/frames.mjs anims/<cat>/<id>.js 9000,9050 [WxH] [--reduce] [--tag x]` steps the stage
 clock to each time (tools/look.mjs is real time, ±50 ms, and misses fast moments like a 0.2 s flash).
 
+Card hover (AJ, 2026-11-12): the image, its heart and the text under it lift 2px together, straight from the pointer
+(the preview still waits 110 ms), on `translate .25s ease` both ways, so sweeping a row glides; reduced motion: no lift.
+Guarded in tools/motion-check.mjs (18/18).
+
+NEXT (AJ said yes, 2026-11-12): the 80 UI demos go on a near-black ground, each keeping its own colour palette, so they
+read as one consistent set with the rest of the library.
+
 WAITING ON AJ
 - npm 0.3.2: `cd ~/Downloads/motion-library/cli && npm login && npm publish` (in their own Terminal)
-- the 80 UI demos: my recommendation is a near-black ground with the light app windows kept (a mock showed panel demos
-  look clearly better; demos that draw text straight on the ground need a white window around their content). Not
-  answered yet.
 - ink-drop: cut? (Ink fluid covers it). Not answered yet.
 - /review-animations (only AJ can start it).
 

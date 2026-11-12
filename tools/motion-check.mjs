@@ -110,6 +110,17 @@ await page.mouse.move(5, 5); await page.mouse.up();
 check('detail heart press scales to .94', /^matrix\(0\.94, 0, 0, 0\.94/.test(dtf), { transform: dtf });
 await page.keyboard.press('Escape'); await page.waitForTimeout(500);
 
+// 4b. the card lift: image, heart and text rise together, straight from the pointer (before the 110 ms preview starts),
+// on a gentle .25 s ease, so sweeping across a row glides instead of popping
+const lc = page.locator('#grid .card').nth(4);
+await page.mouse.move(5, 5); await page.waitForTimeout(300);
+await lc.hover(); await page.waitForTimeout(70);
+const early = await lc.evaluate(c => ({ live: c.classList.contains('is-live'), media: getComputedStyle(c.querySelector('.card-media')).translate }));
+await page.waitForTimeout(400);
+const lift = await lc.evaluate(c => ({ tr: ['.card-media', '.card-meta', '.heart'].map(s => getComputedStyle(c.querySelector(s)).translate), meta: getComputedStyle(c.querySelector('.card-meta')).transition }));
+check('card lift: image, heart and text rise together from the pointer, .25 s ease', !early.live && early.media !== 'none' && lift.tr.every(v => v === '0px -2px') && /^translate 0\.25s( ease)?$/.test(lift.meta), { early, ...lift });
+await page.mouse.move(5, 5); await page.waitForTimeout(300);
+
 // 5. every :hover rule in the app stylesheet is gated to fine pointers (touch taps leave :hover stuck)
 const hov = await page.evaluate(() => {
   const out = {};
@@ -120,7 +131,9 @@ const hov = await page.evaluate(() => {
   for (const sh of document.styleSheets) if (sh.href?.includes('app.css')) for (const r of sh.cssRules) scan(r, null);
   return out;
 });
-check('every hover rule is hover-gated', Object.keys(hov).length >= 10 && Object.values(hov).every(m => m === '(hover: hover) and (pointer: fine)'), Object.fromEntries(Object.entries(hov).filter(([, m]) => m !== '(hover: hover) and (pointer: fine)')));
+// gated means the condition starts with the fine-pointer gate; it may add more, e.g. `and (prefers-reduced-motion: no-preference)`
+const gated = m => m === '(hover: hover) and (pointer: fine)' || m.startsWith('(hover: hover) and (pointer: fine) and ');
+check('every hover rule is hover-gated', Object.keys(hov).length >= 10 && Object.values(hov).every(gated), Object.fromEntries(Object.entries(hov).filter(([, m]) => !gated(m))));
 const brandT = await page.evaluate(() => getComputedStyle(document.querySelector('.brand-mark path')).transitionDuration);
 check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT });
 

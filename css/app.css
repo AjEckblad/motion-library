@@ -110,16 +110,27 @@ svg { display: block; }
 .card { position: relative; min-width: 0; }
 .card-hit { position: absolute; inset: -6px; z-index: 2; border: 0; background: none; border-radius: 12px; cursor: pointer; padding: 0; }
 .card-hit:focus-visible { outline-offset: 0; }
-.card-media { position: relative; aspect-ratio: 5 / 4; border-radius: var(--r-media); overflow: hidden; background: var(--raised); transition: transform .2s var(--ease-out); }
+.card-media { position: relative; aspect-ratio: 5 / 4; border-radius: var(--r-media); overflow: hidden; background: var(--raised); transition: translate .25s ease; }
 .card-media img, .card-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; }
 .card-media iframe { opacity: 0; transition: opacity .16s var(--ease-out); pointer-events: auto; z-index: 3; }
 .card-media iframe.live { opacity: 1; }
-/* the 2px lift makes the media its own stacking layer, so it must sit above .card-hit (2) or the hit button swallows
-   the pointer and pointer-driven previews can't be steered; a click inside still opens the card (stage.html relays it) */
-.card.is-live .card-media { transform: translateY(-2px); z-index: 3; }
+/* the lift: the image, its heart and the text under it rise together as one piece. It follows the pointer straight
+   away (the preview waits 110 ms, the lift doesn't) on a gentle .25 s ease both ways, so a sweep across a row glides
+   and a quick pass rises part way and settles back. `translate`, not `transform`, so it adds to the heart's own scale.
+   The card box and its hit button stay put, so the lift never pulls the edge out from under the cursor. */
+@media (prefers-reduced-motion: no-preference) {
+  .card.is-live :is(.card-media, .card-meta, .heart) { translate: 0 -2px; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .card:hover :is(.card-media, .card-meta, .heart) { translate: 0 -2px; }
+}
+/* lifted, the media is its own stacking layer, so while it plays it must sit above .card-hit (2) or the hit button
+   swallows the pointer and pointer-driven previews can't be steered; a click inside still opens the card (stage.html
+   relays it) */
+.card.is-live .card-media { z-index: 3; }
 .timecode { position: absolute; left: 10px; bottom: 10px; z-index: 4; padding: 3px 7px; border-radius: 6px; background: rgba(12, 12, 14, .78); color: #fff; font: 500 var(--fs-meta)/1 var(--font); font-variant-numeric: tabular-nums; letter-spacing: .01em; opacity: 0; transform: translateY(4px); transition: opacity .16s, transform .2s var(--ease-out); pointer-events: none; }
 .card.is-live .timecode { opacity: 1; transform: none; }
-.card-meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px 2px 0; }
+.card-meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px 2px 0; transition: translate .25s ease; }
 .card-title { margin: 0; display: flex; align-items: center; gap: 7px; min-width: 0; font-size: var(--fs-title); line-height: 1.3; font-weight: 500; letter-spacing: -0.01em; }
 .card-title { align-items: flex-start; }
 .card-title .cat-dot { margin-top: 7px; }
@@ -129,7 +140,7 @@ svg { display: block; }
 .kind { font-size: var(--fs-meta); color: var(--muted); font-weight: 400; white-space: nowrap; }
 .trick { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: var(--fs-label); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-.heart { position: absolute; z-index: 5; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(12, 12, 14, .72); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: scale(.9); transition: opacity .15s var(--ease-out), transform .16s var(--ease-out); }
+.heart { position: absolute; z-index: 5; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(12, 12, 14, .72); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: scale(.9); transition: opacity .15s var(--ease-out), transform .16s var(--ease-out), translate .25s ease; }
 .heart svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; transition: fill .15s, stroke .15s; }
 .heart[aria-pressed="true"] svg { fill: var(--heart); stroke: var(--heart); }
 .card:focus-within .heart, .heart[aria-pressed="true"] { opacity: 1; transform: none; }
