@@ -35,7 +35,8 @@ const MARGIN = 8;      // px of clear space the look-ahead keeps between fluff a
 const RANGE = 36;      // px over which a word's push builds up
 const BASE = 30;       // px/s cruising pace of an 80 px creature
 const FACE = { l: 0.235, t: 0.13, w: 0.47, h: 0.235 };   // the face canvas around the body centre, units of S
-const PAGE_WORDS = '.sheet-head h1, .sheet-head .count, .head-tools > *, .group-name, .group-count, .group-actions > *, .group-empty, .empty h2, .empty p, .empty .btn, .empty canvas';
+// the category section headings and the FAQ count as words too (they came with the scroll-through catalogue)
+const PAGE_WORDS = '.sheet-head h1, .sheet-head .count, .head-tools > *, .group-name, .group-count, .group-actions > *, .group-empty, .empty h2, .empty p, .empty .btn, .empty canvas, .cat-head h2, .cat-count, .faq h2, .faq-item';
 const CARD_WORDS = '.card-title span, .kind, .trick';
 
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -234,19 +235,25 @@ export function createCrew({ bar, dial, sheet, grid, covered = () => false }) {
     for (const o of bodies) if (o !== b && onScreen(o)) m = Math.min(m, Math.hypot(o.x - x, o.y - y) - o.R - b.R - 12);
     return m;
   }
-  // first placement: each one at an open spot, staggered times before they wander off
+  // first placement: each one at an open spot, spread over the screen, staggered times before they wander off.
+  // Distance from the ones already placed outweighs being fully in view: the catalogue's only fully visible open space
+  // is the strip above the first row of cards, and when visibility won, all seven started lined up in it. A spot partly
+  // behind a card image is fine (they peek out from the edges), as long as about a third of the body shows.
   function scatter() {
     const order = [...bodies].sort(() => Math.random() - 0.5);
     order.forEach(b => { b.state = 'out'; });
+    const placedAt = [];
     order.forEach((b, i) => {
       let best = null, bs = -Infinity;
       for (let k = 0; k < 240; k++) {
-        const x = rand(b.R, W - b.R), y = rand(b.R, H - b.R), s = Math.min(36, room(b, x, y)) + 20 * shown(b, x, y) + Math.random() * 8;
+        const x = rand(b.R, W - b.R), y = rand(b.R, H - b.R), vis = shown(b, x, y);
+        const apart = placedAt.length ? Math.min(...placedAt.map(([px, py]) => Math.hypot(px - x, py - y))) : 500;
+        const s = Math.min(36, room(b, x, y)) + 8 * vis + 0.09 * Math.min(apart, 500) - (vis < 0.34 ? 50 : 0) + Math.random() * 8;
         if (s > bs) { bs = s; best = [x, y]; }
       }
       resetMotion(b);
       if (bs > 6) {
-        [b.x, b.y] = best; b.state = 'roam'; b.life = 10 + i * 6 + rand(0, 5);
+        [b.x, b.y] = best; placedAt.push(best); b.state = 'roam'; b.life = 10 + i * 6 + rand(0, 5);
         // they fade in one after another as the page arrives (opacity only: the transform is driven every frame)
         for (const v of b.views) v.w.animate({ opacity: [0, 1] }, { duration: 420, delay: 120 + i * 70, easing: 'cubic-bezier(0.23, 1, 0.32, 1)', fill: 'backwards' });
       } else b.wait = 0.5 + i * 0.8;
