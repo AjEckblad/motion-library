@@ -51,11 +51,9 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
       const k = (it.y - mid) / half;
       const right = padR + depth * Math.sqrt(Math.max(0, 1 - k * k));
       it.el.style.left = ''; it.el.style.right = right + 'px'; it.el.style.top = (it.y - 18) + 'px';
-      // the biggest scale this word can take before it crosses into the grid: it grows leftward from its right edge
-      // and shifts 34px per unit of scale, so its left edge is (w - right) - 34(s - 1) - w·s; keep that 8px inside
-      // the column. Measured at the chosen (500) weight, which is a little wider than the resting one.
-      const wd = it.lbl.offsetWidth * 1.04;
-      it.max = Math.max(1, (w - right - 8 + 34) / (wd + 34));
+      // remembered for the frame loop, which keeps a swelling word clear of the grid (see frame). The width is taken
+      // at the chosen (500) weight, which is a little wider than the resting one.
+      it.right = right; it.wd = it.lbl.offsetWidth * 1.04;
     });
     kick(); onLayout?.();
   }
@@ -81,8 +79,18 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
       else for (let n = 0; n < 2; n++) { const h = dt / 2, k = 300, c = 2 * Math.sqrt(k) * 0.55; it.v += (-k * (it.s - target) - c * it.v) * h; it.s += it.v * h; }
       if (Math.abs(target - it.s) > 0.001 || Math.abs(it.v) > 0.01) moving = true;
       // transform only: the UI face has no width axis, so stretching the words would relayout text for nothing
-      const desk = geo && !geo.mobile, sv = desk ? Math.min(it.s, it.max || Infinity) : it.s;   // long words swell less
-      const tf = desk ? `translateX(${(-(sv - 1) * 34).toFixed(2)}px) scale(${sv.toFixed(4)})` : '';
+      const desk = geo && !geo.mobile;
+      let sv = it.s, tx = -(sv - 1) * 34;
+      if (desk && it.wd) {
+        // every word swells by the same fisheye. One that would cross into the grid slides right, toward the screen
+        // edge where the arc leaves room, instead of shrinking: its left edge stays 8px inside the column and its right
+        // edge 6px off the screen. Only a word wider than the whole column is held back.
+        const room = geo.w - 14;
+        if (it.wd * sv > room) sv = Math.max(1, room / it.wd);
+        const left = geo.w - it.right + tx - it.wd * sv;
+        if (left < 8) tx += 8 - left;
+      }
+      const tf = desk ? `translateX(${tx.toFixed(2)}px) scale(${sv.toFixed(4)})` : '';
       if (tf !== it.tf) { it.lbl.style.transform = tf; it.tf = tf; }
       it.dot.style.transform = !desk && isSel ? 'scale(1.3)' : '';
     });

@@ -68,14 +68,17 @@ await page.locator('.dial-item[data-id="text"]').click(); await page.waitForTime
 check('dial marks the chosen entry', (await page.getAttribute('.dial-item[data-id="text"]', 'aria-checked')) === 'true');
 // a magnified dial word never crosses into the grid, however long it is
 {
-  let worst = Infinity, at = '';
+  let worst = Infinity, at = '', least = Infinity, small = '';
   for (const id of await page.$$eval('.dial-item', els => els.map(e => e.dataset.id))) {
     const b = await page.locator(`.dial-item[data-id="${id}"] .lbl`).boundingBox();
     await page.mouse.move(b.x + b.width - 8, b.y + b.height / 2); await page.waitForTimeout(450);
-    const gap = await page.evaluate(id => document.querySelector(`.dial-item[data-id="${id}"] .lbl`).getBoundingClientRect().left - document.querySelector('#dial').getBoundingClientRect().left, id);
+    const [gap, sc] = await page.evaluate(id => { const l = document.querySelector(`.dial-item[data-id="${id}"] .lbl`), m = getComputedStyle(l).transform; return [l.getBoundingClientRect().left - document.querySelector('#dial').getBoundingClientRect().left, m === 'none' ? 1 : +m.match(/matrix\(([^,]+)/)[1]]; }, id);
     if (gap < worst) { worst = gap; at = id; }
+    if (sc < least) { least = sc; small = id; }
   }
   check('hovered dial words stay inside the dial column', worst >= 0, `closest: ${at} at ${Math.round(worst)}px`);
+  // and they still swell fully: a long word slides right rather than being held back (held back, it ends up smaller than its neighbours)
+  check('every hovered dial word swells fully, long ones too', least > 1.3, `smallest: ${small} at ${least.toFixed(2)}`);
   await page.mouse.move(5, 500); await page.waitForTimeout(300);
 }
 // the interactive hint sits in the control row, not over the animation
