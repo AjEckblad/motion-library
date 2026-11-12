@@ -1,6 +1,6 @@
 # Motion Library
 
-> 214 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 213 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -59,7 +59,6 @@
 ## Chrome & 3D
 
 - [Portal](https://ajeckblad.github.io/motion-library/fx/portal.html): Rays crossing the ring finish tracing in a second world. `npx motion-library add portal`
-- [Geode](https://ajeckblad.github.io/motion-library/fx/geode.html): Voronoi over directions grows faceted crystals inward. `npx motion-library add geode`
 - [Glass lens refraction](https://ajeckblad.github.io/motion-library/fx/glass-lens.html): Bend the lookup by the lens normal, per colour. `npx motion-library add glass-lens`
 - [Dust to the wind](https://ajeckblad.github.io/motion-library/fx/dust-bust.html): SDF surface sampled by random rays, dissolved point by point. `npx motion-library add dust-bust`
 - [Cloth reveal](https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html): Verlet cloth with cone collisions: snags, tents, then whips off. `npx motion-library add cloth-reveal`

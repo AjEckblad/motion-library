@@ -124,11 +124,6 @@ check('every hover rule is hover-gated', Object.keys(hov).length >= 10 && Object
 const brandT = await page.evaluate(() => getComputedStyle(document.querySelector('.brand-mark path')).transitionDuration);
 check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT });
 
-// 6. compare opens with the token (source check)
-const fs = await import('node:fs');
-const cmp = fs.readFileSync(path.join(ROOT, 'js/compare.js'), 'utf8');
-check('compare fade uses the token', !/easing: 'ease-out'/.test(cmp), {});
-
 // 7. touch phone: hearts stay visible without hover
 const m = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 const mp = await m.newPage(); mp.on('pageerror', e => errors.push('mobile: ' + e.message));

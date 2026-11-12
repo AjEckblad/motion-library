@@ -1,7 +1,6 @@
 // The category dial: just the words, set on a curve down the right edge. Every entry is always visible.
 // Hovering swells the words near the pointer (a fisheye in transform only); choosing one springs it out.
 // On phones it becomes a half-dial of dots along the bottom, with the chosen name under the arc.
-import { sfx } from './sound.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const narrow = matchMedia('(max-width: 860px)');
@@ -100,7 +99,6 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
     const changed = id !== selected;
     selected = id;
     items.forEach((it, i) => { const on = entries[i].id === id; it.el.setAttribute('aria-checked', String(on)); it.el.tabIndex = on ? 0 : -1; });
-    if (changed && user) sfx.tick();
     if (kb) snap = true;
     syncCaption(); kick();
     if (user) onSelect(id, kb);

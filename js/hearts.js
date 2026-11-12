@@ -1,7 +1,6 @@
 // Hearting: with one group a heart saves instantly; with more, a small popover anchored to the heart asks
 // which group the design lives in (and offers moving it or removing the heart).
 import { store } from './store.js';
-import { sfx } from './sound.js';
 
 const pop = document.getElementById('popover');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -44,7 +43,7 @@ function openPicker(anchor, id, celebrate) {
   pop.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
   (pop.querySelector('[aria-checked="true"]') || pop.querySelector('[data-g]')).focus();
 
-  const finish = gid => { const fresh = !store.isHearted(id); store.heart(id, gid); if (fresh) celebrate(anchor); else sfx.pip(); close(); };
+  const finish = gid => { const fresh = !store.isHearted(id); store.heart(id, gid); if (fresh) celebrate(anchor); close(); };
   pop.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => finish(b.dataset.g)));
   pop.querySelector('.pop-new').addEventListener('submit', e => { e.preventDefault(); const name = e.target.querySelector('input').value; if (!name.trim()) return; finish(store.addGroup(name)); });
   pop.querySelector('[data-remove]')?.addEventListener('click', () => { store.unheart(id); close(); });

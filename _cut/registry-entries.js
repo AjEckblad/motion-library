@@ -78,3 +78,9 @@
     trick: '27 CSS 3D cubies; each turn is baked into whole-number positions',
     notes: ['Each of the 27 cubies is a div with six faces and stores its position and orientation. A move turns one layer of nine a quarter turn; only outward faces carry stickers.', 'When a turn lands it is multiplied into each cubie’s position and orientation and rounded back to whole numbers, so floating-point error can never build up over hundreds of moves.', 'It scrambles with random moves, pauses, then plays them backwards to solve itself. Each turn uses a strong ease-in-out, a decisive flick, while the view slowly orbits.'],
     params: { moves: P(4, 30, 1, 'Scramble moves'), turn: P(0.15, 1, 0.01, 'Seconds per turn') } },
+
+// cut 2026-11-12 (AJ asked to remove it)
+  { id: 'geode', cat: 'chrome', title: 'Geode', kind: 'webgl', posterAt: 6500,
+    trick: 'Voronoi over directions grows faceted crystals inward',
+    notes: ['A grey stone cracks open like a book to reveal agate bands and a purple crystal lining.', 'One SDF: a noise-roughened sphere split into halves with hollows, whose walls are pushed in by a Voronoi pattern over directions with a squarish metric.'],
+    params: { crystals: P(0.6, 1.8, 0.05, 'Crystal size'), sparkle: P(0, 2.5, 0.1, 'Sparkle'), speed: P(0.4, 2, 0.1, 'Speed') } },

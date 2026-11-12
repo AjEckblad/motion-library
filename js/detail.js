@@ -7,14 +7,13 @@ import { heartIcon, onHeartPress } from './hearts.js';
 import { store } from './store.js';
 import { createPlaybar } from './playback.js';
 import { Creature, PALETTES } from './creatures.js';
-import { sfx } from './sound.js';
 import { t, tr, catName } from './i18n.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const drawer = 'cubic-bezier(0.32, 0.72, 0, 1)';
 const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';   // the --ease-out token; the built-in ease-out is too weak
 
-export function createDetail({ celebrate, toast, onClose, onCompare, isPinned }) {
+export function createDetail({ celebrate, toast, onClose }) {
   const root = document.getElementById('detail');
   let cur = null, card = null, iframe = null, src = '', code = '', defaults = {}, values = {}, shared = {}, runT = 0, creature = null, playbar = null, busy = false, lastFocus = null, closeAnim = null;
 
@@ -33,7 +32,6 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
         <div class="d-actions">
           <button class="btn d-share" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="stroke" d="M8.6 11.4a3 3 0 004.3 0l2.6-2.6a3 3 0 00-4.3-4.3l-1 1"/><path class="stroke" d="M11.4 8.6a3 3 0 00-4.3 0l-2.6 2.6a3 3 0 004.3 4.3l1-1"/></svg><span class="lbl">${t('Share')}</span></button>
           <button class="btn d-embed" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="stroke" d="M7 6l-4 4 4 4M13 6l4 4-4 4"/></svg><span class="lbl">${t('Embed')}</span></button>
-          <button class="btn d-compare" type="button" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="6.5" height="12" rx="1.5"/><rect x="11" y="4" width="6.5" height="12" rx="1.5"/></svg><span class="lbl">${t('Compare')}</span></button>
           <button class="heart" type="button">${heartIcon()}</button>
         </div>
       </div>
@@ -65,8 +63,6 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
     const heart = root.querySelector('.d-actions .heart');
     heart.setAttribute('aria-label', `♥ ${tr(a, 'title')}`);
     heart.addEventListener('click', () => onHeartPress(heart, a.id, celebrate));
-    const cmp = root.querySelector('.d-compare');
-    cmp.addEventListener('click', () => { onCompare(a.id); syncCompare(); });
     root.querySelector('.d-copy').addEventListener('click', copy);
     root.querySelector('.d-npx').addEventListener('click', () => copyText(npxCommand(), root.querySelector('.d-npx span'), t('Command copied: run it in your project folder')));
     root.querySelector('.npx-cmd').textContent = `npx motion-library add ${a.id}`;
@@ -86,7 +82,7 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
     // and here it never covers the effect
     if (hint) { const h = document.createElement('span'); h.className = 'pb-hint'; h.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l8.2 5.2-3.6.9 2.1 3.9-1.6.9-2.1-3.9L4.4 12z"/></svg>'; h.append(hint); const clock = playbar.el.querySelector('.clock'), end = document.createElement('span'); end.className = 'pb-end'; clock.replaceWith(end); end.append(h, clock); }   // hint and clock wrap as one
     creature = new Creature(root.querySelector('.creature-detail'), { size: 70, palette: PALETTES.mint, seed: 31, accent: '#ff8fab' });
-    syncHeart(); syncCompare();
+    syncHeart();
   }
 
   function mountStage() {
@@ -159,14 +155,11 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
     try { await navigator.clipboard.writeText(text); }
     catch { const t = Object.assign(document.createElement('textarea'), { value: text }); document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); }
     if (lbl) { const was = lbl.dataset.was ??= lbl.textContent; lbl.textContent = t('Copied'); clearTimeout(lbl.t); lbl.t = setTimeout(() => { if (lbl.isConnected) lbl.textContent = was; }, 1500); }
-    toast(message); sfx.pip(); creature?.react('catch');
+    toast(message); creature?.react('catch');
   }
   const copy = () => copyText(code, root.querySelector('.d-copy span'), t('Code copied'));
   function syncHeart() {
     const h = root.querySelector('.d-actions .heart'); if (h && cur) h.setAttribute('aria-pressed', String(store.isHearted(cur.id)));
-  }
-  function syncCompare() {
-    const b = root.querySelector('.d-compare'); if (b && cur) { const on = isPinned(cur.id); b.setAttribute('aria-pressed', String(on)); b.querySelector('.lbl').textContent = on ? t('Pinned') : t('Compare'); }
   }
 
   // FLIP between a card's media box and the stage box, using a ghost of the poster
@@ -225,8 +218,6 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
   }
   function requestClose() { onClose(); }
 
-  document.addEventListener('compare-change', () => syncCompare());
-
   // keep keyboard focus inside the dialog
   root.addEventListener('keydown', e => {
     if (e.key !== 'Tab') return;
@@ -236,5 +227,5 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
     else if (!e.shiftKey && document.activeElement === f.at(-1)) { e.preventDefault(); f[0].focus(); }
   });
 
-  return { open, close, requestClose, syncHeart, syncCompare, get isOpen() { return !root.hidden; } };
+  return { open, close, requestClose, syncHeart, get isOpen() { return !root.hidden; } };
 }

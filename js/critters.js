@@ -13,7 +13,7 @@
 // search around the words) to a spot that is at least partly in view, away from the others and from where it has been
 // lately; 8 s in one area sends it far off, so they spread over the page and never settle. Now and then one follows a
 // route to the nearest reachable edge and drifts off, and later floats back in at the most open spot along the edges. With no input for a while they doze. Paused under the detail
-// and compare views and in hidden tabs. Phones: hidden. Reduced motion: a slow even drift, no dashes, hops or spins.
+// view and in hidden tabs. Phones: hidden. Reduced motion: a slow even drift, no dashes, hops or spins.
 import { paintFurLayers, drawFeatures, BODY, PALETTES, pointer } from './creatures.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -142,7 +142,7 @@ export function createCrew({ bar, dial, sheet, grid, covered = () => false }) {
   }
 
   /* ───────── where the words are ───────── */
-  // fixed boxes (top bar, dial, tray) in viewport coordinates; the sheet's in page coordinates (they scroll)
+  // fixed boxes (top bar, dial) in viewport coordinates; the sheet's in page coordinates (they scroll)
   let W = 0, H = 0, barBottom = 0, contentRight = 0, barWords = [], dialWords = [], pageWords = [];
   let measuredAt = -1e9, measuredY = 0, pageAt = -1e9, settleUntil = 0, dirty = true, dialY = null, dialMeasuredY = null;
   const box = (r, fixed, soft = false) => {
@@ -167,7 +167,7 @@ export function createCrew({ bar, dial, sheet, grid, covered = () => false }) {
     }
     dialMeasuredY = dialY;
   }
-  // the bar, tray and dial every 250 ms (a handful of boxes); the sheet's words, which only move when the page changes,
+  // the bar and dial every 250 ms (a handful of boxes); the sheet's words, which only move when the page changes,
   // on every change and every 250 ms while it settles (cards ease in), otherwise once a second as a safety net
   function measure(now) {
     const page = !placed || dirty || now < settleUntil || now - pageAt > 1000 || Math.abs(scrollY - measuredY) > H * 0.5;
@@ -175,8 +175,6 @@ export function createCrew({ bar, dial, sheet, grid, covered = () => false }) {
     W = document.documentElement.clientWidth; H = innerHeight;
     barBottom = bar.getBoundingClientRect().bottom; contentRight = grid.getBoundingClientRect().right;
     barWords = [...bar.querySelectorAll('.brand, .bar-actions > *')].map(e => box(e.getBoundingClientRect(), true)).filter(Boolean);
-    const tray = document.getElementById('tray');
-    if (tray && !tray.hidden) { const o = box(tray.getBoundingClientRect(), true); if (o) barWords.push(o); }
     measureDial();
     measuredAt = now; dirty = false;
     if (!page) return;

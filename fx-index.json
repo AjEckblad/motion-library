@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 214,
+ "count": 213,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -1747,51 +1747,6 @@
      "min": 0,
      "max": 2.5,
      "step": 0.05
-    }
-   ]
-  },
-  {
-   "id": "geode",
-   "title": "Geode",
-   "titleZh": "晶洞",
-   "category": "Chrome & 3D",
-   "categoryId": "chrome",
-   "renderer": "WebGL",
-   "description": "Voronoi over directions grows faceted crystals inward",
-   "descriptionZh": "在方向球面上做 Voronoi，让多面晶体向内生长",
-   "page": "https://ajeckblad.github.io/motion-library/fx/geode.html",
-   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/geode",
-   "npx": "npx motion-library add geode",
-   "interactive": false,
-   "reducedMotion": false,
-   "bytes": 7745,
-   "settings": [
-    {
-     "key": "crystals",
-     "flag": "--crystals",
-     "label": "Crystal size",
-     "default": 1,
-     "min": 0.6,
-     "max": 1.8,
-     "step": 0.05
-    },
-    {
-     "key": "sparkle",
-     "flag": "--sparkle",
-     "label": "Sparkle",
-     "default": 1,
-     "min": 0,
-     "max": 2.5,
-     "step": 0.1
-    },
-    {
-     "key": "speed",
-     "flag": "--speed",
-     "label": "Speed",
-     "default": 1,
-     "min": 0.4,
-     "max": 2,
-     "step": 0.1
     }
    ]
   },

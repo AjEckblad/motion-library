@@ -25,7 +25,6 @@ const page = await newPage();
 await page.goto(`${base}/index.html`);
 await page.waitForTimeout(800);
 check(`grid shows all ${ANIMS.length} cards`, (await page.locator('#grid .card').count()) === ANIMS.length);
-check('sound is off by default', (await page.getAttribute('#sound', 'aria-pressed')) === 'false');
 
 // hover preview
 const first = page.locator('#grid .card').first();
@@ -199,15 +198,9 @@ check('exported file opens and runs every design', (await ep.locator('iframe').c
 await ep.screenshot({ path: path.join(ROOT, 'tools/export.png') });
 await ep.context().close();
 
-// compare
+// compare and sound were removed (AJ, 2026-11-12): neither control may come back by accident
 await page.evaluate(() => { location.hash = '#/a/squash-bounce'; }); await page.waitForTimeout(900);
-await page.click('#detail .d-compare');
-await page.evaluate(() => { location.hash = '#/a/anticipation'; }); await page.waitForTimeout(900);
-await page.click('#detail .d-compare');
-check('tray shows two pinned designs', await page.locator('#tray:not([hidden]) .chip').count() === 2);
-await page.click('#tray .btn'); await page.waitForTimeout(1500);
-check('compare view shows two live stages', await page.locator('#compare iframe.live').count() === 2);
-await page.screenshot({ path: path.join(ROOT, 'tools/compare.png') });
+check('no Compare button and no sound button', await page.locator('#detail .d-compare, #sound, #tray, #compare').count() === 0);
 await page.keyboard.press('Escape'); await page.waitForTimeout(500);
 
 // surprise me
@@ -327,10 +320,17 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   const cols = await lp.evaluate(() => getComputedStyle(document.querySelector('.cat-sec .grid')).gridTemplateColumns.split(' ').length);
   check('the grid is three across on a desktop', cols === 3, `${cols} columns`);
   check('the FAQ sits under the full list', await lp.locator('#faq .faq-item').count() >= 6 && await lp.locator('#faq').isVisible());
-  await lp.click('#lang [data-lang="zh"]'); await lp.waitForTimeout(1500);
+  // the language menu: closed at rest, opens from the globe button with four languages, the current one ticked
+  check('the language menu is closed until opened', await lp.locator('#lang-menu').isHidden());
+  await lp.click('#lang-btn'); await lp.waitForTimeout(250);
+  check('the language menu lists English, 中文, Español and Français', await lp.evaluate(() => [...document.querySelectorAll('#lang-menu [role="menuitemradio"]')].map(b => b.dataset.lang).join() === 'en,zh,es,fr' && document.querySelector('#lang-menu [aria-checked="true"]').dataset.lang === 'en' && !document.querySelector('#lang-menu').hidden));
+  await lp.keyboard.press('Escape'); await lp.waitForTimeout(150);
+  check('Esc closes the language menu and returns focus to its button', await lp.evaluate(() => document.querySelector('#lang-menu').hidden && document.activeElement?.id === 'lang-btn'));
+  await lp.click('#lang-btn'); await lp.waitForTimeout(250);
+  await lp.click('#lang-menu [data-lang="zh"]'); await lp.waitForTimeout(1500);
   const zh = await lp.evaluate(() => ({ lang: document.documentElement.lang, title: document.querySelector('#view-title').textContent, faq: document.querySelector('#faq h2').textContent, dial: document.querySelector('.dial-item[data-id="flow"]').textContent }));
   check('中文 switches the page and is remembered', zh.lang === 'zh-Hans' && zh.title === '全部动画' && zh.faq === '常见问题' && zh.dial.includes('流动'), JSON.stringify(zh));
-  await lp.click('#lang [data-lang="en"]'); await lp.waitForTimeout(1500);
+  await lp.click('#lang-btn'); await lp.waitForTimeout(250); await lp.click('#lang-menu [data-lang="en"]'); await lp.waitForTimeout(1500);
   check('EN switches back', await lp.evaluate(() => document.documentElement.lang === 'en' && document.querySelector('#view-title').textContent === 'All animations'));
   await lp.context().close();
 }

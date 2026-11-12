@@ -3,12 +3,10 @@ import { store } from './store.js';
 import { createDial } from './dial.js';
 import { Creature, PALETTES } from './creatures.js';
 import { createCrew } from './critters.js';
-import { sfx, setEnabled } from './sound.js';
 import { onHeartPress, heartIcon, closePicker } from './hearts.js';
 import { createDetail } from './detail.js';
-import { createCompare } from './compare.js';
 import { exportGroup } from './export.js';
-import { LANG, setLang, t, tr, catName, countText, FAQ } from './i18n.js';
+import { LANG, LANGS, setLang, t, tr, catName, countText, FAQ } from './i18n.js';
 
 const $ = s => document.querySelector(s);
 const grid = $('#grid'), emptyEl = $('#empty'), titleEl = $('#view-title'), countEl = $('#count'), toolsEl = $('#head-tools');
@@ -44,10 +42,10 @@ const dial = createDial({
   },
   onLayout: () => crew?.refresh(),
 });
-const detailEl = $('#detail'), compareEl = $('#compare');
+const detailEl = $('#detail');
 crew = createCrew({
   bar: $('.bar'), dial: $('#dial'), sheet: $('.sheet'), grid,
-  covered: () => !detailEl.hidden || !compareEl.hidden,          // paused under the detail and compare views
+  covered: () => !detailEl.hidden,                               // paused under the detail view
 });
 const refreshCounts = () => dial.setCounts({ all: ANIMS.length, hearted: store.count(), ...Object.fromEntries(CATEGORIES.map(c => [c.id, ANIMS.filter(a => a.cat === c.id).length])) });
 refreshCounts();
@@ -142,7 +140,7 @@ function scrollToCat(id, instant = false) {
 let spyLock = 0, spyRaf = 0, spyT = 0;
 function spy() {
   spyRaf = 0;
-  if (view !== 'all' || detail.isOpen || compare.isOpen || performance.now() < spyLock) return;
+  if (view !== 'all' || detail.isOpen || performance.now() < spyLock) return;
   const line = innerHeight * 0.3; let cur = 'all';
   for (const sec of grid.querySelectorAll('.cat-sec')) { if (sec.getBoundingClientRect().top <= line) cur = sec.dataset.cat; else break; }
   if (scrollY < 40) cur = 'all';
@@ -203,7 +201,7 @@ function showEmpty() {
 /* ───────── live preview on hover ───────── */
 let live = null, intent = 0;
 function startPreview(card) {
-  if (reduce.matches || detail.isOpen || compare.isOpen) return;
+  if (reduce.matches || detail.isOpen) return;
   if (live?.card === card) return;
   stopPreview();
   const a = animById[card.dataset.id], media = card.querySelector('.card-media');
@@ -267,7 +265,6 @@ addEventListener('scroll', () => { if (!canHover.matches) watchCentre(); }, { pa
 
 /* ───────── hearts ───────── */
 function celebrate(btn) {
-  sfx.pop();
   if (!reduce.matches) btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(.82)', offset: .2 }, { transform: 'scale(1.22)', offset: .55 }, { transform: 'scale(1)' }], { duration: 480, easing: ease });
   crew.cheer();
 }
@@ -278,19 +275,10 @@ store.onChange(() => {
   if (view === 'hearted' && !detail.isOpen) render(false);
 });
 
-/* ───────── sound ───────── */
-const soundBtn = $('#sound');
-const syncSound = () => { soundBtn.setAttribute('aria-pressed', String(store.sound)); soundBtn.setAttribute('aria-label', store.sound ? t('Sound on') : t('Sound off')); };
-soundBtn.addEventListener('click', () => { store.setSound(!store.sound); setEnabled(store.sound); syncSound(); if (store.sound) sfx.pip(); });
-syncSound();
-// browsers only allow audio after a gesture; re-arm on the first one if sound was left on
-if (store.sound) addEventListener('pointerdown', () => setEnabled(true), { once: true });
-
 /* ───────── surprise me ───────── */
 $('#surprise').addEventListener('click', () => {
   const pool = listFor(view === 'hearted' && !store.count() ? 'all' : view);
   const pick = (pool.length ? pool : ANIMS)[Math.floor(Math.random() * (pool.length || ANIMS.length))];
-  sfx.roll();
   if (reduce.matches || !crew.visible) { openAnim(pick.id); return; }
   const sheet = $('.sheet').getBoundingClientRect();
   const x1 = sheet.left + sheet.width * 0.5, y1 = Math.max(sheet.top, 0) + Math.min(sheet.bottom - Math.max(sheet.top, 0), innerHeight) * 0.45;
@@ -308,16 +296,13 @@ $('#surprise').addEventListener('click', () => {
   ], { duration: 760, easing: 'cubic-bezier(0.33, 1, 0.68, 1)' }).onfinish = () => { die.remove(); openAnim(pick.id); };
 });
 
-/* ───────── detail + compare ───────── */
+/* ───────── detail ───────── */
 function openAnim(id) { location.hash = `#/a/${id}`; }
 const listHash = () => view === 'all' ? '#/' : view === 'hearted' ? '#/hearted' : `#/c/${view}`;
 const detail = createDetail({
   celebrate, toast,
   onClose: () => { if (history.state?.fromList) history.back(); else location.hash = listHash(); },
-  onCompare: id => compare.toggle(id),
-  isPinned: id => compare.isPinned(id),
 });
-const compare = createCompare({ toast, onClose: () => { location.hash = listHash(); } });
 
 /* ───────── routing ───────── */
 let viewReadyOnce = false;
@@ -335,17 +320,12 @@ function route() {
   closePicker();
   if (kind === 'a' && animById[arg]) {
     if (!viewReady) setView(animById[arg].cat, false);
-    stopPreview(); compare.close(true);
+    stopPreview();
     const card = grid.querySelector(`.card[data-id="${arg}"]`);
     detail.open(animById[arg], card, query);
     return;
   }
-  if (kind === 'compare' && arg) {
-    const ids = arg.split(',').filter(id => animById[id]).slice(0, 2);
-    if (!viewReady) setView('all', false);
-    if (ids.length === 2) { detail.close(true); stopPreview(); compare.open(ids); return; }
-  }
-  detail.close(kbClose); compare.close(kbClose); kbClose = false;
+  detail.close(kbClose); kbClose = false;
   if (kind === 'c' && catById[arg]) {
     // coming from another view (Hearted): swap to the full list at once, so the section exists to glide to
     setView('all', false, false);
@@ -364,13 +344,12 @@ addEventListener('hashchange', e => {
 let kbClose = false;
 addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (detail.isOpen || compare.isOpen) kbClose = true;
-  if (detail.isOpen) detail.requestClose(); else if (compare.isOpen) compare.requestClose();
+  if (detail.isOpen) { kbClose = true; detail.requestClose(); }
 });
 /* ───────── FAQ ───────── */
 const faqEl = $('#faq');
 faqEl.innerHTML = `<h2 id="faq-title">${t('Questions')}</h2><div class="faq-list"></div>`;
-for (const [q, a] of FAQ[LANG]) {
+for (const [q, a] of FAQ[LANG] || FAQ.en) {
   const d = document.createElement('details'); d.className = 'faq-item';
   d.innerHTML = '<summary><h3></h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p></p>';
   d.querySelector('summary h3').textContent = q; d.querySelector('p').textContent = a;
@@ -378,11 +357,49 @@ for (const [q, a] of FAQ[LANG]) {
 }
 
 /* ───────── language ───────── */
-for (const b of document.querySelectorAll('#lang button')) {
-  b.setAttribute('aria-pressed', String(b.dataset.lang === LANG));
-  b.addEventListener('click', () => setLang(b.dataset.lang));
+// a menu under the globe button. Opened with the pointer it grows out of the button's corner (spatial: it came from
+// there); opened from the keyboard it appears at once. Choosing a language reloads the page in it.
+{
+  const btn = $('#lang-btn'), menu = $('#lang-menu'), cur = LANGS.find(l => l.code === LANG);
+  const tick = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+  btn.querySelector('.lang-cur').textContent = cur.short;
+  btn.setAttribute('aria-label', `${t('Language')}: ${cur.name}`);
+  menu.setAttribute('aria-label', t('Language'));
+  for (const l of LANGS) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.setAttribute('aria-checked', String(l.code === LANG)); b.lang = l.html; b.dataset.lang = l.code;
+    b.innerHTML = `<span></span>${tick}`; b.querySelector('span').textContent = l.name;
+    b.addEventListener('click', () => { if (l.code === LANG) close(true); else setLang(l.code); });
+    menu.append(b);
+  }
+  const items = [...menu.querySelectorAll('button')];
+  let anim = null;
+  function open(animate) {
+    anim?.cancel(); menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
+    if (animate) anim = menu.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: ease });
+    (items.find(b => b.getAttribute('aria-checked') === 'true') || items[0]).focus({ preventScroll: true });
+    setTimeout(() => document.addEventListener('pointerdown', outside), 0);
+  }
+  function close(refocus = false, animate = false) {
+    if (menu.hidden) return;
+    document.removeEventListener('pointerdown', outside); btn.setAttribute('aria-expanded', 'false');
+    anim?.cancel(); anim = null;
+    if (animate && !reduce.matches) { const a = menu.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: ease }); a.onfinish = () => { menu.hidden = true; }; }
+    else menu.hidden = true;
+    if (refocus) btn.focus({ preventScroll: true });
+  }
+  const outside = e => { if (!$('#lang').contains(e.target)) close(false, true); };
+  // a click with detail 0 came from the keyboard (Enter or Space on the button)
+  btn.addEventListener('click', e => { if (menu.hidden) open(e.detail > 0); else close(false, e.detail > 0); });
+  btn.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && menu.hidden) { e.preventDefault(); open(false); } });
+  menu.addEventListener('keydown', e => {
+    const i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+    else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); items[e.key === 'Home' ? 0 : items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); }
+    else if (e.key === 'Tab') close(false);
+  });
 }
-$('#lang').setAttribute('aria-label', t('Language'));
 $('#surprise span').textContent = t('Surprise me');
 $('.skip').textContent = t('Skip to animations');
 $('#dial').setAttribute('aria-label', t('Categories'));

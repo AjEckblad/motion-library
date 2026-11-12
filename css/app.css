@@ -90,7 +90,6 @@ svg { display: block; }
 .icon-btn { width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--edge); background: var(--sheet); display: grid; place-items: center; cursor: pointer; transition: transform .16s var(--ease-out), background-color .15s; }
 @media (hover: hover) and (pointer: fine) { .icon-btn:hover { background: var(--raised); } }
 .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.7; stroke-linecap: round; }
-#sound .snd-on { display: none; } #sound[aria-pressed="true"] .snd-on { display: block; } #sound[aria-pressed="true"] .snd-off { display: none; }
 
 /* ───────── layout: the grid on the left, dial on the right ───────── */
 .layout { --dial-w: 200px; position: relative; display: block; padding-top: var(--bar-h); }
@@ -207,18 +206,9 @@ svg { display: block; }
 }
 @media (max-width: 860px) { .crew { display: none; } }
 
-/* ───────── tray (compare) ───────── */
-.tray { position: fixed; z-index: 50; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 14px; background: var(--raised); color: var(--ink); border-radius: 999px; box-shadow: 0 12px 28px rgba(0, 0, 0, .45); max-width: calc(100vw - 32px); }
-.tray-label { font-weight: 500; font-size: var(--fs-meta); color: var(--muted); white-space: nowrap; }
-.chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 6px 0 10px; border-radius: 999px; background: #2a2a2e; font-size: var(--fs-meta); font-weight: 500; min-width: 0; }
-.chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
-.chip button { width: 22px; height: 22px; border: 0; border-radius: 50%; background: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
-@media (hover: hover) and (pointer: fine) { .chip button:hover { background: #3a3a3e; color: var(--ink); } }
-.chip svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; }
-.tray .btn { height: 32px; background: var(--ink); color: var(--frame); border-color: var(--ink); }
 
 /* ───────── detail view ───────── */
-.detail, .compare { position: fixed; inset: 0; z-index: 40; background: var(--frame); overflow: hidden; }
+.detail { position: fixed; inset: 0; z-index: 40; background: var(--frame); overflow: hidden; }
 .d-top { height: var(--bar-h); display: flex; align-items: center; gap: 14px; padding: 0 20px; }
 .d-crumb { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
 .d-crumb .cat { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-weight: 400; white-space: nowrap; }
@@ -294,12 +284,6 @@ svg { display: block; }
 .creature-detail { position: absolute; right: 14px; top: 6px; }
 
 /* compare */
-.cmp-body { position: absolute; inset: var(--bar-h) var(--inset) var(--inset); display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: var(--inset); }
-.cmp-stages { display: grid; grid-template-columns: 1fr 1fr; gap: var(--inset); min-height: 0; }
-.cmp-col { background: var(--sheet); border: 1px solid var(--edge); border-radius: var(--r-sheet); padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-.cmp-col h2 { margin: 0; font-size: var(--fs-title); font-weight: 600; display: flex; gap: 8px; align-items: center; }
-.cmp-col .d-stage { flex: 1; aspect-ratio: auto; max-height: none; min-height: 0; }
-.cmp-bar { background: var(--sheet); border: 1px solid var(--edge); border-radius: var(--r-sheet); padding: 10px 14px; }
 
 /* popover + toast */
 .popover { position: fixed; z-index: 60; min-width: 230px; max-width: min(300px, calc(100vw - 24px)); background: var(--sheet); border: 1px solid var(--edge); border-radius: 12px; padding: 6px; box-shadow: 0 12px 28px rgba(0, 0, 0, .5); transform-origin: var(--origin, top right); }
@@ -340,8 +324,6 @@ svg { display: block; }
   .sheet { margin: 0; padding: 18px 18px 40px; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 12px; }
   .dial { top: auto; left: 0; height: 150px; width: auto; background: var(--frame); border-top: 1px solid var(--edge); }
-  .tray { bottom: 162px; }
-  .cmp-stages { grid-template-columns: 1fr; }
   .d-top { padding: 0 10px; gap: 8px; }
   .d-crumb .cat, .d-crumb .sep { display: none; }
   .d-actions .lbl { display: none; }
@@ -366,10 +348,22 @@ svg { display: block; }
 .cat-count { color: var(--muted); font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
 
 /* ───────── language switch: a pill, the chosen language filled in the accent ───────── */
-.lang { display: inline-flex; height: 38px; padding: 3px; border-radius: 999px; background: var(--sheet); border: 1px solid var(--edge); }
-.lang button { border: 0; border-radius: 999px; background: none; color: var(--muted); padding: 0 13px; font-weight: 500; font-size: var(--fs-meta); cursor: pointer; transition: background-color .15s, color .15s; }
-.lang button[aria-pressed="true"] { background: var(--accent); color: #0c0c0e; }
-@media (hover: hover) and (pointer: fine) { .lang button[aria-pressed="false"]:hover { color: var(--ink); } }
+/* the language menu: a quiet trigger (globe, current language, chevron) and a small panel that grows out of the
+   trigger's corner (js/app.js: 180 ms, scale .96 + fade on the --ease-out curve; keyboard opens it at once) */
+.lang { position: relative; }
+.lang-btn { height: 38px; display: inline-flex; align-items: center; gap: 7px; padding: 0 10px 0 11px; border-radius: 999px; border: 1px solid var(--edge); background: var(--sheet); color: var(--ink); font-weight: 500; font-size: var(--fs-meta); cursor: pointer; transition: background-color .15s; }
+.lang-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.lang-globe { color: var(--muted); }
+.lang-chev { width: 14px !important; height: 14px !important; color: var(--muted); transition: transform .18s var(--ease-out); }
+.lang-btn[aria-expanded="true"] .lang-chev { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) { .lang-btn:hover { background: var(--raised); } }
+.lang-menu { position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 176px; padding: 6px; background: var(--sheet); border: 1px solid var(--edge); border-radius: 12px; box-shadow: 0 14px 32px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .3); transform-origin: top right; }
+.lang-menu button { width: 100%; height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--ink-2); font-size: var(--fs-label); text-align: left; cursor: pointer; }
+.lang-menu button[aria-checked="true"] { color: var(--ink); font-weight: 500; }
+.lang-menu button svg { width: 14px; height: 14px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; visibility: hidden; }
+.lang-menu button[aria-checked="true"] svg { visibility: visible; }
+.lang-menu button:focus-visible { background: var(--raised); outline: none; }
+@media (hover: hover) and (pointer: fine) { .lang-menu button:hover { background: var(--raised); color: var(--ink); } }
 
 /* ───────── install command ───────── */
 .npx { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 14px 14px 20px; border-bottom: 1px solid var(--line); }
@@ -392,15 +386,13 @@ svg { display: block; }
 .faq-item summary h3 { margin: 0; font: inherit; }
 /* the pre-rendered catalogue (tools/build-static.mjs) is plain links until the app takes over */
 .card-link { display: block; color: inherit; text-decoration: none; }
-.lang button { white-space: nowrap; }
-/* phones: the bar keeps the logo, Surprise and the language switch; sound steps aside (it is off by default) */
+.lang-btn { white-space: nowrap; }
+/* phones: the bar keeps the logo, Surprise and the language switch */
 @media (max-width: 560px) {
   .bar-actions { gap: 6px; }
   .bar .btn span, #head-tools .btn span { display: none; }
   .bar .btn, #head-tools .btn { padding: 0 11px; }
-  .lang { height: 36px; padding: 2px; }
-  .lang button { padding: 0 9px; }
-  #sound { display: none; }
+  .lang-btn { height: 36px; padding: 0 8px 0 9px; gap: 5px; }
 }
 /* worst case: a long heading (a group name, a long translation) wraps instead of widening the page */
 .sheet-head h1, .empty h2 { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }

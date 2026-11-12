@@ -1,6 +1,6 @@
 # Motion Library
 
-> 214 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 213 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -478,17 +478,6 @@ Rays are raymarched through the desert; any ray crossing the ring’s opening co
 
 Settings: --speed 1 (0.3 to 2, step 0.1; Speed); --glow 1 (0 to 2, step 0.05; Ring glow); --waves 1 (0 to 2.5, step 0.05; Waves).
 Renderer: WebGL. Size: 8.8 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/portal.html
-
-### Geode
-
-Geode is a WebGL effect: Voronoi over directions grows faceted crystals inward. One plain JavaScript file with no dependencies; add it with npx motion-library add geode.
-
-A grey stone cracks open like a book to reveal agate bands and a purple crystal lining.
-
-One SDF: a noise-roughened sphere split into halves with hollows, whose walls are pushed in by a Voronoi pattern over directions with a squarish metric.
-
-Settings: --crystals 1 (0.6 to 1.8, step 0.05; Crystal size); --sparkle 1 (0 to 2.5, step 0.1; Sparkle); --speed 1 (0.4 to 2, step 0.1; Speed).
-Renderer: WebGL. Size: 7.6 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/geode.html
 
 ### Glass lens refraction
 
