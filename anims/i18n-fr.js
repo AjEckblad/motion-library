@@ -1,5 +1,13 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "type-ribbon": {
+  "title": "Ruban typographique",
+  "trick": "Du texte sur un ruban de Möbius, orienté par transport parallèle",
+  "notes": [
+   "Un ruban de lettres grasses se tord dans l’espace en ruban de Möbius, et les mots le parcourent sans fin, reflétés dans un sol brillant.",
+   "Le ruban suit le chemin sans tourner sur lui-même, puis reçoit exactement un demi-tour par tour, si bien que la ligne de texte couvre les deux faces en deux tours. Essayez 3 ou 5 demi-tours."
+  ]
+ },
  "curl-flow": {
   "title": "Champ de flux en bruit curl",
   "trick": "Bruit curl à divergence nulle : les particules ne s’agglutinent jamais",
@@ -1700,6 +1708,8 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Half twists": "Demi-tours",
+ "Band width": "Largeur du ruban",
  "Fold": "Pliage",
  "Letter": "Lettre",
  "Gate": "Fenêtre",

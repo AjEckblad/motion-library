@@ -1,6 +1,6 @@
 # Motion Library
 
-> 212 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 213 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -1820,6 +1820,17 @@ The text runs along an SVG circle with textPath, stretched to fit exactly, and i
 
 Settings: --speed 18 (0 to 90, step 1; Speed (°/s)); --boost 6 (1 to 15, step 0.5; Boost); --every 3200 (1000 to 8000, step 100; Nudge every (ms)).
 Renderer: DOM (CSS and the Web Animations API). Size: 11.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/text-circle.html
+
+### Type ribbon
+
+Type ribbon is a WebGL effect: type on a Möbius band, framed by parallel transport. One plain JavaScript file with no dependencies; add it with npx motion-library add type-ribbon.
+
+A band of bold type twists through space as a Möbius strip, and the words run round it forever, mirrored in a glossy floor.
+
+The band is carried along the path without spinning, then given exactly half a turn per lap, so the line of type covers both faces in two laps. Try 3 or 5 half twists.
+
+Settings: --speed 1 (0 to 3, step 0.1; Speed); --twists 1 (1 to 5, step 2; Half twists); --width 1 (0.4 to 1.8, step 0.05; Band width).
+Renderer: WebGL. Size: 14.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/type-ribbon.html
 
 
 ## Scroll

@@ -1,5 +1,13 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "type-ribbon": {
+  "title": "Cinta tipográfica",
+  "trick": "Texto sobre una banda de Möbius, orientada por transporte paralelo",
+  "notes": [
+   "Una cinta de letras gruesas se retuerce en el espacio como una banda de Möbius, y las palabras la recorren sin fin, reflejadas en un suelo brillante.",
+   "La cinta avanza por el camino sin girar sobre sí misma y recibe exactamente media vuelta por recorrido, así que el texto cubre las dos caras en dos vueltas. Prueba 3 o 5 medias vueltas."
+  ]
+ },
  "curl-flow": {
   "title": "Campo de flujo de ruido curl",
   "trick": "Ruido curl sin divergencia: las partículas nunca se amontonan",
@@ -1700,6 +1708,8 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Half twists": "Medias vueltas",
+ "Band width": "Ancho de la cinta",
  "Fold": "Plegado",
  "Letter": "Carta",
  "Gate": "Ventana",

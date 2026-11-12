@@ -474,4 +474,8 @@ export const MORE = [
     trick: 'Spring-damped reticle, edge rulers, and brackets that close to lock',
     notes: ['A targeting reticle follows the pointer with live readouts, and brackets close in to lock onto contacts.', 'The reticle chases the pointer on a critically damped spring, so it settles without overshoot; every hairline is snapped to the device pixel grid.'],
     params: { follow: P(3, 20, 0.5, 'Follow'), contacts: P(1, 9, 1, 'Contacts') } },
+  { id: 'type-ribbon', cat: 'text', title: 'Type ribbon', kind: 'webgl', posterAt: 3500, pointer: true,
+    trick: 'Type on a Möbius band, framed by parallel transport',
+    notes: ['A band of bold type twists through space as a Möbius strip, and the words run round it forever, mirrored in a glossy floor.', 'The band is carried along the path without spinning, then given exactly half a turn per lap, so the line of type covers both faces in two laps. Try 3 or 5 half twists.'],
+    params: { speed: P(0, 3, 0.1, 'Speed'), twists: P(1, 5, 2, 'Half twists'), width: P(0.4, 1.8, 0.05, 'Band width') } },
 ];

@@ -1,5 +1,13 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "type-ribbon": {
+  "title": "文字缎带",
+  "trick": "文字贴在莫比乌斯带上，用平行移动标架定向",
+  "notes": [
+   "一条印着粗体字的带子在空中扭成莫比乌斯环，文字沿着它无尽地流动，倒映在光亮的地面上。",
+   "带子沿路径前进时自身不旋转，再每圈加上恰好半圈扭转，所以一行字两圈就铺满两面。试试 3 或 5 个半扭。"
+  ]
+ },
  "brians-brain": {
   "title": "Brian 的大脑",
   "trick": "三态元胞自动机：激发、不应期、熄灭，滑翔机遍布",
@@ -1700,6 +1708,8 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Half twists": "半扭数",
+ "Band width": "带宽",
  "Fold": "折法",
  "Letter": "信件",
  "Gate": "对门",

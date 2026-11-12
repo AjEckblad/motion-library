@@ -1,6 +1,6 @@
 # Motion Library
 
-> 212 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 213 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -201,6 +201,7 @@
 - [Rotating word](https://ajeckblad.github.io/motion-library/fx/rotating-word.html): One word cycles through a clipped slot with a slight blur. `npx motion-library add rotating-word`
 - [Marker highlight](https://ajeckblad.github.io/motion-library/fx/highlighter.html): An uneven marker stroke sweeps behind key phrases. `npx motion-library add highlighter`
 - [Text on a circle](https://ajeckblad.github.io/motion-library/fx/text-circle.html): Text on an SVG circle turns, easing toward a target speed. `npx motion-library add text-circle`
+- [Type ribbon](https://ajeckblad.github.io/motion-library/fx/type-ribbon.html): Type on a Möbius band, framed by parallel transport. `npx motion-library add type-ribbon`
 
 ## Scroll
 
