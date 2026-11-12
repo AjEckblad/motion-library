@@ -16,6 +16,10 @@ This round:
 - Type: IBM Plex Sans + IBM Plex Mono (self-hosted), six sizes 13/14/16/20/24/28 as --fs-* tokens, weights 400/500/600.
   Geist was tried first and dropped: the impeccable detector flags it as overused.
 
+Later on 2026-11-12 (all pushed and live): dial fisheye is one shared strength set by the tightest word (every word moves
+left, the longest stops 10px short of the cards); detail stage fills the panel; the Interactive hint sits in the control
+row; creatures start spread out and avoid the category headings; grid rows 64px apart, categories 112px.
+
 WAITING ON AJ
 - (done) npm 0.3.1 is published (2026-11-12) and matches the local build file for file
 - (done) live on GitHub Pages: https://ajeckblad.github.io/motion-library/ (repo github.com/AjEckblad/motion-library,
