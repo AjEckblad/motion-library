@@ -1,6 +1,6 @@
 {
   "name": "motion-library",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Hand-made web animations, one plain-JS file each with no dependencies. Copy one into your project, tuned: npx motion-library add confetti --pieces 300",
   "type": "module",
   "bin": { "motion-library": "bin.mjs" },

@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cloth reveal: Verlet cloth with cone collisions: snags, tents, then whips off · Motion Library</title>
-<meta name="description" content="Cloth reveal is a WebGL effect: Verlet cloth with cone collisions: snags, tents, then whips off. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.">
+<title>Cloth reveal: Verlet silk tents over cone-shaped points, then slides off by a corner · Motion Library</title>
+<meta name="description" content="Cloth reveal is a WebGL effect: Verlet silk tents over cone-shaped points, then slides off by a corner. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.">
 <link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html">
 <meta name="theme-color" content="#0c0c0e">
 <meta property="og:title" content="Cloth reveal · Motion Library">
-<meta property="og:description" content="Verlet cloth with cone collisions: snags, tents, then whips off">
+<meta property="og:description" content="Verlet silk tents over cone-shaped points, then slides off by a corner">
 <meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/cloth-reveal.webp">
 <link rel="stylesheet" href="../css/static.css">
 <script type="application/ld+json">[
@@ -16,7 +16,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Cloth reveal",
-  "description": "Verlet cloth with cone collisions: snags, tents, then whips off",
+  "description": "Verlet silk tents over cone-shaped points, then slides off by a corner",
   "programmingLanguage": "JavaScript",
   "runtimePlatform": "Web browser",
   "license": "https://spdx.org/licenses/MIT-0.html",
@@ -61,15 +61,15 @@
 <main class="s-page">
 <article>
 <h1>Cloth reveal</h1>
-<p class="tldr">Cloth reveal is a WebGL effect: Verlet cloth with cone collisions: snags, tents, then whips off. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.</p>
-<figure><img src="../posters/cloth-reveal.webp" alt="Cloth reveal: Verlet cloth with cone collisions: snags, tents, then whips off" width="1120" height="896"></figure>
+<p class="tldr">Cloth reveal is a WebGL effect: Verlet silk tents over cone-shaped points, then slides off by a corner. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.</p>
+<figure><img src="../posters/cloth-reveal.webp" alt="Cloth reveal: Verlet silk tents over cone-shaped points, then slides off by a corner" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/cloth-reveal">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Cloth reveal?</h2>
-<p>Silk falls over a plinth, tents on spikes and is whipped off to reveal a chrome star.</p>
+<p>Red silk floats down over a plinth and drapes on hidden points, then a corner is drawn away to reveal a chrome star.</p>
 
 <h2>How does Cloth reveal work?</h2>
-<p>Verlet cloth with neighbour, diagonal and bending constraints solved ten times a frame, colliding with the star’s core sphere and cone spikes.</p>
+<p>Verlet points with stretch, shear and bend constraints collide with the star as twelve cones; the silk is drawn as a smooth B-spline surface.</p>
 
 <h2>How do I add Cloth reveal to my website?</h2>
 <ol>
@@ -94,14 +94,22 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Chrome &amp; 3D</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>27.0 KB, unminified</dd>
+<dt>File size</dt><dd>29.8 KB, unminified</dd>
 <dt>Interactive</dt><dd>No: it plays on its own</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
 </dl>
 
 <h2>Source code</h2>
-<pre><code>// Cloth reveal (rewrite in progress)
+<pre><code>// Cloth reveal: a sheet of red silk floats down over something on a plinth, billowing on the air, and settles into a
+// drape tented by its points; after a beat one corner is lifted and drawn away to the side, the silk slides off over
+// the points, and a chrome star stands revealed and turns a fifth of a turn, so the next loop finds it as it was. The
+// sheet is a grid of points moved with Verlet integration in twelve substeps a frame, joined by stretch, shear and
+// bend constraints; the air pushes across its face from a pressure smoothed over neighbours; it collides with the
+// star as twelve round cones from its core, thicker than the grid's gaps so no point slips through, and with the
+// plinth and the floor, with friction. The silk is drawn as a cubic B-spline surface over the points, with two
+// stretched highlights for the weave; the star's flat faces mirror a studio of softboxes and coloured strips, and the
+// polished floor reflects it all.
 const PARAMS = { grid: 46, stiffness: 1, speed: 1 };
 
 export default function (stage) {
@@ -150,7 +158,7 @@ export default function (stage) {
 
   // ── the loop (seconds): the sheet floats down and settles, a beat, a corner is drawn up and away, the star turns
   const FR = 1 / 60, N = 12, TG = 4.2, TPARK = 8.2, TURN0 = 7.8, TURN1 = 10.8, LOOP = 12.2, LF = Math.round(LOOP / FR);
-  const DROPY = 4.7, HANDDIR = 2.2, STILL = Math.round(4 / FR);
+  const DROPY = 4.7, HANDDIR = 2.2, UPDRAFT = 0.9, STILL = Math.round(4 / FR);
   let ph = -1, parked = false, fc = 0;
   const HB = new Float32Array(3), hand = new Float32Array(3);
   function drop() {
@@ -252,13 +260,16 @@ export default function (stage) {
   // the air's push, worked out once a frame and kept smooth across the sheet, as real air pressure is: normals from
   // points two apart and the speed through the air averaged over each point's neighbours (per-point drag from
   // per-point normals feeds back into a grid-fine ripple)
-  function aero(wx, wz) {
+  function aero(wx, wz, lift) {
     for (let j = 0; j &lt; G; j++) for (let i = 0; i &lt; G; i++) {
       const a = id(Math.min(i + 2, G - 1), j) * 3, b = id(Math.max(i - 2, 0), j) * 3, c = id(i, Math.min(j + 2, G - 1)) * 3, d = id(i, Math.max(j - 2, 0)) * 3;
       const ux = x[a] - x[b], uy = x[a + 1] - x[b + 1], uz = x[a + 2] - x[b + 2], vx = x[c] - x[d], vy = x[c + 1] - x[d + 1], vz = x[c + 2] - x[d + 2];
       const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz2 = ux * vy - uy * vx, l = Math.sqrt(nx * nx + ny * ny + nz2 * nz2) || 1, k = id(i, j) * 3;
       nrm[k] = nx / l; nrm[k + 1] = ny / l; nrm[k + 2] = nz2 / l;
-      vel[k] = x[k] - px[k] - wx; vel[k + 1] = x[k + 1] - px[k + 1]; vel[k + 2] = x[k + 2] - px[k + 2] - wz;
+      // while it is high, rings of updraft rolling out from the middle make it billow as it floats down (symmetric, so it
+      // still lands centred)
+      const up = lift &gt; 0 ? lift * Math.sin(Math.sqrt(x[k] * x[k] + x[k + 2] * x[k + 2]) * 2.2 - fc * FR * 3.1) * Math.max(0, Math.min(1, (x[k + 1] - 2.9) * 1.5)) : 0;
+      vel[k] = x[k] - px[k] - wx; vel[k + 1] = x[k + 1] - px[k + 1] - up; vel[k + 2] = x[k + 2] - px[k + 2] - wz;
     }
     for (let j = 0; j &lt; G; j++) for (let i = 0; i &lt; G; i++) {
       const k = id(i, j) * 3; let sx = 0, sy = 0, sz = 0, n = 0;
@@ -267,14 +278,23 @@ export default function (stage) {
       air[k] = -vn * nrm[k]; air[k + 1] = -vn * nrm[k + 1]; air[k + 2] = -vn * nrm[k + 2];
     }
   }
+  // the sheet is put away only once no part of it, nor its reflection, is left on screen (on a very wide stage it can
+  // still be in view at TPARK), and at the latest a second before the next drop
+  function offscreen() {
+    for (let k = 0; k &lt; NP * 3; k += 3) for (let m = 1; m &gt;= -1; m -= 2) {
+      const X = x[k], Y = x[k + 1] * m, Z = x[k + 2], w = MV[3] * X + MV[7] * Y + MV[11] * Z + MV[15];
+      if (w &gt; 0 &amp;&amp; Math.abs(MV[0] * X + MV[4] * Y + MV[8] * Z + MV[12]) &lt; w * 1.05 &amp;&amp; Math.abs(MV[1] * X + MV[5] * Y + MV[9] * Z + MV[13]) &lt; w * 1.05) return false;
+    }
+    return true;
+  }
   function tick() {
     const f = fc % LF, t = f * FR;
     if (f === 0) drop();
     if (t &gt;= TG &amp;&amp; ph &lt; 0) grab();
-    if (t &gt;= TPARK) parked = true;
+    if (t &gt;= TPARK &amp;&amp; !parked &amp;&amp; (t &gt;= LOOP - 1 || offscreen())) parked = true;
     if (!parked) {
       const dr = Math.min(1, Math.max(0, (t - 2.2) / 1.5)) * FR / N;   // a faint draught once it has landed
-      aero(dr * (0.35 * Math.sin(t * 1.3) + 0.15 * Math.sin(t * 2.9)), dr * 0.3 * Math.sin(t * 0.9 + 1));
+      aero(dr * (0.35 * Math.sin(t * 1.3) + 0.15 * Math.sin(t * 2.9)), dr * 0.3 * Math.sin(t * 0.9 + 1), t &lt; 2 ? UPDRAFT * FR / N : 0);
       for (let s = 1; s &lt;= N; s++) {
         const held = ph &gt;= 0;
         if (held) handAt(t + s * FR / N, FR / N);
@@ -295,16 +315,18 @@ export default function (stage) {
   // the studio the chrome reflects: a dark room, an overhead softbox, warm and cool strips, thin white strips and a
   // bright wall behind the camera, so every facet catches something different as the star turns
   const ENV = `vec3 env(vec3 d) {
-    vec3 c = mix(vec3(.004, .004, .005), vec3(.08, .08, .095), smoothstep(-.02, .75, d.y));
+    float az = atan(d.x, d.z), el = asin(clamp(d.y, -1., 1.));
+    vec3 c = mix(vec3(.004, .004, .005), vec3(.03, .031, .036), smoothstep(-.02, .9, d.y));
     vec2 fl = d.xz * ${SC[1]} / max(-d.y, .02);                                  // below the horizon: the lit floor
     c += vec3(.07, .068, .072) * exp(-dot(fl, fl) * .09) * smoothstep(.0, -.08, d.y);
-    vec2 q = d.xz / max(d.y, .05);
-    c += vec3(3.) * smoothstep(.04, .0, abs(q.x - .1) - .6) * smoothstep(.04, .0, abs(q.y + .2) - .2) * step(0., d.y);
-    float az = atan(d.x, d.z), band = smoothstep(-.1, .15, d.y) * smoothstep(.85, .4, d.y);
-    c += vec3(1., .55, .3) * 2.2 * smoothstep(.12, .03, abs(az - 1.9)) * band;
-    c += vec3(.35, .6, 1.) * 2. * smoothstep(.12, .03, abs(az + 1.6)) * band;
-    c += vec3(1.) * 1.6 * smoothstep(.05, .0, abs(fract(az * 1.9) - .5) - .44) * band * step(abs(az), 1.2);
-    return c + vec3(1.3) * smoothstep(.2, .7, d.z) * smoothstep(-.12, -.05, d.y) * smoothstep(.9, .3, d.y);
+    vec2 q = d.xz / max(d.y, .05) - vec2(.1, -.2);                               // overhead softbox, hot in the middle
+    c += vec3(2.8) * smoothstep(.06, 0., max(abs(q.x) - .55, abs(q.y) - .25)) * (.55 + .45 * exp(-dot(q, q) * 4.)) * step(0., d.y);
+    float fa = abs(az - .5);                                                     // a tall softbox behind the camera
+    c += vec3(1.7, 1.66, 1.6) * smoothstep(.42, .26, fa) * (.75 + .25 * smoothstep(.3, 0., fa)) * smoothstep(-.1, .04, el) * smoothstep(.62, .45, el);
+    float tall = smoothstep(-.1, .2, el) * smoothstep(.95, .35, el);              // warm strip right, cool strip left
+    c += vec3(1., .55, .3) * 2.6 * smoothstep(.1, .02, abs(az - 1.9)) * tall + vec3(.35, .6, 1.) * 2.3 * smoothstep(.1, .02, abs(az + 1.6)) * tall;
+    c += vec3(1.5) * smoothstep(.035, .0, abs(fract(az * 1.6) - .5) - .46) * smoothstep(.03, .0, abs(el - .1) - .14);   // a ring of thin strips
+    return c;
   }`;
   // the star and plinth: turned about the vertical through the star, mirrored under the floor for the reflection
   const solidP = prog(`#version 300 es
@@ -314,9 +336,11 @@ export default function (stage) {
   precision highp float; in vec3 n; in vec3 w; out vec4 o; uniform vec3 E; uniform float MAT, FADE;
   ${ENV}
   void main() {
-    vec3 V = normalize(E - w), N = normalize(n), R = reflect(-V, N);
-    vec3 c = MAT &lt; .5 ? env(R) * vec3(.92, .94, .98) * (.55 + .45 * pow(1. - max(dot(N, V), 0.), 4.))
-                      : vec3(.035, .033, .032) * (.35 + .65 * max(dot(N, normalize(vec3(.1, 1., -.2))), 0.)) + env(R) * .04;
+    vec3 V = normalize(E - w), N = normalize(n);
+    if (MAT &gt; .5) N = normalize(N + vec3(0, 1.6, 0) * smoothstep(${(PT - 0.025).toFixed(3)}, ${PT.toFixed(3)}, w.y) * (1. - abs(N.y)));   // a bevel on the plinth's top edge
+    vec3 R = reflect(-V, N); float fr = pow(1. - max(dot(N, V), 0.), 4.);
+    vec3 c = MAT &lt; .5 ? env(R) * vec3(.92, .94, .98) * (.55 + .45 * fr)                                       // chrome
+                      : vec3(.026, .025, .025) * (.35 + .65 * max(dot(N, normalize(vec3(.1, 1., -.2))), 0.)) + env(R) * (.03 + .2 * fr);   // black lacquer
     c *= mix(1., exp(-1.6 * w.y) * .5, FADE);
     o = vec4(pow(c / (1. + c * .25), vec3(1. / 2.2)), 1);
   }`);
@@ -346,17 +370,18 @@ export default function (stage) {
   precision highp float; in vec3 w; in vec3 n; in vec3 tu; in float cav; out vec4 o; uniform vec3 E; uniform float FADE;
   vec3 lit(vec3 N, vec3 T, vec3 B, vec3 V, vec3 L, vec3 col, vec3 base) {
     vec3 H = normalize(L + V); float nl = dot(N, L), th = dot(T, H), bh = dot(B, H);
-    float aniso = pow(max(1. - th * th, 0.), 40.) * .3 + pow(max(1. - bh * bh, 0.), 160.) * .22;   // warp and weft highlights
-    return col * (base * max((nl + .3) / 1.3, 0.) + vec3(.9, .28, .3) * aniso * smoothstep(-.1, .4, nl));
+    // two stretched highlights, one along the warp and a sharper one along the weft, as silk's flat threads give
+    vec3 aniso = vec3(.85, .1, .14) * pow(max(1. - th * th, 0.), 36.) * .4 + vec3(1., .5, .48) * pow(max(1. - bh * bh, 0.), 170.) * .3;
+    return col * (base * max((nl + .3) / 1.3, 0.) + aniso * smoothstep(-.1, .4, nl));
   }
   void main() {
     vec3 V = normalize(E - w), N = normalize(n); float k = cav;
     if (dot(N, V) &lt; 0.) { N = -N; k = -k; }                                     // two-sided
     vec3 T = normalize(tu - N * dot(N, tu)), B = cross(N, T);
-    vec3 base = vec3(.2, .01, .022);
+    vec3 base = vec3(.14, .005, .017);
     vec3 c = lit(N, T, B, V, normalize(vec3(.1, 1., -.2)), vec3(1.25), base)    // the overhead softbox
-           + lit(N, T, B, V, normalize(vec3(.95, .3, -.32)), vec3(.9, .55, .35), base)   // warm strip, right
-           + lit(N, T, B, V, normalize(vec3(-1., .3, -.03)), vec3(.25, .4, .7), base)     // cool strip, left
+           + lit(N, T, B, V, normalize(vec3(.95, .3, -.32)), vec3(.85, .5, .42), base)   // warm strip, right
+           + lit(N, T, B, V, normalize(vec3(-1., .3, -.03)), vec3(.14, .18, .3), base)     // cool strip, left
            + lit(N, T, B, V, normalize(vec3(.2, .25, 1.)), vec3(.3), base);               // the bright wall behind us
     c += vec3(.55, .1, .13) * pow(1. - max(dot(N, V), 0.), 4.) * .5;            // sheen at grazing angles
     c *= clamp(1. - k * .022, .35, 1.15);                                        // folds' valleys dim, ridges catch light
@@ -414,10 +439,11 @@ export default function (stage) {
   let W = 1, H = 1;
   const E = new Float32Array(3), EM = new Float32Array(3), MV = new Float32Array(16), f = [0, 0, 0], r = [0, 0, 0], u = [0, 0, 0], V = new Float32Array(16), Pm = new Float32Array(16);
   function matrix(t) {
-    const az = 0.5 + 0.1 * Math.sin(t * 0.17), el = 0.22, dist = 5.0;
+    const lt = (fc % LF) * FR, push = sstep(TURN0 - 0.2, TURN1 - 0.6, lt) - sstep(TURN1 + 0.2, LOOP, lt);   // ease in on the star while it turns
+    const az = 0.5 + 0.1 * Math.sin(t * 0.17), el = 0.22, dist = 5.0 - 0.45 * push, ty = 1.3 + 0.12 * push;
     E[0] = Math.sin(az) * Math.cos(el) * dist; E[1] = 1.0 + Math.sin(el) * dist; E[2] = Math.cos(az) * Math.cos(el) * dist;
     EM[0] = E[0]; EM[1] = -E[1]; EM[2] = E[2];
-    f[0] = -E[0]; f[1] = 1.3 - E[1]; f[2] = -E[2]; const fl = Math.hypot(f[0], f[1], f[2]); f[0] /= fl; f[1] /= fl; f[2] /= fl;
+    f[0] = -E[0]; f[1] = ty - E[1]; f[2] = -E[2]; const fl = Math.hypot(f[0], f[1], f[2]); f[0] /= fl; f[1] /= fl; f[2] /= fl;
     const rl = Math.hypot(f[2], f[0]); r[0] = -f[2] / rl; r[1] = 0; r[2] = f[0] / rl;
     u[0] = r[1] * f[2] - r[2] * f[1]; u[1] = r[2] * f[0] - r[0] * f[2]; u[2] = r[0] * f[1] - r[1] * f[0];
     V.set([r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -(r[0] * E[0] + r[1] * E[1] + r[2] * E[2]), -(u[0] * E[0] + u[1] * E[1] + u[2] * E[2]), f[0] * E[0] + f[1] * E[1] + f[2] * E[2], 1]);

@@ -1,40 +1,30 @@
-# Resume here (2026-11-12, evening): two pieces half-rebuilt by agents, everything else live
+# Resume here (2026-11-12, late evening): Cloth reveal and Portal finished; everything live
 
 Live: https://ajeckblad.github.io/motion-library/ (repo AjEckblad/motion-library; gh is logged in, so commit + `git push`
-from here deploys in about a minute). 213 pieces. Checks: `node tools/check.mjs` 82/82, `node tools/motion-check.mjs` 17/17.
+from here deploys in about a minute). 213 pieces. Checks: `node tools/check.mjs` 82/82, `node tools/motion-check.mjs` 17/17,
+`node tools/posters.mjs chrome --leak` all clean and moving. CLI bumped to 0.3.2 and rebuilt (not yet on npm).
 
-Done today and live: Geode cut (to _cut/); Compare view and all sound removed; language menu (globe button → English,
-中文, Español, Français; grows from the button's corner 180 ms, keyboard opens it at once); full Spanish and French
-(anims/i18n-es.js, anims/i18n-fr.js: title/trick/notes for every effect, plus LABELS = the 328 slider labels in each of
-zh/es/fr; UI strings, categories, counts and FAQ in js/i18n.js and js/faq.js; the player is translated); the dial flattens
-its arc so the longest name in any language fits; dial fisheye is one shared strength set by the tightest word; creatures
-start spread out and avoid category headings; grid rows 64 px apart, categories 112 px; detail stage fills the panel;
-the Interactive hint sits in the control row.
-
-IN PROGRESS: uncommitted edits on disk, from two agents stopped by the usage limit (it reset 17:30 HK)
-1. anims/chrome/cloth-reveal.js: the silk now drapes properly (tented by the star's points) and slides off to reveal the
-   chrome star; the old crumpled-ball-and-yank is gone. The agent was choosing the poster frame. TO DO: render a whole
-   loop (`node tools/look.mjs anims/chrome/cloth-reveal.js 1000,2000,…` densely, plus `--reduce` and `--fps`), confirm
-   the reveal slides sideways and stays in frame, pick posterAt, finish.
-2. anims/chrome/portal.js: carved stone gate with glyphs, rippled dunes, soft sky, and through the gate a ringed planet
-   over a sea; much better. BUT the night world looks hazy grey-brown (frame at about 9 s); the agent was diagnosing it
-   ("not a shadow", colour-coding what rays hit). TO DO: find and fix the haze, check the loop is seamless, poster.
-   The bar for both (AJ): fx.rosuh.me quality at every moment of the loop, including the poster frame. House format:
-   one-line `const PARAMS` with the same keys (they are CLI flags), default export returns full cleanup, plain JS, no
-   external assets, prefers-reduced-motion handled, 60 fps in the detail view.
-3. Then for both: new trick (≤12 words, ’ not ') and 2-string notes (about 40 words) in the registry, and title/trick/notes
-   in anims/i18n-zh.js, i18n-es.js, i18n-fr.js (tools/apply-notes.py handles EN notes + one ZH dict; es/fr by hand or
-   a small script); re-render posters (`node tools/posters.mjs chrome --leak`, the whole chrome category);
-   `SITE_URL=https://ajeckblad.github.io/motion-library node tools/build-static.mjs`; bump cli/package.json to 0.3.2
-   and `cd cli && node build.mjs` (Geode is gone and two pieces changed, so the npm package changes); run both check
-   suites; commit; push.
+Finished this session:
+1. Portal: the "hazy grey-brown" night world was the crossing flash. It was ADDED light before tone mapping, so a linear
+   0.05–0.25 lifted the night's blacks to 30–60 % grey for ~0.3 s. Now the flash is an exposure surge (multiplies), so
+   blacks stay black. Second bug: the ring's inner face went dark and speckled because shadeGate tested `ring(q) < .004`
+   while the march stops at `.0007 * (1 + t)` (.0056 at 7 units); edge-on hits failed the test and lost the daylight
+   glow. Now the hit is "ring" if the ring is the nearest part of the gate. posterAt 17000 (the night side: gate in the
+   sea, aurora above, desert through the opening).
+2. Cloth reveal: proper header comment; the sheet is put away only once no point of it (or its reflection) is on
+   screen, at the latest a second before the next drop (on a 3.6:1 stage it was still in view at TPARK). posterAt 7000
+   (mid-reveal). Reduced motion: a still of the drape. 60 fps in a 1280×760 detail view, both pieces.
+3. New trick + notes for both in EN, 中文, ES, FR.
+Frame-exact renders: `node tools/frames.mjs anims/<cat>/<id>.js 9000,9050 [WxH] [--reduce] [--tag x]` steps the stage
+clock to each time (tools/look.mjs is real time, ±50 ms, and misses fast moments like a 0.2 s flash).
 
 WAITING ON AJ
-- npm 0.3.2 after step 3: `cd ~/Downloads/motion-library/cli && npm login && npm publish` (in their own Terminal)
+- npm 0.3.2: `cd ~/Downloads/motion-library/cli && npm login && npm publish` (in their own Terminal)
 - the 80 UI demos: my recommendation is a near-black ground with the light app windows kept (a mock showed panel demos
   look clearly better; demos that draw text straight on the ground need a white window around their content). Not
   answered yet.
 - ink-drop: cut? (Ink fluid covers it). Not answered yet.
+- /review-animations (only AJ can start it).
 
 # Earlier (2026-11-12, round 2): interactive math, short notes, blue accent, IBM Plex type are DONE
 

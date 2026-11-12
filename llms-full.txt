@@ -472,12 +472,12 @@ Renderer: Canvas 2D. Size: 5.1 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 Portal is a WebGL effect: rays crossing the ring finish tracing in a second world. One plain JavaScript file with no dependencies; add it with npx motion-library add portal.
 
-A stone ring on a dune shows a night sea through it, and the camera flies through.
+A carved gate in a golden desert opens onto a night sea under a ringed planet; the camera flies through and back.
 
-Rays are raymarched through the desert; any ray crossing the ring’s opening continues from that point in the other world, so parallax is real.
+Rays are raymarched through the desert; any ray crossing the opening carries on in the other world, so the parallax is real.
 
 Settings: --speed 1 (0.3 to 2, step 0.1; Speed); --glow 1 (0 to 2, step 0.05; Ring glow); --waves 1 (0 to 2.5, step 0.05; Waves).
-Renderer: WebGL. Size: 27.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/portal.html
+Renderer: WebGL. Size: 29.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/portal.html
 
 ### Glass lens refraction
 
@@ -503,14 +503,14 @@ Renderer: WebGL. Size: 18.1 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Cloth reveal
 
-Cloth reveal is a WebGL effect: Verlet cloth with cone collisions: snags, tents, then whips off. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.
+Cloth reveal is a WebGL effect: Verlet silk tents over cone-shaped points, then slides off by a corner. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.
 
-Silk falls over a plinth, tents on spikes and is whipped off to reveal a chrome star.
+Red silk floats down over a plinth and drapes on hidden points, then a corner is drawn away to reveal a chrome star.
 
-Verlet cloth with neighbour, diagonal and bending constraints solved ten times a frame, colliding with the star’s core sphere and cone spikes.
+Verlet points with stretch, shear and bend constraints collide with the star as twelve cones; the silk is drawn as a smooth B-spline surface.
 
 Settings: --grid 46 (20 to 64, step 2; Cloth resolution); --stiffness 1 (0.3 to 1, step 0.05; Stiffness); --speed 1 (0.4 to 2, step 0.1; Speed).
-Renderer: WebGL. Size: 27.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html
+Renderer: WebGL. Size: 29.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html
 
 ### Liquid metal
 

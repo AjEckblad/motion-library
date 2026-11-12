@@ -393,9 +393,9 @@ const BASE = [
     params: { blobs: P(2, 14, 1, 'Blobs'), speed: P(0.1, 2, 0.05, 'Speed') } },
 
   // ── Chrome & 3D
-  { id: 'portal', cat: 'chrome', title: 'Portal', kind: 'webgl', posterAt: 3000,
+  { id: 'portal', cat: 'chrome', title: 'Portal', kind: 'webgl', posterAt: 17000,
     trick: 'Rays crossing the ring finish tracing in a second world',
-    notes: ['A stone ring on a dune shows a night sea through it, and the camera flies through.', 'Rays are raymarched through the desert; any ray crossing the ring’s opening continues from that point in the other world, so parallax is real.'],
+    notes: ['A carved gate in a golden desert opens onto a night sea under a ringed planet; the camera flies through and back.', 'Rays are raymarched through the desert; any ray crossing the opening carries on in the other world, so the parallax is real.'],
     params: { speed: P(0.3, 2, 0.1, 'Speed'), glow: P(0, 2, 0.05, 'Ring glow'), waves: P(0, 2.5, 0.05, 'Waves') } },
   { id: 'glass-lens', cat: 'chrome', title: 'Glass lens refraction', kind: 'webgl', posterAt: 1400, pointer: true,
     trick: 'Bend the lookup by the lens normal, per colour',
@@ -405,9 +405,9 @@ const BASE = [
     trick: 'SDF surface sampled by random rays, dissolved point by point',
     notes: ['A marble bust burns away into wind-blown dust, then reassembles on its socle.', 'The bust is an SDF of smooth-min features; the GPU samples 150,000 surface points by casting uniformly spread rays, each storing normal and occlusion.'],
     params: { points: P(30000, 250000, 10000, 'Points'), wind: P(0.3, 2.5, 0.1, 'Wind'), speed: P(0.4, 2, 0.1, 'Speed') } },
-  { id: 'cloth-reveal', cat: 'chrome', title: 'Cloth reveal', kind: 'webgl', posterAt: 4020,
-    trick: 'Verlet cloth with cone collisions: snags, tents, then whips off',
-    notes: ['Silk falls over a plinth, tents on spikes and is whipped off to reveal a chrome star.', 'Verlet cloth with neighbour, diagonal and bending constraints solved ten times a frame, colliding with the star’s core sphere and cone spikes.'],
+  { id: 'cloth-reveal', cat: 'chrome', title: 'Cloth reveal', kind: 'webgl', posterAt: 7000,
+    trick: 'Verlet silk tents over cone-shaped points, then slides off by a corner',
+    notes: ['Red silk floats down over a plinth and drapes on hidden points, then a corner is drawn away to reveal a chrome star.', 'Verlet points with stretch, shear and bend constraints collide with the star as twelve cones; the silk is drawn as a smooth B-spline surface.'],
     params: { grid: P(20, 64, 2, 'Cloth resolution'), stiffness: P(0.3, 1, 0.05, 'Stiffness'), speed: P(0.4, 2, 0.1, 'Speed') } },
 
   // ── Shaders & glitch

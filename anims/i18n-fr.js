@@ -332,8 +332,8 @@ export const FR = {
   "title": "Portail",
   "trick": "Les rayons qui traversent l’anneau finissent leur trajet dans un second monde",
   "notes": [
-   "Un anneau de pierre sur une dune laisse voir une mer nocturne, et la caméra le traverse en vol.",
-   "Les rayons parcourent le désert en raymarching ; tout rayon qui franchit l’ouverture de l’anneau continue depuis ce point dans l’autre monde, si bien que la parallaxe est réelle."
+   "Une porte de pierre sculptée, dans un désert doré, ouvre sur une mer nocturne sous une planète à anneaux ; la caméra la traverse et revient.",
+   "Les rayons parcourent le désert en raymarching ; celui qui franchit l’ouverture continue dans l’autre monde, si bien que la parallaxe est réelle."
   ]
  },
  "glass-lens": {
@@ -354,10 +354,10 @@ export const FR = {
  },
  "cloth-reveal": {
   "title": "Dévoilement au drap",
-  "trick": "Tissu Verlet avec collisions coniques : il accroche, se tend, puis s’envole",
+  "trick": "Soie Verlet tendue sur des pointes coniques, puis tirée par un coin",
   "notes": [
-   "Une soie tombe sur un socle, se tend sur des pointes puis est tirée d’un coup pour dévoiler une étoile chromée.",
-   "Tissu Verlet avec contraintes de voisinage, de diagonale et de flexion résolues dix fois par image, en collision avec la sphère centrale et les pointes coniques de l’étoile."
+   "Une soie rouge descend en flottant sur un socle et se pose sur des pointes cachées ; puis un coin est tiré et dévoile une étoile chromée.",
+   "Des points Verlet avec contraintes d’étirement, de cisaillement et de flexion heurtent l’étoile, faite de douze cônes ; la soie est tracée en surface B-spline lisse."
   ]
  },
  "liquid-metal": {

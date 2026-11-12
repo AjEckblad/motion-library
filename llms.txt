@@ -61,7 +61,7 @@
 - [Portal](https://ajeckblad.github.io/motion-library/fx/portal.html): Rays crossing the ring finish tracing in a second world. `npx motion-library add portal`
 - [Glass lens refraction](https://ajeckblad.github.io/motion-library/fx/glass-lens.html): Bend the lookup by the lens normal, per colour. `npx motion-library add glass-lens`
 - [Dust to the wind](https://ajeckblad.github.io/motion-library/fx/dust-bust.html): SDF surface sampled by random rays, dissolved point by point. `npx motion-library add dust-bust`
-- [Cloth reveal](https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html): Verlet cloth with cone collisions: snags, tents, then whips off. `npx motion-library add cloth-reveal`
+- [Cloth reveal](https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html): Verlet silk tents over cone-shaped points, then slides off by a corner. `npx motion-library add cloth-reveal`
 - [Liquid metal](https://ajeckblad.github.io/motion-library/fx/liquid-metal.html): Smooth-minimum blob pinches off a height-field pool; double reflections. `npx motion-library add liquid-metal`
 - [Mandelbulb fractal](https://ajeckblad.github.io/motion-library/fx/mandelbulb.html): Power-8 orbits in spherical coordinates, raymarched by distance estimate. `npx motion-library add mandelbulb`
 - [Infinite tunnel](https://ajeckblad.github.io/motion-library/fx/infinite-tunnel.html): Distance-field tube on a winding path, panels from angle and depth. `npx motion-library add infinite-tunnel`

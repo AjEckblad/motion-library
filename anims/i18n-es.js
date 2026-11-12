@@ -332,8 +332,8 @@ export const ES = {
   "title": "Portal",
   "trick": "Los rayos que cruzan el anillo terminan su trazado en un segundo mundo",
   "notes": [
-   "Un anillo de piedra sobre una duna deja ver un mar nocturno a través, y la cámara lo atraviesa volando.",
-   "Los rayos recorren el desierto mediante raymarching; cualquier rayo que cruza la abertura del anillo continúa desde ese punto en el otro mundo, así que el paralaje es real."
+   "Una puerta de piedra tallada en un desierto dorado se abre a un mar nocturno bajo un planeta con anillos; la cámara la cruza y vuelve.",
+   "Los rayos recorren el desierto mediante raymarching; el que cruza la abertura sigue en el otro mundo, así que el paralaje es real."
   ]
  },
  "glass-lens": {
@@ -354,10 +354,10 @@ export const ES = {
  },
  "cloth-reveal": {
   "title": "Revelado con tela",
-  "trick": "Tela Verlet con colisiones cónicas: se engancha, se tensa y sale volando",
+  "trick": "Seda Verlet tensada sobre puntas cónicas, retirada luego por una esquina",
   "notes": [
-   "Una seda cae sobre un pedestal, se tensa sobre unas púas y se retira de un tirón para revelar una estrella cromada.",
-   "Tela Verlet con restricciones de vecinos, diagonales y flexión resueltas diez veces por fotograma, que choca con la esfera central y las púas cónicas de la estrella."
+   "Una seda roja cae flotando sobre un pedestal y se apoya en puntas ocultas; luego se tira de una esquina y aparece una estrella cromada.",
+   "Puntos Verlet con restricciones de estiramiento, cizalla y flexión chocan con la estrella como doce conos; la seda se dibuja como una superficie B-spline suave."
   ]
  },
  "liquid-metal": {

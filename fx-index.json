@@ -1719,7 +1719,7 @@
    "npx": "npx motion-library add portal",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 28274,
+   "bytes": 29771,
    "settings": [
     {
      "key": "speed",
@@ -1838,14 +1838,14 @@
    "category": "Chrome & 3D",
    "categoryId": "chrome",
    "renderer": "WebGL",
-   "description": "Verlet cloth with cone collisions: snags, tents, then whips off",
-   "descriptionZh": "带圆锥碰撞的 Verlet 布料：钩住、撑起，再被一把扯下",
+   "description": "Verlet silk tents over cone-shaped points, then slides off by a corner",
+   "descriptionZh": "Verlet 丝绸搭在锥形尖角上，再被拉住一角滑落",
    "page": "https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/cloth-reveal",
    "npx": "npx motion-library add cloth-reveal",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 27599,
+   "bytes": 30500,
    "settings": [
     {
      "key": "grid",

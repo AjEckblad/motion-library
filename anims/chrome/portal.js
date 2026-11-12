@@ -48,10 +48,10 @@ export default function (stage) {
   float dunes(vec2 p) {
     vec2 c = vec2(p.x * (p.x < 0. ? .6 : 1.15), p.y - clamp(p.y, -1.5, 8.8));     // a corridor kept clear for the flight
     float far = smoothstep(2.5, 15., length(c) + 3. * vn(p * .09) - 1.5);
-    vec2 w = p + 9. * vec2(vn(p * .045), vn(p * .045 + 31.7));
+    vec2 w = p + 13. * vec2(vn(p * .055), vn(p * .055 + 31.7));
     float f = fract(dot(w, vec2(.83, .55)) * .085);
     float rg = min(f / .7, (1. - f) / .3); rg = rg * rg * (2. - rg);
-    return rg * (.35 + .65 * vn(p * .028 + 7.)) * mix(.3, 3.4, far) + (vn(p * .017) - .45) * 5. * far + .22 * vn(p * .13) - .14;
+    return rg * (.35 + .65 * vn(p * .028 + 7.)) * mix(.55 * smoothstep(1.6, 4.5, length(p)), 3.4, far) + (vn(p * .017) - .45) * 5. * far + .22 * vn(p * .13) - .14;
   }
   float marchSand(vec3 ro, vec3 rd, float tmax) {
     float t = .01; tmax = min(tmax, 220.);
@@ -78,10 +78,10 @@ export default function (stage) {
   float gate(vec3 p) {
     float d = ring(p - GC);
     d = min(d, sdBox(vec3(abs(p.x) - .98, p.y - .32, p.z), vec3(.3), .03));
-    return min(d, sdBox(p - vec3(0., -.2, 0.), vec3(1.75, .32, .62), .04));
+    return min(d, sdBox(p - vec3(0., -.06, 0.), vec3(1.75, .18, .62), .04));
   }
   vec2 boxT(vec3 ro, vec3 rd) {
-    vec3 inv = 1. / rd, t0 = (vec3(-1.82, -.56, -.7) - ro) * inv, t1 = (vec3(1.82, 3.04, .7) - ro) * inv;
+    vec3 inv = 1. / rd, t0 = (vec3(-1.82, -.28, -.7) - ro) * inv, t1 = (vec3(1.82, 3.04, .7) - ro) * inv;
     vec3 a = min(t0, t1), b = max(t0, t1);
     return vec2(max(max(a.x, a.y), a.z), min(min(b.x, b.y), b.z));
   }
@@ -117,8 +117,9 @@ export default function (stage) {
   // ---- skies
   vec3 skyBaseA(vec3 d) {
     float s = max(dot(d, SUN), 0.);
-    float y = smoothstep(-.02, .65, d.y);
-    vec3 c = mix(mix(vec3(.85, .52, .3), vec3(.55, .55, .58), smoothstep(0., .3, y)), vec3(.1, .22, .5), smoothstep(.2, 1., y));
+    float y = smoothstep(-.02, .65, d.y), az = .5 + .5 * dot(normalize(vec3(d.x, 0., d.z) + 1e-4), normalize(vec3(SUN.x, 0., SUN.z)));
+    vec3 hor = mix(vec3(.5, .42, .5), vec3(1., .56, .27), az * az);             // mauve away from the sun, gold toward it
+    vec3 c = mix(mix(hor, mix(vec3(.38, .45, .6), vec3(.6, .56, .52), az), smoothstep(0., .3, y)), vec3(.08, .2, .5), smoothstep(.2, 1., y));
     c = mix(c, vec3(1.25, .62, .28), pow(s, 4.) * .7 * smoothstep(.5, -.05, d.y));     // the horizon burns where the sun is
     float anti = max(dot(normalize(vec3(-d.x, 0., -d.z) + 1e-4), normalize(vec3(SUN.x, 0., SUN.z))), 0.);
     c += vec3(.3, .1, .14) * anti * anti * exp(-max(d.y - .04, 0.) * 9.) * smoothstep(-.02, .06, d.y);   // the pink band opposite the sun
@@ -202,12 +203,12 @@ export default function (stage) {
     }
     return acc * (2.6 / fN) * smoothstep(.012, .12, d.y);
   }
-  vec3 skyB(vec3 ro, vec3 d, bool hi) {
+  vec3 skyB(vec3 ro, vec3 d, bool hi, float soft) {
     vec3 c = mix(vec3(.011, .019, .032), vec3(.0015, .003, .009), pow(smoothstep(-.02, .5, d.y), .5));
     c += vec3(.003, .012, .008) * exp(-max(d.y, 0.) * 12.);                // airglow low on the horizon
     if (hi) c += stars(d) * smoothstep(-.01, .15, d.y);
-    vec4 pl = planet(d, hi ? 1. : 10.); c = c * (1. - pl.a) + pl.rgb;
-    if (!hi) { float an = 1. - dot(d, PD); c += vec3(.55, .45, .35) * (exp(-an * 220.) * .45 + exp(-an * 30.) * .06); }
+    vec4 pl = planet(d, soft); c = c * (1. - pl.a) + pl.rgb;
+    if (!hi) { float an = 1. - dot(d, PD); c += vec3(.55, .45, .35) * (exp(-an * 160.) * .3 + exp(-an * 30.) * .05); }
     return c + aurora(ro, d, hi ? 24 : 8);
   }
 
@@ -224,7 +225,9 @@ export default function (stage) {
   vec3 shadeGate(vec3 p, vec3 rd, float w) {
     vec3 n = gateN(p), q = p - GC;
     float rl = length(q.xy), a = atan(q.y, q.x), s = (a + PI * .5) / (2. * PI) * NB, id = mod(floor(s), NB), fs = fract(s) - .5;
-    bool rp = ring(q) < .004;
+    // on the ring if the ring is the nearest part: a fixed distance test failed where the march stops short of it, on
+    // the inner face seen edge-on, which then lost its glow and went dark and speckled
+    bool rp = ring(q) <= min(sdBox(vec3(abs(p.x) - .98, p.y - .32, p.z), vec3(.3), .03), sdBox(p - vec3(0., -.06, 0.), vec3(1.75, .18, .62), .04));
     vec3 hb = h33(vec3(id, 3.1, 7.7));
     float m = vn(p.xy * 3.1 + p.z * 2.) * .6 + vn(p.zy * 11. + p.x * 5.) * .4;
     vec3 alb = vec3(.11, .1, .09) * (.65 + .7 * m) * (rp ? .8 + .4 * hb.z : 1.);
@@ -313,7 +316,7 @@ export default function (stage) {
     vec3 n = normalize(vec3(-g * WAV, 1.).xzy);
     float fr = .02 + .98 * pow(1. - max(dot(n, -rd), 0.), 5.);
     vec3 r = reflect(rd, n); r.y = abs(r.y) + .002; r = normalize(r);
-    vec3 rc = skyB(p, r, false);
+    vec3 rc = skyB(p, r, false, min(5. + t * 3.5, 50.));       // far away the waves blur the planet's image into a glade
     float tg = marchGate(p + vec3(0, .01, 0), r, 16.), tq = p.z * r.z < 0. ? -p.z / r.z : 1e9;
     if (tq < tg && length((p + r * tq).xy - GC.xy) < RIN) rc = dayView(r);
     else if (tg < 1e8) rc = vec3(.005, .008, .01) + vec3(.1, .2, .17) * .04;
@@ -332,13 +335,13 @@ export default function (stage) {
     th = 1e9;
     if (w < .5) {
       rd = heat(rd);
-      float tg = marchGate(ro, rd, tmax), ts = marchSand(ro, rd, min(tg, tmax)), t = min(tg, ts);
+      float tg = marchGate(ro, rd, tmax), ts = marchSand(ro, rd, min(tg + .3, tmax)), t = min(tg, ts);
       if (t > min(tmax, 1e8)) return sky ? skyA(rd) : vec3(0);
       th = t; vec3 p = ro + rd * t;
       return fogA(tg <= ts ? shadeGate(p, rd, 0.) : shadeSand(p, rd, t + t0), rd, t + t0);
     }
     float tsea = rd.y < 0. ? -ro.y / rd.y : 1e9, tg = marchGate(ro, rd, min(tsea, tmax)), t = min(tg, tsea);
-    if (t > min(tmax, 1e8)) return sky ? skyB(ro, rd, true) : vec3(0);
+    if (t > min(tmax, 1e8)) return sky ? skyB(ro, rd, true, 1.) : vec3(0);
     th = t; vec3 p = ro + rd * t;
     vec3 c = tg < tsea ? shadeGate(p, rd, 1.) : shadeSea(p, rd, t + t0);
     return mix(c, vec3(.014, .031, .04), 1. - exp(-(t + t0) * .006));
@@ -356,14 +359,16 @@ export default function (stage) {
       float e = rr / RIN; vec2 dir = dq / max(rr, 1e-4);
       vec2 bend = dir * cos(rr * 17. - T * 2.3) * (.003 + .02 * smoothstep(.55, 1., e));
       bend += (vec2(vn(dq * 4. + T * .5), vn(dq * 4. - T * .45 + 7.)) - .5) * .012;
-      float x = rr - 1.5 * (RIPT + .9), wave = exp(-x * x * 9.) * smoothstep(-.9, -.4, RIPT) * exp(-max(RIPT, 0.) * 2.2);
-      bend += dir * cos(x * 26.) * wave * .06;
+      float x = rr - 1.4 * (RIPT + 1.1) + .06 * vn(dq * 6. + T), wave = exp(-x * x * 18.) * smoothstep(-1.1, -.5, RIPT) * exp(-max(RIPT, 0.) * 2.5);
+      bend += dir * cos(x * 24.) * wave * .07 + dir * sin(rr * 26. - T * 5.) * .007 * NEAR * NEAR;   // the surface stirs as you come close
       vec3 rd2 = normalize(rd + vec3(bend, 0.)), pp = vec3(GC.xy + dq, 0.);
       float t2; col = world(pp, rd2, 1. - WORLD, 1e9, tp, true, t2);
       vec3 gc = WORLD < .5 ? vec3(.4, .75, 1.) : vec3(1., .72, .42);
-      col += gc * GLOW * (exp(-(1. - e) * 40.) * .7 + exp(-(1. - e) * 6.) * .05 + wave * .4);
+      col *= WORLD < .5 ? 1. : .62;
+      col += gc * GLOW * (exp(-(1. - e) * 40.) * .7 + exp(-(1. - e) * 6.) * .04 + pow(max(sin(x * 24.), 0.), 8.) * wave * .14);
     }
-    col = col * EXPO + (WORLD < .5 ? vec3(1., .86, .66) : vec3(.7, .85, 1.)) * FLASH * 1.4;
+    // the crossing flash is an exposure surge, not added light: added light lifts the night's blacks into a flat grey veil
+    col *= EXPO * (1. + FLASH * 6. * (WORLD < .5 ? vec3(1., .9, .75) : vec3(.8, .9, 1.)));
     col = aces(col) * (1. - .3 * pow(length(uv - .5) * 1.2, 2.5));
     o = vec4(pow(col, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy) - .5) / 255., 1);
   }`;
@@ -413,8 +418,8 @@ export default function (stage) {
     if (!reduce) {
       const ph = mod(th, TAU), rate = TAU / LOOP;
       const since = (ph - (inB ? Math.PI : 0)) / rate, until = ((inB ? TAU : Math.PI) - ph) / rate;
-      expo = inB ? 1.1 - 0.65 * Math.exp(-since / 0.8) : 0.85 + 1.8 * Math.exp(-since / 0.5);
-      flash = until < since ? Math.exp(-((until / 0.07) ** 2)) : Math.exp(-since / 0.22);
+      expo = inB ? 1.1 - 0.85 * Math.exp(-since / 0.9) : 0.85 + 1.8 * Math.exp(-since / 0.5);
+      flash = until < since ? Math.exp(-((until / 0.05) ** 2)) : Math.exp(-since / 0.06);
       ript = until < since ? -until : since;
     }
     gl.uniform2f(U.R, W, H); gl.uniform1f(U.T, reduce ? t * 0.35 : t); gl.uniform1f(U.WORLD, inB ? 1 : 0);
