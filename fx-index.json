@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 213,
+ "count": 214,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -6397,6 +6397,51 @@
      "min": 6,
      "max": 50,
      "step": 1
+    }
+   ]
+  },
+  {
+   "id": "page-turn",
+   "title": "Page turn",
+   "titleZh": "翻页",
+   "category": "Page transitions",
+   "categoryId": "transitions",
+   "renderer": "WebGL",
+   "description": "Each row bent from the spine in short segments, so paper never stretches",
+   "descriptionZh": "每一行从书脊出发由短段连接弯曲，纸张永不拉伸",
+   "page": "https://ajeckblad.github.io/motion-library/fx/page-turn.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/page-turn",
+   "npx": "npx motion-library add page-turn",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 25457,
+   "settings": [
+    {
+     "key": "every",
+     "flag": "--every",
+     "label": "Turn every (s)",
+     "default": 4.5,
+     "min": 2,
+     "max": 10,
+     "step": 0.5
+    },
+    {
+     "key": "curl",
+     "flag": "--curl",
+     "label": "Curl",
+     "default": 1,
+     "min": 0,
+     "max": 2,
+     "step": 0.05
+    },
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Speed",
+     "default": 1,
+     "min": 0.4,
+     "max": 2.5,
+     "step": 0.1
     }
    ]
   },

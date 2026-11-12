@@ -478,4 +478,8 @@ export const MORE = [
     trick: 'Type on a Möbius band, framed by parallel transport',
     notes: ['A band of bold type twists through space as a Möbius strip, and the words run round it forever, mirrored in a glossy floor.', 'The band is carried along the path without spinning, then given exactly half a turn per lap, so the line of type covers both faces in two laps. Try 3 or 5 half twists.'],
     params: { speed: P(0, 3, 0.1, 'Speed'), twists: P(1, 5, 2, 'Half twists'), width: P(0.4, 1.8, 0.05, 'Band width') } },
+  { id: 'page-turn', cat: 'transitions', title: 'Page turn', kind: 'webgl', posterAt: 1850, pointer: true,
+    trick: 'Each row bent from the spine in short segments, so paper never stretches',
+    notes: ['An open book turns its own pages: each lifts from the lower corner, bends over the spine and lands. Drag the right page to turn it yourself.', 'Every row of the page is a chain of short segments angled a little more toward the edge, so it arcs without stretching; its shadow is projected onto the pages below.'],
+    params: { every: P(2, 10, 0.5, 'Turn every (s)'), curl: P(0, 2, 0.05, 'Curl'), speed: P(0.4, 2.5, 0.1, 'Speed') } },
 ];

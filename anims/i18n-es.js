@@ -1,5 +1,13 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "page-turn": {
+  "title": "Paso de página",
+  "trick": "Cada fila se dobla desde el lomo en tramos cortos: el papel nunca se estira",
+  "notes": [
+   "Un libro abierto pasa sus propias páginas: cada una se levanta por la esquina inferior, se curva sobre el lomo y cae. Arrastra la página derecha para pasarla tú.",
+   "Cada fila de la página es una cadena de tramos cortos, un poco más inclinados hacia el borde, así que se curva sin estirarse; su sombra se proyecta sobre las páginas de debajo."
+  ]
+ },
  "type-ribbon": {
   "title": "Cinta tipográfica",
   "trick": "Texto sobre una banda de Möbius, orientada por transporte paralelo",
@@ -1708,6 +1716,7 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Turn every (s)": "Pasar cada (s)",
  "Half twists": "Medias vueltas",
  "Band width": "Ancho de la cinta",
  "Fold": "Plegado",

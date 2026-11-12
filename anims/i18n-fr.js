@@ -1,5 +1,13 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "page-turn": {
+  "title": "Tourner la page",
+  "trick": "Chaque rangée pliée depuis le dos en courts segments : le papier ne s’étire jamais",
+  "notes": [
+   "Un livre ouvert tourne ses propres pages : chacune se soulève par le coin inférieur, se courbe par-dessus le dos et retombe. Faites glisser la page de droite pour la tourner vous-même.",
+   "Chaque rangée de la page est une chaîne de courts segments, un peu plus inclinés vers le bord, si bien qu’elle se courbe sans s’étirer ; son ombre est projetée sur les pages du dessous."
+  ]
+ },
  "type-ribbon": {
   "title": "Ruban typographique",
   "trick": "Du texte sur un ruban de Möbius, orienté par transport parallèle",
@@ -1708,6 +1716,7 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Turn every (s)": "Tourner toutes les (s)",
  "Half twists": "Demi-tours",
  "Band width": "Largeur du ruban",
  "Fold": "Pliage",

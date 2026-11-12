@@ -1,5 +1,13 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "page-turn": {
+  "title": "翻页",
+  "trick": "每一行从书脊出发由短段连接弯曲，纸张永不拉伸",
+  "notes": [
+   "一本打开的书自己翻页：每页从下角掀起，越过书脊弯曲，再落到左边。也可以拖动右页亲手翻。",
+   "每一行都是一串短段，越靠外缘角度越大，所以纸张弯成弧形却不会拉伸；它的影子投在下面的书页上。"
+  ]
+ },
  "type-ribbon": {
   "title": "文字缎带",
   "trick": "文字贴在莫比乌斯带上，用平行移动标架定向",
@@ -1708,6 +1716,7 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Turn every (s)": "翻页间隔（秒）",
  "Half twists": "半扭数",
  "Band width": "带宽",
  "Fold": "折法",

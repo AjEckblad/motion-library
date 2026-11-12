@@ -1,6 +1,6 @@
 # Motion Library
 
-> 213 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 214 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -188,6 +188,7 @@
 - [Directional tabs](https://ajeckblad.github.io/motion-library/fx/directional-tabs.html): Content enters from the side of the tab you picked. `npx motion-library add directional-tabs`
 - [Blur crossfade](https://ajeckblad.github.io/motion-library/fx/blur-crossfade.html): A short blur hides the double image. `npx motion-library add blur-crossfade`
 - [Card stack swipe](https://ajeckblad.github.io/motion-library/fx/card-stack-swipe.html): Drag, stamp, throw; the stack springs up. `npx motion-library add card-stack-swipe`
+- [Page turn](https://ajeckblad.github.io/motion-library/fx/page-turn.html): Each row bent from the spine in short segments, so paper never stretches. `npx motion-library add page-turn`
 
 ## Text
 
