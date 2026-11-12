@@ -1,5 +1,13 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "lenia": {
+  "title": "Lenia",
+  "trick": "Convolution par noyau en anneau et cloche de croissance : Lenia, quatre espèces",
+  "notes": [
+   "De vraies créatures du catalogue Lenia de Bert Chan glissent, tournent, se heurtent et cicatrisent dans une goutte sous un microscope à fluorescence ; bougez pour faire la mise au point, glissez pour blesser.",
+   "Chaque cellule fait la moyenne de ses voisines à travers un anneau doux, puis croît ou s’efface selon une cloche. Vitesse règle les pas par image ; Population, combien vivent."
+  ]
+ },
  "dynamic-island": {
   "title": "Île dynamique",
   "trick": "Une boîte noire découpée par trois ressorts : largeur, hauteur et rayon",
@@ -1732,6 +1740,7 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Population": "Population",
  "Hold": "Pause",
  "Flakes": "Flocons",
  "Shake every (s)": "Secouer toutes les (s)",

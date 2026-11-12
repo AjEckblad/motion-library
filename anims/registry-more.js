@@ -490,4 +490,8 @@ export const MORE = [
     trick: 'One black box clipped to three springs: width, height and corner radius',
     notes: ['On a lock screen the pill around the camera grows into a call, its timer, a music player and a countdown. Tap it to open or close the player.', 'The shape is a clip-path whose width, height and radius are springs, so it overshoots a little and any change retargets it; the content fades out fast and in a beat later, with a short blur.'],
     params: { stiffness: P(120, 700, 10, 'Stiffness'), bounce: P(0, 0.6, 0.02, 'Bounce'), hold: P(0.5, 2.5, 0.1, 'Hold') } },
+  { id: 'lenia', cat: 'simulation', title: 'Lenia', kind: 'webgl', posterAt: 18000, pointer: true,
+    trick: 'Ring-kernel convolution and a growth bump: Chan’s Lenia, four species',
+    notes: ['Real creatures from Bert Chan’s Lenia catalogue glide, spin, collide and heal in a drop under a fluorescence microscope; move to focus, drag to wound.', 'Each cell averages its neighbours through a soft ring and grows or fades by a bell curve. Speed sets steps per frame; Population sets how many live.'],
+    params: { speed: P(0.25, 2, 0.05, 'Speed'), population: P(0.5, 2, 0.1, 'Population'), glow: P(0, 2, 0.1, 'Glow') } },
 ];

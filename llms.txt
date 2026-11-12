@@ -1,6 +1,6 @@
 # Motion Library
 
-> 216 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 217 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -147,6 +147,7 @@
 - [N-body orbits](https://ajeckblad.github.io/motion-library/fx/orbits.html): Every body pulls every other; leapfrog integration keeps orbits closed. `npx motion-library add orbits`
 - [Vortex drain](https://ajeckblad.github.io/motion-library/fx/vortex.html): Lamb–Oseen vortex plus inflow; differential rotation winds colour into arms. `npx motion-library add vortex`
 - [Plexus](https://ajeckblad.github.io/motion-library/fx/plexus.html): Drifting points linked by distance-faded lines, found through a grid. `npx motion-library add plexus`
+- [Lenia](https://ajeckblad.github.io/motion-library/fx/lenia.html): Ring-kernel convolution and a growth bump: Chan’s Lenia, four species. `npx motion-library add lenia`
 
 ## Retro & signal
 

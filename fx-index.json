@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 216,
+ "count": 217,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -5127,6 +5127,51 @@
      "default": 1,
      "min": 0,
      "max": 3,
+     "step": 0.1
+    }
+   ]
+  },
+  {
+   "id": "lenia",
+   "title": "Lenia",
+   "titleZh": "Lenia 连续生命",
+   "category": "Simulation",
+   "categoryId": "simulation",
+   "renderer": "WebGL",
+   "description": "Ring-kernel convolution and a growth bump: Chan’s Lenia, four species",
+   "descriptionZh": "环形核卷积加生长钟形曲线：Chan 的 Lenia，四个物种",
+   "page": "https://ajeckblad.github.io/motion-library/fx/lenia.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/lenia",
+   "npx": "npx motion-library add lenia",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 32399,
+   "settings": [
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Speed",
+     "default": 1,
+     "min": 0.25,
+     "max": 2,
+     "step": 0.05
+    },
+    {
+     "key": "population",
+     "flag": "--population",
+     "label": "Population",
+     "default": 1,
+     "min": 0.5,
+     "max": 2,
+     "step": 0.1
+    },
+    {
+     "key": "glow",
+     "flag": "--glow",
+     "label": "Glow",
+     "default": 1,
+     "min": 0,
+     "max": 2,
      "step": 0.1
     }
    ]

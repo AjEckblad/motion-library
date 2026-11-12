@@ -1,6 +1,6 @@
 # Motion Library
 
-> 216 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 217 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -1346,6 +1346,17 @@ Points link to neighbours within a set distance, fading with length, found throu
 
 Settings: --density 1 (0.3 to 2.5, step 0.1; Density); --link 120 (50 to 200, step 5; Link distance); --pull 1 (0 to 3, step 0.1; Cursor pull).
 Renderer: Canvas 2D. Size: 5.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/plexus.html
+
+### Lenia
+
+Lenia is a WebGL effect: ring-kernel convolution and a growth bump: Chan’s Lenia, four species. One plain JavaScript file with no dependencies; add it with npx motion-library add lenia.
+
+Real creatures from Bert Chan’s Lenia catalogue glide, spin, collide and heal in a drop under a fluorescence microscope; move to focus, drag to wound.
+
+Each cell averages its neighbours through a soft ring and grows or fades by a bell curve. Speed sets steps per frame; Population sets how many live.
+
+Settings: --speed 1 (0.25 to 2, step 0.05; Speed); --population 1 (0.5 to 2, step 0.1; Population); --glow 1 (0 to 2, step 0.1; Glow).
+Renderer: WebGL. Size: 31.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/lenia.html
 
 
 ## Retro & signal

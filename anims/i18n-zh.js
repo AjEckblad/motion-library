@@ -1,5 +1,13 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "lenia": {
+  "title": "Lenia 连续生命",
+  "trick": "环形核卷积加生长钟形曲线：Chan 的 Lenia，四个物种",
+  "notes": [
+   "Bert Chan 的 Lenia 图鉴中的真实生物，在荧光显微镜下的水滴里滑行、旋转、碰撞并自我愈合；上下移动指针调焦，拖动可划伤它们。",
+   "每个格子通过一个柔和的圆环对邻居取加权平均，再按钟形曲线生长或消退。速度控制每帧步数，数量控制存活多少。"
+  ]
+ },
  "dynamic-island": {
   "title": "灵动岛",
   "trick": "一个黑色方块，用三个弹簧裁出宽、高和圆角",
@@ -1732,6 +1740,7 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Population": "数量",
  "Hold": "停留",
  "Flakes": "雪花数",
  "Shake every (s)": "摇晃间隔（秒）",
