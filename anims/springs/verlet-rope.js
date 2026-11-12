@@ -4,7 +4,7 @@ const PARAMS = { segments: 24, gravity: 900, iterations: 8 };
 
 export default function (stage) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const K = 'vrp', BG = 'radial-gradient(120% 100% at 50% 0%,#fff3e8,#f3dcc8)', SC = '#1b1916', SBC = '#fff';
+  const K = 'vrp', BG = 'radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f)', SC = '#1b1916', SBC = '#fff';
   const CSS = `.vrp-glow{position:absolute;inset:0;background:radial-gradient(70% 45% at 50% 30%,#ffd79a 0%,#f2a65e 35%,rgba(120,60,20,.0) 75%),linear-gradient(#3a2a1c,#2a2119);opacity:0;will-change:opacity}
     .vrp-hd{position:absolute;left:20px;right:20px;top:50px;color:#fff;display:flex;justify-content:space-between;align-items:baseline;z-index:3}.vrp-hd b{font-size:24px;font-weight:720;letter-spacing:-.02em}.vrp-hd span{font-size:12px;color:rgba(255,255,255,.6)}
     .vrp-lamp{position:absolute;left:84px;top:96px;width:98px;height:110px;z-index:2}.vrp-lamp svg{display:block}
@@ -24,7 +24,7 @@ export default function (stage) {
   root.className = K + '-root';
   root.innerHTML = `<style>
     .${K}-root{position:absolute;inset:0;overflow:hidden;background:${BG};font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#15171a;user-select:none;-webkit-user-select:none}
-    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #2b2f34,0 40px 80px -30px rgba(70,30,5,.45),0 12px 30px -12px rgba(70,30,5,.3);transform-origin:50% 0}
+    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #3a3f46,0 0 0 1px rgba(255,255,255,.13),0 40px 80px -30px rgba(0,0,0,.8);transform-origin:50% 0}
     .${K}-sc{position:absolute;inset:7px;border-radius:39px;overflow:hidden;background:${SC};isolation:isolate;touch-action:none}
     .${K}-is{position:absolute;left:50%;top:17px;width:76px;height:22px;margin-left:-38px;border-radius:12px;background:#000;z-index:30}
     .${K}-sb{position:absolute;left:0;right:0;top:0;height:44px;padding:0 26px 0 34px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:650;z-index:29;pointer-events:none;color:${SBC}}

@@ -450,10 +450,10 @@ export const ES = {
  },
  "paper-fold": {
   "title": "Pliegue de papel",
-  "trick": "Bisagras CSS 3D anidadas, sombreadas según sus normales reales",
+  "trick": "Un árbol de bisagras CSS 3D: el último pliegue arrastra al resto",
   "notes": [
-   "Una hoja impresa se pliega en tres y luego por la mitad, con pliegues que captan la luz de la lámpara.",
-   "Paneles preserve-3d anidados con backface-visibility hidden; la normal de cada cara se gira a través de sus bisagras en JavaScript y se compara con la lámpara para sombrearla."
+   "Una hoja impresa se pliega y se abre sobre la mesa: como carta, en ventana, en acordeón o como un mapa.",
+   "Cada pliegue es una bisagra preserve-3d anidada para que el último arrastre a los demás; cada cara se sombrea según su normal girada por sus bisagras."
   ]
  },
  "menger-sponge": {
@@ -1700,6 +1700,11 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Fold": "Plegado",
+ "Letter": "Carta",
+ "Gate": "Ventana",
+ "Accordion": "Acordeón",
+ "Map": "Mapa",
  "4D perspective": "Perspectiva 4D",
  "Actions": "Acciones",
  "Activity": "Actividad",

@@ -10,7 +10,7 @@ export default function (stage) {
   const smooth = pts => pts.reduce((d, p, i) => { if (!i) return `M${p[0]} ${p[1]}`; const q = pts[i - 1], mx = (q[0] + p[0]) / 2; return d + `C${mx} ${q[1]} ${mx} ${p[1]} ${p[0]} ${p[1]}`; }, '');
   const pv = visits.map((v, i) => [X(i), Yv(v)]), ps = signups.map((v, i) => [X(i), Ys(v)]);
   root.innerHTML = `<style>
-    .ldr-root { position: absolute; inset: 0; overflow: hidden; background: #f1ecf0; font-family: system-ui, -apple-system, sans-serif; }
+    .ldr-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, sans-serif; }
     .ldr-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
     .ldr-card { position: absolute; left: 20px; top: 22px; width: 380px; height: 276px; border-radius: 18px; background: #fff; box-shadow: 0 1px 2px rgba(42,15,38,.07), 0 16px 36px -18px rgba(42,15,38,.3); }
     .ldr-h { position: absolute; left: 20px; top: 18px; font-size: 14px; font-weight: 700; color: #1d0b1a; }

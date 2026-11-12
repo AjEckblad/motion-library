@@ -1378,10 +1378,10 @@ export const ZH = {
  },
  "paper-fold": {
   "title": "折纸",
-  "trick": "嵌套的 CSS 3D 铰链，按真实法线着色",
+  "trick": "CSS 3D 铰链树：最后一道折痕带动其余部分",
   "notes": [
-   "一张印刷纸先三折再对折，折痕在台灯下泛光。",
-   "嵌套 preserve-3d 面板并隐藏 backface-visibility；在 JavaScript 中把每面法线经过各铰链旋转后与灯光比较来着色。"
+   "一张印刷纸在桌上折起又展开：可折成信件、对门折、风琴折或地图。",
+   "每道折痕都是嵌套的 preserve-3d 铰链，最后一折带动其余部分；每个面按经铰链旋转后的法线着色。"
   ]
  },
  "menger-sponge": {
@@ -1700,6 +1700,11 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Fold": "折法",
+ "Letter": "信件",
+ "Gate": "对门",
+ "Accordion": "风琴",
+ "Map": "地图",
  "4D perspective": "4D 透视",
  "Actions": "操作数",
  "Activity": "活跃度",

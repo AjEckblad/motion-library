@@ -106,7 +106,7 @@ const PARAMS = { stiffness: 380, bounce: 0.15 };
 
 export default function (stage) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const K = 'bsh', BG = 'radial-gradient(120% 100% at 50% 0%,#fff3e8,#f3dcc8)', SC = '#ebe6dc', SBC = '#15171a';
+  const K = 'bsh', BG = 'radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f)', SC = '#ebe6dc', SBC = '#15171a';
   const row = (n, s, d, c) =&gt; `&lt;div class=&quot;bsh-row&quot;&gt;&lt;span class=&quot;bsh-th&quot; style=&quot;background:${c}&quot;&gt;&lt;/span&gt;&lt;span class=&quot;bsh-tx&quot;&gt;&lt;b&gt;${n}&lt;/b&gt;&lt;small&gt;${s}&lt;/small&gt;&lt;/span&gt;&lt;span class=&quot;bsh-d&quot;&gt;${d}&lt;/span&gt;&lt;/div&gt;`;
   const CSS = `.bsh-map{position:absolute;inset:0;transform-origin:50% 30%}.bsh-map svg{width:100%;height:100%;display:block}
     .bsh-dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
@@ -131,7 +131,7 @@ export default function (stage) {
   root.className = K + '-root';
   root.innerHTML = `&lt;style&gt;
     .${K}-root{position:absolute;inset:0;overflow:hidden;background:${BG};font-family:system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;color:#15171a;user-select:none;-webkit-user-select:none}
-    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #2b2f34,0 40px 80px -30px rgba(70,30,5,.45),0 12px 30px -12px rgba(70,30,5,.3);transform-origin:50% 0}
+    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #3a3f46,0 0 0 1px rgba(255,255,255,.13),0 40px 80px -30px rgba(0,0,0,.8);transform-origin:50% 0}
     .${K}-sc{position:absolute;inset:7px;border-radius:39px;overflow:hidden;background:${SC};isolation:isolate;touch-action:none}
     .${K}-is{position:absolute;left:50%;top:17px;width:76px;height:22px;margin-left:-38px;border-radius:12px;background:#000;z-index:30}
     .${K}-sb{position:absolute;left:0;right:0;top:0;height:44px;padding:0 26px 0 34px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:650;z-index:29;pointer-events:none;color:${SBC}}

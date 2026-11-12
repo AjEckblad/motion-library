@@ -48,7 +48,7 @@ export default function (stage) {
     const p = ease(Math.max(0, Math.min(1, local))), A = tracks[k], B = tracks[(k + 1) % tracks.length];
     const s = Math.min(W / 420, H / 320);
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(canvas.width / W, canvas.height / H);
-    ctx.fillStyle = '#f1ecf0'; ctx.fillRect(0, 0, W, H);
+    { const g = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, Math.hypot(W / 2, H)); g.addColorStop(0, '#1b1b1e'); g.addColorStop(1, '#0d0d0f'); ctx.fillStyle = g; } ctx.fillRect(0, 0, W, H);   // the library's near-black ground
     ctx.translate(W / 2 - 210 * s, H / 2 - 160 * s); ctx.scale(s, s);
     // player card
     ctx.save(); ctx.shadowColor = 'rgba(42,15,38,.22)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 12;

@@ -8,7 +8,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'an-root';
   root.innerHTML = `<style>
-    .an-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
+    .an-root { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); overflow: hidden; color: #15171a; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
     .an-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
     .an-img { position: absolute; left: 16px; top: 16px; width: 208px; height: 208px; border-radius: 12px; background: #efe6da; display: grid; place-items: center; }
     .an-img svg { width: 168px; height: 168px; }

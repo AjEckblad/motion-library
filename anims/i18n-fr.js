@@ -450,10 +450,10 @@ export const FR = {
  },
  "paper-fold": {
   "title": "Pliage de papier",
-  "trick": "Charnières CSS 3D imbriquées, ombrées d’après leurs vraies normales",
+  "trick": "Un arbre de charnières CSS 3D : le dernier pli emporte les autres",
   "notes": [
-   "Une feuille imprimée se plie en trois puis en deux, avec des plis qui accrochent la lumière de la lampe.",
-   "Panneaux preserve-3d imbriqués avec backface-visibility hidden ; la normale de chaque face est tournée à travers ses charnières en JavaScript et comparée à la lampe pour l’ombrage."
+   "Une feuille imprimée se plie et se déplie sur un bureau : en lettre, en fenêtre, en accordéon ou en carte.",
+   "Chaque pli est une charnière preserve-3d imbriquée pour que le dernier emporte les autres ; chaque face est ombrée selon sa normale tournée par ses charnières."
   ]
  },
  "menger-sponge": {
@@ -1700,6 +1700,11 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Fold": "Pliage",
+ "Letter": "Lettre",
+ "Gate": "Fenêtre",
+ "Accordion": "Accordéon",
+ "Map": "Carte",
  "4D perspective": "Perspective 4D",
  "Actions": "Actions",
  "Activity": "Activité",

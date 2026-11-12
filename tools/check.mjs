@@ -271,6 +271,15 @@ await er.goto(`${base}/stage.html?src=anims/flow/confetti.js&mode=embed`); await
 check('an embed starts paused under reduced motion', await er.evaluate(() => window.__clock.paused) && await er.locator('.ml-play').isVisible());
 await er.context().close();
 
+// a setting with named choices (Paper fold's folds) is a picker; choosing one rewrites the code, the link and the CLI flag
+const pf = await newPage({ viewport: { width: 1440, height: 900 } });
+await pf.goto(`${base}/index.html#/a/paper-fold`); await pf.waitForSelector('.pick button'); await pf.waitForTimeout(600);
+await pf.click('.pick button:nth-child(4)'); await pf.waitForTimeout(300);
+const pick = await pf.evaluate(() => ({ n: document.querySelectorAll('.pick [role=radio]').length, on: document.querySelector('.pick [aria-checked=true]')?.textContent, hash: location.hash,
+  code: /const PARAMS = \{ fold: 3,/.test(document.querySelector('.code code').textContent), npx: document.querySelector('.npx-cmd').textContent, speed: document.querySelectorAll('.seg [aria-checked]').length }));
+check('Paper fold: the Fold picker sets the fold in the code, link and CLI', pick.n === 4 && pick.on === 'Map' && pick.hash === '#/a/paper-fold?fold=3' && pick.code && pick.npx.endsWith('--fold 3') && pick.speed === 0, JSON.stringify(pick));
+await pf.context().close();
+
 // phone: no sideways scroll
 const ph = await newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 await ph.goto(`${base}/index.html`); await ph.waitForTimeout(1200);

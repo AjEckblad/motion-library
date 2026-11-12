@@ -635,14 +635,14 @@ Renderer: WebGL. Size: 9.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Paper fold
 
-Paper fold is a DOM effect: nested CSS 3D hinges, shaded from their true normals. One plain JavaScript file with no dependencies; add it with npx motion-library add paper-fold.
+Paper fold is a DOM effect: a tree of CSS 3D hinges: the last crease carries the rest. One plain JavaScript file with no dependencies; add it with npx motion-library add paper-fold.
 
-A printed sheet folds in thirds and then in half, with creases that catch the lamp.
+A printed sheet folds and opens on a desk: as a letter, a gate fold, an accordion or a map.
 
-Nested preserve-3d panels with backface-visibility hidden; each face’s normal is turned through its hinges in JavaScript and compared with the lamp for shading.
+Each crease is a preserve-3d hinge nested so the last fold carries the others; every face is shaded from its normal turned through its hinges.
 
-Settings: --cycle 9 (4 to 20, step 0.5; Cycle (s)); --tilt 46 (0 to 70, step 1; Table tilt (deg)); --crease 1 (0 to 2, step 0.05; Crease shading).
-Renderer: DOM (CSS and the Web Animations API). Size: 12.5 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/paper-fold.html
+Settings: --fold 0 (0 to 3, step 1; Fold); --cycle 9 (4 to 20, step 0.5; Cycle (s)); --tilt 46 (0 to 70, step 1; Table tilt (deg)); --crease 1 (0 to 2, step 0.05; Crease shading).
+Renderer: DOM (CSS and the Web Animations API). Size: 23.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/paper-fold.html
 
 ### Menger sponge
 
@@ -1493,7 +1493,7 @@ Tap a shop filter and the product cards leave quickly, then the new ones rise in
 Each card enters from 94% scale and transparent with a hard ease-out; the exit is shorter than the entrance, so new results never wait on old ones.
 
 Settings: --duration 300 (150 to 1200, step 10; Duration (ms)); --startScale 0.94 (0.5 to 1, step 0.01; Start scale); --stagger 60 (0 to 200, step 5; Stagger (ms)).
-Renderer: DOM (CSS and the Web Animations API). Size: 9.9 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/fade-scale.html
+Renderer: DOM (CSS and the Web Animations API). Size: 10.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/fade-scale.html
 
 ### Stagger grid
 
@@ -1504,7 +1504,7 @@ Tap a paint-chart swatch and every swatch turns a shade of it, in a spreading wa
 Each swatch’s delay is its distance from the tap times a small per-cell step (20 to 40 ms), so one rule turns dozens of changes into one ripple.
 
 Settings: --delayPerCell 28 (5 to 80, step 1; Delay per cell (ms)); --cols 10 (4 to 14, step 1; Columns).
-Renderer: DOM (CSS and the Web Animations API). Size: 8.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/stagger-grid.html
+Renderer: DOM (CSS and the Web Animations API). Size: 8.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/stagger-grid.html
 
 ### Easing curves race
 
@@ -1526,7 +1526,7 @@ At checkout the card preview turns over when the CVC field gets focus, and back 
 Two faces sit back to back with backface-visibility hidden and perspective on the parent; a spring drives the angle, so it overshoots slightly and settles.
 
 Settings: --perspective 900 (300 to 2000, step 10; Perspective (px)); --stiffness 160 (40 to 400, step 5; Stiffness); --damping 13 (4 to 40, step 1; Damping).
-Renderer: DOM (CSS and the Web Animations API). Size: 8.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/card-flip.html
+Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/card-flip.html
 
 ### Anticipation & follow-through
 
@@ -1537,7 +1537,7 @@ A product hops into the bag icon, crouching first and stretching in flight, whil
 The crouch is anticipation and the handle’s swing after the bag stops is follow-through, both damped curves computed per frame; without them the hop feels pushed, not jumped.
 
 Settings: --anticipation 0.25 (0 to 0.6, step 0.01; Crouch depth); --overshoot 0.18 (0 to 0.5, step 0.01; Landing overshoot).
-Renderer: DOM (CSS and the Web Animations API). Size: 9.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/anticipation.html
+Renderer: DOM (CSS and the Web Animations API). Size: 9.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/anticipation.html
 
 ### List reorder (FLIP)
 
@@ -1548,7 +1548,7 @@ A running club’s leaderboard re-ranks by distance, pace or climb, and each run
 FLIP: measure each row, reorder, transform each back to its old spot and animate to zero; rows moving up pass above those going down.
 
 Settings: --duration 300 (150 to 1200, step 10; Duration (ms)); --lift 0.03 (0 to 0.08, step 0.005; Lift).
-Renderer: DOM (CSS and the Web Animations API). Size: 8.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/list-reorder.html
+Renderer: DOM (CSS and the Web Animations API). Size: 8.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/list-reorder.html
 
 ### Add & remove
 
@@ -1570,7 +1570,7 @@ A revenue card switches range and each digit rolls to its new value like an odom
 Each digit is a 0–9 strip behind a one-line window with faded edges; only translateY moves, with a small left-to-right stagger so it reads as one sweep.
 
 Settings: --duration 700 (200 to 1500, step 10; Roll (ms)); --stagger 45 (0 to 150, step 5; Stagger (ms)).
-Renderer: DOM (CSS and the Web Animations API). Size: 8.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/number-ticker.html
+Renderer: DOM (CSS and the Web Animations API). Size: 8.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/number-ticker.html
 
 ### Accordion FAQ
 
@@ -1672,7 +1672,7 @@ A tapped photo grows from its square into a full-screen viewer; swipe down and i
 The tile is a centre crop, so the photo scales uniformly while a clip-path opens the crop to the full frame: FLIP with only transform and clip-path.
 
 Settings: --duration 440 (200 to 1000, step 10; Duration (ms)); --backdrop 1 (0.5 to 1, step 0.01; Backdrop).
-Renderer: DOM (CSS and the Web Animations API). Size: 12.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html
+Renderer: DOM (CSS and the Web Animations API). Size: 12.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html
 
 ### Directional tabs
 
@@ -2058,7 +2058,7 @@ Notification switches flip one at a time, each knob stretching along its travel 
 The knob rides a spring, with a scaleX anchored at its trailing edge that grows with speed; the track colour follows knob position, not a timer.
 
 Settings: --stiffness 300 (80 to 800, step 10; Stiffness); --damping 20 (8 to 50, step 1; Damping).
-Renderer: DOM (CSS and the Web Animations API). Size: 4.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/toggle.html
+Renderer: DOM (CSS and the Web Animations API). Size: 4.9 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/toggle.html
 
 ### Like burst
 
@@ -2069,7 +2069,7 @@ A saved product’s heart squashes, pops past full size and settles as a ring an
 Every part starts on the same frame so it reads as one event, and the sparks pick fresh random angles each time.
 
 Settings: --particles 10 (4 to 24, step 1; Sparks); --spread 1 (0.4 to 2, step 0.05; Spread).
-Renderer: DOM (CSS and the Web Animations API). Size: 7.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/like-burst.html
+Renderer: DOM (CSS and the Web Animations API). Size: 7.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/like-burst.html
 
 ### Submit to success
 
@@ -2091,7 +2091,7 @@ A checkout shows a small spinner on the shipping line, then a larger one inside 
 The ring rotates while its stroke dash grows and shrinks, on mismatched periods, so it never repeats the same way twice in a row.
 
 Settings: --speed 1 (0.25 to 3, step 0.05; Speed).
-Renderer: DOM (CSS and the Web Animations API). Size: 6.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/arc-spinner.html
+Renderer: DOM (CSS and the Web Animations API). Size: 6.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/arc-spinner.html
 
 ### Skeleton shimmer
 
@@ -2113,7 +2113,7 @@ Pressing Copy swaps the icon for a tick that draws itself, and a small Copied la
 The icons cross-fade from 95% scale, the tick draws with stroke-dashoffset, and after a moment everything quietly swaps back.
 
 Settings: --duration 200 (100 to 400, step 10; Swap (ms)); --hold 1600 (600 to 3000, step 50; Hold (ms)).
-Renderer: DOM (CSS and the Web Animations API). Size: 6.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/copy-tick.html
+Renderer: DOM (CSS and the Web Animations API). Size: 6.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/copy-tick.html
 
 ### Password strength
 
@@ -2146,7 +2146,7 @@ Each new notification rings the bell and pops or rolls the badge; opening the be
 The ring is a decaying rotation about the bell’s hook, and the old digit slides up and out as the new one slides in.
 
 Settings: --swing 14 (4 to 30, step 1; Swing (deg)); --ringMs 650 (300 to 1200, step 10; Ring (ms)).
-Renderer: DOM (CSS and the Web Animations API). Size: 7.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/bell-badge.html
+Renderer: DOM (CSS and the Web Animations API). Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/bell-badge.html
 
 ### Toast stack
 
@@ -2182,7 +2182,7 @@ A photo viewer is swiped past its last photo, resisting more and more, then spri
 Inside the album the photo tracks the finger 1:1; past the end, Apple’s rubber-band formula shrinks the follow, and the return spring starts with the hand’s release speed.
 
 Settings: --constant 0.55 (0.1 to 1, step 0.01; Resistance); --stiffness 200 (60 to 600, step 10; Return stiffness).
-Renderer: DOM (CSS and the Web Animations API). Size: 11.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/rubber-band.html
+Renderer: DOM (CSS and the Web Animations API). Size: 11.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/rubber-band.html
 
 ### Pendulum wave
 
@@ -2284,7 +2284,7 @@ Skipping a track morphs the album cover into the next track’s shape and colour
 Every shape is stored as 160 distances from the centre at fixed angles, so any shape blends into any other point by point; equal mean radius keeps the area steady.
 
 Settings: --hold 1600 (300 to 4000, step 50; Hold (ms)); --morph 600 (200 to 1500, step 10; Morph (ms)).
-Renderer: Canvas 2D. Size: 7.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/shape-morph.html
+Renderer: Canvas 2D. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/shape-morph.html
 
 ### Icon morph
 
@@ -2295,7 +2295,7 @@ A download arrow folds into a check when saved, and a list icon’s bars regroup
 The arrow and tick share the same number of points, so they blend point by point; the view toggle blends each rectangle’s position and size.
 
 Settings: --duration 280 (100 to 800, step 10; Morph (ms)).
-Renderer: DOM (CSS and the Web Animations API). Size: 9.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/icon-morph.html
+Renderer: DOM (CSS and the Web Animations API). Size: 9.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/icon-morph.html
 
 ### Gooey blobs
 
@@ -2328,7 +2328,7 @@ The Place order button’s edge ripples like liquid as the pointer passes, and s
 The outline is a ring of points, each sprung back to the rounded rectangle; neighbours share their offset, so a push travels round the edge as a wave.
 
 Settings: --wobble 1 (0 to 3, step 0.05; Push); --stiffness 140 (30 to 400, step 5; Stiffness).
-Renderer: Canvas 2D. Size: 7.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/liquid-button.html
+Renderer: Canvas 2D. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/liquid-button.html
 
 ### Play to pause
 
@@ -2350,7 +2350,7 @@ Three lines fold into an X and the menu panel wipes down with its links arriving
 The outer lines rotate into the diagonals while the middle one collapses; a slight turn hides the in-between frames, and the panel uses a clip-path wipe.
 
 Settings: --duration 260 (120 to 600, step 10; Morph (ms)); --stagger 45 (0 to 120, step 5; Link stagger (ms)).
-Renderer: DOM (CSS and the Web Animations API). Size: 7.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/menu-close.html
+Renderer: DOM (CSS and the Web Animations API). Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/menu-close.html
 
 ### Chart morph
 

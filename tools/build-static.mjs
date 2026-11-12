@@ -32,7 +32,7 @@ const replaceBetween = (src, start, end, inner) => {
 const fx = ANIMS.map(a => {
   const code = fs.readFileSync(path.join(ROOT, srcOf(a)), 'utf8');
   const defaults = readParams(code);
-  const settings = Object.entries(a.params).filter(([k]) => k in defaults).map(([k, r]) => ({ key: k, flag: `--${k}`, label: r.label, default: defaults[k], min: r.min, max: r.max, step: r.step }));
+  const settings = Object.entries(a.params).filter(([k]) => k in defaults).map(([k, r]) => ({ key: k, flag: `--${k}`, label: r.label, default: defaults[k], min: r.min, max: r.max, step: r.step, options: r.options }));
   const cat = catById[a.cat];
   return {
     a, cat, code, settings,
@@ -61,7 +61,7 @@ for (const f of fx) {
       { '@type': 'ListItem', position: 3, name: a.title, item: abs(f.page) },
     ],
   }];
-  const rows = f.settings.map(s => `<tr><td>${esc(s.label)}</td><td><code>${esc(s.flag)}</code></td><td>${esc(formatValue(s.default, s.step))}</td><td>${esc(s.min)} to ${esc(s.max)}</td><td>${esc(s.step)}</td></tr>`).join('\n');
+  const rows = f.settings.map(s => `<tr><td>${esc(s.label)}</td><td><code>${esc(s.flag)}</code></td><td>${esc(formatValue(s.default, s.step))}</td><td>${s.options ? esc(s.options.map((o, i) => `${i} ${o}`).join(', ')) : `${esc(s.min)} to ${esc(s.max)}`}</td><td>${esc(s.step)}</td></tr>`).join('\n');
   write(f.page, `<!doctype html>
 <html lang="en">
 <head>

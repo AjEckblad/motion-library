@@ -4,7 +4,7 @@ const PARAMS = { constant: 0.55, stiffness: 200 };
 
 export default function (stage) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const K = 'rbd', BG = 'radial-gradient(120% 100% at 50% 0%,#fff3e8,#f3dcc8)', SC = '#0b0b0c', SBC = '#fff';
+  const K = 'rbd', BG = 'radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f)', SC = '#0b0b0c', SBC = '#fff';
   const PH = [
     ['Lisbon', '12 Oct', '<defs><linearGradient id="rbdA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b26b"/><stop offset=".6" stop-color="#f7d9a8"/><stop offset="1" stop-color="#e9a066"/></linearGradient></defs><rect width="266" height="330" fill="url(#rbdA)"/><circle cx="180" cy="120" r="34" fill="#fff4dc"/><path d="M0 230 L30 190 h20 v-30 h26 v40 h30 v-60 h22 v50 h40 v-20 h30 v40 h30 v-30 h38 V330 H0z" fill="#b8573a"/><path d="M0 260 h266 V330 H0z" fill="#7d3a2a"/><g fill="#ffd9a0"><rect x="60" y="210" width="6" height="8"/><rect x="118" y="190" width="6" height="8"/><rect x="190" y="220" width="6" height="8"/></g>'],
     ['Sintra', '13 Oct', '<defs><linearGradient id="rbdB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9d3e8"/><stop offset="1" stop-color="#e8f3ea"/></linearGradient></defs><rect width="266" height="330" fill="url(#rbdB)"/><path d="M0 200 L70 110 L120 170 L170 90 L266 200 V330 H0z" fill="#5f8b7a"/><path d="M0 240 C80 210 170 260 266 230 V330 H0z" fill="#3e6b55"/><path d="M150 112 h20 v-24 l10 -12 l10 12 v24 h10 v40 h-50z" fill="#e7c35a"/><path d="M0 290 C90 270 180 300 266 285 V330 H0z" fill="#2c4d3c"/>'],
@@ -23,7 +23,7 @@ export default function (stage) {
   root.className = K + '-root';
   root.innerHTML = `<style>
     .${K}-root{position:absolute;inset:0;overflow:hidden;background:${BG};font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#15171a;user-select:none;-webkit-user-select:none}
-    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #2b2f34,0 40px 80px -30px rgba(70,30,5,.45),0 12px 30px -12px rgba(70,30,5,.3);transform-origin:50% 0}
+    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #3a3f46,0 0 0 1px rgba(255,255,255,.13),0 40px 80px -30px rgba(0,0,0,.8);transform-origin:50% 0}
     .${K}-sc{position:absolute;inset:7px;border-radius:39px;overflow:hidden;background:${SC};isolation:isolate;touch-action:none}
     .${K}-is{position:absolute;left:50%;top:17px;width:76px;height:22px;margin-left:-38px;border-radius:12px;background:#000;z-index:30}
     .${K}-sb{position:absolute;left:0;right:0;top:0;height:44px;padding:0 26px 0 34px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:650;z-index:29;pointer-events:none;color:${SBC}}

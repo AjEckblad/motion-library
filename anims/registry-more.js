@@ -1,5 +1,7 @@
 // Round 2: the deep end of Flow & particles, Fluid, and Chrome & 3D.
 const P = (min, max, step, label) => ({ min, max, step, label });
+// a setting with named choices, shown as a picker in the detail view; in code, the URL and the CLI it is still a number
+const O = (label, ...options) => ({ min: 0, max: options.length - 1, step: 1, label, options });
 
 export const MORE = [
   // ── Flow & particles
@@ -142,9 +144,9 @@ export const MORE = [
     notes: ['A chrome object morphs from sphere to cube, torus, octahedron and a gyroid-carved sphere.', 'Two signed distance functions are blended by an eased amount while space twists around the vertical axis, with the twist peaking halfway.'],
     params: { hold: P(0.3, 4, 0.1, 'Hold (s)'), morph: P(0.3, 3, 0.1, 'Morph (s)'), twist: P(0, 3, 0.05, 'Twist') } },
   { id: 'paper-fold', cat: 'chrome', title: 'Paper fold', kind: 'dom', posterAt: 950,
-    trick: 'Nested CSS 3D hinges, shaded from their true normals',
-    notes: ['A printed sheet folds in thirds and then in half, with creases that catch the lamp.', 'Nested preserve-3d panels with backface-visibility hidden; each face’s normal is turned through its hinges in JavaScript and compared with the lamp for shading.'],
-    params: { cycle: P(4, 20, 0.5, 'Cycle (s)'), tilt: P(0, 70, 1, 'Table tilt (deg)'), crease: P(0, 2, 0.05, 'Crease shading') } },
+    trick: 'A tree of CSS 3D hinges: the last crease carries the rest',
+    notes: ['A printed sheet folds and opens on a desk: as a letter, a gate fold, an accordion or a map.', 'Each crease is a preserve-3d hinge nested so the last fold carries the others; every face is shaded from its normal turned through its hinges.'],
+    params: { fold: O('Fold', 'Letter', 'Gate', 'Accordion', 'Map'), cycle: P(4, 20, 0.5, 'Cycle (s)'), tilt: P(0, 70, 1, 'Table tilt (deg)'), crease: P(0, 2, 0.05, 'Crease shading') } },
   // ── Flow & particles, round 3
   { id: 'murmuration', cat: 'flow', title: 'Starling murmuration', kind: 'canvas', posterAt: 4200,
     trick: '3D flocking where each bird tracks only seven nearest neighbours',

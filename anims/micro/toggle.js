@@ -10,7 +10,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'tg-root';
   root.innerHTML = `<style>
-    .tg-root { position: absolute; inset: 0; overflow: hidden; background: #f3f0f2; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
+    .tg-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
     .tg-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
     .tg-panel { position: absolute; left: 70px; right: 70px; top: 36px; border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px rgba(20,24,30,.06), 0 10px 30px -12px rgba(60,20,40,.18); padding: 20px 22px 8px; }
     .tg-panel h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; } .tg-panel > p { margin: 4px 0 10px; font-size: 12.5px; color: #6b7076; }

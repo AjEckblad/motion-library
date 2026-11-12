@@ -11,7 +11,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'sk-root';
   root.innerHTML = `<style>
-    .sk-root { position: absolute; inset: 0; overflow: hidden; background: #e9e6ea; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
+    .sk-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
     .sk-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
     .sk-page { position: absolute; inset: 0; padding: 26px; opacity: .5; } .sk-page i { display: block; height: 12px; border-radius: 6px; background: #d4d0d6; margin-bottom: 12px; }
     .sk-drawer { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 300px; border-radius: 16px; background: #fff; box-shadow: -16px 0 40px -20px rgba(40,10,30,.35); padding: 20px 20px; box-sizing: border-box; }

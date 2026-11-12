@@ -73,7 +73,7 @@
 - [Neon geodesic sphere](https://ajeckblad.github.io/motion-library/fx/neon-geodesic.html): Icosphere wireframe stroked as neon, glow from cheap downscaled copies. `npx motion-library add neon-geodesic`
 - [Spheres on a knot](https://ajeckblad.github.io/motion-library/fx/path-spheres.html): Analytically ray-traced spheres with soft shadows and interreflections. `npx motion-library add path-spheres`
 - [SDF shape morph](https://ajeckblad.github.io/motion-library/fx/sdf-morph.html): Five distance functions blended in turn, twisting at each midpoint. `npx motion-library add sdf-morph`
-- [Paper fold](https://ajeckblad.github.io/motion-library/fx/paper-fold.html): Nested CSS 3D hinges, shaded from their true normals. `npx motion-library add paper-fold`
+- [Paper fold](https://ajeckblad.github.io/motion-library/fx/paper-fold.html): A tree of CSS 3D hinges: the last crease carries the rest. `npx motion-library add paper-fold`
 - [Menger sponge](https://ajeckblad.github.io/motion-library/fx/menger-sponge.html): Box minus a cross, repeated by folding space each level. `npx motion-library add menger-sponge`
 - [Gyroid fly-through](https://ajeckblad.github.io/motion-library/fx/gyroid.html): Thickened gyroid sheet with a tube carved along the camera path. `npx motion-library add gyroid`
 - [Black hole](https://ajeckblad.github.io/motion-library/fx/black-hole.html): Rays bent toward the hole each step; Doppler-beamed accretion disk. `npx motion-library add black-hole`

@@ -271,6 +271,15 @@ svg { display: block; }
 .knob label { font-size: var(--fs-meta); color: var(--ink-2); font-weight: 400; }
 .knob output { font-size: var(--fs-meta); font-variant-numeric: tabular-nums; font-weight: 500; min-width: 4ch; text-align: right; }
 .knob input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); height: 18px; margin: 0; }
+/* a setting with named choices (Paper fold's folds): a full-width row of segments styled like the speed control (.seg),
+   the chosen one raised with an accent underline; colour changes only, no movement */
+.knob-pick { grid-column: 1 / -1; }
+.knob-name { font-size: var(--fs-meta); color: var(--ink-2); }
+.pick { grid-column: 1 / -1; display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--raised); border: 1px solid var(--line); }
+.pick button { flex: 1 1 0; min-width: 0; height: 30px; padding: 0 8px; border: 0; border-radius: 7px; background: none; color: var(--ink-2); font: inherit; font-size: var(--fs-meta); font-weight: 500; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color .15s ease, color .15s ease; }
+.pick button[aria-checked="true"] { background: var(--sheet); color: var(--ink); box-shadow: inset 0 -1px 0 var(--accent); }
+.pick button:focus-visible { outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) { .pick button:not([aria-checked="true"]):hover { color: var(--ink); background: var(--sheet); } }
 
 .d-right { display: flex; flex-direction: column; overflow: hidden; }
 .notes { padding: 18px 96px 16px 20px; border-bottom: 1px solid var(--line); position: relative; min-height: 92px; }

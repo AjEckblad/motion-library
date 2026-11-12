@@ -13,7 +13,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'nt-root';
   root.innerHTML = `<style>
-    .nt-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
+    .nt-root { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); overflow: hidden; color: #15171a; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
     .nt-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 18px 20px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
     .nt-head { display: flex; justify-content: space-between; align-items: center; }
     .nt-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 620; color: #33373c; }

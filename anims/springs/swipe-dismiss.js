@@ -4,7 +4,7 @@ const PARAMS = { stiffness: 300, constant: 0.5 };
 
 export default function (stage) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const K = 'swd', BG = 'radial-gradient(120% 100% at 50% 0%,#fff3e8,#f3dcc8)', SC = 'linear-gradient(160deg,#3b2a4d,#a4553a 60%,#e59a5a)', SBC = '#fff';
+  const K = 'swd', BG = 'radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f)', SC = 'linear-gradient(160deg,#3b2a4d,#a4553a 60%,#e59a5a)', SBC = '#fff';
   const n = (app, ic, c, t, m, w) => `<div class="swd-n"><div class="swd-top"><span class="swd-ic" style="background:${c}">${ic}</span><span>${app}</span><em>${w}</em></div><b>${t}</b><p>${m}</p></div>`;
   const CSS = `.swd-clock{position:absolute;left:0;right:0;top:58px;text-align:center;color:#fff}.swd-clock small{display:block;font-size:13px;font-weight:600;opacity:.85}.swd-clock b{display:block;font-size:66px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
     .swd-list{position:absolute;left:10px;right:10px;top:200px}
@@ -22,7 +22,7 @@ export default function (stage) {
   root.className = K + '-root';
   root.innerHTML = `<style>
     .${K}-root{position:absolute;inset:0;overflow:hidden;background:${BG};font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#15171a;user-select:none;-webkit-user-select:none}
-    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #2b2f34,0 40px 80px -30px rgba(70,30,5,.45),0 12px 30px -12px rgba(70,30,5,.3);transform-origin:50% 0}
+    .${K}-ph{position:absolute;left:50%;top:0;width:280px;height:580px;border-radius:46px;background:#0f1113;box-shadow:inset 0 0 0 1.5px #3a3f46,0 0 0 1px rgba(255,255,255,.13),0 40px 80px -30px rgba(0,0,0,.8);transform-origin:50% 0}
     .${K}-sc{position:absolute;inset:7px;border-radius:39px;overflow:hidden;background:${SC};isolation:isolate;touch-action:none}
     .${K}-is{position:absolute;left:50%;top:17px;width:76px;height:22px;margin-left:-38px;border-radius:12px;background:#000;z-index:30}
     .${K}-sb{position:absolute;left:0;right:0;top:0;height:44px;padding:0 26px 0 34px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:650;z-index:29;pointer-events:none;color:${SBC}}

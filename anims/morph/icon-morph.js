@@ -7,7 +7,7 @@ export default function (stage) {
   root.className = 'im-root';
   const eps = [['Why bridges sing in the wind', 'The Field Desk · 38 min', '#b8359a', '#f59fd0'], ['A short history of the fridge', 'Small Things · 24 min', '#2b74c9', '#9fc3e8'], ['Night trains are back', 'Slow Travel · 41 min', '#d9601a', '#f3c98b'], ['How bees vote', 'Wild Questions · 19 min', '#0e9488', '#9fe0d6']];
   root.innerHTML = `<style>
-    .im-root { position: absolute; inset: 0; overflow: hidden; background: #f1ecf0; font-family: system-ui, -apple-system, sans-serif; }
+    .im-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, sans-serif; }
     .im-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
     .im-card { position: absolute; left: 34px; top: 16px; width: 352px; height: 288px; border-radius: 20px; background: #fff; overflow: hidden; box-shadow: 0 1px 2px rgba(42,15,38,.07), 0 16px 36px -18px rgba(42,15,38,.3); }
     .im-hd { position: absolute; left: 18px; right: 14px; top: 14px; height: 34px; display: flex; align-items: center; }

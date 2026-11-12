@@ -56,7 +56,7 @@ export default function (stage) {
     }
 
     ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
-    ctx.fillStyle = '#f1ecf0'; ctx.fillRect(0, 0, W, H);
+    { const g = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, Math.hypot(W / 2, H)); g.addColorStop(0, '#1b1b1e'); g.addColorStop(1, '#0d0d0f'); ctx.fillStyle = g; } ctx.fillRect(0, 0, W, H);   // the library's near-black ground
     ctx.translate(OX, OY); ctx.scale(S, S);
     ctx.save(); ctx.shadowColor = 'rgba(42,15,38,.2)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 12; rr(50, 14, 320, 296, 20); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
     ctx.fillStyle = '#1d0b1a'; ctx.font = font(720, 16); ctx.fillText('Order summary', 74, 46);

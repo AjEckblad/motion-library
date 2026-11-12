@@ -23,9 +23,12 @@ Card hover (AJ, 2026-11-12): the image, its heart and the text under it lift 2px
 Guarded in tools/motion-check.mjs (18/18).
 
 NEXT: AJ's list (2026-11-12, late). Tick each off here as it ships (commit + push after each).
-- [ ] UI demos: the 50 with a pastel ground behind app windows / phones (basics, transitions, micro, springs, morph) get
+- [x] UI demos: the 50 with a pastel ground behind app windows / phones (basics, transitions, micro, springs, morph) get
       a near-black ground; the windows and phones keep their own colours. The 30 full-page designs (text, scroll,
-      hover) stay exactly as designed (AJ chose this).
+      hover) stay exactly as designed (AJ chose this). Done: one shared ground radial-gradient(120% 100% at 50% 0%,
+      #1b1b1e, #0d0d0f) (canvas twins draw the same); the 19 phones get a rim light (steel band, white hairline, black
+      drop shadow); fade-scale and like-burst, which drew text straight on the ground, sit in a window of their old
+      colour. Logo draw keeps its own dark plum.
 - [x] Cut ink-drop (to _cut/, like Geode; Geode was already cut earlier on 2026-11-12). 212 pieces.
 Agents (2026-11-12): agent 1 has black-hole, lava-flow, fire-smoke; agent 2 has ferrofluid, sph-water, shatter. They edit
 only those files and report registry text; the lead applies registry/i18n/posters and commits.
@@ -36,8 +39,11 @@ only those files and report registry text; the lead applies registry/i18n/poster
 - [ ] Lava flow: a realistic volcano/mountain with lava that reads as real (crust, glow, cooling).
 - [ ] Fire & smoke: refine to reference quality.
 - [ ] SPH water tank: refine to reference quality.
-- [ ] Paper fold: several fold types (letter/tri-fold, sideways gate fold, accordion, map fold...) chosen with a PICKER
+- [x] Paper fold: several fold types (letter/tri-fold, sideways gate fold, accordion, map fold...) chosen with a PICKER
       in the detail view (AJ chose a picker over cycling: an explicit exception to "one effect per card, no switcher").
+      Done: `fold` 0 letter (the card), 1 gate, 2 accordion (a W standing on the table), 3 map (pleat, then in half),
+      each with its own printed sheet. Registry helper O(label, ...options) makes a picker (js/detail.js .pick, styled
+      like the speed control .seg); the value stays a number for code, links and `--fold 2`. Guarded in check.mjs.
 - [ ] Shatter & rewind: refine to reference quality.
 
 WAITING ON AJ

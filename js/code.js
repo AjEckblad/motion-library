@@ -59,7 +59,8 @@ const KIND = { dom: 'DOM elements and CSS/WAAPI', canvas: 'a 2D canvas', webgl: 
 export function promptFor(anim, code, catName = anim.cat) {
   const now = readParams(code);
   const settings = Object.entries(anim.params).filter(([k]) => k in now)
-    .map(([k, r]) => `- ${k}: ${formatValue(now[k], r.step)} (range ${r.min}–${r.max}, step ${r.step}) · ${r.label}`);
+    .map(([k, r]) => r.options ? `- ${k}: ${now[k]} (${r.options.map((o, i) => `${i} ${o}`).join(', ')}) · ${r.label}`
+      : `- ${k}: ${formatValue(now[k], r.step)} (range ${r.min}–${r.max}, step ${r.step}) · ${r.label}`);
   return [
     `Help me fit this animation into my project. Adapt it to my stack and my design; keep the motion itself as it is unless I ask.`,
     ``,

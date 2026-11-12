@@ -10,7 +10,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'bb-root';
   root.innerHTML = `<style>
-    .bb-root { position: absolute; inset: 0; overflow: hidden; background: #f4f1f3; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
+    .bb-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
     .bb-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
     .bb-app { position: absolute; left: 30px; right: 30px; top: 26px; bottom: 26px; border-radius: 14px; background: #fff; box-shadow: 0 0 0 1px rgba(20,24,30,.06); overflow: hidden; }
     .bb-top { height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid #f0f1f3; }

@@ -112,6 +112,18 @@ export function createDetail({ celebrate, toast, onClose }) {
       if (!(k in defaults)) continue;
       const id = `k-${a.id}-${k}`;
       const knob = document.createElement('div'); knob.className = 'knob';
+      if (r.options) {
+        // named choices (Paper fold's folds): a row of segments, one chosen; arrow keys move the choice, as in any radio group
+        knob.classList.add('knob-pick');
+        knob.innerHTML = `<span class="knob-name" id="${id}"></span><div class="pick" role="radiogroup" aria-labelledby="${id}"></div>`;
+        knob.querySelector('.knob-name').textContent = tl(r.label);
+        const seg = knob.querySelector('.pick'); seg.dataset.k = k;
+        r.options.forEach((o, v) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.v = v; b.textContent = tl(o); seg.append(b); });
+        const pick = (v, focus) => { values[k] = v; syncKnobs(); if (focus) seg.children[v].focus(); update(); };
+        seg.addEventListener('click', e => { const b = e.target.closest('button'); if (b && +b.dataset.v !== values[k]) pick(+b.dataset.v); });
+        seg.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]; if (!d) return; e.preventDefault(); pick((values[k] + d + r.options.length) % r.options.length, true); });
+        tw.append(knob); continue;
+      }
       knob.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${r.min}" max="${r.max}" step="${r.step}">`;
       knob.querySelector('label').textContent = tl(r.label);
       const input = knob.querySelector('input');
@@ -123,6 +135,7 @@ export function createDetail({ celebrate, toast, onClose }) {
   }
   function syncKnobs() {
     root.querySelectorAll('.knob input').forEach(i => { const k = i.dataset.k; i.value = values[k]; i.parentElement.querySelector('output').textContent = formatValue(values[k], cur.params[k].step); });
+    root.querySelectorAll('.pick').forEach(s => [...s.children].forEach((b, i) => { const on = i === values[s.dataset.k]; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; }));
   }
   const changedKeys = () => new Set(Object.keys(values).filter(k => cur.params[k] && formatValue(values[k], cur.params[k].step) !== formatValue(defaults[k], cur.params[k].step)));
   function renderCode() {

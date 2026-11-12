@@ -8,6 +8,12 @@
         "value": "mona sans",
         "createdAt": "2026-11-08T13:40:11.726Z",
         "reason": "Claude's direction decision: Mona Sans picked for its wdth axis, which drives the dial fisheye and the variable-font wave demo; self-hosted, not a default fallback"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "mona sans",
+        "createdAt": "2026-11-12T08:59:06.495Z",
+        "reason": "lead (Claude): Mona Sans is the font inside the demo pieces (anims/*, e.g. the printed sheet in paper-fold, used before this edit), not the site's UI type system (IBM Plex)"
       }
     ]
   }

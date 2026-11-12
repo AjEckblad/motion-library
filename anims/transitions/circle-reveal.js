@@ -23,8 +23,8 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'cr-root';
   root.innerHTML = `<style>
-    .cr-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #eef6f5, #d5e8e5); font-family: "Mona Sans", system-ui, -apple-system, sans-serif; cursor: crosshair; }
-    .cr-phone { position: absolute; left: 50%; top: 0; width: 280px; height: 580px; border-radius: 46px; background: #0f1113; box-shadow: inset 0 0 0 1.5px #2b2f34, 0 40px 80px -30px rgba(8,45,42,.45), 0 12px 30px -12px rgba(8,45,42,.3); transform-origin: 50% 0; }
+    .cr-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: "Mona Sans", system-ui, -apple-system, sans-serif; cursor: crosshair; }
+    .cr-phone { position: absolute; left: 50%; top: 0; width: 280px; height: 580px; border-radius: 46px; background: #0f1113; box-shadow: inset 0 0 0 1.5px #3a3f46, 0 0 0 1px rgba(255,255,255,.13), 0 40px 80px -30px rgba(0,0,0,.8); transform-origin: 50% 0; }
     .cr-screen { position: absolute; inset: 7px; border-radius: 39px; overflow: hidden; isolation: isolate; }
     .cr-island { position: absolute; left: 50%; top: 17px; width: 76px; height: 22px; margin-left: -38px; border-radius: 12px; background: #000; z-index: 9; }
     .cr-page { position: absolute; inset: 0; --bg: #f2f2f7; --card: #fff; --ink: #15171a; --muted: #8a8a8f; --line: #e6e6ea; --off: #e9e9ea; background: var(--bg); color: var(--ink); }

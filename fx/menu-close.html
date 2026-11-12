@@ -93,7 +93,7 @@
 <dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
 <dt>Category</dt><dd>Morph &amp; SVG</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>7.6 KB, unminified</dd>
+<dt>File size</dt><dd>7.7 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -109,7 +109,7 @@ export default function (stage) {
   root.className = 'mc-root';
   const links = ['Catalogue', 'Events this week', 'Opening hours', 'Become a member'];
   root.innerHTML = `&lt;style&gt;
-    .mc-root { position: absolute; inset: 0; overflow: hidden; background: #e9e4e8; font-family: system-ui, -apple-system, sans-serif; }
+    .mc-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, sans-serif; }
     .mc-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
     .mc-ph { position: absolute; left: 110px; top: 10px; width: 200px; height: 300px; border-radius: 26px; background: #fff; overflow: hidden; box-shadow: 0 0 0 6px #1d0b1a, 0 24px 50px -20px rgba(29,11,26,.5); }
     .mc-hd { position: absolute; left: 0; right: 0; top: 0; height: 52px; display: flex; align-items: center; padding: 0 12px 0 16px; z-index: 2; background: #fff; border-bottom: 1px solid #f0e6ee; }

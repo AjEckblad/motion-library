@@ -2387,15 +2387,30 @@
    "category": "Chrome & 3D",
    "categoryId": "chrome",
    "renderer": "DOM",
-   "description": "Nested CSS 3D hinges, shaded from their true normals",
-   "descriptionZh": "嵌套的 CSS 3D 铰链，按真实法线着色",
+   "description": "A tree of CSS 3D hinges: the last crease carries the rest",
+   "descriptionZh": "CSS 3D 铰链树：最后一道折痕带动其余部分",
    "page": "https://ajeckblad.github.io/motion-library/fx/paper-fold.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/paper-fold",
    "npx": "npx motion-library add paper-fold",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 12836,
+   "reducedMotion": true,
+   "bytes": 24389,
    "settings": [
+    {
+     "key": "fold",
+     "flag": "--fold",
+     "label": "Fold",
+     "default": 0,
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "options": [
+      "Letter",
+      "Gate",
+      "Accordion",
+      "Map"
+     ]
+    },
     {
      "key": "cycle",
      "flag": "--cycle",
@@ -5652,7 +5667,7 @@
    "npx": "npx motion-library add fade-scale",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 10155,
+   "bytes": 10360,
    "settings": [
     {
      "key": "duration",
@@ -5697,7 +5712,7 @@
    "npx": "npx motion-library add stagger-grid",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 8214,
+   "bytes": 8261,
    "settings": [
     {
      "key": "delayPerCell",
@@ -5733,7 +5748,7 @@
    "npx": "npx motion-library add easing-race",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 5634,
+   "bytes": 5681,
    "settings": [
     {
      "key": "duration",
@@ -5778,7 +5793,7 @@
    "npx": "npx motion-library add card-flip",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 8943,
+   "bytes": 8990,
    "settings": [
     {
      "key": "perspective",
@@ -5823,7 +5838,7 @@
    "npx": "npx motion-library add anticipation",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 9228,
+   "bytes": 9275,
    "settings": [
     {
      "key": "anticipation",
@@ -5859,7 +5874,7 @@
    "npx": "npx motion-library add list-reorder",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 8621,
+   "bytes": 8668,
    "settings": [
     {
      "key": "duration",
@@ -5895,7 +5910,7 @@
    "npx": "npx motion-library add add-remove",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 9732,
+   "bytes": 9779,
    "settings": [
     {
      "key": "duration",
@@ -5931,7 +5946,7 @@
    "npx": "npx motion-library add number-ticker",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 8526,
+   "bytes": 8573,
    "settings": [
     {
      "key": "duration",
@@ -5967,7 +5982,7 @@
    "npx": "npx motion-library add accordion-faq",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 5800,
+   "bytes": 5847,
    "settings": [
     {
      "key": "duration",
@@ -6003,7 +6018,7 @@
    "npx": "npx motion-library add tab-swap",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 9175,
+   "bytes": 9222,
    "settings": [
     {
      "key": "duration",
@@ -6039,7 +6054,7 @@
    "npx": "npx motion-library add push-slide",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 13414,
+   "bytes": 13408,
    "settings": [
     {
      "key": "duration",
@@ -6075,7 +6090,7 @@
    "npx": "npx motion-library add circle-reveal",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 10378,
+   "bytes": 10372,
    "settings": [
     {
      "key": "duration",
@@ -6147,7 +6162,7 @@
    "npx": "npx motion-library add shared-expand",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 14640,
+   "bytes": 14634,
    "settings": [
     {
      "key": "duration",
@@ -6174,7 +6189,7 @@
    "npx": "npx motion-library add view-transition",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 10774,
+   "bytes": 10768,
    "settings": [
     {
      "key": "duration",
@@ -6201,7 +6216,7 @@
    "npx": "npx motion-library add ios-sheet",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 11871,
+   "bytes": 11865,
    "settings": [
     {
      "key": "duration",
@@ -6246,7 +6261,7 @@
    "npx": "npx motion-library add lightbox-zoom",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 12857,
+   "bytes": 12851,
    "settings": [
     {
      "key": "duration",
@@ -6282,7 +6297,7 @@
    "npx": "npx motion-library add directional-tabs",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 12638,
+   "bytes": 12632,
    "settings": [
     {
      "key": "duration",
@@ -6318,7 +6333,7 @@
    "npx": "npx motion-library add blur-crossfade",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 11256,
+   "bytes": 11250,
    "settings": [
     {
      "key": "duration",
@@ -6354,7 +6369,7 @@
    "npx": "npx motion-library add card-stack-swipe",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 13186,
+   "bytes": 13180,
    "settings": [
     {
      "key": "throwDuration",
@@ -7479,7 +7494,7 @@
    "npx": "npx motion-library add toggle",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 4958,
+   "bytes": 5005,
    "settings": [
     {
      "key": "stiffness",
@@ -7515,7 +7530,7 @@
    "npx": "npx motion-library add like-burst",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 7507,
+   "bytes": 7673,
    "settings": [
     {
      "key": "particles",
@@ -7551,7 +7566,7 @@
    "npx": "npx motion-library add submit-success",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 6650,
+   "bytes": 6697,
    "settings": [
     {
      "key": "duration",
@@ -7578,7 +7593,7 @@
    "npx": "npx motion-library add arc-spinner",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 6481,
+   "bytes": 6528,
    "settings": [
     {
      "key": "speed",
@@ -7605,7 +7620,7 @@
    "npx": "npx motion-library add skeleton",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 5519,
+   "bytes": 5566,
    "settings": [
     {
      "key": "speed",
@@ -7632,7 +7647,7 @@
    "npx": "npx motion-library add copy-tick",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 6478,
+   "bytes": 6525,
    "settings": [
     {
      "key": "duration",
@@ -7668,7 +7683,7 @@
    "npx": "npx motion-library add password-strength",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 5993,
+   "bytes": 6040,
    "settings": [
     {
      "key": "typeSpeed",
@@ -7704,7 +7719,7 @@
    "npx": "npx motion-library add hold-delete",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 7264,
+   "bytes": 7311,
    "settings": [
     {
      "key": "holdMs",
@@ -7740,7 +7755,7 @@
    "npx": "npx motion-library add bell-badge",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 7800,
+   "bytes": 7847,
    "settings": [
     {
      "key": "swing",
@@ -7776,7 +7791,7 @@
    "npx": "npx motion-library add toast-stack",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 5399,
+   "bytes": 5446,
    "settings": [
     {
      "key": "gap",
@@ -7821,7 +7836,7 @@
    "npx": "npx motion-library add squash-bounce",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 12582,
+   "bytes": 12578,
    "settings": [
     {
      "key": "gravity",
@@ -7866,7 +7881,7 @@
    "npx": "npx motion-library add rubber-band",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 11830,
+   "bytes": 11826,
    "settings": [
     {
      "key": "constant",
@@ -7902,7 +7917,7 @@
    "npx": "npx motion-library add pendulum-wave",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 9821,
+   "bytes": 9817,
    "settings": [
     {
      "key": "count",
@@ -7938,7 +7953,7 @@
    "npx": "npx motion-library add verlet-rope",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 13297,
+   "bytes": 13293,
    "settings": [
     {
      "key": "segments",
@@ -7983,7 +7998,7 @@
    "npx": "npx motion-library add ball-collisions",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 11434,
+   "bytes": 11430,
    "settings": [
     {
      "key": "count",
@@ -8019,7 +8034,7 @@
    "npx": "npx motion-library add bottom-sheet",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 11409,
+   "bytes": 11405,
    "settings": [
     {
      "key": "stiffness",
@@ -8055,7 +8070,7 @@
    "npx": "npx motion-library add swipe-dismiss",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 9713,
+   "bytes": 9709,
    "settings": [
     {
      "key": "stiffness",
@@ -8091,7 +8106,7 @@
    "npx": "npx motion-library add chat-heads",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 10280,
+   "bytes": 10276,
    "settings": [
     {
      "key": "stiffness",
@@ -8127,7 +8142,7 @@
    "npx": "npx motion-library add icon-jelly",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 10671,
+   "bytes": 10667,
    "settings": [
     {
      "key": "stiffness",
@@ -8163,7 +8178,7 @@
    "npx": "npx motion-library add pull-refresh",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 11840,
+   "bytes": 11836,
    "settings": [
     {
      "key": "stiffness",
@@ -8199,7 +8214,7 @@
    "npx": "npx motion-library add shape-morph",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 7725,
+   "bytes": 7899,
    "settings": [
     {
      "key": "hold",
@@ -8235,7 +8250,7 @@
    "npx": "npx motion-library add icon-morph",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 9942,
+   "bytes": 9989,
    "settings": [
     {
      "key": "duration",
@@ -8262,7 +8277,7 @@
    "npx": "npx motion-library add gooey",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 7867,
+   "bytes": 7914,
    "settings": [
     {
      "key": "blur",
@@ -8298,7 +8313,7 @@
    "npx": "npx motion-library add line-draw",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 5626,
+   "bytes": 5673,
    "settings": [
     {
      "key": "duration",
@@ -8325,7 +8340,7 @@
    "npx": "npx motion-library add liquid-button",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 7728,
+   "bytes": 7902,
    "settings": [
     {
      "key": "wobble",
@@ -8361,7 +8376,7 @@
    "npx": "npx motion-library add play-pause",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 7434,
+   "bytes": 7481,
    "settings": [
     {
      "key": "duration",
@@ -8397,7 +8412,7 @@
    "npx": "npx motion-library add menu-close",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 7814,
+   "bytes": 7861,
    "settings": [
     {
      "key": "duration",
@@ -8433,7 +8448,7 @@
    "npx": "npx motion-library add chart-morph",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 8502,
+   "bytes": 8549,
    "settings": [
     {
      "key": "duration",
@@ -8505,7 +8520,7 @@
    "npx": "npx motion-library add button-menu",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 7756,
+   "bytes": 7803,
    "settings": [
     {
      "key": "duration",

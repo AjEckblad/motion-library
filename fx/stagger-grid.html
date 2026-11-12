@@ -93,7 +93,7 @@
 <dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
 <dt>Category</dt><dd>Basics</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>8.0 KB, unminified</dd>
+<dt>File size</dt><dd>8.1 KB, unminified</dd>
 <dt>Interactive</dt><dd>No: it plays on its own</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -110,7 +110,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'sg-root';
   root.innerHTML = `&lt;style&gt;
-    .sg-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .sg-root { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
     .sg-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: ${PAD}px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
     .sg-head { display: flex; align-items: center; justify-content: space-between; height: 40px; }
     .sg-head h3 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.015em; font-stretch: 106%; }

@@ -93,7 +93,7 @@
 <dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
 <dt>Category</dt><dd>Micro &amp; loading</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>7.3 KB, unminified</dd>
+<dt>File size</dt><dd>7.5 KB, unminified</dd>
 <dt>Interactive</dt><dd>No: it plays on its own</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -117,8 +117,8 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'lb-root';
   root.innerHTML = `&lt;style&gt;
-    .lb-root { position: absolute; inset: 0; overflow: hidden; background: #faf8f5; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
-    .lb-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .lb-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .lb-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; background: #faf8f5; border-radius: 18px; }   /* a window in the demo's own colour on the library's dark ground */
     .lb-top { position: absolute; left: 28px; right: 28px; top: 24px; display: flex; align-items: center; gap: 18px; font-size: 12.5px; color: #5b6066; }
     .lb-top h2 { margin: 0 auto 0 0; font-size: 20px; font-weight: 720; letter-spacing: -0.02em; color: #15171a; }
     .lb-wish { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px #ebe6df; color: #15171a; font-weight: 600; }
@@ -138,7 +138,7 @@ export default function (stage) {
   &lt;/div&gt;`;
   stage.append(root);
   const scene = root.querySelector('.lb-scene'), count = root.querySelector('.lb-n');
-  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight, s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight, s = Math.min(w / W, h / H, 1.3) * 0.9; scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
   const ro = new ResizeObserver(fit); ro.observe(stage); fit();
   const btns = [...scene.querySelectorAll('.lb-btn')];
   const colours = ['#e5294c', '#ffd43b', '#ff8fab', '#74c0fc', '#d63c74'];

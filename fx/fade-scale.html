@@ -94,7 +94,7 @@
 <dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
 <dt>Category</dt><dd>Basics</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>9.9 KB, unminified</dd>
+<dt>File size</dt><dd>10.1 KB, unminified</dd>
 <dt>Interactive</dt><dd>No: it plays on its own</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -138,8 +138,8 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'fs-root';
   root.innerHTML = `&lt;style&gt;
-    .fs-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
-    .fs-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; }
+    .fs-root { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .fs-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; background: #e9edf7; border-radius: 6px; box-shadow: 0 0 0 18px #e9edf7; }   /* a window in the demo's own colour on the library's dark ground */
     .fs-head { display: flex; align-items: flex-end; justify-content: space-between; }
     .fs-head h3 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.02em; font-stretch: 108%; }
     .fs-head p { margin: 3px 0 0; font-size: 12px; color: #5b6066; }
@@ -176,7 +176,7 @@ export default function (stage) {
     });
   };
 
-  const fit = () =&gt; { const s = Math.min(stage.clientWidth / AW, stage.clientHeight / AH) * 0.92; board.style.transform = `translate(-50%, -50%) scale(${Math.min(s, 1.6)})`; };
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / (AW + 36), stage.clientHeight / (AH + 36)) * 0.92; board.style.transform = `translate(-50%, -50%) scale(${Math.min(s, 1.6)})`; };
   const ro = new ResizeObserver(fit); ro.observe(stage); fit();
 
   const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';

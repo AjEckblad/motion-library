@@ -7,7 +7,7 @@ export default function (stage) {
   root.className = 'bm-root';
   const items = [['Copy link', 'M9 15l6-6M10.5 6.5l1.8-1.8a4 4 0 015.7 5.7l-1.8 1.8M13.5 17.5l-1.8 1.8a4 4 0 01-5.7-5.7l1.8-1.8'], ['Invite people', 'M15 19a5 5 0 00-10 0M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM18 8v6M15 11h6'], ['Export as PDF', 'M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14'], ['Publish to web', 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z']];
   root.innerHTML = `<style>
-    .bm-root { position: absolute; inset: 0; overflow: hidden; background: #efeaee; font-family: system-ui, -apple-system, sans-serif; }
+    .bm-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); font-family: system-ui, -apple-system, sans-serif; }
     .bm-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
     .bm-doc { position: absolute; left: 24px; top: 20px; width: 372px; height: 300px; border-radius: 16px 16px 0 0; background: #fff; box-shadow: 0 1px 2px rgba(42,15,38,.07), 0 16px 36px -18px rgba(42,15,38,.3); }
     .bm-bar { position: absolute; left: 0; right: 0; top: 0; height: 54px; border-bottom: 1px solid #f1e8ef; display: flex; align-items: center; padding: 0 16px; gap: 10px; }

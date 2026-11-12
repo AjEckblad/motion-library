@@ -8,7 +8,7 @@ export default function (stage) {
   const root = document.createElement('div');
   root.className = 'cf-root';
   root.innerHTML = `<style>
-    .cf-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
+    .cf-root { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 0%, #1b1b1e, #0d0d0f); overflow: hidden; color: #15171a; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
     .cf-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 18px; display: grid; grid-template-columns: 222px 1fr; gap: 18px; align-items: center; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
     .cf-scene { position: relative; height: 140px; }
     .cf-shadow { position: absolute; left: 12%; right: 12%; bottom: -10px; height: 18px; border-radius: 50%; background: rgba(20,30,80,.32); filter: blur(9px); }
