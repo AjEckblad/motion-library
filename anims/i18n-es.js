@@ -280,14 +280,6 @@ export const ES = {
    "Cada gota muestrea la escena nítida invertida y reducida, como una lente diminuta; las gotas pesadas resbalan a tirones, absorben las pequeñas y dejan rastro."
   ]
  },
- "ink-drop": {
-  "title": "Gota de tinta en el agua",
-  "trick": "Partículas que orbitan un anillo de vórtice que se hunde y se ensancha",
-  "notes": [
-   "Una gota de tinta se enrolla en un anillo de vórtice que se hunde y se rompe en penachos ondulantes.",
-   "Miles de partículas orbitan el núcleo del anillo mientras se hunde, se ensancha y frena; un relleno tenue en cada fotograma deja que la tinta vieja perdure y se disipe."
-  ]
- },
  "dripping-text": {
   "title": "Texto que gotea",
   "trick": "Filtro viscoso de desenfoque y umbral: las gotas se funden con las letras y se desprenden",

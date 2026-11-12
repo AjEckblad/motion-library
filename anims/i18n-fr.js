@@ -280,14 +280,6 @@ export const FR = {
    "Chaque goutte échantillonne la scène nette inversée et réduite, comme une minuscule lentille ; les grosses gouttes glissent par à-coups, absorbent les petites et laissent une traînée."
   ]
  },
- "ink-drop": {
-  "title": "Goutte d’encre dans l’eau",
-  "trick": "Des particules en orbite autour d’un anneau tourbillonnaire qui coule et s’élargit",
-  "notes": [
-   "Une goutte d’encre s’enroule en un anneau tourbillonnaire qui coule et se brise en panaches ondulants.",
-   "Des milliers de particules orbitent autour du cœur de l’anneau pendant qu’il coule, s’élargit et ralentit ; un léger remplissage à chaque image laisse la vieille encre persister puis s’effacer."
-  ]
- },
  "dripping-text": {
   "title": "Texte qui dégouline",
   "trick": "Filtre gluant flou et seuil : les gouttes fusionnent avec les lettres, puis se détachent",

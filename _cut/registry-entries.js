@@ -84,3 +84,9 @@
     trick: 'Voronoi over directions grows faceted crystals inward',
     notes: ['A grey stone cracks open like a book to reveal agate bands and a purple crystal lining.', 'One SDF: a noise-roughened sphere split into halves with hollows, whose walls are pushed in by a Voronoi pattern over directions with a squarish metric.'],
     params: { crystals: P(0.6, 1.8, 0.05, 'Crystal size'), sparkle: P(0, 2.5, 0.1, 'Sparkle'), speed: P(0.4, 2, 0.1, 'Speed') } },
+
+// cut 2026-11-12 (AJ asked to remove it; Ink fluid covers it)
+  { id: 'ink-drop', cat: 'fluid', title: 'Ink drop in water', kind: 'canvas', posterAt: 10500,
+    trick: 'Particles orbiting a sinking, widening vortex ring',
+    notes: ['A drop of ink rolls into a sinking vortex ring that breaks into curling plumes.', 'Thousands of particles orbit the ring core as it sinks, widens and slows; a faint fill each frame lets old ink linger and clear.'],
+    params: { particles: P(800, 6000, 100, 'Particles'), interval: P(1.5, 6, 0.1, 'Drop every (s)') } },

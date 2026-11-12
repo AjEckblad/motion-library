@@ -22,8 +22,23 @@ Card hover (AJ, 2026-11-12): the image, its heart and the text under it lift 2px
 (the preview still waits 110 ms), on `translate .25s ease` both ways, so sweeping a row glides; reduced motion: no lift.
 Guarded in tools/motion-check.mjs (18/18).
 
-NEXT (AJ said yes, 2026-11-12): the 80 UI demos go on a near-black ground, each keeping its own colour palette, so they
-read as one consistent set with the rest of the library.
+NEXT: AJ's list (2026-11-12, late). Tick each off here as it ships (commit + push after each).
+- [ ] UI demos: the 50 with a pastel ground behind app windows / phones (basics, transitions, micro, springs, morph) get
+      a near-black ground; the windows and phones keep their own colours. The 30 full-page designs (text, scroll,
+      hover) stay exactly as designed (AJ chose this).
+- [x] Cut ink-drop (to _cut/, like Geode; Geode was already cut earlier on 2026-11-12). 212 pieces.
+Agents (2026-11-12): agent 1 has black-hole, lava-flow, fire-smoke; agent 2 has ferrofluid, sph-water, shatter. They edit
+only those files and report registry text; the lead applies registry/i18n/posters and commits.
+- [ ] Black hole → Gargantua, the FILM look (AJ chose it): thin disc lensed over the top and under the shadow, photon
+      ring, even warm-white disc, NO Doppler beaming / colour shift. Ground it in the real ray-bending (Kerr-ish
+      geodesics as DNGR did), not a 2D trick.
+- [ ] Ferrofluid: light grey ground; a magnet under it that the pointer moves (drag left/right), and the fluid follows.
+- [ ] Lava flow: a realistic volcano/mountain with lava that reads as real (crust, glow, cooling).
+- [ ] Fire & smoke: refine to reference quality.
+- [ ] SPH water tank: refine to reference quality.
+- [ ] Paper fold: several fold types (letter/tri-fold, sideways gate fold, accordion, map fold...) chosen with a PICKER
+      in the detail view (AJ chose a picker over cycling: an explicit exception to "one effect per card, no switcher").
+- [ ] Shatter & rewind: refine to reference quality.
 
 WAITING ON AJ
 - npm 0.3.2: `cd ~/Downloads/motion-library/cli && npm login && npm publish` (in their own Terminal)

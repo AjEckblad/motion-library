@@ -1,6 +1,6 @@
 # Motion Library
 
-> 213 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 212 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -49,7 +49,6 @@
 - [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Distance-field blob with cosine spikes that reach for the magnet. `npx motion-library add ferrofluid`
 - [Paper marbling](https://ajeckblad.github.io/motion-library/fx/marbling.html): Backward lookup through comb and swirl warps; paint never smears. `npx motion-library add marbling`
 - [Rain on glass](https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html): Each drop is a lens showing a sharp, flipped background. `npx motion-library add raindrops-glass`
-- [Ink drop in water](https://ajeckblad.github.io/motion-library/fx/ink-drop.html): Particles orbiting a sinking, widening vortex ring. `npx motion-library add ink-drop`
 - [Dripping text](https://ajeckblad.github.io/motion-library/fx/dripping-text.html): Gooey blur-and-threshold filter: drips merge with letters, necks snap. `npx motion-library add dripping-text`
 - [Liquid mercury](https://ajeckblad.github.io/motion-library/fx/mercury.html): Metaball beads that merge, split and mirror an environment. `npx motion-library add mercury`
 - [Kelvin–Helmholtz clouds](https://ajeckblad.github.io/motion-library/fx/billow-clouds.html): Shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself. `npx motion-library add billow-clouds`
