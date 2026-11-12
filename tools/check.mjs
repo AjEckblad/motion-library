@@ -66,6 +66,22 @@ await page.mouse.wheel(0, 3000); await page.waitForTimeout(500);
 check('the dial follows the scroll', (await page.getAttribute('.dial-item[data-id="text"]', 'aria-checked')) === 'false');
 await page.locator('.dial-item[data-id="text"]').click(); await page.waitForTimeout(900);
 check('dial marks the chosen entry', (await page.getAttribute('.dial-item[data-id="text"]', 'aria-checked')) === 'true');
+// a magnified dial word never crosses into the grid, however long it is
+{
+  let worst = Infinity, at = '';
+  for (const id of await page.$$eval('.dial-item', els => els.map(e => e.dataset.id))) {
+    const b = await page.locator(`.dial-item[data-id="${id}"] .lbl`).boundingBox();
+    await page.mouse.move(b.x + b.width - 8, b.y + b.height / 2); await page.waitForTimeout(450);
+    const gap = await page.evaluate(id => document.querySelector(`.dial-item[data-id="${id}"] .lbl`).getBoundingClientRect().left - document.querySelector('#dial').getBoundingClientRect().left, id);
+    if (gap < worst) { worst = gap; at = id; }
+  }
+  check('hovered dial words stay inside the dial column', worst >= 0, `closest: ${at} at ${Math.round(worst)}px`);
+  await page.mouse.move(5, 500); await page.waitForTimeout(300);
+}
+// the interactive hint sits in the control row, not over the animation
+await page.evaluate(() => { location.hash = '#/a/magnetic'; }); await page.waitForTimeout(1500);
+check('the interactive hint sits in the control row, not on the stage', await page.locator('#detail .playbar .pb-hint').count() === 1 && await page.locator('#detail .d-stage .pb-hint, #detail .d-stage .d-hint').count() === 0);
+await page.keyboard.press('Escape'); await page.waitForTimeout(600);
 
 check('there is no search field', await page.locator('#search').count() === 0);
 

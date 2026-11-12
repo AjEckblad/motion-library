@@ -49,7 +49,13 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
     items.forEach((it, i) => {
       it.y = top + (bottom - top) * (i / (items.length - 1));
       const k = (it.y - mid) / half;
-      it.el.style.left = ''; it.el.style.right = (padR + depth * Math.sqrt(Math.max(0, 1 - k * k))) + 'px'; it.el.style.top = (it.y - 18) + 'px';
+      const right = padR + depth * Math.sqrt(Math.max(0, 1 - k * k));
+      it.el.style.left = ''; it.el.style.right = right + 'px'; it.el.style.top = (it.y - 18) + 'px';
+      // the biggest scale this word can take before it crosses into the grid: it grows leftward from its right edge
+      // and shifts 34px per unit of scale, so its left edge is (w - right) - 34(s - 1) - w·s; keep that 8px inside
+      // the column. Measured at the chosen (500) weight, which is a little wider than the resting one.
+      const wd = it.lbl.offsetWidth * 1.04;
+      it.max = Math.max(1, (w - right - 8 + 34) / (wd + 34));
     });
     kick(); onLayout?.();
   }
@@ -75,8 +81,8 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
       else for (let n = 0; n < 2; n++) { const h = dt / 2, k = 300, c = 2 * Math.sqrt(k) * 0.55; it.v += (-k * (it.s - target) - c * it.v) * h; it.s += it.v * h; }
       if (Math.abs(target - it.s) > 0.001 || Math.abs(it.v) > 0.01) moving = true;
       // transform only: the UI face has no width axis, so stretching the words would relayout text for nothing
-      const desk = geo && !geo.mobile;
-      const tf = desk ? `translateX(${(-(it.s - 1) * 34).toFixed(2)}px) scale(${it.s.toFixed(4)})` : '';
+      const desk = geo && !geo.mobile, sv = desk ? Math.min(it.s, it.max || Infinity) : it.s;   // long words swell less
+      const tf = desk ? `translateX(${(-(sv - 1) * 34).toFixed(2)}px) scale(${sv.toFixed(4)})` : '';
       if (tf !== it.tf) { it.lbl.style.transform = tf; it.tf = tf; }
       it.dot.style.transform = !desk && isSel ? 'scale(1.3)' : '';
     });
@@ -103,6 +109,7 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
   }
 
   new ResizeObserver(layout).observe(root);
+  document.fonts?.ready.then(layout);                              // the caps depend on the real word widths
   narrow.addEventListener('change', layout);
   select(selected);
   layout();

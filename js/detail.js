@@ -39,7 +39,7 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
       </div>
       <div class="d-body">
         <div class="d-left">
-          <div class="d-stage"><img alt="">${hint ? `<span class="d-hint">${hint}</span>` : ''}${a.pointer ? '' : `<button class="d-start" type="button" aria-label="${t('Play')}"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4a.6.6 0 00.9.5l8.2-5.2a.6.6 0 000-1L5.4 2.3a.6.6 0 00-.9.5z"/></svg></button>`}</div>
+          <div class="d-stage"><img alt="">${a.pointer ? '' : `<button class="d-start" type="button" aria-label="${t('Play')}"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4a.6.6 0 00.9.5l8.2-5.2a.6.6 0 000-1L5.4 2.3a.6.6 0 00-.9.5z"/></svg></button>`}</div>
           <div class="pb-slot"></div>
           <div class="tweak" role="group" aria-label="${t('Tweak the numbers')}"><div class="tweak-head"><h2>${t('Tweak')}</h2><button class="link-btn d-reset" type="button" disabled>${t('Reset')}</button></div></div>
         </div>
@@ -82,6 +82,9 @@ export function createDetail({ celebrate, toast, onClose, onCompare, isPinned })
     playbar = createPlaybar(() => iframe ? [iframe] : [], { startPaused: !a.pointer, onState: p => { if (!p) dropStart(); } });
     start?.addEventListener('click', () => playbar?.play());
     root.querySelector('.pb-slot').replaceWith(playbar.el);
+    // the hint sits in the control row, not on the stage: on light demos white text over the animation can't be read,
+    // and here it never covers the effect
+    if (hint) { const h = document.createElement('span'); h.className = 'pb-hint'; h.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l8.2 5.2-3.6.9 2.1 3.9-1.6.9-2.1-3.9L4.4 12z"/></svg>'; h.append(hint); const clock = playbar.el.querySelector('.clock'), end = document.createElement('span'); end.className = 'pb-end'; clock.replaceWith(end); end.append(h, clock); }   // hint and clock wrap as one
     creature = new Creature(root.querySelector('.creature-detail'), { size: 70, palette: PALETTES.mint, seed: 31, accent: '#ff8fab' });
     syncHeart(); syncCompare();
   }
