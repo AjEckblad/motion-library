@@ -1,5 +1,13 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "dynamic-island": {
+  "title": "Île dynamique",
+  "trick": "Une boîte noire découpée par trois ressorts : largeur, hauteur et rayon",
+  "notes": [
+   "Sur l’écran verrouillé, la pilule autour de la caméra devient un appel, sa minuterie, un lecteur de musique et un compte à rebours. Touchez-la pour ouvrir ou fermer le lecteur.",
+   "La forme est un clip-path dont la largeur, la hauteur et le rayon sont des ressorts : elle dépasse un peu puis se pose, et tout changement la relance d’où elle est ; le contenu sort vite et entre un instant après, avec un court flou."
+  ]
+ },
  "snow-globe": {
   "title": "Boule à neige",
   "trick": "Une scène en ray marching vue à travers l’eau qui réfracte, avec de la neige qui se dépose",
@@ -1724,6 +1732,7 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Hold": "Pause",
  "Flakes": "Flocons",
  "Shake every (s)": "Secouer toutes les (s)",
  "Turn every (s)": "Tourner toutes les (s)",

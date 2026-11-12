@@ -1,5 +1,13 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "dynamic-island": {
+  "title": "灵动岛",
+  "trick": "一个黑色方块，用三个弹簧裁出宽、高和圆角",
+  "notes": [
+   "锁屏上，摄像头周围的药丸形状会变成来电、通话计时、音乐播放器和倒计时。点一下它可以打开或收起播放器。",
+   "形状是一个 clip-path，宽、高和圆角都是弹簧，所以会微微过冲再停稳，任何变化都会从当前状态重新出发；内容快速淡出，稍后带一点模糊淡入。"
+  ]
+ },
  "snow-globe": {
   "title": "雪景球",
   "trick": "透过折射的水看光线步进的场景，雪花缓缓沉落",
@@ -1724,6 +1732,7 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Hold": "停留",
  "Flakes": "雪花数",
  "Shake every (s)": "摇晃间隔（秒）",
  "Turn every (s)": "翻页间隔（秒）",

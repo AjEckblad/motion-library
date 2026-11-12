@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 215,
+ "count": 216,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -8674,6 +8674,51 @@
      "min": 0,
      "max": 100,
      "step": 5
+    }
+   ]
+  },
+  {
+   "id": "dynamic-island",
+   "title": "Dynamic island",
+   "titleZh": "灵动岛",
+   "category": "Morph & SVG",
+   "categoryId": "morph",
+   "renderer": "DOM",
+   "description": "One black box clipped to three springs: width, height and corner radius",
+   "descriptionZh": "一个黑色方块，用三个弹簧裁出宽、高和圆角",
+   "page": "https://ajeckblad.github.io/motion-library/fx/dynamic-island.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/dynamic-island",
+   "npx": "npx motion-library add dynamic-island",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 14911,
+   "settings": [
+    {
+     "key": "stiffness",
+     "flag": "--stiffness",
+     "label": "Stiffness",
+     "default": 340,
+     "min": 120,
+     "max": 700,
+     "step": 10
+    },
+    {
+     "key": "bounce",
+     "flag": "--bounce",
+     "label": "Bounce",
+     "default": 0.28,
+     "min": 0,
+     "max": 0.6,
+     "step": 0.02
+    },
+    {
+     "key": "hold",
+     "flag": "--hold",
+     "label": "Hold",
+     "default": 1,
+     "min": 0.5,
+     "max": 2.5,
+     "step": 0.1
     }
    ]
   }

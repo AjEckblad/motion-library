@@ -1,5 +1,13 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "dynamic-island": {
+  "title": "Isla dinámica",
+  "trick": "Una caja negra recortada por tres muelles: ancho, alto y radio",
+  "notes": [
+   "En la pantalla de bloqueo, la píldora alrededor de la cámara se convierte en una llamada, su temporizador, un reproductor de música y una cuenta atrás. Tócala para abrir o cerrar el reproductor.",
+   "La forma es un clip-path cuyo ancho, alto y radio son muelles, así que se pasa un poco y se asienta, y cualquier cambio la redirige; el contenido sale rápido y entra un instante después, con un breve desenfoque."
+  ]
+ },
  "snow-globe": {
   "title": "Bola de nieve",
   "trick": "Una escena por ray marching vista a través del agua que refracta, con nieve que se posa",
@@ -1724,6 +1732,7 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Hold": "Pausa",
  "Flakes": "Copos",
  "Shake every (s)": "Agitar cada (s)",
  "Turn every (s)": "Pasar cada (s)",

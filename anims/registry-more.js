@@ -486,4 +486,8 @@ export const MORE = [
     trick: 'A ray-marched scene seen through refracting water, with settling snow',
     notes: ['A glass globe on a wooden base, with a cabin and pines inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.', 'Rays bend into the water at the glass, so the scene is magnified and wraps at the rim; the snow rides a swirl that dies away, sinks, and rests where it lands.'],
     params: { flakes: P(200, 3000, 50, 'Flakes'), shake: P(0.2, 2, 0.05, 'Shake'), every: P(4, 20, 1, 'Shake every (s)') } },
+  { id: 'dynamic-island', cat: 'morph', title: 'Dynamic island', kind: 'dom', posterAt: 10500, pointer: true,
+    trick: 'One black box clipped to three springs: width, height and corner radius',
+    notes: ['On a lock screen the pill around the camera grows into a call, its timer, a music player and a countdown. Tap it to open or close the player.', 'The shape is a clip-path whose width, height and radius are springs, so it overshoots a little and any change retargets it; the content fades out fast and in a beat later, with a short blur.'],
+    params: { stiffness: P(120, 700, 10, 'Stiffness'), bounce: P(0, 0.6, 0.02, 'Bounce'), hold: P(0.5, 2.5, 0.1, 'Hold') } },
 ];

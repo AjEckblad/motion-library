@@ -1,6 +1,6 @@
 # Motion Library
 
-> 215 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 216 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -269,6 +269,7 @@
 - [Chart morph](https://ajeckblad.github.io/motion-library/fx/chart-morph.html): Every dataset resampled to the same 48 points. `npx motion-library add chart-morph`
 - [Logo draw](https://ajeckblad.github.io/motion-library/fx/logo-draw.html): Dash length = path length, then slide the offset to zero. `npx motion-library add logo-draw`
 - [Button to menu](https://ajeckblad.github.io/motion-library/fx/button-menu.html): One surface, a rounded clip-path opening from the button corner. `npx motion-library add button-menu`
+- [Dynamic island](https://ajeckblad.github.io/motion-library/fx/dynamic-island.html): One black box clipped to three springs: width, height and corner radius. `npx motion-library add dynamic-island`
 
 ## Optional
 
