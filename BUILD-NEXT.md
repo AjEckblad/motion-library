@@ -1,4 +1,4 @@
-# Resume here (2026-11-12, late night → morning): AJ is away ~9 h; site edits + 8 new effects in progress
+# Resume here (2026-11-13 morning): AJ's overnight list done; 223 effects live; npm 0.3.3 waits on AJ
 
 AJ's requests (2026-11-12 ~23:30). 1–5 DONE (2026-11-13, commit "Wix Madefor type, FAQ in the dial, GitHub..."):
 - Type: Wix Madefor Text (UI) + Wix Madefor Display (headings 20px+) + JetBrains Mono (code), OFL, fonts/OFL.txt.
@@ -13,9 +13,12 @@ AJ's requests (2026-11-12 ~23:30). 1–5 DONE (2026-11-13, commit "Wix Madefor t
   detail view and stage add ?v=<hash>, so a changed effect always loads fresh. check.mjs fails if it is out of date.
 - Lead's own new pieces, all live: text/type-ribbon (ffd2ee5), transitions/page-turn (6440fcb), chrome/snow-globe
   (57a61a6), morph/dynamic-island (cf5f270), shaders/stained-glass (253cad4). Agents' pieces reviewed and live:
-  simulation/lenia (a057ee4), fluid/ocean + fluid/honey-coil + simulation/diff-growth (f3f9d87): 221 effects.
-  Agent 2 finished (meadow never started). Agent 1 is on simulation/snowflake; mud-cracks not started.
-  Still to do: meadow, mud-cracks (unbuilt); bump cli to 0.3.3 and rebuild once the new pieces are in, then AJ publishes.
+  simulation/lenia (a057ee4), fluid/ocean + fluid/honey-coil + simulation/diff-growth (f3f9d87), simulation/snowflake
+  + chrome/meadow (5c4c9a9, meadow by the lead): 223 effects. Both agents finished. mud-cracks was never built.
+  CLI is 0.3.3 and rebuilt: AJ runs `cd ~/Downloads/motion-library/cli && npm login && npm publish`.
+  Agents' reservations: Lenia species pass through each other (one channel each); diff-growth's mantle is the coral
+  form in a new material, early growth a little six-fold; ocean clouds are a 2D layer, glitter core burns white;
+  honey coil is kinematic (never buckles irregularly); snowflake's broad plate shows lattice-scale striping.
 - Agents were stopped by the usage limit at ~01:00 (resumed 02:00) and again before 07:00 (resumed 07:00 with a
   2-hour budget, reporting each piece as it is done). Their untracked files: fluid/ocean.js, fluid/honey-coil.js,
   simulation/lenia.js so far.
