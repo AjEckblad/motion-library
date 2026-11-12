@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital rain: Falling glyph heads with fading tails, stamped from a cached atlas · Motion Library</title>
+<meta name="description" content="Digital rain is a Canvas effect: falling glyph heads with fading tails, stamped from a cached atlas. One plain JavaScript file with no dependencies; add it with npx motion-library add matrix-rain.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/matrix-rain.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Digital rain · Motion Library">
+<meta property="og:description" content="Falling glyph heads with fading tails, stamped from a cached atlas">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/matrix-rain.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Digital rain",
+  "description": "Falling glyph heads with fading tails, stamped from a cached atlas",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Retro & signal, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/matrix-rain.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/matrix-rain.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Retro & signal",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/retro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Digital rain",
+    "item": "https://ajeckblad.github.io/motion-library/fx/matrix-rain.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/retro">Retro &amp; signal</a></header>
+<main class="s-page">
+<article>
+<h1>Digital rain</h1>
+<p class="tldr">Digital rain is a Canvas effect: falling glyph heads with fading tails, stamped from a cached atlas. One plain JavaScript file with no dependencies; add it with npx motion-library add matrix-rain.</p>
+<figure><img src="../posters/matrix-rain.webp" alt="Digital rain: Falling glyph heads with fading tails, stamped from a cached atlas" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/matrix-rain">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Digital rain?</h2>
+<p>Columns of mirrored katakana and digits pour down, each led by a white head and fading green tail.</p>
+
+<h2>How does Digital rain work?</h2>
+<p>Every glyph is drawn once with fillText into an atlas at device resolution and stamped with drawImage, so thousands per frame stay crisp and cheap.</p>
+
+<h2>How do I add Digital rain to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add matrix-rain</code>. It writes <code>animations/matrix-rain.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/matrix-rain.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add matrix-rain --speed 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.2 to 3</td><td>0.05</td></tr>
+<tr><td>Glyph size</td><td><code>--size</code></td><td>18</td><td>10 to 32</td><td>1</td></tr>
+<tr><td>Density</td><td><code>--density</code></td><td>0.7</td><td>0.1 to 1</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Retro &amp; signal</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Digital rain: every column drops a bright head that writes glyphs as it falls; the cells behind it fade out
+// over a tail. Glyphs (mirrored half-width katakana + digits) are drawn once with fillText into a cached atlas at
+// device resolution, then stamped with drawImage, so thousands of glyphs a frame stay crisp and cheap. Columns
+// get a depth value: far ones are dimmer and slower, which reads as parallax.
+const PARAMS = { speed: 1, size: 18, density: 0.7 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const KANA = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ', DIG = '0123456789:.=+&lt;&gt;*';
+  const glyphs = [...KANA, ...DIG], NK = [...KANA].length, NG = glyphs.length;
+  let W = 0, H = 0, D = 1, S = 18, px = 18, pad = 0, cols = 0, rows = 0, grid, drops = [], tail, head, glow;
+
+  const makeAtlas = (fill, blur, padding) =&gt; {
+    const cell = px + padding * 2, c = document.createElement('canvas');
+    c.width = cell * NG; c.height = cell;
+    const g = c.getContext('2d');
+    g.font = `${Math.round(px * 0.86)}px &quot;Hiragino Kaku Gothic ProN&quot;,&quot;Hiragino Sans&quot;,&quot;Yu Gothic&quot;,&quot;Noto Sans JP&quot;,&quot;MS Gothic&quot;,monospace`;
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = fill;
+    if (blur) { g.shadowColor = fill; g.shadowBlur = blur; }
+    glyphs.forEach((ch, i) =&gt; {
+      g.save(); g.translate(i * cell + cell / 2, cell / 2 + px * 0.04);
+      if (i &lt; NK) g.scale(-1, 1);                       // the film's glyphs are mirrored
+      g.fillText(ch, 0, 0);
+      if (blur) g.fillText(ch, 0, 0);
+      g.restore();
+    });
+    return c;
+  };
+  const spawn = (d, first) =&gt; {
+    d.depth = 0.3 + Math.random() * 0.7;
+    d.v = (7 + Math.random() * 16) * (0.45 + 0.55 * d.depth);
+    d.len = 8 + Math.random() * 22 | 0;
+    d.y = first ? Math.random() * (rows + d.len) - d.len * 0.5 : -Math.random() * rows * (1.4 - PARAMS.density);
+    d.last = Math.floor(d.y);
+  };
+  const resize = () =&gt; {
+    D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    canvas.width = W * D | 0; canvas.height = H * D | 0;
+    S = Math.max(8, Math.round(PARAMS.size)); px = Math.round(S * D); pad = Math.round(px * 0.45);
+    tail = makeAtlas('#35f06a', 0, 0); head = makeAtlas('#f2fff4', 0, 0); glow = makeAtlas('#6dff95', px * 0.5, pad);
+    cols = Math.ceil(W / S); rows = Math.ceil(H / S) + 1;
+    grid = new Uint8Array(cols * rows); for (let i = 0; i &lt; grid.length; i++) grid[i] = Math.random() * NG | 0;
+    drops = [];
+    for (let c = 0; c &lt; cols; c++) {
+      const n = Math.random() &lt; PARAMS.density * 0.6 ? 2 : 1;
+      for (let k = 0; k &lt; n; k++) { const d = { c }; spawn(d, true); drops.push(d); }
+    }
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  let raf, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000) * (reduce ? 0.08 : 1); last = now;
+    // glyph churn: a few cells change at random, like the film
+    const churn = grid.length * dt * (reduce ? 0.02 : 0.6);
+    for (let i = 0; i &lt; churn; i++) grid[Math.random() * grid.length | 0] = Math.random() * NG | 0;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.fillStyle = '#020704'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const cell = px + pad * 2;
+    for (const d of drops) {
+      d.y += d.v * PARAMS.speed * dt;
+      const hy = Math.floor(d.y);
+      if (hy !== d.last) { for (let r = d.last + 1; r &lt;= hy; r++) if (r &gt;= 0 &amp;&amp; r &lt; rows) grid[d.c * rows + r] = Math.random() * NG | 0; d.last = hy; }
+      if (hy - d.len &gt; rows) { spawn(d, false); continue; }
+      const x = d.c * px;
+      for (let k = d.len; k &gt;= 1; k--) {
+        const r = hy - k; if (r &lt; 0 || r &gt;= rows) continue;
+        const f = 1 - k / d.len; ctx.globalAlpha = Math.pow(f, 1.6) * (0.3 + 0.7 * d.depth);
+        const gi = grid[d.c * rows + r];
+        ctx.drawImage(k &lt;= 2 ? head : tail, gi * px, 0, px, px, x, r * px, px, px);
+        if (k &lt;= 2) { ctx.globalAlpha *= 0.5; ctx.drawImage(tail, gi * px, 0, px, px, x, r * px, px, px); }
+      }
+      if (hy &gt;= 0 &amp;&amp; hy &lt; rows) {
+        const gi = (Math.random() &lt; 0.2 &amp;&amp; !reduce) ? (grid[d.c * rows + hy] = Math.random() * NG | 0) : grid[d.c * rows + hy];
+        ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.95 * d.depth;
+        ctx.drawImage(glow, gi * cell, 0, cell, cell, x - pad, hy * px - pad, cell, cell);
+        ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 0.4 + 0.6 * d.depth;
+        ctx.drawImage(head, gi * px, 0, px, px, x, hy * px, px, px);
+      }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

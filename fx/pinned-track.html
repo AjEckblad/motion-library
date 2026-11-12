@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pinned horizontal track: Vertical scroll slides a sticky row sideways · Motion Library</title>
+<meta name="description" content="Pinned horizontal track is a DOM effect: vertical scroll slides a sticky row sideways. One plain JavaScript file with no dependencies; add it with npx motion-library add pinned-track.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/pinned-track.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Pinned horizontal track · Motion Library">
+<meta property="og:description" content="Vertical scroll slides a sticky row sideways">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/pinned-track.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Pinned horizontal track",
+  "description": "Vertical scroll slides a sticky row sideways",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Scroll, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/pinned-track.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/pinned-track.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Scroll",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/scroll"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Pinned horizontal track",
+    "item": "https://ajeckblad.github.io/motion-library/fx/pinned-track.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/scroll">Scroll</a></header>
+<main class="s-page">
+<article>
+<h1>Pinned horizontal track</h1>
+<p class="tldr">Pinned horizontal track is a DOM effect: vertical scroll slides a sticky row sideways. One plain JavaScript file with no dependencies; add it with npx motion-library add pinned-track.</p>
+<figure><img src="../posters/pinned-track.webp" alt="Pinned horizontal track: Vertical scroll slides a sticky row sideways" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/pinned-track">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Pinned horizontal track?</h2>
+<p>A portfolio section pins while scrolling slides a row of projects sideways, with a counter and progress bar.</p>
+
+<h2>How does Pinned horizontal track work?</h2>
+<p>A tall section holds a position: sticky frame; progress through it maps straight to the row’s offset, and the section height sets the pace.</p>
+
+<h2>How do I add Pinned horizontal track to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add pinned-track</code>. It writes <code>animations/pinned-track.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/pinned-track.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add pinned-track --panels 8</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Panels</td><td><code>--panels</code></td><td>5</td><td>3 to 8</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Scroll</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>10.5 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it follows scrolling</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Pinned horizontal track, on an architecture studio's portfolio: the &quot;Selected work&quot; section pins in place while vertical scrolling slides the row of projects sideways, then lets go.
+// position: sticky does the pinning, so the page never hijacks the scroll; the section's height sets the pace, and progress through it maps straight to the row's offset, with a counter and a thin bar so the reader knows how far along they are.
+const PARAMS = { panels: 5 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400, NAV = 40;
+  const projects = [
+    ['Harbour Baths', 'Aarhus · 2024 · Public bath', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#cfe0ea&quot;/&gt;&lt;rect y=&quot;88&quot; width=&quot;200&quot; height=&quot;52&quot; fill=&quot;#4f86a6&quot;/&gt;&lt;path d=&quot;M0 96h200&quot; stroke=&quot;#9cc3d8&quot; stroke-width=&quot;2&quot;/&gt;&lt;rect x=&quot;20&quot; y=&quot;78&quot; width=&quot;160&quot; height=&quot;10&quot; fill=&quot;#b98b5e&quot;/&gt;&lt;rect x=&quot;128&quot; y=&quot;34&quot; width=&quot;8&quot; height=&quot;44&quot; fill=&quot;#7a5a3c&quot;/&gt;&lt;rect x=&quot;118&quot; y=&quot;34&quot; width=&quot;34&quot; height=&quot;5&quot; fill=&quot;#7a5a3c&quot;/&gt;&lt;path d=&quot;M30 88v18M60 88v18M90 88v18M150 88v18&quot; stroke=&quot;#7a5a3c&quot; stroke-width=&quot;3&quot;/&gt;`],
+    ['Library in the Pines', 'Jyväskylä · 2023 · Library', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#dfe5da&quot;/&gt;&lt;rect y=&quot;104&quot; width=&quot;200&quot; height=&quot;36&quot; fill=&quot;#9aa88c&quot;/&gt;&lt;path d=&quot;M18 0v110M44 0v104M170 0v108M186 0v110&quot; stroke=&quot;#5e4a3a&quot; stroke-width=&quot;5&quot;/&gt;&lt;rect x=&quot;54&quot; y=&quot;72&quot; width=&quot;104&quot; height=&quot;34&quot; fill=&quot;#c39a6b&quot;/&gt;&lt;rect x=&quot;50&quot; y=&quot;66&quot; width=&quot;112&quot; height=&quot;8&quot; fill=&quot;#3d3a36&quot;/&gt;&lt;rect x=&quot;62&quot; y=&quot;80&quot; width=&quot;88&quot; height=&quot;18&quot; fill=&quot;#f4e3b8&quot;/&gt;&lt;path d=&quot;M84 80v18M106 80v18M128 80v18&quot; stroke=&quot;#c39a6b&quot; stroke-width=&quot;2&quot;/&gt;`],
+    ['Brick Row Houses', 'Leeds · 2022 · Housing', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#e8dfd6&quot;/&gt;${[0, 1, 2, 3].map(i =&gt; `&lt;path d=&quot;M${10 + i * 46} 124V56l23-24 23 24v68z&quot; fill=&quot;${['#a0523d', '#b0614a', '#9a4b37', '#ad5a42'][i]}&quot;/&gt;&lt;rect x=&quot;${21 + i * 46}&quot; y=&quot;66&quot; width=&quot;10&quot; height=&quot;14&quot; fill=&quot;#2f2a28&quot;/&gt;&lt;rect x=&quot;${35 + i * 46}&quot; y=&quot;66&quot; width=&quot;10&quot; height=&quot;14&quot; fill=&quot;#2f2a28&quot;/&gt;&lt;rect x=&quot;${27 + i * 46}&quot; y=&quot;98&quot; width=&quot;12&quot; height=&quot;26&quot; fill=&quot;#2f2a28&quot;/&gt;`).join('')}&lt;rect y=&quot;124&quot; width=&quot;200&quot; height=&quot;16&quot; fill=&quot;#8d8a84&quot;/&gt;`],
+    ['Ferry Terminal', 'Bergen · 2021 · Transport', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#d7dee6&quot;/&gt;&lt;path d=&quot;M0 84l36-34 30 22 40-40 46 36 48-24v40H0z&quot; fill=&quot;#9aa6b2&quot;/&gt;&lt;rect y=&quot;96&quot; width=&quot;200&quot; height=&quot;44&quot; fill=&quot;#566f86&quot;/&gt;&lt;path d=&quot;M28 64h150l-20 10H40z&quot; fill=&quot;#e9ecef&quot;/&gt;&lt;path d=&quot;M48 74v26M150 74v26&quot; stroke=&quot;#e9ecef&quot; stroke-width=&quot;3&quot;/&gt;&lt;rect x=&quot;58&quot; y=&quot;78&quot; width=&quot;86&quot; height=&quot;20&quot; fill=&quot;#bcd2e0&quot; opacity=&quot;.85&quot;/&gt;`],
+    ['Hillside Chapel', 'Faroe Islands · 2020 · Chapel', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#dde4e3&quot;/&gt;&lt;path d=&quot;M0 110C50 80 120 70 200 92v48H0z&quot; fill=&quot;#7d9a6b&quot;/&gt;&lt;path d=&quot;M84 92V64l22-30 22 30v28z&quot; fill=&quot;#f6f4ef&quot;/&gt;&lt;path d=&quot;M84 64l22-30 22 30&quot; fill=&quot;none&quot; stroke=&quot;#2f3a34&quot; stroke-width=&quot;5&quot;/&gt;&lt;rect x=&quot;100&quot; y=&quot;74&quot; width=&quot;12&quot; height=&quot;18&quot; fill=&quot;#2f3a34&quot;/&gt;&lt;path d=&quot;M106 20v14&quot; stroke=&quot;#2f3a34&quot; stroke-width=&quot;2&quot;/&gt;`],
+    ['Market Hall', 'Porto · 2019 · Market', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#efe4d4&quot;/&gt;&lt;path d=&quot;M14 120V70c30-30 142-30 172 0v50z&quot; fill=&quot;#d8b07a&quot;/&gt;&lt;path d=&quot;M30 120V80M62 120V68M100 120V64M138 120V68M170 120V80&quot; stroke=&quot;#7a5532&quot; stroke-width=&quot;3&quot;/&gt;&lt;path d=&quot;M14 70c30-30 142-30 172 0&quot; fill=&quot;none&quot; stroke=&quot;#7a5532&quot; stroke-width=&quot;4&quot;/&gt;&lt;rect y=&quot;120&quot; width=&quot;200&quot; height=&quot;20&quot; fill=&quot;#b9a68c&quot;/&gt;`],
+    ['Allotment Pavilion', 'Utrecht · 2018 · Community', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#e4ead9&quot;/&gt;&lt;rect y=&quot;98&quot; width=&quot;200&quot; height=&quot;42&quot; fill=&quot;#6d8c4f&quot;/&gt;${[0, 1, 2, 3, 4, 5, 6].map(i =&gt; `&lt;path d=&quot;M${14 + i * 28} 98v-10&quot; stroke=&quot;#3f5a2c&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot;/&gt;`).join('')}&lt;path d=&quot;M60 98V62h80v36z&quot; fill=&quot;#d7c8a6&quot;/&gt;&lt;path d=&quot;M52 64l48-24 48 24z&quot; fill=&quot;#4b4036&quot;/&gt;&lt;rect x=&quot;88&quot; y=&quot;74&quot; width=&quot;24&quot; height=&quot;24&quot; fill=&quot;#4b4036&quot;/&gt;`],
+    ['Concrete Villa', 'Ticino · 2017 · House', `&lt;rect width=&quot;200&quot; height=&quot;140&quot; fill=&quot;#dfe3e6&quot;/&gt;&lt;path d=&quot;M0 100C60 86 140 90 200 100v40H0z&quot; fill=&quot;#8b9a7e&quot;/&gt;&lt;rect x=&quot;40&quot; y=&quot;58&quot; width=&quot;120&quot; height=&quot;44&quot; fill=&quot;#b9b8b4&quot;/&gt;&lt;rect x=&quot;70&quot; y=&quot;40&quot; width=&quot;100&quot; height=&quot;22&quot; fill=&quot;#a7a6a2&quot;/&gt;&lt;rect x=&quot;52&quot; y=&quot;70&quot; width=&quot;60&quot; height=&quot;20&quot; fill=&quot;#2f3438&quot;/&gt;&lt;rect x=&quot;128&quot; y=&quot;70&quot; width=&quot;20&quot; height=&quot;32&quot; fill=&quot;#2f3438&quot;/&gt;`],
+  ];
+  const n = Math.max(1, Math.min(projects.length, Math.round(PARAMS.panels)));
+  const root = document.createElement('div');
+  root.className = 'pt-root';
+  root.innerHTML = `&lt;style&gt;
+    .pt-root { position: absolute; inset: 0; overflow: hidden; background: #ecebe7; color: #1c1c1a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .pt-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .pt-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+    .pt-scroll::-webkit-scrollbar { display: none; }
+    .pt-nav { position: sticky; top: 0; z-index: 2; height: ${NAV}px; display: flex; align-items: center; gap: 16px; padding: 0 22px; background: #ecebe7; font-size: 11.5px; font-weight: 560; color: #5d5c57; }
+    .pt-nav i { width: 16px; height: 16px; background: #1c1c1a; margin-right: auto; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%, 50% 50%, 0 50%); }
+    .pt-intro { padding: 22px 22px 26px; }
+    .pt-intro h1 { margin: 0; font-size: 34px; line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; }
+    .pt-intro p { margin: 8px 0 0; max-width: 340px; font-size: 12.5px; line-height: 1.45; color: #5d5c57; }
+    .pt-frame { position: sticky; top: ${NAV}px; height: ${AH - NAV}px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); border-top: 1px solid #d6d4cf; }
+    .pt-head { display: flex; align-items: center; gap: 12px; padding: 14px 22px 0; font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+    .pt-head span:first-child { margin-right: auto; }
+    .pt-count { font-variant-numeric: tabular-nums; }
+    .pt-line { width: 70px; height: 2px; background: #d6d4cf; overflow: hidden; }
+    .pt-line i { display: block; height: 100%; background: #1c1c1a; transform-origin: 0 50%; transform: scaleX(0); }
+    .pt-row { align-self: center; display: flex; gap: 16px; padding: 0 22px; width: max-content; will-change: transform; }
+    .pt-card { flex: none; width: 214px; }
+    .pt-card svg { display: block; width: 214px; height: 150px; border-radius: 4px; }
+    .pt-card b { display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; font-weight: 650; letter-spacing: -0.01em; }
+    .pt-card b em { font-style: normal; font-size: 11px; font-weight: 600; color: #8a8984; }
+    .pt-card span { font-size: 11px; color: #6b6a65; }
+    .pt-out { padding: 30px 22px 50px; font-size: 22px; font-weight: 650; letter-spacing: -0.02em; }
+    .pt-out span { display: block; margin-top: 6px; font-size: 12px; font-weight: 500; color: #5d5c57; letter-spacing: 0; }
+  &lt;/style&gt;
+  &lt;div class=&quot;pt-art&quot;&gt;&lt;div class=&quot;pt-scroll&quot;&gt;
+    &lt;div class=&quot;pt-nav&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;span&gt;Work&lt;/span&gt;&lt;span&gt;Studio&lt;/span&gt;&lt;span&gt;Journal&lt;/span&gt;&lt;span&gt;Contact&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;pt-intro&quot;&gt;&lt;h1&gt;Buildings for slow afternoons.&lt;/h1&gt;&lt;p&gt;A small practice in Copenhagen. We design public places that get better with use: baths, libraries, halls.&lt;/p&gt;&lt;/div&gt;
+    &lt;div class=&quot;pt-track&quot;&gt;&lt;div class=&quot;pt-frame&quot;&gt;
+      &lt;div class=&quot;pt-head&quot;&gt;&lt;span&gt;Selected work&lt;/span&gt;&lt;span class=&quot;pt-count&quot;&gt;&lt;/span&gt;&lt;span class=&quot;pt-line&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;pt-row&quot;&gt;${projects.slice(0, n).map(([t, m, s], i) =&gt; `&lt;div class=&quot;pt-card&quot;&gt;&lt;svg viewBox=&quot;0 0 200 140&quot; preserveAspectRatio=&quot;xMidYMid slice&quot; aria-hidden=&quot;true&quot;&gt;${s}&lt;/svg&gt;&lt;b&gt;${t}&lt;em&gt;${String(i + 1).padStart(2, '0')}&lt;/em&gt;&lt;/b&gt;&lt;span&gt;${m}&lt;/span&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;
+    &lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;pt-out&quot;&gt;Have a site in mind?&lt;span&gt;Write to us at the studio. We answer every letter.&lt;/span&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const art = root.querySelector('.pt-art'), sc = root.querySelector('.pt-scroll'), track = root.querySelector('.pt-track');
+  const frameEl = root.querySelector('.pt-frame'), row = root.querySelector('.pt-row'), count = root.querySelector('.pt-count'), line = root.querySelector('.pt-line i');
+  let travel = 0;
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1;
+    art.style.width = W / s + 'px'; art.style.top = (H - AH * s) / 2 + 'px'; art.style.transform = `scale(${s})`;
+    travel = Math.max(0, row.scrollWidth - frameEl.clientWidth);
+    // the section is as tall as the sideways travel needs, plus one screen for the pin itself
+    track.style.height = (AH - NAV) + travel * 1.1 + 'px';
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // Simulated reader: the top, then into the pin, a slow pass along the row with a pause on each project, then out.
+  const T = () =&gt; track.offsetTop - NAV, span = () =&gt; track.offsetHeight - (AH - NAV), end = () =&gt; sc.scrollHeight - sc.clientHeight;
+  const stops = [[() =&gt; 0, 0, 900], [T, 900, 500]];
+  for (let i = 1; i &lt; n; i++) stops.push([() =&gt; T() + span() * i / (n - 1), 1000, 650]);
+  stops.push([end, 900, 1000], [() =&gt; 0, 1600, 200]);
+  const ease = t =&gt; t &lt; 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let seg = null, si = 0, userUntil = 0, raf, cut = -1;
+  const take = () =&gt; { userUntil = performance.now() + 3000; seg = null; };
+  ['wheel', 'touchstart', 'pointerdown'].forEach(e =&gt; sc.addEventListener(e, take, { passive: true }));
+  function drive(now) {
+    if (now &lt; userUntil) return;
+    if (!seg) { const [at, dur, hold] = stops[si++ % stops.length]; seg = { from: sc.scrollTop, to: Math.min(end(), at()), t0: now, dur, hold }; }
+    const k = seg.dur ? Math.min(1, (now - seg.t0) / seg.dur) : 1;
+    sc.scrollTop = seg.from + (seg.to - seg.from) * ease(k);
+    if (now - seg.t0 &gt;= seg.dur + seg.hold) seg = null;
+  }
+  function frame(now) {
+    drive(now);
+    const p = span() &gt; 0 ? Math.min(1, Math.max(0, (sc.scrollTop - T()) / span())) : 0;
+    // reduced motion: the row doesn't slide with the scroll; it cuts from project to project with a short fade
+    const at = Math.round(p * (n - 1));
+    if (!reduce) row.style.transform = `translateX(${(-p * travel).toFixed(2)}px)`;
+    else if (at !== cut) { cut = at; row.style.transform = `translateX(${-Math.min(travel, row.children[at].offsetLeft - row.children[0].offsetLeft)}px)`; row.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 }); }
+    line.style.transform = `scaleX(${p.toFixed(4)})`;
+    count.textContent = `${String(Math.min(n, 1 + Math.round(p * (n - 1)))).padStart(2, '0')} / ${String(n).padStart(2, '0')}`;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

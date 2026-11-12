@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hex wave: Honeycomb prisms lifted by summed travelling rings and a swell · Motion Library</title>
+<meta name="description" content="Hex wave is a Canvas effect: honeycomb prisms lifted by summed travelling rings and a swell. One plain JavaScript file with no dependencies; add it with npx motion-library add hex-wave.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/hex-wave.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Hex wave · Motion Library">
+<meta property="og:description" content="Honeycomb prisms lifted by summed travelling rings and a swell">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/hex-wave.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Hex wave",
+  "description": "Honeycomb prisms lifted by summed travelling rings and a swell",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Generative & math, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/hex-wave.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/hex-wave.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Generative & math",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/generative"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Hex wave",
+    "item": "https://ajeckblad.github.io/motion-library/fx/hex-wave.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/generative">Generative &amp; math</a></header>
+<main class="s-page">
+<article>
+<h1>Hex wave</h1>
+<p class="tldr">Hex wave is a Canvas effect: honeycomb prisms lifted by summed travelling rings and a swell. One plain JavaScript file with no dependencies; add it with npx motion-library add hex-wave.</p>
+<figure><img src="../posters/hex-wave.webp" alt="Hex wave: Honeycomb prisms lifted by summed travelling rings and a swell" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/hex-wave">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Hex wave?</h2>
+<p>Rings of raised, glowing hex prisms spread over a slow swell; click or move to drop rings.</p>
+
+<h2>How does Hex wave work?</h2>
+<p>Each cell sums Gaussian ring bumps by its distance, passed through tanh to set lift and colour; painting rows top to bottom gives the occlusion.</p>
+
+<h2>How do I add Hex wave to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add hex-wave</code>. It writes <code>animations/hex-wave.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/hex-wave.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add hex-wave --cell 32</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Cell (px)</td><td><code>--cell</code></td><td>16</td><td>8 to 32</td><td>1</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.2 to 3</td><td>0.05</td></tr>
+<tr><td>Lift</td><td><code>--lift</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Generative &amp; math</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Hex wave: a honeycomb of prisms lit by travelling waves. A slow swell rolls diagonally across the grid, and every
+// tap (or, when idle, a ghost tap) sends out a ring: a pulse whose radius grows at constant speed, followed by two
+// fainter echoes. Each cell sums the swell and every live ring at its own distance, so rings pass through each other
+// and brighten where they cross. Height lifts the prism and heats its top from indigo through cyan to white.
+const PARAMS = { cell: 16, speed: 1, lift: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, D = 1, px = [], py = [], R = 16;
+  function build() {
+    R = PARAMS.cell; const dx = Math.sqrt(3) * R, dy = 1.5 * R;
+    const cols = Math.ceil(W / dx) + 2, rows = Math.ceil(H / dy) + 3; px = []; py = [];
+    for (let j = 0; j &lt; rows; j++) for (let i = 0; i &lt; cols; i++) { px.push((i - .5 + (j &amp; 1) * .5) * dx); py.push((j - 1) * dy); }
+  }
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * D | 0; canvas.height = H * D | 0; build(); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const rings = [];   // { x, y, t0, a }
+  let T = 0, lastSeed = -1, lastMove = -1e9, lastP = null;
+  const seed = (x, y, a) =&gt; { rings.push({ x, y, t0: T, a }); if (rings.length &gt; 14) rings.shift(); };
+  const pos = e =&gt; { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const onMove = e =&gt; { const p = pos(e); lastMove = performance.now(); if (!lastP || Math.hypot(p[0] - lastP[0], p[1] - lastP[1]) &gt; R * 5) { seed(p[0], p[1], .55); lastP = p; } };
+  const onDown = e =&gt; { const p = pos(e); lastMove = performance.now(); seed(p[0], p[1], 1.2); lastP = p; };
+  stage.addEventListener('pointermove', onMove); stage.addEventListener('pointerdown', onDown);
+
+  const ang = [-90, -30, 30, 90, 150, 210].map(a =&gt; a * Math.PI / 180), cs = ang.map(Math.cos), sn = ang.map(Math.sin);
+  const STOPS = [[0, 12, 16, 38], [.4, 22, 96, 196], [.72, 56, 206, 246], [1, 240, 253, 255]];
+  const ramp = b =&gt; { let i = 0; while (i &lt; STOPS.length - 2 &amp;&amp; b &gt; STOPS[i + 1][0]) i++; const A = STOPS[i], B = STOPS[i + 1], f = Math.max(0, Math.min(1, (b - A[0]) / (B[0] - A[0])));
+    return `rgb(${A[1] + (B[1] - A[1]) * f | 0},${A[2] + (B[2] - A[2]) * f | 0},${A[3] + (B[3] - A[3]) * f | 0})`; };
+  const SPEED = 230, LIFE = 3.2;
+  let raf, last = performance.now(), ghostAt = .2;
+  if (reduce) { T = 1.1; seed(W * .38, H * .45, 1); rings[0].t0 = 0; }
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!reduce) {
+      T += dt * PARAMS.speed;
+      if (now - lastMove &gt; 2500 &amp;&amp; T &gt; ghostAt) { seed(W * (.15 + .7 * Math.random()), H * (.15 + .7 * Math.random()), .9 + Math.random() * .3); ghostAt = T + 1.3 + Math.random() * .9; }
+    }
+    while (rings.length &amp;&amp; T - rings[0].t0 &gt; LIFE) rings.shift();
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.fillStyle = '#06080e'; ctx.fillRect(0, 0, W, H);
+    const r = R * .92, K = 9 * PARAMS.lift, w = R * 1.25;
+    for (let k = 0; k &lt; px.length; k++) {
+      const x = px[k], y = py[k];
+      let h = .1 * Math.sin((x * .6 + y) * .012 - T * 1.3) + .05 * Math.sin((x - y * .4) * .021 + T * .9);   // the swell
+      for (const g of rings) {
+        const age = T - g.t0, d = Math.hypot(x - g.x, y - g.y) - SPEED * age, fade = g.a * (1 - age / LIFE) ** 1.5;
+        if (d &gt; w * 3 || d &lt; -w * 9) continue;
+        // a bright front, then two weaker echoes trailing behind it
+        h += fade * (Math.exp(-(d * d) / (w * w)) + .45 * Math.exp(-((d + w * 3.2) ** 2) / (w * w)) + .2 * Math.exp(-((d + w * 6.4) ** 2) / (w * w)));
+      }
+      const e = Math.tanh(h * 1.6), b = Math.max(0, .1 + e * .9), lift = Math.max(0, 1.5 + e * K);
+      ctx.beginPath();
+      for (let q = 0; q &lt; 6; q++) { const up = q === 0 || q === 1 || q === 5 ? lift : 0; const X = x + cs[q] * r, Y = y + sn[q] * r - up; q ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+      ctx.closePath(); ctx.fillStyle = `rgb(${6 + 24 * b | 0},${10 + 50 * b | 0},${22 + 80 * b | 0})`; ctx.fill();
+      ctx.beginPath();
+      for (let q = 0; q &lt; 6; q++) { const X = x + cs[q] * r, Y = y + sn[q] * r - lift; q ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+      ctx.closePath(); ctx.fillStyle = ramp(b); ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); stage.removeEventListener('pointermove', onMove); stage.removeEventListener('pointerdown', onDown); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

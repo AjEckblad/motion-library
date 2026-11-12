@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directional fill: The fill enters and leaves the way the cursor did · Motion Library</title>
+<meta name="description" content="Directional fill is a DOM effect: the fill enters and leaves the way the cursor did. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-fill.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/directional-fill.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Directional fill · Motion Library">
+<meta property="og:description" content="The fill enters and leaves the way the cursor did">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/directional-fill.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Directional fill",
+  "description": "The fill enters and leaves the way the cursor did",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/directional-fill.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/directional-fill.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Directional fill",
+    "item": "https://ajeckblad.github.io/motion-library/fx/directional-fill.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>Directional fill</h1>
+<p class="tldr">Directional fill is a DOM effect: the fill enters and leaves the way the cursor did. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-fill.</p>
+<figure><img src="../posters/directional-fill.webp" alt="Directional fill: The fill enters and leaves the way the cursor did" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/directional-fill">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Directional fill?</h2>
+<p>A button’s dark fill sweeps in from the side the cursor entered and out the side it leaves.</p>
+
+<h2>How does Directional fill work?</h2>
+<p>A filled copy of the button is revealed with a clip-path inset from the entry edge, then collapses onto the exit edge from wherever the last sweep got to.</p>
+
+<h2>How do I add Directional fill to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add directional-fill</code>. It writes <code>animations/directional-fill.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/directional-fill.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add directional-fill --duration 600</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Enter (ms)</td><td><code>--duration</code></td><td>240</td><td>80 to 600</td><td>10</td></tr>
+<tr><td>Exit (ms)</td><td><code>--exit</code></td><td>200</td><td>80 to 600</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Directional fill on call-to-action buttons: the dark fill sweeps in from whichever side the cursor came through, and
+// sweeps out toward the side it leaves by, using a clip-path on a filled copy of the button. Leaving halfway through an
+// entry reverses from wherever the fill has got to. It feels right because the button seems to be pushed by the cursor itself.
+const PARAMS = { duration: 240, exit: 200 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const btn = (label, cls = '') =&gt; `&lt;button class=&quot;df-btn ${cls}&quot; type=&quot;button&quot;&gt;&lt;span class=&quot;df-lab&quot;&gt;${label}&lt;/span&gt;&lt;span class=&quot;df-fill&quot;&gt;&lt;span class=&quot;df-lab&quot;&gt;${label}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`;
+  const root = document.createElement('div');
+  root.className = 'df-root';
+  root.innerHTML = `&lt;style&gt;
+    .df-root { position: absolute; inset: 0; overflow: hidden; background: #e9ece6; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .df-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .df-panel { position: absolute; left: 30px; right: 30px; top: 30px; bottom: 30px; border-radius: 18px; background: #fbfbf8; box-shadow: 0 0 0 1px rgba(20,24,30,.06); }
+    .df-h { position: absolute; left: 36px; top: 34px; margin: 0; font-size: 30px; line-height: 1.05; font-weight: 720; letter-spacing: -0.03em; }
+    .df-p { position: absolute; left: 36px; top: 108px; margin: 0; font-size: 13.5px; color: #5b6066; }
+    .df-row { position: absolute; left: 36px; top: 148px; display: flex; gap: 14px; }
+    .df-btn { position: relative; height: 52px; width: 196px; border: 1.5px solid #15171a; border-radius: 12px; background: transparent; color: #15171a; font: 620 14.5px system-ui, -apple-system, sans-serif; cursor: pointer; padding: 0; overflow: hidden; }
+    .df-btn &gt; .df-lab, .df-fill { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+    .df-fill { background: #15171a; color: #fff; clip-path: inset(0 100% 0 0); }
+    .df-alt { border-color: #2f6b3a; color: #2f6b3a; } .df-alt .df-fill { background: #2f6b3a; }
+    .df-news { position: absolute; left: 36px; right: 36px; top: 236px; padding-top: 18px; border-top: 1px solid #e3e5df; }
+    .df-news label { display: block; font-size: 12px; font-weight: 600; color: #3a3e43; margin-bottom: 8px; }
+    .df-form { display: flex; gap: 10px; }
+    .df-in { width: 196px; height: 44px; box-sizing: border-box; border-radius: 10px; border: 1px solid #d5d8d1; background: #fff; padding: 0 12px; display: flex; align-items: center; font-size: 13px; color: #8a8f94; }
+    .df-form .df-btn { height: 44px; width: 120px; font-size: 13.5px; border-radius: 10px; }
+    .df-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.3)); }
+  &lt;/style&gt;&lt;div class=&quot;df-scene&quot;&gt;&lt;div class=&quot;df-panel&quot;&gt;
+    &lt;h2 class=&quot;df-h&quot;&gt;Ready when you are.&lt;/h2&gt;
+    &lt;p class=&quot;df-p&quot;&gt;Setting up takes about two minutes. Bring your team later.&lt;/p&gt;
+    &lt;div class=&quot;df-row&quot;&gt;${btn('Start free trial')}${btn('Book a demo', 'df-alt')}&lt;/div&gt;
+    &lt;div class=&quot;df-news&quot;&gt;&lt;label&gt;Or get one short email a month&lt;/label&gt;&lt;div class=&quot;df-form&quot;&gt;&lt;div class=&quot;df-in&quot;&gt;you@example.com&lt;/div&gt;${btn('Subscribe')}&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.df-scene');
+  let s = 1;
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const box = el =&gt; { let x = 0, y = 0, e = el; while (e &amp;&amp; e !== scene) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; } return { x, y, w: el.offsetWidth, h: el.offsetHeight }; };
+  const at = (el, fx, fy) =&gt; () =&gt; { const b = box(el); return { x: b.x + b.w * fx, y: b.y + b.h * fy }; };
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+  const [A, B, C] = scene.querySelectorAll('.df-btn');
+
+  // simulated cursor: enters and leaves each button through a different side; the real pointer takes over while it is on the stage
+  const steps = [
+    { to: pt(20, 205), move: 300, hold: 300 },
+    { to: at(A, 0.5, 0.5), move: 800, hold: 900 },        // in from the left
+    { to: at(C, 0.5, 2.4), move: 900, hold: 300 },        // out through the bottom
+    { to: at(C, 0.5, 0.5), move: 600, hold: 900 },        // in from the bottom
+    { to: at(B, 1.12, 0.5), move: 900, hold: 200 },        // out through the top
+    { to: at(B, 0.55, 0.5), move: 600, hold: 900 },       // in from the right
+    { to: at(B, 0.4, -2.2), move: 700, hold: 500 },       // out through the top
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'df-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#15171a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.06;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  // where the fill collapses to on each side
+  const edge = { left: 'inset(0 100% 0 0)', right: 'inset(0 0 0 100%)', top: 'inset(0 0 100% 0)', bottom: 'inset(100% 0 0 0)' };
+  const sideOf = (b, x, y) =&gt; { const dx = (x - b.x - b.w / 2) / b.w, dy = (y - b.y - b.h / 2) / b.h; return Math.abs(dx) &gt; Math.abs(dy) ? (dx &lt; 0 ? 'left' : 'right') : (dy &lt; 0 ? 'top' : 'bottom'); };
+  const items = [A, B, C].map(el =&gt; ({ el, fill: el.querySelector('.df-fill'), inside: false, anim: null }));
+  // reduced motion: the fill fades in and out in place instead of sweeping across from a side
+  if (reduce) items.forEach(it =&gt; { it.fill.style.opacity = 0; });
+  function sweep(it, kf, ms) {
+    if (reduce) {
+      const o = getComputedStyle(it.fill).opacity, to = kf === 'inset(0 0 0 0)' ? 1 : 0;
+      it.anim?.cancel(); it.fill.style.clipPath = 'none'; it.fill.style.opacity = to;
+      it.anim = it.fill.animate([{ opacity: o }, { opacity: to }], { duration: ms, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
+      return;
+    }
+    const now = getComputedStyle(it.fill).clipPath;              // start from wherever the last sweep got to
+    it.anim?.cancel();
+    it.fill.style.clipPath = kf;
+    it.anim = it.fill.animate([{ clipPath: now }, { clipPath: kf }], { duration: ms, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
+  }
+  let lx = c.x, ly = c.y, raf;
+  function frame(now) {
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    for (const it of items) {
+      const b = box(it.el), inside = c.x &gt; b.x &amp;&amp; c.x &lt; b.x + b.w &amp;&amp; c.y &gt; b.y &amp;&amp; c.y &lt; b.y + b.h;
+      if (inside &amp;&amp; !it.inside) { const side = sideOf(b, lx, ly); it.fill.style.clipPath = edge[side]; sweep(it, 'inset(0 0 0 0)', PARAMS.duration); }
+      if (!inside &amp;&amp; it.inside) {
+        sweep(it, edge[sideOf(b, c.x, c.y)], PARAMS.exit);   // collapse onto the exit side: the fill leaves the way the cursor went
+      }
+      it.inside = inside;
+    }
+    lx = c.x; ly = c.y;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); items.forEach(it =&gt; it.anim?.cancel()); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

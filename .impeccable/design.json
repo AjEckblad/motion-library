@@ -1,0 +1,684 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T13:47:06.282Z",
+  "title": "Design System: Motion Library",
+  "extensions": {
+    "colorMeta": {
+      "frame": {
+        "role": "neutral",
+        "displayName": "Frame Grey",
+        "canonical": "#eceff2",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 247.9)",
+          "oklch(26.0% 0.005 247.9)",
+          "oklch(37.0% 0.005 247.9)",
+          "oklch(48.0% 0.005 247.9)",
+          "oklch(59.0% 0.005 247.9)",
+          "oklch(70.0% 0.005 247.9)",
+          "oklch(82.0% 0.003 247.9)",
+          "oklch(95.0% 0.001 247.9)"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 89.9)",
+          "oklch(26.0% 0.000 89.9)",
+          "oklch(37.0% 0.000 89.9)",
+          "oklch(48.0% 0.000 89.9)",
+          "oklch(59.0% 0.000 89.9)",
+          "oklch(70.0% 0.000 89.9)",
+          "oklch(82.0% 0.000 89.9)",
+          "oklch(95.0% 0.000 89.9)"
+        ]
+      },
+      "edge": {
+        "role": "neutral",
+        "displayName": "Hairline Edge",
+        "canonical": "#e1e5e9",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 247.9)",
+          "oklch(26.0% 0.006 247.9)",
+          "oklch(37.0% 0.007 247.9)",
+          "oklch(48.0% 0.007 247.9)",
+          "oklch(59.0% 0.007 247.9)",
+          "oklch(70.0% 0.007 247.9)",
+          "oklch(82.0% 0.005 247.9)",
+          "oklch(95.0% 0.002 247.9)"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Raised Grey",
+        "canonical": "#f4f6f8",
+        "tonalRamp": [
+          "oklch(15.0% 0.002 247.9)",
+          "oklch(26.0% 0.003 247.9)",
+          "oklch(37.0% 0.003 247.9)",
+          "oklch(48.0% 0.003 247.9)",
+          "oklch(59.0% 0.003 247.9)",
+          "oklch(70.0% 0.003 247.9)",
+          "oklch(82.0% 0.002 247.9)",
+          "oklch(95.0% 0.001 247.9)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Divider Line",
+        "canonical": "#e9ecef",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 247.9)",
+          "oklch(26.0% 0.005 247.9)",
+          "oklch(37.0% 0.005 247.9)",
+          "oklch(48.0% 0.005 247.9)",
+          "oklch(59.0% 0.005 247.9)",
+          "oklch(70.0% 0.005 247.9)",
+          "oklch(82.0% 0.003 247.9)",
+          "oklch(95.0% 0.001 247.9)"
+        ]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control Stroke",
+        "canonical": "#cfd4d9",
+        "tonalRamp": [
+          "oklch(15.0% 0.005 247.9)",
+          "oklch(26.0% 0.008 247.9)",
+          "oklch(37.0% 0.009 247.9)",
+          "oklch(48.0% 0.009 247.9)",
+          "oklch(59.0% 0.009 247.9)",
+          "oklch(70.0% 0.009 247.9)",
+          "oklch(82.0% 0.006 247.9)",
+          "oklch(95.0% 0.002 247.9)"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Slate Ink",
+        "canonical": "#15171a",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 258.4)",
+          "oklch(26.0% 0.006 258.4)",
+          "oklch(37.0% 0.007 258.4)",
+          "oklch(48.0% 0.007 258.4)",
+          "oklch(59.0% 0.007 258.4)",
+          "oklch(70.0% 0.007 258.4)",
+          "oklch(82.0% 0.005 258.4)",
+          "oklch(95.0% 0.002 258.4)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink Two",
+        "canonical": "#33373c",
+        "tonalRamp": [
+          "oklch(15.0% 0.006 254.0)",
+          "oklch(26.0% 0.010 254.0)",
+          "oklch(37.0% 0.010 254.0)",
+          "oklch(48.0% 0.010 254.0)",
+          "oklch(59.0% 0.010 254.0)",
+          "oklch(70.0% 0.010 254.0)",
+          "oklch(82.0% 0.007 254.0)",
+          "oklch(95.0% 0.003 254.0)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Slate",
+        "canonical": "#5b6066",
+        "tonalRamp": [
+          "oklch(15.0% 0.007 252.9)",
+          "oklch(26.0% 0.011 252.9)",
+          "oklch(37.0% 0.011 252.9)",
+          "oklch(48.0% 0.011 252.9)",
+          "oklch(59.0% 0.011 252.9)",
+          "oklch(70.0% 0.011 252.9)",
+          "oklch(82.0% 0.008 252.9)",
+          "oklch(95.0% 0.003 252.9)"
+        ]
+      },
+      "heart": {
+        "role": "secondary",
+        "displayName": "Heart Red",
+        "canonical": "#e5294c",
+        "tonalRamp": [
+          "oklch(15.0% 0.127 17.9)",
+          "oklch(26.0% 0.204 17.9)",
+          "oklch(37.0% 0.219 17.9)",
+          "oklch(48.0% 0.219 17.9)",
+          "oklch(59.0% 0.219 17.9)",
+          "oklch(70.0% 0.219 17.9)",
+          "oklch(82.0% 0.148 17.9)",
+          "oklch(95.0% 0.057 17.9)"
+        ]
+      },
+      "focus": {
+        "role": "tertiary",
+        "displayName": "Focus Blue",
+        "canonical": "#2b74c9",
+        "tonalRamp": [
+          "oklch(15.0% 0.087 254.7)",
+          "oklch(26.0% 0.140 254.7)",
+          "oklch(37.0% 0.150 254.7)",
+          "oklch(48.0% 0.150 254.7)",
+          "oklch(59.0% 0.150 254.7)",
+          "oklch(70.0% 0.150 254.7)",
+          "oklch(82.0% 0.101 254.7)",
+          "oklch(95.0% 0.039 254.7)"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Danger Brick",
+        "canonical": "#b4232f",
+        "tonalRamp": [
+          "oklch(15.0% 0.104 22.9)",
+          "oklch(26.0% 0.167 22.9)",
+          "oklch(37.0% 0.180 22.9)",
+          "oklch(48.0% 0.180 22.9)",
+          "oklch(59.0% 0.180 22.9)",
+          "oklch(70.0% 0.180 22.9)",
+          "oklch(82.0% 0.121 22.9)",
+          "oklch(95.0% 0.047 22.9)"
+        ]
+      },
+      "code-bg": {
+        "role": "neutral",
+        "displayName": "Code Paper",
+        "canonical": "#f6f7f9",
+        "tonalRamp": [
+          "oklch(15.0% 0.002 264.5)",
+          "oklch(26.0% 0.003 264.5)",
+          "oklch(37.0% 0.003 264.5)",
+          "oklch(48.0% 0.003 264.5)",
+          "oklch(59.0% 0.003 264.5)",
+          "oklch(70.0% 0.003 264.5)",
+          "oklch(82.0% 0.002 264.5)",
+          "oklch(95.0% 0.001 264.5)"
+        ]
+      },
+      "dial-track": {
+        "role": "neutral",
+        "displayName": "Dial Track",
+        "canonical": "#d6dbe0",
+        "tonalRamp": [
+          "oklch(15.0% 0.005 247.9)",
+          "oklch(26.0% 0.008 247.9)",
+          "oklch(37.0% 0.009 247.9)",
+          "oklch(48.0% 0.009 247.9)",
+          "oklch(59.0% 0.009 247.9)",
+          "oklch(70.0% 0.009 247.9)",
+          "oklch(82.0% 0.006 247.9)",
+          "oklch(95.0% 0.002 247.9)"
+        ]
+      },
+      "dial-tick": {
+        "role": "neutral",
+        "displayName": "Dial Tick",
+        "canonical": "#c9cfd5",
+        "tonalRamp": [
+          "oklch(15.0% 0.006 248.0)",
+          "oklch(26.0% 0.010 248.0)",
+          "oklch(37.0% 0.011 248.0)",
+          "oklch(48.0% 0.011 248.0)",
+          "oklch(59.0% 0.011 248.0)",
+          "oklch(70.0% 0.011 248.0)",
+          "oklch(82.0% 0.007 248.0)",
+          "oklch(95.0% 0.003 248.0)"
+        ]
+      },
+      "cat-basics": {
+        "role": "tertiary",
+        "displayName": "Basics Blue",
+        "canonical": "#3b5bdb",
+        "tonalRamp": [
+          "oklch(15.0% 0.115 268.0)",
+          "oklch(26.0% 0.185 268.0)",
+          "oklch(37.0% 0.199 268.0)",
+          "oklch(48.0% 0.199 268.0)",
+          "oklch(59.0% 0.199 268.0)",
+          "oklch(70.0% 0.199 268.0)",
+          "oklch(82.0% 0.134 268.0)",
+          "oklch(95.0% 0.052 268.0)"
+        ]
+      },
+      "cat-transitions": {
+        "role": "tertiary",
+        "displayName": "Transitions Teal",
+        "canonical": "#0e9488",
+        "tonalRamp": [
+          "oklch(15.0% 0.060 184.7)",
+          "oklch(26.0% 0.097 184.7)",
+          "oklch(37.0% 0.104 184.7)",
+          "oklch(48.0% 0.104 184.7)",
+          "oklch(59.0% 0.104 184.7)",
+          "oklch(70.0% 0.104 184.7)",
+          "oklch(82.0% 0.070 184.7)",
+          "oklch(95.0% 0.027 184.7)"
+        ]
+      },
+      "cat-text": {
+        "role": "tertiary",
+        "displayName": "Text Slate",
+        "canonical": "#4f5d75",
+        "tonalRamp": [
+          "oklch(15.0% 0.025 261.1)",
+          "oklch(26.0% 0.040 261.1)",
+          "oklch(37.0% 0.043 261.1)",
+          "oklch(48.0% 0.043 261.1)",
+          "oklch(59.0% 0.043 261.1)",
+          "oklch(70.0% 0.043 261.1)",
+          "oklch(82.0% 0.029 261.1)",
+          "oklch(95.0% 0.011 261.1)"
+        ]
+      },
+      "cat-scroll": {
+        "role": "tertiary",
+        "displayName": "Scroll Green",
+        "canonical": "#2f9e44",
+        "tonalRamp": [
+          "oklch(15.0% 0.094 146.4)",
+          "oklch(26.0% 0.151 146.4)",
+          "oklch(37.0% 0.162 146.4)",
+          "oklch(48.0% 0.162 146.4)",
+          "oklch(59.0% 0.162 146.4)",
+          "oklch(70.0% 0.162 146.4)",
+          "oklch(82.0% 0.110 146.4)",
+          "oklch(95.0% 0.042 146.4)"
+        ]
+      },
+      "cat-hover": {
+        "role": "tertiary",
+        "displayName": "Hover Ochre",
+        "canonical": "#b07a00",
+        "tonalRamp": [
+          "oklch(15.0% 0.075 77.7)",
+          "oklch(26.0% 0.120 77.7)",
+          "oklch(37.0% 0.129 77.7)",
+          "oklch(48.0% 0.129 77.7)",
+          "oklch(59.0% 0.129 77.7)",
+          "oklch(70.0% 0.129 77.7)",
+          "oklch(82.0% 0.087 77.7)",
+          "oklch(95.0% 0.034 77.7)"
+        ]
+      },
+      "cat-micro": {
+        "role": "tertiary",
+        "displayName": "Micro Rose",
+        "canonical": "#d63c74",
+        "tonalRamp": [
+          "oklch(15.0% 0.112 3.2)",
+          "oklch(26.0% 0.181 3.2)",
+          "oklch(37.0% 0.194 3.2)",
+          "oklch(48.0% 0.194 3.2)",
+          "oklch(59.0% 0.194 3.2)",
+          "oklch(70.0% 0.194 3.2)",
+          "oklch(82.0% 0.131 3.2)",
+          "oklch(95.0% 0.050 3.2)"
+        ]
+      },
+      "cat-springs": {
+        "role": "tertiary",
+        "displayName": "Springs Orange",
+        "canonical": "#d9601a",
+        "tonalRamp": [
+          "oklch(15.0% 0.098 45.1)",
+          "oklch(26.0% 0.158 45.1)",
+          "oklch(37.0% 0.169 45.1)",
+          "oklch(48.0% 0.169 45.1)",
+          "oklch(59.0% 0.169 45.1)",
+          "oklch(70.0% 0.169 45.1)",
+          "oklch(82.0% 0.115 45.1)",
+          "oklch(95.0% 0.044 45.1)"
+        ]
+      },
+      "cat-morph": {
+        "role": "tertiary",
+        "displayName": "Morph Magenta",
+        "canonical": "#b8359a",
+        "tonalRamp": [
+          "oklch(15.0% 0.115 338.6)",
+          "oklch(26.0% 0.184 338.6)",
+          "oklch(37.0% 0.198 338.6)",
+          "oklch(48.0% 0.198 338.6)",
+          "oklch(59.0% 0.198 338.6)",
+          "oklch(70.0% 0.198 338.6)",
+          "oklch(82.0% 0.134 338.6)",
+          "oklch(95.0% 0.051 338.6)"
+        ]
+      },
+      "cat-flow": {
+        "role": "tertiary",
+        "displayName": "Flow Cyan",
+        "canonical": "#0a87a6",
+        "tonalRamp": [
+          "oklch(15.0% 0.061 221.9)",
+          "oklch(26.0% 0.098 221.9)",
+          "oklch(37.0% 0.105 221.9)",
+          "oklch(48.0% 0.105 221.9)",
+          "oklch(59.0% 0.105 221.9)",
+          "oklch(70.0% 0.105 221.9)",
+          "oklch(82.0% 0.071 221.9)",
+          "oklch(95.0% 0.027 221.9)"
+        ]
+      },
+      "cat-fluid": {
+        "role": "tertiary",
+        "displayName": "Fluid Blue",
+        "canonical": "#2b74c9",
+        "tonalRamp": [
+          "oklch(15.0% 0.087 254.7)",
+          "oklch(26.0% 0.140 254.7)",
+          "oklch(37.0% 0.150 254.7)",
+          "oklch(48.0% 0.150 254.7)",
+          "oklch(59.0% 0.150 254.7)",
+          "oklch(70.0% 0.150 254.7)",
+          "oklch(82.0% 0.101 254.7)",
+          "oklch(95.0% 0.039 254.7)"
+        ]
+      },
+      "cat-chrome": {
+        "role": "tertiary",
+        "displayName": "Chrome Umber",
+        "canonical": "#8a6a4f",
+        "tonalRamp": [
+          "oklch(15.0% 0.033 61.4)",
+          "oklch(26.0% 0.053 61.4)",
+          "oklch(37.0% 0.057 61.4)",
+          "oklch(48.0% 0.057 61.4)",
+          "oklch(59.0% 0.057 61.4)",
+          "oklch(70.0% 0.057 61.4)",
+          "oklch(82.0% 0.038 61.4)",
+          "oklch(95.0% 0.015 61.4)"
+        ]
+      },
+      "cat-shaders": {
+        "role": "tertiary",
+        "displayName": "Shaders Olive",
+        "canonical": "#7b8c10",
+        "tonalRamp": [
+          "oklch(15.0% 0.079 118.1)",
+          "oklch(26.0% 0.127 118.1)",
+          "oklch(37.0% 0.137 118.1)",
+          "oklch(48.0% 0.137 118.1)",
+          "oklch(59.0% 0.137 118.1)",
+          "oklch(70.0% 0.137 118.1)",
+          "oklch(82.0% 0.092 118.1)",
+          "oklch(95.0% 0.036 118.1)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Sheet title (24px) and detail title (18px, width 108%)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles, two-line clamp; group names step up to 17px/650."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base UI text; notes at 14px/1.55, 62ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, segmented options, link buttons, chips."
+      },
+      "dial-label": {
+        "displayName": "Dial label",
+        "purpose": "Dial entries at rest; scale and width axis swell under the pointer."
+      },
+      "dial-label-active": {
+        "displayName": "Dial label, active",
+        "purpose": "Chosen dial entry, scaled 1.12."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Code pane and file path only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "popover-lift",
+        "value": "0 12px 32px rgba(21,23,26,.16), 0 2px 6px rgba(21,23,26,.08)",
+        "purpose": "Group-picker popover."
+      },
+      {
+        "name": "tray-lift",
+        "value": "0 10px 30px rgba(21,23,26,.25)",
+        "purpose": "Dark compare tray floating at the bottom."
+      },
+      {
+        "name": "segment-nudge",
+        "value": "0 1px 2px rgba(21,23,26,.12)",
+        "purpose": "Selected option in a segmented control."
+      },
+      {
+        "name": "focus-glow",
+        "value": "0 0 0 3px rgba(43,116,201,.12)",
+        "purpose": "Search field focus."
+      },
+      {
+        "name": "active-dot-ring",
+        "value": "0 0 0 3px var(--frame), 0 0 0 5px var(--hue)",
+        "purpose": "Double ring on the chosen dial dot."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Default UI curve: presses, hovers, grid enter, popover, toast."
+      },
+      {
+        "name": "ease-drawer",
+        "value": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "purpose": "FLIP expand into detail, panel settle, brand needle."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Declared token for symmetric moves."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.97) over 160ms ease-out",
+        "purpose": "Every button and icon button on press."
+      },
+      {
+        "name": "hover-intent",
+        "value": "110ms",
+        "purpose": "Delay before a hovered tile starts its live preview; fade-in 160ms."
+      },
+      {
+        "name": "grid-exit",
+        "value": "120ms, 10ms stagger, translateY(6px), ease-out",
+        "purpose": "Old cards leaving on a category swap."
+      },
+      {
+        "name": "grid-enter",
+        "value": "320ms, 24ms stagger, from translateY(12px) scale(.985), ease-out curve",
+        "purpose": "New cards arriving."
+      },
+      {
+        "name": "detail-expand",
+        "value": "460ms ease-drawer",
+        "purpose": "FLIP from tile to stage."
+      },
+      {
+        "name": "needle-spring",
+        "value": "stiffness 170, damping ratio 0.62",
+        "purpose": "Dial needle travel with slight overshoot."
+      },
+      {
+        "name": "fisheye",
+        "value": "scale 1 + 0.42*exp(-deg^2/120); width axis 96% to 125% in 2% steps",
+        "purpose": "Dial label magnification under the pointer."
+      },
+      {
+        "name": "heart-pop",
+        "value": "480ms keyframes 1 > .82 > 1.22 > 1, ease-out",
+        "purpose": "Heart toggle."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "dial-400",
+        "value": "1280px"
+      },
+      {
+        "name": "dial-360-detail-stack",
+        "value": "1100px"
+      },
+      {
+        "name": "phone",
+        "value": "860px"
+      },
+      {
+        "name": "narrow",
+        "value": "420px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "Solid ink pill; one per screen (Surprise me).",
+      "html": "<button class=\"ds-btn ds-btn-ink\"><svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"3\"/><circle cx=\"9\" cy=\"9\" r=\"1\" fill=\"currentColor\"/><circle cx=\"15\" cy=\"15\" r=\"1\" fill=\"currentColor\"/></svg>Surprise me</button>",
+      "css": ".ds-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--edge,#e1e5e9);background:var(--sheet,#fff);display:inline-flex;align-items:center;gap:8px;font:600 14px \"Mona Sans\",system-ui,sans-serif;color:var(--ink,#15171a);cursor:pointer;transition:transform .16s cubic-bezier(0.23,1,0.32,1),background-color .15s}.ds-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7}.ds-btn:active{transform:scale(.97)}.ds-btn:focus-visible{outline:2px solid var(--focus,#2b74c9);outline-offset:2px}.ds-btn-ink{background:var(--ink,#15171a);color:#fff;border-color:var(--ink,#15171a)}.ds-btn-ink:hover{background:#2a2d31}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "White pill with hairline edge; secondary actions.",
+      "html": "<button class=\"ds-btn-outline\"><svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"5\" width=\"8\" height=\"14\" rx=\"2\"/><rect x=\"13\" y=\"5\" width=\"8\" height=\"14\" rx=\"2\"/></svg>Compare</button>",
+      "css": ".ds-btn-outline{height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--edge,#e1e5e9);background:var(--sheet,#fff);display:inline-flex;align-items:center;gap:8px;font:600 14px \"Mona Sans\",system-ui,sans-serif;color:var(--ink,#15171a);cursor:pointer;transition:transform .16s cubic-bezier(0.23,1,0.32,1),background-color .15s}.ds-btn-outline svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7}.ds-btn-outline:hover{background:var(--raised,#f4f6f8)}.ds-btn-outline:active{transform:scale(.97)}.ds-btn-outline:focus-visible{outline:2px solid var(--focus,#2b74c9);outline-offset:2px}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Top-bar search with stroked magnifier.",
+      "html": "<label class=\"ds-search\"><svg viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"M20 20l-4-4\"/></svg><input type=\"search\" placeholder=\"Search 60 animations\"></label>",
+      "css": ".ds-search{position:relative;display:flex;align-items:center;height:38px;width:320px;background:var(--sheet,#fff);border:1px solid var(--edge,#e1e5e9);border-radius:10px;padding:0 8px 0 36px;transition:border-color .15s,box-shadow .15s}.ds-search:focus-within{border-color:#b9c1c9;box-shadow:0 0 0 3px rgba(43,116,201,.12)}.ds-search svg{position:absolute;left:12px;width:16px;height:16px;fill:none;stroke:var(--muted,#5b6066);stroke-width:1.8;stroke-linecap:round}.ds-search input{flex:1;min-width:0;height:100%;border:0;background:none;font:400 14px \"Mona Sans\",system-ui,sans-serif;color:var(--ink,#15171a);outline:none}.ds-search input::placeholder{color:#737980}"
+    },
+    {
+      "name": "Segmented Speed Control",
+      "kind": "chip",
+      "refersTo": "segmented",
+      "description": "Playback speed options in the detail play bar.",
+      "html": "<div class=\"ds-seg\"><button>0.25×</button><button>0.5×</button><button aria-pressed=\"true\">1×</button></div>",
+      "css": ".ds-seg{display:inline-flex;padding:3px;background:var(--raised,#f4f6f8);border-radius:10px;border:1px solid var(--line,#e9ecef)}.ds-seg button{height:30px;min-width:50px;padding:0 10px;border:0;border-radius:7px;background:none;font:600 13px \"Mona Sans\",system-ui,sans-serif;color:var(--ink-2,#33373c);cursor:pointer;font-variant-numeric:tabular-nums}.ds-seg button:hover{color:var(--ink,#15171a)}.ds-seg button:focus-visible{outline:2px solid var(--focus,#2b74c9);outline-offset:2px}.ds-seg button[aria-pressed=\"true\"]{background:var(--sheet,#fff);color:var(--ink,#15171a);box-shadow:0 1px 2px rgba(21,23,26,.12)}"
+    },
+    {
+      "name": "Preview Card",
+      "kind": "card",
+      "refersTo": "preview-tile",
+      "description": "Flat 5:4 window, category dot, title, kind and trick.",
+      "html": "<article class=\"ds-card\" tabindex=\"0\"><div class=\"ds-card-media\"></div><div class=\"ds-card-meta\"><h3 class=\"ds-card-title\"><i></i>Fade &amp; scale in</h3><span class=\"ds-kind\">DOM</span><p class=\"ds-trick\">Cards rise from 94% scale, never from zero</p></div></article>",
+      "css": ".ds-card{width:220px;font-family:\"Mona Sans\",system-ui,sans-serif;outline:none;cursor:pointer}.ds-card-media{aspect-ratio:5/4;border-radius:10px;background:var(--raised,#f4f6f8);transition:transform .3s cubic-bezier(0.23,1,0.32,1)}.ds-card:hover .ds-card-media,.ds-card:focus-visible .ds-card-media{transform:translateY(-2px)}.ds-card:focus-visible .ds-card-media{outline:2px solid var(--focus,#2b74c9);outline-offset:2px}.ds-card-meta{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:11px 2px 0}.ds-card-title{margin:0;display:flex;gap:7px;align-items:center;font-size:15px;line-height:1.25;font-weight:620;letter-spacing:-.005em;color:var(--ink,#15171a)}.ds-card-title i{width:8px;height:8px;border-radius:50%;background:#3b5bdb}.ds-kind{font-size:12px;font-weight:500;color:var(--muted,#5b6066)}.ds-trick{grid-column:1/-1;margin:0;font-size:13px;line-height:1.4;color:var(--muted,#5b6066)}"
+    },
+    {
+      "name": "Dial Entry",
+      "kind": "nav",
+      "refersTo": "dial-label",
+      "description": "One entry on the category dial: label, hue dot, count; active entry gets the double-ringed dot.",
+      "html": "<div class=\"ds-dial\"><button class=\"ds-dial-item\"><span>Basics</span><i style=\"--hue:#3b5bdb\"></i><b>5</b></button><button class=\"ds-dial-item\" aria-checked=\"true\"><span>Fluid</span><i style=\"--hue:#2b74c9\"></i><b>5</b></button></div>",
+      "css": ".ds-dial{display:grid;justify-items:end;gap:4px;padding:8px 40px 8px 8px;background:var(--frame,#eceff2)}.ds-dial-item{display:flex;align-items:center;gap:10px;height:36px;border:0;background:none;cursor:pointer;color:#4b5056;font:520 14px/1 \"Mona Sans\",system-ui,sans-serif;font-stretch:96%;letter-spacing:-.005em;position:relative}.ds-dial-item span{display:block;transform-origin:100% 50%;transition:transform .2s cubic-bezier(0.23,1,0.32,1),font-stretch .2s}.ds-dial-item:hover span{transform:translateX(-11px) scale(1.42);font-stretch:124%}.ds-dial-item i{width:10px;height:10px;border-radius:50%;background:var(--hue)}.ds-dial-item b{position:absolute;left:100%;margin-left:16px;font-size:11.5px;font-weight:500;color:var(--muted,#5b6066);font-variant-numeric:tabular-nums}.ds-dial-item[aria-checked=\"true\"]{color:var(--ink,#15171a);font-weight:720}.ds-dial-item[aria-checked=\"true\"] span{transform:scale(1.12);font-stretch:104%}.ds-dial-item[aria-checked=\"true\"] i{box-shadow:0 0 0 3px var(--frame,#eceff2),0 0 0 5px var(--hue)}.ds-dial-item:focus-visible{outline:none}.ds-dial-item:focus-visible span{outline:2px solid var(--focus,#2b74c9);outline-offset:4px;border-radius:4px}"
+    },
+    {
+      "name": "Group Popover",
+      "kind": "custom",
+      "refersTo": "popover",
+      "description": "Heart group picker; the one floating light layer with a shadow.",
+      "html": "<div class=\"ds-pop\"><h3>Save to group</h3><button class=\"ds-pop-item\" aria-checked=\"true\"><svg viewBox=\"0 0 24 24\"><path d=\"M5 12l5 5 9-10\"/></svg>Hearted</button><button class=\"ds-pop-item\"><svg viewBox=\"0 0 24 24\"><path d=\"M5 12l5 5 9-10\"/></svg>Hero ideas</button></div>",
+      "css": ".ds-pop{width:240px;background:var(--sheet,#fff);border:1px solid var(--edge,#e1e5e9);border-radius:12px;padding:6px;box-shadow:0 12px 32px rgba(21,23,26,.16),0 2px 6px rgba(21,23,26,.08);font-family:\"Mona Sans\",system-ui,sans-serif}.ds-pop h3{margin:6px 8px;font-size:12.5px;font-weight:600;color:var(--muted,#5b6066)}.ds-pop-item{width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;background:none;border-radius:8px;cursor:pointer;text-align:left;font:520 14px \"Mona Sans\",system-ui,sans-serif;color:var(--ink,#15171a)}.ds-pop-item:hover,.ds-pop-item:focus-visible{background:var(--raised,#f4f6f8);outline:none}.ds-pop-item svg{width:16px;height:16px;fill:none;stroke:var(--ink,#15171a);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;visibility:hidden}.ds-pop-item[aria-checked=\"true\"] svg{visibility:visible}"
+    },
+    {
+      "name": "Compare Tray",
+      "kind": "custom",
+      "refersTo": "compare-tray",
+      "description": "Dark floating pill holding chosen items for compare.",
+      "html": "<div class=\"ds-tray\"><span class=\"ds-tray-label\">Compare</span><span class=\"ds-chip\">Spring card<button aria-label=\"Remove\"><svg viewBox=\"0 0 24 24\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></span><button class=\"ds-tray-go\">Compare 2</button></div>",
+      "css": ".ds-tray{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;background:var(--ink,#15171a);color:#fff;border-radius:999px;box-shadow:0 10px 30px rgba(21,23,26,.25);font-family:\"Mona Sans\",system-ui,sans-serif}.ds-tray-label{font-weight:600;font-size:13px;color:#c9ced4}.ds-chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 10px;border-radius:999px;background:#2a2e33;font-size:13px;font-weight:600}.ds-chip button{width:22px;height:22px;border:0;border-radius:50%;background:none;color:#c9ced4;cursor:pointer;display:grid;place-items:center}.ds-chip button:hover{background:#3a3f45;color:#fff}.ds-chip svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round}.ds-tray-go{height:32px;padding:0 14px;border-radius:999px;border:1px solid #fff;background:#fff;color:var(--ink,#15171a);font:600 14px \"Mona Sans\",system-ui,sans-serif;cursor:pointer;transition:transform .16s cubic-bezier(0.23,1,0.32,1)}.ds-tray-go:active{transform:scale(.97)}.ds-tray-go:focus-visible{outline:2px solid var(--focus,#2b74c9);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Dial and the Window Wall",
+    "overview": "A quiet, cool light-grey frame holds two things: a wall of flat preview windows on the left, and a semicircular dial on the right edge that you turn to change category. The interface is deliberately colourless so the animations, which are the content, carry all the colour and motion. Chrome is slate ink on near-white sheets laid onto a grey frame, separated by hairline edges rather than shadows.\n\nPersonality comes from two code-drawn signatures, not from decoration. The dial magnifies the entry under the pointer fisheye-style, swelling both the scale and the width axis of Mona Sans, while a needle springs to the chosen entry with a little overshoot. Fluffy creatures, painted from thousands of fur strands, perch on the dial and sheet edges, breathe, blink and watch the cursor. Everything else stays calm and dense: a desk tool for one designer-developer, tuned for finding an effect in seconds.\n\nThe build refuses the default catalogue look: no left sidebar, no dark rounded cards, no purple accent.",
+    "keyCharacteristics": [
+      "Cool grey frame (one plane) with white sheets laid on it at an 8px inset.",
+      "Slate ink for all chrome; colour lives only in category dots, the heart and the content.",
+      "Flat, near-square (5:4) preview windows with 10px corners and no shadow.",
+      "One variable family (Mona Sans) whose width axis is part of the interaction.",
+      "Motion is springy and short; the needle, the grid swap and the FLIP expand are the system's voice.",
+      "No raster imagery except generated poster frames of the animations themselves."
+    ],
+    "rules": [
+      {
+        "name": "The Dots-Only Rule",
+        "body": "Category hues appear only as small round dots (8 to 12px). They never fill a surface, tint a card, colour text or become a button.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Warm Colour Rule",
+        "body": "Heart Red is the only warm accent in the chrome and means exactly one thing: hearted.",
+        "section": "colors"
+      },
+      {
+        "name": "The Content Owns Colour Rule",
+        "body": "The shell stays slate on grey and white so every preview reads at full strength beside its neighbours.",
+        "section": "colors"
+      },
+      {
+        "name": "The Width-Axis Rule",
+        "body": "Emphasis is carried by Mona Sans's width axis as well as weight: headings sit at 108 to 110%, the resting dial labels at 96%, and the fisheye swells a label toward the axis maximum (125%) in 2% steps as it magnifies; the active entry rests at 104%.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Every count, timecode, clock, slider value and speed option uses tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "No uppercase labels or tracked-out small caps anywhere in the shell.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Window Rule",
+        "body": "Preview tiles and sheets never carry a shadow. A playing tile lifts only by translating 2px up.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Floating-Only Shadow Rule",
+        "body": "A shadow means the layer floats over the page (popover, tray). Anything that lives in the layout uses a hairline edge instead.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep the chrome slate on grey and white; let the previews supply the colour.",
+      "**Do** show a category only as its hue dot (8px on cards, 10px on the dial) next to its name.",
+      "**Do** separate planes with the 8px inset and a 1px hairline edge (#e1e5e9) rather than a shadow.",
+      "**Do** use Mona Sans's width axis for emphasis (108 to 110% on headings; driven by magnification on the dial).",
+      "**Do** use the shared curves: out (cubic-bezier(0.23, 1, 0.32, 1)) for most UI, drawer (cubic-bezier(0.32, 0.72, 0, 1)) for expands, and keep UI transitions between 120 and 460ms.",
+      "**Do** honour reduced motion: posters instead of live previews, the needle and fisheye jump straight to their targets, transitions collapse.",
+      "**Do** use tabular figures for every number."
+    ],
+    "donts": [
+      "**Don't** fill surfaces, text or buttons with a category hue.",
+      "**Don't** use Heart Red for anything but hearts.",
+      "**Don't** put shadows on preview tiles or sheets; shadows are for floating layers only.",
+      "**Don't** introduce a left sidebar, dark rounded cards or a purple accent.",
+      "**Don't** use uppercase or letter-spaced labels.",
+      "**Don't** play more than one live preview at a time.",
+      "**Don't** ship raster imagery other than poster frames generated from the animations themselves (tools/posters.mjs)."
+    ]
+  }
+}

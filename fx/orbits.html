@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>N-body orbits: Every body pulls every other; leapfrog integration keeps orbits closed · Motion Library</title>
+<meta name="description" content="N-body orbits is a Canvas effect: every body pulls every other; leapfrog integration keeps orbits closed. One plain JavaScript file with no dependencies; add it with npx motion-library add orbits.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/orbits.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="N-body orbits · Motion Library">
+<meta property="og:description" content="Every body pulls every other; leapfrog integration keeps orbits closed">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/orbits.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "N-body orbits",
+  "description": "Every body pulls every other; leapfrog integration keeps orbits closed",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Simulation, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/orbits.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/orbits.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Simulation",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/simulation"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "N-body orbits",
+    "item": "https://ajeckblad.github.io/motion-library/fx/orbits.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/simulation">Simulation</a></header>
+<main class="s-page">
+<article>
+<h1>N-body orbits</h1>
+<p class="tldr">N-body orbits is a Canvas effect: every body pulls every other; leapfrog integration keeps orbits closed. One plain JavaScript file with no dependencies; add it with npx motion-library add orbits.</p>
+<figure><img src="../posters/orbits.webp" alt="N-body orbits: Every body pulls every other; leapfrog integration keeps orbits closed" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/orbits">Open it live, tune it and copy the code</a></p>
+
+<h2>What is N-body orbits?</h2>
+<p>Planets circle twin suns in slowly turning rosettes while comets swing through; click to drop a planet.</p>
+
+<h2>How does N-body orbits work?</h2>
+<p>Softened inverse-square gravity between every pair, stepped with leapfrog (half kick, drift, half kick), which is symplectic, so orbits stay closed; the binary’s tug makes them precess.</p>
+
+<h2>How do I add N-body orbits to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add orbits</code>. It writes <code>animations/orbits.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/orbits.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add orbits --planets 10</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Planets</td><td><code>--planets</code></td><td>6</td><td>1 to 10</td><td>1</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.1 to 3</td><td>0.05</td></tr>
+<tr><td>Trail length</td><td><code>--trail</code></td><td>900</td><td>50 to 1500</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Simulation</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// N-body gravity. A binary star and a handful of planets all pull on each other (every pair, inverse-square, slightly
+// softened), stepped with leapfrog integration: half a kick to the velocities, a full drift of the positions, another
+// half kick. Leapfrog is symplectic, so energy doesn’t creep and orbits stay closed for ever instead of spiralling.
+// Circling a pair of suns, the planets’ orbits precess into rosettes. Bodies that touch merge, keeping momentum. Click
+// to drop a new planet on a circular orbit around the centre of mass.
+const PARAMS = { planets: 6, speed: 1, trail: 900 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, D = 1;
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = Math.round(W * D); canvas.height = Math.round(H * D); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const TRAIL = Math.max(20, Math.round(PARAMS.trail)), EPS2 = 0.0004;
+  const palette = ['#5ee7ff', '#ff5fa2', '#b38cff', '#7dffb0', '#ffd166', '#ff8a5c', '#7aa2ff', '#f2f2ff'];
+  let bodies = [], pi = 0;
+  const add = (x, y, vx, vy, m, col, star = false) =&gt; {
+    bodies.push({ x, y, vx, vy, ax: 0, ay: 0, m, col, star, r: star ? 0 : 0.007 + Math.cbrt(m) * 0.04, hx: new Float32Array(TRAIL), hy: new Float32Array(TRAIL), head: 0, len: 0 });
+  };
+  const com = () =&gt; { let M = 0, x = 0, y = 0, vx = 0, vy = 0; for (const b of bodies) { M += b.m; x += b.x * b.m; y += b.y * b.m; vx += b.vx * b.m; vy += b.vy * b.m; } return [x / M, y / M, vx / M, vy / M, M]; };
+  const circular = (x, y, prograde = 1) =&gt; {
+    const [cx, cy, cvx, cvy, M] = com(), dx = x - cx, dy = y - cy, r = Math.hypot(dx, dy) || 1e-3, v = Math.sqrt(M / r) * prograde;
+    return [cvx - dy / r * v, cvy + dx / r * v];
+  };
+  const reset = () =&gt; {
+    bodies = []; pi = 0;
+    // the binary: masses 0.62 and 0.38 orbiting their common centre, separation 0.16
+    const m1 = 0.62, m2 = 0.38, a = 0.16, v = Math.sqrt((m1 + m2) / a);
+    add(-a * m2, 0, 0, -v * m2, m1, '#fff1d6', true); bodies[0].r = 0.03;
+    add(a * m1, 0, 0, v * m1, m2, '#cfe0ff', true); bodies[1].r = 0.024;
+    const n = Math.max(1, Math.round(PARAMS.planets));
+    for (let i = 0; i &lt; n; i++) {
+      const r = 0.42 + i * (0.52 / n) + Math.random() * 0.04, th = Math.random() * 6.283;
+      const x = Math.cos(th) * r, y = Math.sin(th) * r, [vx, vy] = circular(x, y);
+      const e = 0.82 + Math.random() * 0.18;                         // eccentric, so the orbits precess into rosettes
+      add(x, y, vx * e, vy * e, 0.0005 + Math.random() * 0.0025, palette[pi++ % palette.length]);
+    }
+    accel();
+  };
+  const accel = () =&gt; {
+    for (const b of bodies) { b.ax = 0; b.ay = 0; }
+    for (let i = 0; i &lt; bodies.length; i++) for (let j = i + 1; j &lt; bodies.length; j++) {
+      const a = bodies[i], b = bodies[j], dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy + EPS2, inv = 1 / (d2 * Math.sqrt(d2));
+      a.ax += dx * inv * b.m; a.ay += dy * inv * b.m; b.ax -= dx * inv * a.m; b.ay -= dy * inv * a.m;
+    }
+  };
+  const leapfrog = h =&gt; {
+    for (const b of bodies) { b.vx += b.ax * h / 2; b.vy += b.ay * h / 2; b.x += b.vx * h; b.y += b.vy * h; }
+    accel();
+    for (const b of bodies) { b.vx += b.ax * h / 2; b.vy += b.ay * h / 2; }
+  };
+  const collide = () =&gt; {
+    for (let i = 0; i &lt; bodies.length; i++) for (let j = i + 1; j &lt; bodies.length; j++) {
+      const a = bodies[i], b = bodies[j];
+      if (Math.hypot(a.x - b.x, a.y - b.y) &gt; (a.r + b.r) * 0.8) continue;
+      const big = a.m &gt;= b.m ? a : b, small = big === a ? b : a, M = a.m + b.m;
+      big.vx = (a.vx * a.m + b.vx * b.m) / M; big.vy = (a.vy * a.m + b.vy * b.m) / M;
+      big.x = (a.x * a.m + b.x * b.m) / M; big.y = (a.y * a.m + b.y * b.m) / M; big.m = M;
+      if (!big.star) big.r = 0.007 + Math.cbrt(M) * 0.04;
+      bodies.splice(bodies.indexOf(small), 1); accel(); return;
+    }
+  };
+  reset();
+
+  const scale = () =&gt; Math.min(W, H) * 0.47;
+  let lastPointer = -1e9, nextComet = 6;
+  const pd = e =&gt; {
+    const r = canvas.getBoundingClientRect(), s = scale(), [cx, cy] = com();
+    const x = (e.clientX - r.left - W / 2) / s + cx, y = (e.clientY - r.top - H / 2) / s + cy;
+    const [vx, vy] = circular(x, y); add(x, y, vx, vy, 0.001 + Math.random() * 0.002, palette[pi++ % palette.length]); accel();
+    lastPointer = performance.now();
+  };
+  stage.addEventListener('pointerdown', pd);
+
+  let raf, last = performance.now(), t = 0, warm = 360;
+  function frame(now) {
+    const dt = warm &gt; 0 ? 1 / 60 : Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+    const h = dt * 0.6 * PARAMS.speed * (reduce &amp;&amp; warm &lt;= 0 ? 0.08 : 1) / 8;
+    for (let k = 0; k &lt; 8; k++) leapfrog(h);
+    collide();
+    const [cx, cy] = com();
+    // drop anything flung far away; with nobody clicking, now and then send in a comet on a long ellipse
+    bodies = bodies.filter(b =&gt; b.star || Math.hypot(b.x - cx, b.y - cy) &lt; 4);
+    if (t &gt; nextComet &amp;&amp; now - lastPointer &gt; 8000 &amp;&amp; bodies.length &lt; 12) {
+      const planets = bodies.filter(b =&gt; !b.star &amp;&amp; b.m &gt; 0.0003).length, th = Math.random() * 6.283;
+      if (planets &lt; PARAMS.planets) {                            // top up planets lost to mergers and ejections
+        const r = 0.5 + Math.random() * 0.45, x = cx + Math.cos(th) * r, y = cy + Math.sin(th) * r, [vx, vy] = circular(x, y);
+        add(x, y, vx, vy, 0.0005 + Math.random() * 0.002, palette[pi++ % palette.length]);
+      } else {
+        const r = 1.05, x = cx + Math.cos(th) * r, y = cy + Math.sin(th) * r, [vx, vy] = circular(x, y);
+        add(x, y, vx * 0.55, vy * 0.55, 0.0003, '#e9f6ff');
+      }
+      accel(); nextComet = t + 5;
+    }
+    if (bodies.length &lt; 4) reset();
+    const s = scale(), ox = W / 2 - cx * s, oy = H / 2 - cy * s;
+    for (const b of bodies) { b.hx[b.head] = b.x - cx; b.hy[b.head] = b.y - cy; b.head = (b.head + 1) % TRAIL; b.len = Math.min(TRAIL, b.len + 1); }
+    if (warm &gt; 0) { warm--; frame(now); return; }               // pre-run one trail’s worth so the first frame has orbits drawn
+
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.fillStyle = '#06070c'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const SEG = 10;
+    for (const b of bodies) {
+      ctx.strokeStyle = b.col;
+      for (let q = 0; q &lt; SEG; q++) {
+        const a0 = Math.floor(q * b.len / SEG), a1 = Math.floor((q + 1) * b.len / SEG); if (a1 - a0 &lt; 1) continue;
+        const f = (q + 1) / SEG; ctx.globalAlpha = (0.08 + 0.92 * f * f) * (b.star ? 0.35 : 0.8); ctx.lineWidth = b.star ? 1 : 0.7 + f * 1.1;
+        ctx.beginPath();
+        for (let j = a0; j &lt;= Math.min(a1, b.len - 1); j++) { const i = (b.head - b.len + j + TRAIL) % TRAIL; const X = W / 2 + b.hx[i] * s, Y = H / 2 + b.hy[i] * s; j === a0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+        ctx.stroke();
+      }
+    }
+    for (const b of bodies) {
+      const X = ox + b.x * s, Y = oy + b.y * s, R = Math.max(1.5, b.r * s);
+      const gr = ctx.createRadialGradient(X, Y, 0, X, Y, R * (b.star ? 7 : 4));
+      gr.addColorStop(0, b.col); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = b.star ? 0.55 : 0.35; ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(X, Y, R * (b.star ? 7 : 4), 0, 6.2832); ctx.fill();
+      ctx.globalAlpha = 1; ctx.fillStyle = b.star ? '#ffffff' : b.col; ctx.beginPath(); ctx.arc(X, Y, R * 0.5, 0, 6.2832); ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); stage.removeEventListener('pointerdown', pd); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

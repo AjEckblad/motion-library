@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raymarched chrome blobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mona+Sans:wdth,wght@75..125,200..900&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { font-family: "Mona Sans", system-ui, sans-serif; }
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+// Raymarched chrome blobs: each pixel marches a ray through spheres blended with a smooth minimum, then
+// reflects into a procedural studio (horizon, softbox, coloured strip lights). The reflections sell the chrome.
+const PARAMS = { blobs: 5, smoothness: 0.5 };
+
+function mount(stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform vec2 R; uniform float T, K; uniform int N;
+  float smin(float a, float b, float k) { float h = clamp(.5 + .5 * (b - a) / k, 0., 1.); return mix(b, a, h) - k * h * (1. - h); }
+  vec3 bp(int i, float t) { float f = float(i); return vec3(sin(t * .7 + f * 1.9) * 1.25, cos(t * .53 + f * 2.7) * .8, sin(t * .61 + f * 1.3) * .7); }
+  float map(vec3 p) {
+    float d = 1e9;
+    for (int i = 0; i < 8; i++) { if (i >= N) break; d = smin(d, length(p - bp(i, T)) - (.52 + .12 * sin(float(i) * 3.1)), K); }
+    return d;
+  }
+  vec3 nrm(vec3 p) { vec2 e = vec2(.0015, 0); return normalize(vec3(map(p + e.xyy) - map(p - e.xyy), map(p + e.yxy) - map(p - e.yxy), map(p + e.yyx) - map(p - e.yyx))); }
+  vec3 env(vec3 d) {
+    float y = d.y, a = atan(d.x, -d.z);
+    vec3 c = mix(vec3(.2, .19, .18), vec3(.95, .93, .9), smoothstep(-.35, .03, y));    // floor up to a bright horizon
+    c = mix(c, vec3(.5, .5, .53), smoothstep(.06, .7, y));                          // studio ceiling
+    c += vec3(2.2) * smoothstep(.8, .92, y);                                        // overhead softbox
+    float band = smoothstep(-.15, .25, y) * smoothstep(.75, .3, y);
+    c += vec3(2.4, 1., .35) * smoothstep(.07, 0., abs(a - 1.15)) * band;              // tangerine strip
+    c += vec3(.35, .7, 2.2) * smoothstep(.07, 0., abs(a + 1.9)) * band;              // cobalt strip
+    return c;
+  }
+  vec3 render(vec2 p) {
+    vec3 ro = vec3(0, 0, 4.9), rd = normalize(vec3(p, -2.3));
+    float t = 0.; bool hit = false;
+    for (int i = 0; i < 96; i++) { float d = map(ro + rd * t); if (d < .0008) { hit = true; break; } t += d; if (t > 12.) break; }
+    vec3 col = mix(vec3(.86, .84, .8), vec3(.72, .7, .67), uv.y);   // plain studio backdrop
+    if (hit) {
+      vec3 pos = ro + rd * t, n = nrm(pos), r = reflect(rd, n);
+      float fr = pow(1. - max(dot(n, -rd), 0.), 5.);
+      // one bounce: if the reflected ray hits another blob, darken it like a real interreflection
+      // soft version: how close the reflected ray passes to other blobs sets how dark the reflection gets
+      float t2 = .05, res = 1.;
+      for (int i = 0; i < 40; i++) { float d = map(pos + r * t2); res = min(res, 5. * d / t2); if (d < .002) { res = 0.; break; } t2 += d; if (t2 > 6.) break; }
+      float occ = .35 + .65 * smoothstep(0., 1., clamp(res, 0., 1.));
+      col = env(r) * occ * (.75 + .25 * fr) * vec3(1., .985, .96);
+    }
+    col = col / (1. + col * .45);
+    return pow(col, vec3(.92));
+  }
+  // 2x2 supersampling on 1x screens smooths the silhouettes; retina screens already have the pixels
+  uniform float AA;
+  void main() {
+    vec3 c = vec3(0);
+    for (int j = 0; j < 2; j++) for (int i = 0; i < 2; i++) {
+      if (float(i) >= AA || float(j) >= AA) continue;
+      vec2 f = gl_FragCoord.xy + (vec2(i, j) + .5) / AA - .5;
+      c += render((f / R * 2. - 1.) * vec2(R.x / R.y, 1.));
+    }
+    o = vec4(c / (AA * AA), 1);
+  }`;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const u = n => gl.getUniformLocation(prog, n), uAA = u('AA'), uR = u('R'), uT = u('T'), uK = u('K'), uN = u('N');
+  const resize = () => { const d = Math.min(devicePixelRatio, 2); canvas.width = stage.clientWidth * d | 0; canvas.height = stage.clientHeight * d | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf;
+  function frame(now) {
+    gl.uniform1f(uAA, devicePixelRatio < 1.5 ? 2 : 1);
+    gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform1f(uT, now / 1000); gl.uniform1f(uK, PARAMS.smoothness); gl.uniform1i(uN, Math.round(PARAMS.blobs));
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+
+document.fonts.ready.then(() => mount(document.getElementById('stage')));
+</script>
+</body>
+</html>

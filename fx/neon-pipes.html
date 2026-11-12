@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon tubes: Hot core, coloured glass, and a mip-pyramid bloom · Motion Library</title>
+<meta name="description" content="Neon tubes is a Canvas effect: hot core, coloured glass, and a mip-pyramid bloom. One plain JavaScript file with no dependencies; add it with npx motion-library add neon-pipes.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/neon-pipes.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Neon tubes · Motion Library">
+<meta property="og:description" content="Hot core, coloured glass, and a mip-pyramid bloom">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/neon-pipes.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Neon tubes",
+  "description": "Hot core, coloured glass, and a mip-pyramid bloom",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Retro & signal, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/neon-pipes.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/neon-pipes.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Retro & signal",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/retro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Neon tubes",
+    "item": "https://ajeckblad.github.io/motion-library/fx/neon-pipes.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/retro">Retro &amp; signal</a></header>
+<main class="s-page">
+<article>
+<h1>Neon tubes</h1>
+<p class="tldr">Neon tubes is a Canvas effect: hot core, coloured glass, and a mip-pyramid bloom. One plain JavaScript file with no dependencies; add it with npx motion-library add neon-pipes.</p>
+<figure><img src="../posters/neon-pipes.webp" alt="Neon tubes: Hot core, coloured glass, and a mip-pyramid bloom" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/neon-pipes">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Neon tubes?</h2>
+<p>Coloured neon tubes snake slowly across a dark wall, each with a white-hot core and soft halo.</p>
+
+<h2>How does Neon tubes work?</h2>
+<p>Bloom is stroked into a quarter-resolution buffer, halved twice more, and every level is scaled back up additively: a cheap blur with no filter.</p>
+
+<h2>How do I add Neon tubes to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add neon-pipes</code>. It writes <code>animations/neon-pipes.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/neon-pipes.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add neon-pipes --tubes 6</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Tubes</td><td><code>--tubes</code></td><td>5</td><td>1 to 6</td><td>1</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+<tr><td>Glow</td><td><code>--glow</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Retro &amp; signal</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Neon tubes: each tube is a smooth path (a sum of two slow sines) drawn as layers of light. The bloom is
+// stroked thick into a quarter-resolution buffer and scaled up with smoothing, which blurs it for free; on top go
+// the coloured glass body and a thin near-white core, added with 'lighter' so crossing tubes brighten each other.
+// Now and then one tube stutters, like a transformer warming up.
+const PARAMS = { tubes: 5, speed: 1, glow: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const glowC = document.createElement('canvas'), gctx = glowC.getContext('2d');
+  // a small mip pyramid: each level is the previous one drawn at half size, which blurs it; stacking them = soft bloom
+  const mips = [document.createElement('canvas'), document.createElement('canvas')], mctx = mips.map(c =&gt; c.getContext('2d'));
+  const Q = 4;
+  let W = 0, H = 0, D = 1;
+  const resize = () =&gt; {
+    D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    canvas.width = W * D | 0; canvas.height = H * D | 0;
+    glowC.width = Math.ceil(W / Q); glowC.height = Math.ceil(H / Q);
+    mips.forEach((c, i) =&gt; { c.width = Math.ceil(glowC.width / (2 &lt;&lt; i)); c.height = Math.ceil(glowC.height / (2 &lt;&lt; i)); });
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const COLORS = [[255, 46, 136], [0, 229, 255], [170, 80, 255], [80, 255, 120], [255, 140, 30], [255, 230, 80]];
+  const n = Math.max(1, Math.min(6, Math.round(PARAMS.tubes)));
+  const tubes = Array.from({ length: n }, (_, i) =&gt; ({
+    c: COLORS[i % COLORS.length], k1: 1.6 + Math.random() * 1.6, k2: 3.5 + Math.random() * 2.5, w1: 0.3 + Math.random() * 0.3, w2: -(0.2 + Math.random() * 0.4),
+    p1: Math.random() * 6.28, p2: Math.random() * 6.28, a1: 0.07 + Math.random() * 0.05, a2: 0.025 + Math.random() * 0.02, flick: 1, nextFlick: 2 + Math.random() * 8 + i * 2,
+  }));
+  const pathOf = (tb, t, s) =&gt; {
+    const pts = [], x0 = W * 0.08, x1 = W * 0.92, steps = Math.ceil((x1 - x0) / 6);
+    const i = tubes.indexOf(tb), cy = H * (0.5 + (i - (n - 1) / 2) * (0.62 / Math.max(1, n - 1)) * (n &gt; 1 ? 1 : 0));
+    for (let k = 0; k &lt;= steps; k++) {
+      const u = k / steps, x = x0 + (x1 - x0) * u;
+      const y = cy + H * (tb.a1 * Math.sin(tb.k1 * u * 3.14 + tb.w1 * t + tb.p1) + tb.a2 * Math.sin(tb.k2 * u * 3.14 + tb.w2 * t + tb.p2));
+      pts.push(x / s, y / s);
+    }
+    return pts;
+  };
+  const stroke = (g, pts) =&gt; { g.beginPath(); g.moveTo(pts[0], pts[1]); for (let k = 2; k &lt; pts.length; k += 2) g.lineTo(pts[k], pts[k + 1]); };
+
+  let raf, last = performance.now(), t = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    t += dt * PARAMS.speed * (reduce ? 0.06 : 1);
+    if (!reduce) for (const tb of tubes) {
+      if (t &gt; tb.nextFlick &amp;&amp; t &lt; tb.nextFlick + 0.5) tb.flick = Math.random() &lt; 0.45 ? 0.15 : 1;
+      else { tb.flick = 1; if (t &gt; tb.nextFlick + 0.5) tb.nextFlick = t + 6 + Math.random() * 12; }
+    }
+    // bloom buffer at quarter resolution
+    gctx.setTransform(1, 0, 0, 1, 0, 0); gctx.clearRect(0, 0, glowC.width, glowC.height);
+    gctx.globalCompositeOperation = 'lighter'; gctx.lineCap = 'round'; gctx.lineJoin = 'round';
+    for (const tb of tubes) {
+      const p = pathOf(tb, t, Q), [r, g, b] = tb.c, f = tb.flick * PARAMS.glow;
+      for (const [w, a] of [[48, 0.045], [24, 0.07], [10, 0.13]]) {
+        stroke(gctx, p); gctx.lineWidth = w / Q; gctx.strokeStyle = `rgba(${r},${g},${b},${a * f})`; gctx.stroke();
+      }
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#05040a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.globalCompositeOperation = 'lighter';
+    let src = glowC;
+    mctx.forEach((m, i) =&gt; { m.clearRect(0, 0, mips[i].width, mips[i].height); m.imageSmoothingEnabled = true; m.drawImage(src, 0, 0, mips[i].width, mips[i].height); src = mips[i]; });
+    ctx.globalAlpha = 0.7; ctx.drawImage(glowC, 0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1; ctx.drawImage(mips[0], 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(mips[1], 0, 0, canvas.width, canvas.height); ctx.drawImage(mips[1], 0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+    // glass body and hot core at full resolution
+    ctx.setTransform(D, 0, 0, D, 0, 0); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (const tb of tubes) {
+      const p = pathOf(tb, t, 1), [r, g, b] = tb.c, f = tb.flick;
+      stroke(ctx, p);
+      ctx.lineWidth = 8; ctx.strokeStyle = `rgba(${r},${g},${b},${0.5 * f})`; ctx.stroke();
+      ctx.lineWidth = 4; ctx.strokeStyle = `rgba(${(r * 3 + 255) / 4 | 0},${(g * 3 + 255) / 4 | 0},${(b * 3 + 255) / 4 | 0},${0.6 * f})`; ctx.stroke();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = `rgba(255,255,255,${0.7 * f})`; ctx.stroke();
+      // dark electrode caps at both ends
+      ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#16141c';
+      for (const e of [0, p.length - 2]) { ctx.beginPath(); ctx.arc(p[e], p[e + 1], 4.5, 0, 6.2832); ctx.fill(); }
+      ctx.globalCompositeOperation = 'lighter';
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

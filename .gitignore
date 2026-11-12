@@ -1,0 +1,20 @@
+# test renders and screenshots from the tools (hundreds of MB, regenerated on demand)
+tools/.look/
+tools/*.png
+tools/.export.html
+.taste-skill/inspect/
+
+# local caches and machine state
+.claude/
+.impeccable/hook.cache.json
+.DS_Store
+node_modules/
+
+# the npm package's copies, rebuilt by `npm pack` / `npm publish` (cli/build.mjs runs as prepack)
+cli/anims/
+cli/js/
+cli/LICENSE
+*.tgz
+
+# old design-review screenshots (from the light theme)
+.impeccable/review/

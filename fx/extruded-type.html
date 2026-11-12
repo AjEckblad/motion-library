@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extruded 3D type: Text mask stacked back to front through one 3D rotation · Motion Library</title>
+<meta name="description" content="Extruded 3D type is a Canvas effect: text mask stacked back to front through one 3D rotation. One plain JavaScript file with no dependencies; add it with npx motion-library add extruded-type.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/extruded-type.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Extruded 3D type · Motion Library">
+<meta property="og:description" content="Text mask stacked back to front through one 3D rotation">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/extruded-type.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Extruded 3D type",
+  "description": "Text mask stacked back to front through one 3D rotation",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/extruded-type.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/extruded-type.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Extruded 3D type",
+    "item": "https://ajeckblad.github.io/motion-library/fx/extruded-type.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Extruded 3D type</h1>
+<p class="tldr">Extruded 3D type is a Canvas effect: text mask stacked back to front through one 3D rotation. One plain JavaScript file with no dependencies; add it with npx motion-library add extruded-type.</p>
+<figure><img src="../posters/extruded-type.webp" alt="Extruded 3D type: Text mask stacked back to front through one 3D rotation" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/extruded-type">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Extruded 3D type?</h2>
+<p>A solid 3D word turns with a chrome sweep across its face; the pointer steers it.</p>
+
+<h2>How does Extruded 3D type work?</h2>
+<p>The word mask is stamped dozens of times back to front, each shifted by the same rotation; an orthographic plane is just a 2D affine transform.</p>
+
+<h2>How do I add Extruded 3D type to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add extruded-type</code>. It writes <code>animations/extruded-type.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/extruded-type.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add extruded-type --depth 2.5</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Depth</td><td><code>--depth</code></td><td>1</td><td>0.2 to 2.5</td><td>0.05</td></tr>
+<tr><td>Layers</td><td><code>--layers</code></td><td>36</td><td>6 to 80</td><td>1</td></tr>
+<tr><td>Tilt</td><td><code>--tilt</code></td><td>1</td><td>0 to 1.6</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Extruded type: a word drawn once into a mask, then stacked back to front as dozens of layers. Each layer is
+// placed by the same 3D rotation (an exact orthographic projection is just a 2D affine transform), so the
+// stack reads as solid letters with depth. The face gets a moving chrome sweep; the sides darken with depth.
+const PARAMS = { depth: 1, layers: 36, tilt: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, mask, side, sideLit, face, mw = 0, mh = 0;
+  const WORD = 'DEPTH';
+  function build() {
+    const fs = Math.min(W * 0.19, H * 0.36);
+    mask = document.createElement('canvas'); const m = mask.getContext('2d');
+    m.font = `900 ${fs}px &quot;Mona Sans&quot;, system-ui, sans-serif`;
+    mw = Math.ceil(m.measureText(WORD).width + fs * 0.2); mh = Math.ceil(fs * 1.1);
+    mask.width = mw; mask.height = mh;
+    m.font = `900 ${fs}px &quot;Mona Sans&quot;, system-ui, sans-serif`; m.fontStretch = 'expanded';
+    m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillStyle = '#fff'; m.fillText(WORD, mw / 2, mh * 0.53);
+    const tint = c =&gt; { const k = document.createElement('canvas'); k.width = mw; k.height = mh; const g = k.getContext('2d'); g.drawImage(mask, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = c; g.fillRect(0, 0, mw, mh); return k; };
+    side = tint('#341a6e'); sideLit = tint('#a07bff');
+    face = document.createElement('canvas'); face.width = mw; face.height = mh;
+  }
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); build(); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let px = 0, py = 0, lastMove = -1e9;
+  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width * 2 - 1; py = (e.clientY - b.top) / b.height * 2 - 1; lastMove = performance.now(); };
+  canvas.addEventListener('pointermove', onMove);
+  let ry = 0, rx = 0, raf; const t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000, d = Math.min(devicePixelRatio, 2);
+    const idle = now - lastMove &gt; 1500;
+    const ty = (idle ? Math.sin(t * 0.7) * 0.55 : px * 0.7) * PARAMS.tilt, tx = (idle ? Math.sin(t * 0.45 + 1) * 0.28 : py * 0.4) * PARAMS.tilt;
+    ry += (ty - ry) * 0.08; rx += (tx - rx) * 0.08;
+    const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#0b0a10'); bg.addColorStop(1, '#16121f');   // dark studio
+    ctx.setTransform(d, 0, 0, d, 0, 0); ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    // rotation (Y then X); orthographic projection of the text plane = this 2x2 matrix plus a per-layer offset
+    const cy = Math.cos(ry), sy = Math.sin(ry), cx = Math.cos(rx), sx = Math.sin(rx);
+    const a = cy, b = sx * sy, c = 0, dd = cx, ox = sy, oy = -cy * sx;           // where the x and y axes land on screen, and how far one unit of depth shifts
+    const depth = Math.min(W, H) * 0.16 * PARAMS.depth, L = Math.max(4, Math.round(PARAMS.layers));
+    // on the dark floor the letters throw a soft violet bounce of light rather than a shadow
+    ctx.save(); ctx.translate(W / 2 + ry * 20, H * 0.8); ctx.scale(1, 0.18); const sg = ctx.createRadialGradient(0, 0, 0, 0, 0, mw * 0.5);
+    sg.addColorStop(0, 'rgba(139,92,246,.28)'); sg.addColorStop(1, 'rgba(139,92,246,0)'); ctx.fillStyle = sg; ctx.fillRect(-mw, -mw, mw * 2, mw * 2); ctx.restore();
+    const light = 0.5 + 0.5 * Math.sin(ry + 0.6);                                   // sides facing the light read brighter
+    for (let i = L; i &gt;= 1; i--) {
+      const z = depth * i / L, persp = 1 - z * 0.0009 * (1 + sx);
+      ctx.setTransform(d * a * persp, d * b * persp, d * c, d * dd * persp, d * (W / 2 + ox * z), d * (H / 2 - 8 + oy * z));
+      ctx.globalAlpha = 1; ctx.drawImage(side, -mw / 2, -mh / 2);
+      ctx.globalAlpha = (1 - i / L) * 0.55 + light * 0.35; ctx.drawImage(sideLit, -mw / 2, -mh / 2);
+    }
+    // the face: chrome bands sweeping across, clipped to the letters
+    const f = face.getContext('2d'); f.globalCompositeOperation = 'source-over'; f.clearRect(0, 0, mw, mh); f.drawImage(mask, 0, 0); f.globalCompositeOperation = 'source-in';
+    const sweep = (t * 0.25 + ry * 0.4) % 1, g = f.createLinearGradient(0, 0, mw, mh * 0.6);
+    [[0, '#d9d2ff'], [0.25, '#6d4fd6'], [0.45, '#ffffff'], [0.55, '#b9a8ff'], [0.8, '#4b2fa8'], [1, '#e8e2ff']].forEach(([o, col]) =&gt; g.addColorStop((o + sweep) % 1, col));
+    f.fillStyle = g; f.fillRect(0, 0, mw, mh);
+    ctx.globalAlpha = 1; ctx.setTransform(d * a, d * b, d * c, d * dd, d * W / 2, d * (H / 2 - 8));
+    ctx.drawImage(face, -mw / 2, -mh / 2);
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

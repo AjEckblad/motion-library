@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add &amp; remove: The gap closes after the item leaves, and opens before it returns · Motion Library</title>
+<meta name="description" content="Add &amp; remove is a DOM effect: the gap closes after the item leaves, and opens before it returns. One plain JavaScript file with no dependencies; add it with npx motion-library add add-remove.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/add-remove.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Add &amp; remove · Motion Library">
+<meta property="og:description" content="The gap closes after the item leaves, and opens before it returns">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/add-remove.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Add & remove",
+  "description": "The gap closes after the item leaves, and opens before it returns",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Basics, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/add-remove.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/add-remove.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Basics",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/basics"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Add & remove",
+    "item": "https://ajeckblad.github.io/motion-library/fx/add-remove.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/basics">Basics</a></header>
+<main class="s-page">
+<article>
+<h1>Add &amp; remove</h1>
+<p class="tldr">Add &amp; remove is a DOM effect: the gap closes after the item leaves, and opens before it returns. One plain JavaScript file with no dependencies; add it with npx motion-library add add-remove.</p>
+<figure><img src="../posters/add-remove.webp" alt="Add &amp; remove: The gap closes after the item leaves, and opens before it returns" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/add-remove">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Add &amp; remove?</h2>
+<p>A removed bag item fades out, then the rows below close the gap; Undo reverses both steps.</p>
+
+<h2>How does Add &amp; remove work?</h2>
+<p>Rows never animate height: they’re measured before and after and slid with a staggered transform (FLIP), and leaving then collapsing means nothing jumps.</p>
+
+<h2>How do I add Add &amp; remove to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add add-remove</code>. It writes <code>animations/add-remove.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/add-remove.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add add-remove --duration 800</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Slide (ms)</td><td><code>--duration</code></td><td>300</td><td>150 to 800</td><td>10</td></tr>
+<tr><td>Stagger (ms)</td><td><code>--stagger</code></td><td>30</td><td>0 to 120</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Basics</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>9.5 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Add &amp; remove: take an item out of your bag and the rows below close the gap; press Undo and it slides back into the same spot.
+// The leaving row fades and shrinks first, then its neighbours glide up with a small stagger (FLIP, transform only). On Undo the gap opens before the row fades back in, so nothing ever jumps.
+const PARAMS = { duration: 300, stagger: 30 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AW = 440, AH = 346;
+  const sh = w =&gt; `&lt;ellipse cx=&quot;50&quot; cy=&quot;84&quot; rx=&quot;${w}&quot; ry=&quot;3.6&quot; fill=&quot;#000&quot; opacity=&quot;.09&quot;/&gt;`;
+  const items = [
+    { name: 'Stoneware mug', meta: 'Sand glaze · 350 ml', price: 24, bg: '#efe6da', art: `${sh(24)}&lt;path d=&quot;M63 45h4.5a8.5 8.5 0 0 1 0 17H63&quot; fill=&quot;none&quot; stroke=&quot;#c9775a&quot; stroke-width=&quot;5.5&quot;/&gt;&lt;path d=&quot;M29 37h36v34a11 11 0 0 1-11 11H40a11 11 0 0 1-11-11z&quot; fill=&quot;#c9775a&quot;/&gt;&lt;path d=&quot;M51 37h14v34a11 11 0 0 1-11 11h-3z&quot; fill=&quot;#000&quot; opacity=&quot;.08&quot;/&gt;&lt;ellipse cx=&quot;47&quot; cy=&quot;37&quot; rx=&quot;18&quot; ry=&quot;3.2&quot; fill=&quot;#000&quot; opacity=&quot;.18&quot;/&gt;` },
+    { name: 'Glass carafe', meta: '1 litre · with lid', price: 32, bg: '#e1e8ef', art: `${sh(20)}&lt;path d=&quot;M43 16h14v15c0 3 11 9 11 20v23a8 8 0 0 1-8 8H40a8 8 0 0 1-8-8V51c0-11 11-17 11-20z&quot; fill=&quot;#fff&quot; fill-opacity=&quot;.6&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;path d=&quot;M32.8 58h34.4v16a8 8 0 0 1-8 8H40.8a8 8 0 0 1-8-8z&quot; fill=&quot;#7fa9c4&quot; opacity=&quot;.6&quot;/&gt;&lt;path d=&quot;M38 49v21&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2.5&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;rect x=&quot;42&quot; y=&quot;12&quot; width=&quot;16&quot; height=&quot;5&quot; rx=&quot;2.5&quot; fill=&quot;#fff&quot;/&gt;` },
+    { name: 'Linen apron', meta: 'Slate blue · one size', price: 42, bg: '#efe6da', art: `${sh(24)}&lt;path d=&quot;M41 26c0-9 18-9 18 0&quot; fill=&quot;none&quot; stroke=&quot;#33373c&quot; stroke-width=&quot;1.6&quot;/&gt;&lt;path d=&quot;M38 24h24v13l9 5v36a4 4 0 0 1-4 4H33a4 4 0 0 1-4-4V42l9-5z&quot; fill=&quot;#556b7d&quot;/&gt;&lt;rect x=&quot;37&quot; y=&quot;54&quot; width=&quot;26&quot; height=&quot;14&quot; rx=&quot;2&quot; fill=&quot;#000&quot; opacity=&quot;.1&quot;/&gt;&lt;path d=&quot;M50 54v14&quot; stroke=&quot;#000&quot; stroke-opacity=&quot;.12&quot;/&gt;&lt;path d=&quot;M29 46h-9M71 46h9&quot; stroke=&quot;#33373c&quot; stroke-width=&quot;1.4&quot;/&gt;` },
+  ];
+  const root = document.createElement('div');
+  root.className = 'ar-root';
+  root.innerHTML = `&lt;style&gt;
+    .ar-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .ar-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 16px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
+    .ar-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+    .ar-head h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; font-stretch: 106%; }
+    .ar-roll { position: relative; display: inline-block; height: 16px; min-width: 60px; overflow: hidden; vertical-align: bottom; font-size: 12.5px; color: #5b6066; font-variant-numeric: tabular-nums; }
+    .ar-roll span { position: absolute; left: 0; top: 0; white-space: nowrap; }
+    .ar-roll.r span { left: auto; right: 0; }
+    .ar-row { position: relative; height: 54px; margin-bottom: 6px; border-radius: 12px; background: #f6f7f9; display: grid; grid-template-columns: 46px 1fr auto 26px; align-items: center; gap: 12px; padding: 0 12px 0 6px; }
+    .ar-thumb { width: 46px; height: 46px; border-radius: 9px; display: grid; place-items: center; }
+    .ar-thumb svg { width: 40px; height: 40px; }
+    .ar-name { font-size: 13px; font-weight: 620; }
+    .ar-meta { margin-top: 2px; font-size: 11.5px; color: #5b6066; }
+    .ar-price { font-size: 13px; font-weight: 640; font-variant-numeric: tabular-nums; }
+    .ar-x { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 1px #e1e5e9; }
+    .ar-foot { position: absolute; left: 16px; right: 16px; bottom: 16px; }
+    .ar-sub { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #5b6066; margin-bottom: 10px; }
+    .ar-sub .ar-roll { font-size: 15px; font-weight: 680; color: #15171a; height: 19px; }
+    .ar-btn { height: 42px; border-radius: 999px; background: #15171a; color: #fff; display: grid; place-items: center; font-size: 13.5px; font-weight: 620; }
+    .ar-toast { position: absolute; left: 50%; bottom: 100px; height: 38px; padding: 0 6px 0 14px; margin-left: -128px; width: 256px; box-sizing: border-box; border-radius: 12px; background: #15171a; color: #fff; display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; box-shadow: 0 12px 28px -10px rgba(10,14,30,.5); opacity: 0; pointer-events: none; }
+    .ar-toast b { font-weight: 650; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,.12); }
+  &lt;/style&gt;
+  &lt;div class=&quot;ar-board&quot;&gt;
+    &lt;div class=&quot;ar-head&quot;&gt;&lt;h3&gt;Your bag&lt;/h3&gt;&lt;span class=&quot;ar-roll&quot; data-k=&quot;count&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;ar-list&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;ar-foot&quot;&gt;&lt;div class=&quot;ar-sub&quot;&gt;&lt;span&gt;Subtotal · free delivery&lt;/span&gt;&lt;span class=&quot;ar-roll r&quot; data-k=&quot;sum&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;ar-btn&quot;&gt;Go to checkout&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;ar-toast&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;b&gt;Undo&lt;/b&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const $ = s =&gt; root.querySelector(s);
+  const board = $('.ar-board'), list = $('.ar-list'), toast = $('.ar-toast'), countEl = $('[data-k=count]'), sumEl = $('[data-k=sum]');
+  const xIcon = '&lt;svg viewBox=&quot;0 0 12 12&quot; width=&quot;10&quot; height=&quot;10&quot;&gt;&lt;path d=&quot;M2.5 2.5l7 7M9.5 2.5l-7 7&quot; stroke=&quot;#5b6066&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  items.forEach(it =&gt; {
+    it.el = document.createElement('div'); it.el.className = 'ar-row';
+    it.el.innerHTML = `&lt;span class=&quot;ar-thumb&quot; style=&quot;background:${it.bg}&quot;&gt;&lt;svg viewBox=&quot;0 0 100 100&quot;&gt;${it.art}&lt;/svg&gt;&lt;/span&gt;&lt;span&gt;&lt;div class=&quot;ar-name&quot;&gt;${it.name}&lt;/div&gt;&lt;div class=&quot;ar-meta&quot;&gt;${it.meta}&lt;/div&gt;&lt;/span&gt;&lt;span class=&quot;ar-price&quot;&gt;€${it.price}&lt;/span&gt;&lt;span class=&quot;ar-x&quot;&gt;${xIcon}&lt;/span&gt;`;
+    list.append(it.el);
+  });
+
+  let scale = 1;
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / AW, stage.clientHeight / AH) * 0.92; scale = Math.min(s, 1.6); board.style.transform = `translate(-50%, -50%) scale(${scale})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)', inOut = 'cubic-bezier(0.77, 0, 0.175, 1)';
+  const roll = (box, text, animate) =&gt; {
+    const old = box.lastElementChild, next = document.createElement('span'); next.textContent = text; box.append(next);
+    if (!animate) { old.remove(); return; }
+    old.animate([{ transform: 'none', opacity: 1 }, { transform: reduce ? 'none' : 'translateY(-100%)', opacity: 0 }], { duration: 200, easing: easeOut, fill: 'forwards' }).onfinish = () =&gt; old.remove();
+    next.animate([{ transform: reduce ? 'none' : 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: easeOut });
+  };
+  let inBag = [...items];
+  const totals = animate =&gt; {
+    roll(countEl, `${inBag.length} items`, animate);
+    roll(sumEl, `€${inBag.reduce((a, it) =&gt; a + it.price, 0)}.00`, animate);
+  };
+  totals(false);
+  const press = el =&gt; el.animate([{ transform: 'scale(1)' }, { transform: 'scale(0.9)' }, { transform: 'scale(1)' }], { duration: reduce ? 0 : 200, easing: easeOut });
+
+  // FLIP: remember where every row is, change the DOM, then play each row from its old spot to its new one.
+  function flip(change) {
+    const rows = [...list.children], first = new Map(rows.map(r =&gt; [r, r.getBoundingClientRect().top]));
+    change();
+    if (reduce) return; // jump straight to the new layout
+    let n = 0;
+    rows.forEach(r =&gt; {
+      if (!r.isConnected) return;
+      const dy = (first.get(r) - r.getBoundingClientRect().top) / scale;
+      if (Math.abs(dy) &lt; 0.5) return;
+      r.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: PARAMS.duration, delay: n++ * PARAMS.stagger, easing: inOut, fill: 'backwards' });
+    });
+  }
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  const order = [1, 0, 2];
+  let loop = 0;
+  function cycle() {
+    const i = order[loop++ % order.length], it = items[i];
+    later(() =&gt; press(it.el.querySelector('.ar-x')), 900);
+    later(() =&gt; {
+      it.el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: reduce ? 'none' : 'scale(0.96)' }], { duration: 180, easing: easeOut, fill: 'forwards' });
+    }, 1020);
+    later(() =&gt; {
+      flip(() =&gt; it.el.remove());
+      inBag = inBag.filter(x =&gt; x !== it); totals(true);
+      toast.firstElementChild.textContent = `Removed ${it.name.toLowerCase()}`;
+      toast.animate([{ opacity: 0, transform: reduce ? 'none' : 'translateY(10px) scale(0.96)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 120, easing: easeOut, fill: 'both' });
+    }, 1220);
+    later(() =&gt; press(toast.lastElementChild), 2900);
+    later(() =&gt; {
+      toast.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: reduce ? 'none' : 'translateY(6px)' }], { duration: 160, easing: easeOut, fill: 'both' });
+      // Undo: the gap opens first, then the row fades back into it.
+      flip(() =&gt; list.insertBefore(it.el, list.children[i] || null));
+      it.el.animate([{ opacity: 0, transform: reduce ? 'none' : 'scale(0.96)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: PARAMS.duration * 0.45, easing: easeOut, fill: 'both' });
+      inBag = items.filter(x =&gt; x.el.isConnected); totals(true);
+    }, 3020);
+    later(cycle, 4600);
+  }
+  cycle();
+
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

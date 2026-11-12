@@ -1,0 +1,131 @@
+// Split-flap departures board: when a flight leaves, every row flips to the one below it, each character stepping through the alphabet flap by flap, with the fold shown.
+// A real flap board can only advance one character at a time, so letters far apart in the alphabet take longer and the board settles in a ragged wave; that unevenness, plus a small delay per column, is what makes it read as mechanical rather than a fade.
+const PARAMS = { flip: 70, stagger: 22 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400;
+  const SET = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:';
+  const COLS = [5, 10, 3, 9];
+  const flights = [
+    ['14:05', 'OSLO', 'A12'], ['14:15', 'REYKJAVIK', 'B03'], ['14:20', 'LISBON', 'A07'], ['14:35', 'HELSINKI', 'C21'],
+    ['14:40', 'AMSTERDAM', 'B14'], ['14:55', 'ATHENS', 'A02'], ['15:05', 'COPENHAGEN', 'C08'], ['15:10', 'BERLIN', 'B11'],
+    ['15:25', 'MARRAKECH', 'A19'], ['15:30', 'TALLINN', 'C04'],
+  ];
+  const ROWS = 7;
+  const remark = (pos, f) => pos === 0 ? 'BOARDING' : pos === 1 ? 'GATE OPEN' : f[1] === 'AMSTERDAM' ? 'DELAYED' : 'ON TIME';
+  const root = document.createElement('div');
+  root.className = 'sf-root';
+  root.innerHTML = `<style>
+    .sf-root { position: absolute; inset: 0; overflow: hidden; background: #202328; color: #f3f0e6; font-family: "Mona Sans", system-ui, -apple-system, sans-serif; }
+    .sf-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; background: linear-gradient(#2a2e34, #17191c); }
+    .sf-art::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 118px, rgba(255,255,255,.03) 118px 120px); }
+    .sf-board { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 16px 16px; border-radius: 10px; background: #0d0e10; box-shadow: 0 0 0 1px #2e3238, 0 24px 50px -20px #000; }
+    .sf-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 15px; font-weight: 720; letter-spacing: -0.01em; color: #ffd23f; }
+    .sf-head svg { width: 18px; height: 18px; }
+    .sf-head span { margin-left: auto; font: 600 14px ui-monospace, "SF Mono", Menlo, monospace; color: #f3f0e6; font-variant-numeric: tabular-nums; }
+    .sf-row, .sf-labels { display: flex; gap: 10px; }
+    .sf-row { margin-top: 5px; }
+    .sf-labels { font-size: 9px; font-weight: 650; letter-spacing: .1em; color: #8a8f98; margin-bottom: 2px; }
+    .sf-g { display: flex; gap: 2px; }
+    .sf-c { position: relative; width: var(--cw); height: var(--ch); font: 700 var(--fs)/var(--ch) ui-monospace, "SF Mono", Menlo, monospace; text-align: center; }
+    .sf-h { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; backface-visibility: hidden; }
+    .sf-h span { display: block; height: var(--ch); }
+    .sf-t { top: 0; border-radius: 2px 2px 0 0; background: linear-gradient(#26282d, #1e2024); transform-origin: 50% 100%; }
+    .sf-b { bottom: 0; border-radius: 0 0 2px 2px; background: linear-gradient(#1c1e22, #222429); transform-origin: 50% 0; }
+    .sf-b span { margin-top: calc(var(--ch) / -2); }
+    .sf-c::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; margin-top: -.5px; background: #050506; z-index: 3; }
+    .sf-leaf { z-index: 2; visibility: hidden; }
+    .sf-y { color: #ffd23f; }
+  </style>
+  <div class="sf-art"><div class="sf-board">
+    <div class="sf-head"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19h19M4 14.5l2.2-.6 3.4 2.2 4.6-1.3-6.8-6.6 2.4-.6 9 5.2 2.8-.8a1.6 1.6 0 0 1 .9 3.1L6.4 18z" fill="currentColor"/></svg>Departures<span class="sf-clock">14:02</span></div>
+    <div class="sf-labels"></div>
+  </div></div>`;
+  stage.append(root);
+  const art = root.querySelector('.sf-art'), board = root.querySelector('.sf-board'), clock = root.querySelector('.sf-clock');
+  const labels = root.querySelector('.sf-labels');
+  ['TIME', 'DESTINATION', 'GATE', 'REMARKS'].forEach((t, i) => { const s = document.createElement('span'); s.textContent = t; s.style.width = `calc(${COLS[i]} * var(--cw) + ${(COLS[i] - 1) * 2}px)`; labels.append(s); });
+
+  const half = cls => { const h = document.createElement('div'); h.className = 'sf-h ' + cls; h.append(document.createElement('span')); return h; };
+  const rows = [];
+  for (let r = 0; r < ROWS; r++) {
+    const row = document.createElement('div'); row.className = 'sf-row'; const cells = [];
+    COLS.forEach((n, g) => {
+      const grp = document.createElement('div'); grp.className = 'sf-g' + (g === 3 ? ' sf-y' : '');
+      for (let i = 0; i < n; i++) {
+        const el = document.createElement('div'); el.className = 'sf-c';
+        const parts = [half('sf-t'), half('sf-b'), half('sf-t sf-leaf'), half('sf-b sf-leaf')];
+        el.append(...parts); grp.append(el);
+        const c = { parts, cur: ' ', target: ' ', col: cells.length, start: 0, t0: -1, next: ' ' };
+        parts.forEach(p => { p.firstChild.textContent = ' '; });
+        cells.push(c);
+      }
+      row.append(grp);
+    });
+    board.append(row); rows.push(cells);
+  }
+  const fit = () => {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1, aw = W / s;
+    art.style.width = aw + 'px'; art.style.top = (H - AH * s) / 2 + 'px'; art.style.transform = `scale(${s})`;
+    const cw = Math.min(18, (aw - 40 - 32 - 30 - 2 * 23) / 27);
+    board.style.setProperty('--cw', cw.toFixed(2) + 'px'); board.style.setProperty('--ch', (cw * 1.5).toFixed(2) + 'px'); board.style.setProperty('--fs', (cw * 1.08).toFixed(2) + 'px');
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const pad = (s, n) => (s + ' '.repeat(n)).slice(0, n);
+  const setRow = (r, f, pos, now) => {
+    const text = pad(f[0], 5) + pad(f[1], 10) + pad(f[2], 3) + pad(remark(pos, f), 9);
+    rows[r].forEach((c, i) => { if (c.target !== text[i]) { c.target = text[i]; c.start = now + r * PARAMS.stagger * 2 + i * PARAMS.stagger; } });
+  };
+  const setRemark = (r, txt, now) => rows[r].slice(18).forEach((c, i) => { const ch = pad(txt, 9)[i]; if (c.target !== ch) { c.target = ch; c.start = now + i * PARAMS.stagger; } });
+
+  let top = 0, minute = 2, raf, timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  function fill() { const now = performance.now(); for (let r = 0; r < ROWS; r++) setRow(r, flights[(top + r) % flights.length], r, now); }
+  function cycle() {
+    // a beat after the board settles, the first flight closes, then leaves and everything moves up a row
+    later(() => setRemark(0, 'CLOSED', performance.now()), 4200);
+    later(() => {
+      top = (top + 1) % flights.length; minute = (minute + 7) % 60;
+      clock.textContent = `14:${String(minute).padStart(2, '0')}`;
+      fill(); cycle();
+    }, 6600);
+  }
+  const show = (p, ch) => { p.firstChild.textContent = ch; };
+  function frame(now) {
+    const F = Math.max(20, PARAMS.flip);
+    for (const cells of rows) for (const c of cells) {
+      if (c.t0 < 0) {
+        if (c.cur === c.target || now < c.start) continue;
+        // Reduced motion: no flapping; the character switches straight to its target and fades in.
+        if (reduce) { c.cur = c.target; c.parts.forEach(p => show(p, c.cur)); c.parts.slice(0, 2).forEach(p => p.firstChild.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' })); continue; }
+        // begin one flap: the old top half folds down over the new one, then the new bottom half drops into place
+        const i = SET.indexOf(c.cur);
+        c.next = SET[(i + 1) % SET.length]; c.t0 = now;
+        const [t, b, lt, lb] = c.parts;
+        show(t, c.next); show(lt, c.cur); show(lb, c.next); show(b, c.cur);
+        lt.style.visibility = 'visible';
+      }
+      const p = (now - c.t0) / F, [, b, lt, lb] = c.parts;
+      if (p < 0.5) {
+        lt.style.transform = `perspective(80px) rotateX(${(-180 * p).toFixed(1)}deg)`;
+        lt.style.filter = `brightness(${(1 - p * 0.8).toFixed(2)})`;
+      } else if (p < 1) {
+        lt.style.visibility = 'hidden'; lb.style.visibility = 'visible';
+        const q = (p - 0.5) * 2, e = 1 - Math.pow(1 - q, 3);
+        lb.style.transform = `perspective(80px) rotateX(${(90 - 90 * e).toFixed(1)}deg)`;
+        lb.style.filter = `brightness(${(0.6 + 0.4 * e).toFixed(2)})`;
+      } else {
+        lb.style.visibility = 'hidden'; lt.style.visibility = 'hidden';
+        c.cur = c.next; show(b, c.cur); c.t0 = -1;
+      }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  // the board starts settled, so the first thing you see is a full, readable board
+  fill(); rows.forEach(cells => cells.forEach(c => { c.cur = c.target; c.parts.forEach(p => show(p, c.cur)); }));
+  later(cycle, 0);
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); timers.forEach(clearTimeout); ro.disconnect(); root.remove(); };
+}

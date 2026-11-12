@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typewriter: Typing with randomised keystroke delays and pauses at punctuation · Motion Library</title>
+<meta name="description" content="Typewriter is a DOM effect: typing with randomised keystroke delays and pauses at punctuation. One plain JavaScript file with no dependencies; add it with npx motion-library add typewriter.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/typewriter.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Typewriter · Motion Library">
+<meta property="og:description" content="Typing with randomised keystroke delays and pauses at punctuation">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/typewriter.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Typewriter",
+  "description": "Typing with randomised keystroke delays and pauses at punctuation",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Text, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/typewriter.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/typewriter.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Text",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/text"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Typewriter",
+    "item": "https://ajeckblad.github.io/motion-library/fx/typewriter.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/text">Text</a></header>
+<main class="s-page">
+<article>
+<h1>Typewriter</h1>
+<p class="tldr">Typewriter is a DOM effect: typing with randomised keystroke delays and pauses at punctuation. One plain JavaScript file with no dependencies; add it with npx motion-library add typewriter.</p>
+<figure><img src="../posters/typewriter.webp" alt="Typewriter: Typing with randomised keystroke delays and pauses at punctuation" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/typewriter">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Typewriter?</h2>
+<p>A search box types example trips, splits them into filter chips that pop in, then erases the text.</p>
+
+<h2>How does Typewriter work?</h2>
+<p>Each keystroke delay is randomised around the base speed, punctuation adds a pause, the caret blinks only while idle, and deleting runs faster than typing.</p>
+
+<h2>How do I add Typewriter to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add typewriter</code>. It writes <code>animations/typewriter.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/typewriter.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add typewriter --cps 40</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Characters / second</td><td><code>--cps</code></td><td>16</td><td>4 to 40</td><td>1</td></tr>
+<tr><td>Jitter</td><td><code>--jitter</code></td><td>0.5</td><td>0 to 1</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Text</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Typewriter, in a trip planner's search box: example requests type themselves with uneven keystrokes, a pause at every comma and full stop, and a caret that blinks only while idle.
+// Real typing is never metronomic, so jitter and punctuation pauses make the placeholder feel like a person thinking; when the request is done it splits into filter chips, which shows what the box will do with your words.
+const PARAMS = { cps: 16, jitter: 0.5 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400;
+  const queries = [
+    { text: 'A weekend in Lisbon, under €400.', chips: ['Lisbon', 'Fri – Sun', 'Under €400'] },
+    { text: 'A cabin by a lake, sleeps six.', chips: ['Lakeside', 'Cabin', '6 guests'] },
+    { text: 'Direct flights to Tokyo in April.', chips: ['Tokyo', 'Direct only', 'April'] },
+  ];
+  const icon = {
+    pin: '&lt;path d=&quot;M8 14s5-4.4 5-8.2a5 5 0 0 0-10 0C3 9.6 8 14 8 14z&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot;/&gt;&lt;circle cx=&quot;8&quot; cy=&quot;5.8&quot; r=&quot;1.7&quot; fill=&quot;currentColor&quot;/&gt;',
+    tag: '&lt;path d=&quot;M2.5 2.5h5.2l6 6-5.2 5.2-6-6z&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle cx=&quot;5.4&quot; cy=&quot;5.4&quot; r=&quot;1.1&quot; fill=&quot;currentColor&quot;/&gt;',
+    cal: '&lt;rect x=&quot;2&quot; y=&quot;3&quot; width=&quot;12&quot; height=&quot;11&quot; rx=&quot;2&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot;/&gt;&lt;path d=&quot;M2 6.5h12M5.5 1.5v3M10.5 1.5v3&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot;/&gt;',
+  };
+  const chipIcons = ['pin', 'cal', 'tag'];
+  const root = document.createElement('div');
+  root.className = 'tw-root';
+  root.innerHTML = `&lt;style&gt;
+    .tw-root { position: absolute; inset: 0; overflow: hidden; background: #e6eef8; color: #14213a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .tw-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .tw-sky { position: absolute; inset: 0; background: linear-gradient(#e6eef8 40%, #f6e9df); }
+    .tw-sky svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 90px; }
+    .tw-nav { position: absolute; left: 28px; right: 24px; top: 18px; display: flex; align-items: center; gap: 18px; font-size: 12px; font-weight: 560; color: #44526b; }
+    .tw-nav svg { width: 20px; height: 20px; margin-right: auto; }
+    .tw-nav b { font-weight: 640; color: #14213a; padding: 7px 13px; border-radius: 999px; box-shadow: inset 0 0 0 1px #c3cfdf; }
+    .tw-hero { position: absolute; left: 28px; right: 28px; top: 74px; display: grid; justify-items: center; text-align: center; }
+    .tw-hero h2 { margin: 0; font-size: 36px; line-height: 1.05; font-weight: 760; font-stretch: 108%; letter-spacing: -0.03em; }
+    .tw-hero p { margin: 8px 0 18px; font-size: 13px; color: #52607a; }
+    .tw-box { width: 100%; max-width: 480px; height: 52px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 6px 0 16px; border-radius: 16px; background: #fff; box-shadow: 0 1px 2px rgba(20,33,58,.08), 0 16px 34px -18px rgba(20,33,58,.45); text-align: left; }
+    .tw-box &gt; svg { flex: none; width: 18px; height: 18px; color: #2b6cd9; }
+    .tw-line { flex: 1; min-width: 0; font-size: 15px; font-weight: 520; white-space: nowrap; overflow: hidden; }
+    .tw-caret { display: inline-block; width: 2px; height: 1.15em; margin-left: 1px; vertical-align: -0.2em; border-radius: 1px; background: #2b6cd9; }
+    .tw-idle .tw-caret { animation: tw-blink 1s steps(1) infinite; }
+    @keyframes tw-blink { 50% { opacity: 0; } }
+    .tw-go { flex: none; height: 40px; padding: 0 16px; border-radius: 11px; background: #2b6cd9; color: #fff; font-size: 13px; font-weight: 640; display: grid; place-items: center; }
+    .tw-chips { display: flex; gap: 7px; margin-top: 14px; min-height: 28px; }
+    .tw-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px 0 9px; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 600; color: #22314d; box-shadow: 0 1px 2px rgba(20,33,58,.1); opacity: 0; }
+    .tw-chip svg { width: 13px; height: 13px; color: #2b6cd9; }
+  &lt;/style&gt;
+  &lt;div class=&quot;tw-art&quot;&gt;
+    &lt;div class=&quot;tw-sky&quot;&gt;&lt;svg viewBox=&quot;0 0 400 90&quot; preserveAspectRatio=&quot;none&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M0 60 C60 40 110 70 170 52 S290 30 400 56 V90 H0z&quot; fill=&quot;#f1d9c7&quot;/&gt;&lt;path d=&quot;M0 74 C80 58 150 84 230 70 S340 60 400 72 V90 H0z&quot; fill=&quot;#ead0bd&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+    &lt;div class=&quot;tw-nav&quot;&gt;&lt;svg viewBox=&quot;0 0 20 20&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;8.2&quot; fill=&quot;none&quot; stroke=&quot;#14213a&quot; stroke-width=&quot;1.7&quot;/&gt;&lt;path d=&quot;M6 12.5l8-5-3.2 7-1.3-2.7z&quot; fill=&quot;#2b6cd9&quot;/&gt;&lt;/svg&gt;&lt;span&gt;Stays&lt;/span&gt;&lt;span&gt;Flights&lt;/span&gt;&lt;span&gt;Trips&lt;/span&gt;&lt;b&gt;Log in&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;tw-hero&quot;&gt;
+      &lt;h2&gt;Where to next?&lt;/h2&gt;
+      &lt;p&gt;Describe the trip in your own words. We will find the rest.&lt;/p&gt;
+      &lt;div class=&quot;tw-box&quot;&gt;&lt;svg viewBox=&quot;0 0 18 18&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;8&quot; cy=&quot;8&quot; r=&quot;5.6&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot;/&gt;&lt;path d=&quot;M12.2 12.2l3.6 3.6&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;div class=&quot;tw-line&quot;&gt;&lt;span class=&quot;tw-text&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tw-caret&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;tw-go&quot;&gt;Search&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;tw-chips&quot;&gt;${'&lt;span class=&quot;tw-chip&quot;&gt;&lt;/span&gt;'.repeat(3)}&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const art = root.querySelector('.tw-art'), text = root.querySelector('.tw-text'), line = root.querySelector('.tw-line');
+  const chips = [...root.querySelectorAll('.tw-chip')];
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1;
+    art.style.width = W / s + 'px'; art.style.top = (H - AH * s) / 2 + 'px'; art.style.transform = `scale(${s})`;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  let qi = 0, timer;
+  const delay = ch =&gt; {
+    const base = 1000 / PARAMS.cps, j = 1 + (Math.random() * 2 - 1) * PARAMS.jitter;
+    return base * j + (/[,.!?]/.test(ch) ? base * 6 : 0);
+  };
+  function type(i = 0) {
+    const q = queries[qi], s = q.text;
+    line.classList.remove('tw-idle');
+    // Reduced motion: the whole request fades in at once instead of being typed.
+    if (reduce &amp;&amp; i === 0) { text.getAnimations().forEach(a =&gt; a.cancel()); text.textContent = s; text.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: easeOut }); i = s.length + 1; }
+    if (i &lt;= s.length) { text.textContent = s.slice(0, i); timer = setTimeout(() =&gt; type(i + 1), delay(s[i - 1] || '')); return; }
+    // done: the caret starts blinking and the request splits into filters, one after another
+    line.classList.add('tw-idle');
+    chips.forEach((c, k) =&gt; {
+      c.innerHTML = `&lt;svg viewBox=&quot;0 0 16 16&quot; aria-hidden=&quot;true&quot;&gt;${icon[chipIcons[k]]}&lt;/svg&gt;${q.chips[k]}`;
+      c.getAnimations().forEach(a =&gt; a.cancel());
+      c.animate([{ opacity: 0, transform: reduce ? 'none' : 'translateY(6px) scale(0.95)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 160 + k * 60, easing: easeOut, fill: 'both' });
+    });
+    timer = setTimeout(() =&gt; erase(s.length), reduce ? 3200 : 2200);
+  }
+  function erase(i) {
+    line.classList.remove('tw-idle');
+    if (i === queries[qi].text.length) chips.forEach(c =&gt; c.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: reduce ? 'none' : 'scale(0.95)' }], { duration: 160, easing: easeOut, fill: 'forwards' }));
+    if (reduce &amp;&amp; i &gt;= 0) { text.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: easeOut, fill: 'forwards' }); timer = setTimeout(() =&gt; erase(-1), 240); return; } // fades out instead of deleting
+    if (i &gt;= 0) { text.textContent = queries[qi].text.slice(0, i); timer = setTimeout(() =&gt; erase(i - 1), 18); return; }
+    qi = (qi + 1) % queries.length; line.classList.add('tw-idle');
+    timer = setTimeout(() =&gt; type(0), 600);
+  }
+  type(0);
+  return () =&gt; { clearTimeout(timer); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

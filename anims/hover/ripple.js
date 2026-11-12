@@ -1,0 +1,108 @@
+// Click ripple on a pricing page: pressing a plan button sends a soft circle out from the exact spot that was pressed,
+// growing until it reaches the farthest corner, then fading. The button also dips to 97% while held.
+// It feels right because the feedback starts where your finger or cursor is, on press rather than release, so the click is clearly heard.
+const PARAMS = { duration: 650 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const plans = [
+    ['Starter', '$0', 'For trying things out', ['1 project', 'Community support', 'Basic analytics'], 'Start for free'],
+    ['Pro', '$12', 'For freelancers', ['Unlimited projects', 'Custom domains', 'Priority email support'], 'Upgrade to Pro'],
+    ['Team', '$29', 'Per seat, billed yearly', ['Shared workspaces', 'Roles and permissions', 'Audit history'], 'Contact sales'],
+  ];
+  const tick = '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.6-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const root = document.createElement('div');
+  root.className = 'rp-root';
+  root.innerHTML = `<style>
+    .rp-root { position: absolute; inset: 0; overflow: hidden; background: #eef0f3; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #15171a; }
+    .rp-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .rp-head { position: absolute; left: 0; right: 0; top: 22px; text-align: center; }
+    .rp-head h2 { margin: 0; font-size: 22px; font-weight: 720; letter-spacing: -0.02em; }
+    .rp-head p { margin: 5px 0 0; font-size: 12.5px; color: #5b6066; }
+    .rp-grid { position: absolute; left: 24px; right: 24px; top: 92px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: start; }
+    .rp-card { position: relative; background: #fff; border-radius: 14px; padding: 16px 14px 14px; box-shadow: 0 1px 2px rgba(20,24,30,.06), 0 0 0 1px rgba(20,24,30,.06); }
+    .rp-card.pro { background: #15171a; color: #fff; margin-top: -10px; padding-top: 26px; padding-bottom: 18px; }
+    .rp-tag { position: absolute; top: 10px; right: 12px; font-size: 10px; font-weight: 650; background: #f2c14e; color: #3a2800; padding: 3px 7px; border-radius: 999px; }
+    .rp-name { font-size: 13px; font-weight: 650; }
+    .rp-price { margin-top: 8px; font-size: 30px; font-weight: 720; letter-spacing: -0.03em; } .rp-price small { font-size: 12px; font-weight: 500; letter-spacing: 0; opacity: .6; }
+    .rp-sub { font-size: 11.5px; opacity: .6; margin-top: 2px; }
+    .rp-list { list-style: none; margin: 14px 0 16px; padding: 0; display: grid; gap: 7px; font-size: 12px; }
+    .rp-list li { display: flex; gap: 7px; align-items: center; } .rp-list svg { color: #2f9e44; flex: none; } .pro .rp-list svg { color: #f2c14e; }
+    .rp-btn { position: relative; overflow: hidden; width: 100%; height: 38px; border: 0; border-radius: 10px; font: 620 13px system-ui, -apple-system, sans-serif; cursor: pointer; background: #f1f2f4; color: #15171a; --rip: rgba(21,23,26,.22); transition: transform .14s cubic-bezier(.23,1,.32,1), background-color .15s ease; }
+    .rp-btn.hot { background: #e7e9ec; }
+    .pro .rp-btn { background: #f2c14e; color: #2b1d00; --rip: rgba(255,255,255,.55); } .pro .rp-btn.hot { background: #f5cb63; }
+    .rp-btn.down { transform: ${reduce ? 'none' : 'scale(0.97)'}; }
+    .rp-btn span { position: relative; pointer-events: none; }
+    .rp-wave { position: absolute; border-radius: 50%; background: var(--rip); pointer-events: none; }
+    .rp-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.3)); }
+  </style><div class="rp-scene">
+    <div class="rp-head"><h2>Simple pricing</h2><p>Switch plans or cancel whenever you like.</p></div>
+    <div class="rp-grid">${plans.map(([n, p, sub, list, cta], i) => `<div class="rp-card${i === 1 ? ' pro' : ''}">${i === 1 ? '<span class="rp-tag">Most popular</span>' : ''}<div class="rp-name">${n}</div><div class="rp-price">${p}<small> /month</small></div><div class="rp-sub">${sub}</div><ul class="rp-list">${list.map(l => `<li>${tick}${l}</li>`).join('')}</ul><button class="rp-btn" type="button"><span>${cta}</span></button></div>`).join('')}</div>
+  </div>`;
+  stage.append(root);
+  const scene = root.querySelector('.rp-scene');
+  let s = 1;
+  const fit = () => { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const box = el => { let x = 0, y = 0, e = el; while (e && e !== scene) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; } return { x, y, w: el.offsetWidth, h: el.offsetHeight }; };
+  const at = (el, fx, fy) => () => { const b = box(el); return { x: b.x + b.w * fx, y: b.y + b.h * fy }; };
+  const pt = (x, y) => () => ({ x, y });
+  const btns = [...scene.querySelectorAll('.rp-btn')];
+
+  function ripple(btn, x, y) {
+    const w = btn.offsetWidth, h = btn.offsetHeight, r = Math.hypot(Math.max(x, w - x), Math.max(y, h - y));
+    const el = document.createElement('i'); el.className = 'rp-wave';
+    el.style.cssText = `left:${x - r}px;top:${y - r}px;width:${r * 2}px;height:${r * 2}px`;
+    btn.prepend(el);
+    // a ripple is a wave from a point, so it starts tiny; opacity carries the fade
+    // reduced motion: no wave spreading out; the whole button flashes the tint and fades
+    el.animate([{ transform: reduce ? 'none' : 'scale(0.04)', opacity: 1 }, { transform: 'scale(1)', opacity: 0.8, offset: 0.65 }, { transform: 'scale(1)', opacity: 0 }],
+      { duration: PARAMS.duration, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }).onfinish = () => el.remove();
+  }
+
+  // simulated cursor: eased, slightly curved moves with pauses and clicks; the real pointer takes over while it is on the stage
+  const steps = [
+    { to: pt(270, 360), move: 300, hold: 300 },
+    { to: at(btns[0], 0.3, 0.55), move: 800, hold: 900, click: true },
+    { to: at(btns[1], 0.72, 0.4), move: 700, hold: 900, click: true },
+    { to: at(btns[2], 0.5, 0.6), move: 700, hold: 900, click: true },
+    { to: pt(420, 50), move: 900, hold: 600 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'rp-cur';
+  ghost.innerHTML = '<svg width="17" height="24" viewBox="-1 -1 17 24"><path d="M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z" fill="#15171a" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+  scene.append(ghost);
+  const inOut = t => t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null, realDown = false;
+  const c = { x: from.x, y: from.y, down: false };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 > st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const e = now - t0, k = inOut(Math.min(1, e / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.12;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+    c.down = !!st.click && e > st.move + 120 && e < st.move + 260;
+  }
+  const toScene = e => { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e => { real = toScene(e); };
+  const onLeave = () => { if (real) { from = { ...real }; t0 = performance.now(); } real = null; realDown = false; };
+  const onDown = e => { real = toScene(e); realDown = true; };
+  const onUp = () => { realDown = false; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+  root.addEventListener('pointerdown', onDown); root.addEventListener('pointerup', onUp);
+
+  let wasDown = false, raf;
+  function frame(now) {
+    if (real) { c.x = real.x; c.y = real.y; c.down = realDown; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px) scale(${c.down ? 0.9 : 1})`;
+    ghost.style.opacity = real ? 0 : 1;
+    for (const b of btns) {
+      const r = box(b), inside = c.x > r.x && c.x < r.x + r.w && c.y > r.y && c.y < r.y + r.h;
+      b.classList.toggle('hot', inside); b.classList.toggle('down', inside && c.down);
+      if (inside && c.down && !wasDown) ripple(b, c.x - r.x, c.y - r.y);
+    }
+    wasDown = c.down;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.removeEventListener('pointerdown', onDown); root.removeEventListener('pointerup', onUp); root.remove(); };
+}

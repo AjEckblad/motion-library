@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bokeh: Circle of confusion: discs grow with distance from the focal plane · Motion Library</title>
+<meta name="description" content="Bokeh is a Canvas effect: circle of confusion: discs grow with distance from the focal plane. One plain JavaScript file with no dependencies; add it with npx motion-library add bokeh.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/bokeh.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Bokeh · Motion Library">
+<meta property="og:description" content="Circle of confusion: discs grow with distance from the focal plane">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/bokeh.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Bokeh",
+  "description": "Circle of confusion: discs grow with distance from the focal plane",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/bokeh.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/bokeh.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Bokeh",
+    "item": "https://ajeckblad.github.io/motion-library/fx/bokeh.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Bokeh</h1>
+<p class="tldr">Bokeh is a Canvas effect: circle of confusion: discs grow with distance from the focal plane. One plain JavaScript file with no dependencies; add it with npx motion-library add bokeh.</p>
+<figure><img src="../posters/bokeh.webp" alt="Bokeh: Circle of confusion: discs grow with distance from the focal plane" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/bokeh">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Bokeh?</h2>
+<p>Out-of-focus lights drift in layers while the focus pulls through, sharpening some and blooming others.</p>
+
+<h2>How does Bokeh work?</h2>
+<p>Each light becomes an aperture-shaped disc sized by its distance from the focal plane, with brightness spread over its area; one rimmed sprite, blended additively.</p>
+
+<h2>How do I add Bokeh to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add bokeh</code>. It writes <code>animations/bokeh.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/bokeh.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add bokeh --blades 9</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Aperture blades (0 = round)</td><td><code>--blades</code></td><td>6</td><td>0 to 9</td><td>1</td></tr>
+<tr><td>Lights</td><td><code>--count</code></td><td>75</td><td>10 to 250</td><td>5</td></tr>
+<tr><td>Focus pull</td><td><code>--focus</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Bokeh: points of light seen through a lens that isn’t focused on them. A point off the focal plane spreads into a
+// disc (the circle of confusion) whose size grows with its distance from that plane and whose shape is the aperture:
+// round, or a polygon set by the number of blades. The same light spread wider is dimmer, so total brightness is kept
+// by area. Each disc has a slightly brighter rim, as real lenses give. The lights drift in depth layers, near ones
+// faster (parallax), while the focus slowly pulls through the scene so discs shrink to sharp points and bloom again.
+const PARAMS = { blades: 6, count: 75, focus: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, D = 1;
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = Math.round(W * D); canvas.height = Math.round(H * D); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // one white sprite of the aperture shape, tinted per colour: flat body, brighter rim, soft anti-aliased edge
+  const S = 256, blades = Math.round(PARAMS.blades);
+  const shape = (c, r) =&gt; {
+    c.beginPath();
+    if (blades &lt; 3) c.arc(S / 2, S / 2, r, 0, 6.2832);
+    else for (let i = 0; i &lt;= blades; i++) { const a = i / blades * 6.2832 + 0.3; i ? c.lineTo(S / 2 + Math.cos(a) * r, S / 2 + Math.sin(a) * r) : c.moveTo(S / 2 + Math.cos(a) * r, S / 2 + Math.sin(a) * r); }
+  };
+  const tints = ['#ffad42', '#ff6a8e', '#ffc552', '#3fd0ff', '#ff9e5e', '#ff4f6e'];
+  const sprites = tints.map(col =&gt; {
+    const c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d');
+    g.fillStyle = col;
+    g.filter = 'blur(1.5px)'; g.globalAlpha = 0.5; shape(g, S * 0.46); g.fill();
+    g.filter = 'blur(2px)'; g.globalAlpha = 0.95; g.lineWidth = S * 0.03; g.strokeStyle = col; shape(g, S * 0.445); g.stroke();
+    // a faint brighter centre-offset sheen, like coating reflections
+    g.filter = 'blur(12px)'; g.globalAlpha = 0.18; g.beginPath(); g.arc(S * 0.42, S * 0.42, S * 0.2, 0, 6.2832); g.fillStyle = '#fff'; g.fill();
+    return c;
+  });
+  const dotSprite = (() =&gt; {
+    const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+    const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.15, 'rgba(255,255,255,0.6)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return c;
+  })();
+
+  const n = Math.max(5, Math.round(PARAMS.count));
+  const lights = Array.from({ length: n }, () =&gt; ({ x: Math.random(), y: Math.random(), z: Math.random(), c: Math.random() * tints.length | 0, ph: Math.random() * 6.28, f: 0.4 + Math.random() * 0.8 }));
+
+  let raf; const t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000 * (reduce ? 0.08 : 1);
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    const bg = ctx.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0a0712'); bg.addColorStop(1, '#04060c');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    const m = Math.min(W, H), focal = 0.5 + 0.42 * Math.sin(t * 0.22 * PARAMS.focus);   // the focus plane pulls back and forth
+    // far first, so near discs layer over them
+    lights.sort((a, b) =&gt; a.z - b.z);
+    for (const L of lights) {
+      const sp = 0.004 + L.z * 0.02;                                   // parallax: near lights drift faster
+      const x = ((L.x * 1.2 + t * sp) % 1.2 - 0.1) * W, y = ((L.y * 1.2 + Math.sin(t * 0.3 + L.ph) * 0.02 - t * sp * 0.25 + 12) % 1.2 - 0.1) * H;
+      const coc = Math.abs(L.z - focal);                              // circle of confusion
+      const r = m * (0.005 + coc * (0.04 + L.z * 0.22));
+      const tw = 0.75 + 0.25 * Math.sin(t * L.f * 2 + L.ph);
+      // brightness spread over the disc: smaller discs are brighter per pixel
+      const a = Math.min(1, tw * Math.pow(m * 0.06 / r, 0.5)) * (0.5 + 0.5 * L.z);
+      if (r &lt; m * 0.012) {
+        ctx.globalAlpha = Math.min(1, a * 1.4); const s = r * 6;
+        ctx.drawImage(dotSprite, x - s / 2, y - s / 2, s, s);
+        ctx.globalAlpha = Math.min(1, a); ctx.drawImage(sprites[L.c], x - r, y - r, r * 2, r * 2);
+      } else {
+        ctx.globalAlpha = a; ctx.drawImage(sprites[L.c], x - r * 1.087, y - r * 1.087, r * 2.174, r * 2.174);
+      }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

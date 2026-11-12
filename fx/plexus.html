@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plexus: Drifting points linked by distance-faded lines, found through a grid · Motion Library</title>
+<meta name="description" content="Plexus is a Canvas effect: drifting points linked by distance-faded lines, found through a grid. One plain JavaScript file with no dependencies; add it with npx motion-library add plexus.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/plexus.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Plexus · Motion Library">
+<meta property="og:description" content="Drifting points linked by distance-faded lines, found through a grid">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/plexus.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Plexus",
+  "description": "Drifting points linked by distance-faded lines, found through a grid",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Simulation, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/plexus.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/plexus.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Simulation",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/simulation"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Plexus",
+    "item": "https://ajeckblad.github.io/motion-library/fx/plexus.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/simulation">Simulation</a></header>
+<main class="s-page">
+<article>
+<h1>Plexus</h1>
+<p class="tldr">Plexus is a Canvas effect: drifting points linked by distance-faded lines, found through a grid. One plain JavaScript file with no dependencies; add it with npx motion-library add plexus.</p>
+<figure><img src="../posters/plexus.webp" alt="Plexus: Drifting points linked by distance-faded lines, found through a grid" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/plexus">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Plexus?</h2>
+<p>Drifting points knit a mesh of fine lines, and the cursor gathers the nearest into warm links.</p>
+
+<h2>How does Plexus work?</h2>
+<p>Points link to neighbours within a set distance, fading with length, found through a uniform grid one link wide; lines are batched into a few opacity buckets, one path each.</p>
+
+<h2>How do I add Plexus to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add plexus</code>. It writes <code>animations/plexus.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/plexus.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add plexus --density 2.5</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Density</td><td><code>--density</code></td><td>1</td><td>0.3 to 2.5</td><td>0.1</td></tr>
+<tr><td>Link distance</td><td><code>--link</code></td><td>120</td><td>50 to 200</td><td>5</td></tr>
+<tr><td>Cursor pull</td><td><code>--pull</code></td><td>1</td><td>0 to 3</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Simulation</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Plexus: drifting points joined by lines whose opacity falls with distance, so the mesh knits and unknits as they
+// move. Each point also has a depth: far points are smaller, dimmer and slower (parallax), and only points at a
+// similar depth link up, which layers the web. Neighbours are found through a uniform grid, so it stays linear in
+// the number of points. The cursor (or a wandering ghost) pulls nearby points in and links to them in a warm accent.
+const PARAMS = { density: 1, link: 120, pull: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, D = 1, pts = [];
+  const make = () =&gt; {
+    const n = Math.round(W * H / 2400 * PARAMS.density);
+    pts = Array.from({ length: n }, () =&gt; {
+      const z = Math.random(), a = Math.random() * 6.2832, s = 6 + 14 * z;
+      return { x: Math.random() * W, y: Math.random() * H, vx: Math.cos(a) * s, vy: Math.sin(a) * s, z, ox: 0, oy: 0 };
+    });
+  };
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); const w = stage.clientWidth || 1, h = stage.clientHeight || 1; const remake = Math.abs(w * h - W * H) &gt; W * H * 0.2; W = w; H = h; canvas.width = Math.round(W * D); canvas.height = Math.round(H * D); if (remake || !pts.length) make(); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  let mx = -1e4, my = -1e4, lastPointer = -1e9;
+  const pm = e =&gt; { const r = canvas.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; lastPointer = performance.now(); };
+  stage.addEventListener('pointermove', pm);
+
+  const BUCKETS = 8, buckets = Array.from({ length: BUCKETS }, () =&gt; []), warm = [];
+  let raf, last = performance.now(); const t0 = last;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000) * (reduce ? 0.08 : 1); last = now;
+    const t = (now - t0) / 1000, L = PARAMS.link, L2 = L * L;
+    let cx = mx, cy = my;
+    if (now - lastPointer &gt; 2500) { cx = W * (0.5 + 0.32 * Math.sin(t * 0.37)); cy = H * (0.5 + 0.3 * Math.sin(t * 0.61 + 0.8)); }
+    const R = L * 1.6;
+    for (const p of pts) {
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      if (p.x &lt; -20) p.x += W + 40; else if (p.x &gt; W + 20) p.x -= W + 40;
+      if (p.y &lt; -20) p.y += H + 40; else if (p.y &gt; H + 20) p.y -= H + 40;
+      // pointer pull: an offset that eases toward the cursor when close and relaxes back when not
+      const dx = cx - p.x, dy = cy - p.y, d = Math.hypot(dx, dy);
+      const f = d &lt; R ? (1 - d / R) * 0.35 * PARAMS.pull : 0;
+      const k = 1 - Math.exp(-dt * 5);
+      p.ox += (dx * f - p.ox) * k; p.oy += (dy * f - p.oy) * k;
+    }
+    // uniform grid for neighbour search
+    const cs = L, gw = Math.ceil((W + 40) / cs) + 1, gh = Math.ceil((H + 40) / cs) + 1, grid = new Map();
+    for (let i = 0; i &lt; pts.length; i++) {
+      const p = pts[i], gx = Math.floor((p.x + p.ox + 20) / cs), gy = Math.floor((p.y + p.oy + 20) / cs), key = gy * gw + gx;
+      let c = grid.get(key); if (!c) grid.set(key, c = []); c.push(i);
+    }
+    for (const b of buckets) b.length = 0; warm.length = 0;
+    for (let i = 0; i &lt; pts.length; i++) {
+      const p = pts[i], px = p.x + p.ox, py = p.y + p.oy, gx = Math.floor((px + 20) / cs), gy = Math.floor((py + 20) / cs);
+      for (let oy = -1; oy &lt;= 1; oy++) for (let ox = -1; ox &lt;= 1; ox++) {
+        const c = grid.get((gy + oy) * gw + gx + ox); if (!c) continue;
+        for (const j of c) {
+          if (j &lt;= i) continue;
+          const q = pts[j], dz = Math.abs(p.z - q.z); if (dz &gt; 0.35) continue;
+          const dx = q.x + q.ox - px, dy = q.y + q.oy - py, d2 = dx * dx + dy * dy; if (d2 &gt; L2) continue;
+          const a = (1 - Math.sqrt(d2) / L) * (1 - dz / 0.35) * (0.35 + 0.65 * (p.z + q.z) / 2);
+          buckets[Math.min(BUCKETS - 1, a * BUCKETS | 0)].push(px, py, q.x + q.ox, q.y + q.oy);
+        }
+      }
+      const d = Math.hypot(cx - px, cy - py); if (d &lt; R) warm.push(px, py, d / R);
+    }
+    ctx.setTransform(D, 0, 0, D, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.fillStyle = '#05070d'; ctx.fillRect(0, 0, W, H);
+    ctx.lineWidth = 1; ctx.strokeStyle = '#a9d8ff';
+    for (let b = 0; b &lt; BUCKETS; b++) {
+      const s = buckets[b]; if (!s.length) continue;
+      ctx.globalAlpha = Math.pow((b + 0.5) / BUCKETS, 0.9);
+      ctx.beginPath(); for (let j = 0; j &lt; s.length; j += 4) { ctx.moveTo(s[j], s[j + 1]); ctx.lineTo(s[j + 2], s[j + 3]); } ctx.stroke();
+    }
+    ctx.strokeStyle = '#ffb36b'; ctx.lineWidth = 0.9;
+    for (let j = 0; j &lt; warm.length; j += 3) {
+      ctx.globalAlpha = (1 - warm[j + 2]) * 0.8; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(warm[j], warm[j + 1]); ctx.stroke();
+    }
+    for (const p of pts) {
+      ctx.globalAlpha = 0.35 + 0.65 * p.z; ctx.fillStyle = '#e6f3ff';
+      const r = 0.7 + 1.5 * p.z; ctx.beginPath(); ctx.arc(p.x + p.ox, p.y + p.oy, r, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1; ctx.fillStyle = '#ffd2a1'; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, 6.2832); ctx.fill();
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); stage.removeEventListener('pointermove', pm); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shatter &amp; rewind: Voronoi shards on ballistic paths; time slows, stops, reverses · Motion Library</title>
+<meta name="description" content="Shatter &amp; rewind is a WebGL effect: Voronoi shards on ballistic paths; time slows, stops, reverses. One plain JavaScript file with no dependencies; add it with npx motion-library add shatter.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/shatter.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Shatter &amp; rewind · Motion Library">
+<meta property="og:description" content="Voronoi shards on ballistic paths; time slows, stops, reverses">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/shatter.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Shatter & rewind",
+  "description": "Voronoi shards on ballistic paths; time slows, stops, reverses",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/shatter.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/shatter.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Shatter & rewind",
+    "item": "https://ajeckblad.github.io/motion-library/fx/shatter.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Shatter &amp; rewind</h1>
+<p class="tldr">Shatter &amp; rewind is a WebGL effect: Voronoi shards on ballistic paths; time slows, stops, reverses. One plain JavaScript file with no dependencies; add it with npx motion-library add shatter.</p>
+<figure><img src="../posters/shatter.webp" alt="Shatter &amp; rewind: Voronoi shards on ballistic paths; time slows, stops, reverses" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/shatter">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Shatter &amp; rewind?</h2>
+<p>A glass pane shatters, freezes in mid-air, then rewinds and reassembles.</p>
+
+<h2>How does Shatter &amp; rewind work?</h2>
+<p>Voronoi shards from seeds dense near the impact, each cut by clipping to bisectors; ballistic paths with spin make time a simple clock to scrub.</p>
+
+<h2>How do I add Shatter &amp; rewind to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add shatter</code>. It writes <code>animations/shatter.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/shatter.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add shatter --shards 200</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Shards</td><td><code>--shards</code></td><td>90</td><td>20 to 200</td><td>5</td></tr>
+<tr><td>Force</td><td><code>--force</code></td><td>1</td><td>0.3 to 2.5</td><td>0.1</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.4 to 2</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>10.2 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Shatter &amp; rewind: a pane of glass takes a hit, cracks into shards and bursts apart, the burst slows to a stop in
+// mid-air as if time were running out, then time runs backwards and the pane puts itself back together. The cracks are a Voronoi diagram: seed points scattered densely near the impact and
+// sparsely far from it, each owning the part of the pane closest to it; every cell is cut out by clipping the pane
+// against the halfway line to each other seed. Each shard then follows a ballistic path with its own spin, which is
+// easy to run in reverse. The glass bends the scene behind it, a little differently for red, green and blue.
+const PARAMS = { shards: 90, force: 1, speed: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: true });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+  const PW = 1.7, PH = 1.1;                                       // half-size of the pane
+  let shards = [];
+  // the Voronoi cell of each seed: the pane, clipped by the halfway line to every other seed
+  function fracture() {
+    const n = Math.max(12, Math.round(PARAMS.shards)), ix = (Math.random() - 0.5) * PW, iy = (Math.random() - 0.5) * PH * 0.8, seeds = [];
+    for (let i = 0; i &lt; n; i++) { const r = Math.pow(Math.random(), 1.8) * 2.6, a = Math.random() * 6.283; seeds.push([ix + Math.cos(a) * r, iy + Math.sin(a) * r * 0.8]); }
+    shards = [];
+    for (let i = 0; i &lt; n; i++) {
+      let poly = [[-PW, -PH], [PW, -PH], [PW, PH], [-PW, PH]]; const [sx, sy] = seeds[i];
+      for (let j = 0; j &lt; n &amp;&amp; poly.length; j++) {
+        if (j === i) continue; const [tx, ty] = seeds[j], nx = tx - sx, ny = ty - sy, mx = (sx + tx) / 2, my = (sy + ty) / 2;
+        const side = p =&gt; (p[0] - mx) * nx + (p[1] - my) * ny, out = [];
+        for (let k = 0; k &lt; poly.length; k++) {
+          const a = poly[k], b = poly[(k + 1) % poly.length], da = side(a), db = side(b);
+          if (da &lt;= 0) out.push(a);
+          if (da * db &lt; 0) { const t = da / (da - db); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+        }
+        poly = out;
+      }
+      if (poly.length &lt; 3) continue;
+      const cx = poly.reduce((a, p) =&gt; a + p[0], 0) / poly.length, cy = poly.reduce((a, p) =&gt; a + p[1], 0) / poly.length;
+      const dx = cx - ix, dy = cy - iy, d = Math.hypot(dx, dy) + 0.05, kick = PARAMS.force * (1.4 / (0.4 + d));
+      const ax = Math.random() - 0.5, ay = Math.random() - 0.5, az = Math.random() - 0.5, al = Math.hypot(ax, ay, az);
+      shards.push({ poly: poly.map(([x, y]) =&gt; [x - cx, y - cy]), cx, cy, v: [dx / d * kick * 0.9, dy / d * kick * 0.9 + 0.6, -(1.2 + Math.random() * 1.6) * kick], axis: [ax / al, ay / al, az / al], spin: (Math.random() * 6 + 2) * Math.min(2, kick) });
+    }
+    return [ix, iy];
+  }
+  let impact = fracture();
+
+  const sh = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = (vs, fs) =&gt; {
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i &lt; n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
+    return { p, u };
+  };
+  const SCENE = `
+  vec3 scene(vec2 s) {                                           // what is behind the glass: a sunset, a sun, bold bands and discs
+    vec3 c = mix(vec3(.98, .55, .32), vec3(.25, .18, .5), smoothstep(-.6, .9, s.y));
+    c = mix(c, vec3(1., .9, .6), smoothstep(.36, .33, length(s - vec2(.35, .05))));
+    c *= .85 + .15 * step(.5, fract(s.y * 7.));
+    c = mix(c, vec3(.1, .08, .2), smoothstep(-.4, -.42, s.y + .08 * sin(s.x * 3.)));
+    c = mix(c, vec3(.2, .7, .75), smoothstep(.2, .18, length(s - vec2(-.75, .35))));
+    return c;
+  }`;
+  const bgP = prog(`#version 300 es
+  layout(location = 0) in vec2 p; out vec2 v; void main() { v = p; gl_Position = vec4(p, .9999, 1); }`, `#version 300 es
+  precision highp float; in vec2 v; out vec4 o; uniform float A; ${SCENE} void main() { o = vec4(scene(v * vec2(A, 1.)), 1); }`);
+  const glassP = prog(`#version 300 es
+  layout(location = 0) in vec2 P; uniform mat3 RT; uniform vec3 C; uniform float A, F; out vec3 n; out vec3 w; out vec2 sp;
+  void main() {
+    vec3 p = RT * vec3(P, 0.) + C; n = RT * vec3(0, 0, 1); w = p;
+    vec3 c = p - vec3(0, 0, 4.); gl_Position = vec4(c.x * F / (-c.z * A), c.y * F / -c.z, 0, 1); sp = gl_Position.xy;
+  }`, `#version 300 es
+  precision highp float; in vec3 n; in vec3 w; in vec2 sp; out vec4 o; uniform float A, EDGE; ${SCENE}
+  void main() {
+    vec3 N = normalize(n); if (N.z &lt; 0.) N = -N;
+    vec3 V = normalize(vec3(0, 0, 4.) - w);
+    vec2 off = N.xy * .22;                                        // tilted glass shifts what you see through it, per colour
+    vec2 s = sp * vec2(A, 1.);
+    vec3 c = vec3(scene(s + off * 1.06).r, scene(s + off).g, scene(s + off * .94).b) * vec3(.88, .96, .94);   // a faint green, as real glass has
+    float fr = .05 + .95 * pow(1. - max(dot(N, V), 0.), 5.);
+    vec3 refl = mix(vec3(.15, .16, .2), vec3(1.), smoothstep(.2, .9, reflect(-V, N).y * .5 + .5));
+    c = mix(c, refl, .1 + fr * .85) + EDGE;
+    // streaks of a window's reflection, running diagonally; they slide across a shard as it tilts
+    float k = dot(w.xy, vec2(.55, .83)) - .35 * N.x + .2 * N.y;
+    c += vec3(1., 1., .98) * (smoothstep(.1, 0., abs(k - .25)) * .2 + smoothstep(.035, 0., abs(k + .22)) * .14);
+    o = vec4(c, 1);
+  }`);
+  const edgeP = prog(`#version 300 es
+  layout(location = 0) in vec2 P; uniform mat3 RT; uniform vec3 C; uniform float A, F;
+  void main() { vec3 c = RT * vec3(P, 0.) + C - vec3(0, 0, 4.); gl_Position = vec4(c.x * F / (-c.z * A), c.y * F / -c.z, -.001, 1); }`, `#version 300 es
+  precision mediump float; out vec4 o; uniform float K; void main() { o = vec4(vec3(.75, 1., .9) * K, 1); }`);
+  const qv = gl.createVertexArray(); gl.bindVertexArray(qv); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const sv = gl.createVertexArray(); gl.bindVertexArray(sv); const sb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+
+  let W = 1, H = 1;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  const rotm = (ax, a) =&gt; { const [x, y, z] = ax, c = Math.cos(a), s = Math.sin(a), k = 1 - c; return new Float32Array([c + x * x * k, y * x * k + z * s, z * x * k - y * s, x * y * k - z * s, c + y * y * k, z * y * k + x * s, x * z * k + y * s, y * z * k - x * s, c + z * z * k]); };
+  let raf, last = performance.now(), t = 0, cycle = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt * PARAMS.speed;
+    // whole (1.4 s); the hit, and the burst slowing to a stop (1.2 s); the shards hang, barely drifting (0.5 s); time
+    // runs backwards and they fly home, settling softly into place (1.7 s); whole again (1.6 s)
+    const L = 6.4, c = t % L, TM = 0.6;
+    if (Math.floor(t / L) !== cycle) { cycle = Math.floor(t / L); impact = fracture(); }
+    let tt = 0;
+    if (c &gt;= 1.4 &amp;&amp; c &lt; 2.6) tt = TM * (1 - (1 - (c - 1.4) / 1.2) ** 3);
+    else if (c &gt;= 2.6 &amp;&amp; c &lt; 3.1) tt = TM + 0.03 * (c - 2.6);
+    else if (c &gt;= 3.1 &amp;&amp; c &lt; 4.8) { const u = (c - 3.1) / 1.7; tt = (TM + 0.015) * (1 - u * u * (3 - 2 * u)); }
+    const cracks = c &gt; 1.25 &amp;&amp; c &lt; 1.4 ? 1 : 0;
+    const A = W / H, F = 2.6;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.useProgram(bgP.p); gl.uniform1f(bgP.u.A, A); gl.bindVertexArray(qv); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindVertexArray(sv);
+    for (const s of shards) {
+      const T = tt, pos = [s.cx + s.v[0] * T, s.cy + s.v[1] * T - 2.4 * T * T, s.v[2] * T], R = rotm(s.axis, s.spin * T);
+      const fan = []; s.poly.forEach(p =&gt; fan.push(p[0], p[1]));
+      gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(fan), gl.STREAM_DRAW);
+      gl.useProgram(glassP.p); gl.uniformMatrix3fv(glassP.u.RT, false, R); gl.uniform3f(glassP.u.C, ...pos); gl.uniform1f(glassP.u.A, A); gl.uniform1f(glassP.u.F, F); gl.uniform1f(glassP.u.EDGE, 0);
+      gl.drawArrays(gl.TRIANGLE_FAN, 0, s.poly.length);
+      // the edges: bright where the glass is cut (always, once broken; a flash of cracks just before it goes)
+      if (T &gt; 0 || cracks) { gl.useProgram(edgeP.p); gl.uniformMatrix3fv(edgeP.u.RT, false, R); gl.uniform3f(edgeP.u.C, ...pos); gl.uniform1f(edgeP.u.A, A); gl.uniform1f(edgeP.u.F, F); gl.uniform1f(edgeP.u.K, cracks ? 1.4 : 1.05); gl.drawArrays(gl.LINE_LOOP, 0, s.poly.length); }
+    }
+    // the whole pane's rim catches the light, the way the edge of real glass does
+    if (tt === 0 &amp;&amp; !cracks) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-PW, -PH, PW, -PH, PW, PH, -PW, PH]), gl.STREAM_DRAW);
+      gl.useProgram(edgeP.p); gl.uniformMatrix3fv(edgeP.u.RT, false, [1, 0, 0, 0, 1, 0, 0, 0, 1]); gl.uniform3f(edgeP.u.C, 0, 0, 0); gl.uniform1f(edgeP.u.A, A); gl.uniform1f(edgeP.u.F, F); gl.uniform1f(edgeP.u.K, 0.85);
+      gl.drawArrays(gl.LINE_LOOP, 0, 4);
+    }
+    gl.bindVertexArray(null); gl.disable(gl.DEPTH_TEST);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

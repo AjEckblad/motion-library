@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starburst: Counter-rotating ray fans and zooming rings, combined with a difference blend · Motion Library</title>
+<meta name="description" content="Starburst is a Canvas effect: counter-rotating ray fans and zooming rings, combined with a difference blend. One plain JavaScript file with no dependencies; add it with npx motion-library add starburst.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/starburst.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Starburst · Motion Library">
+<meta property="og:description" content="Counter-rotating ray fans and zooming rings, combined with a difference blend">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/starburst.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Starburst",
+  "description": "Counter-rotating ray fans and zooming rings, combined with a difference blend",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Generative & math, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/starburst.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/starburst.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Generative & math",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/generative"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Starburst",
+    "item": "https://ajeckblad.github.io/motion-library/fx/starburst.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/generative">Generative &amp; math</a></header>
+<main class="s-page">
+<article>
+<h1>Starburst</h1>
+<p class="tldr">Starburst is a Canvas effect: counter-rotating ray fans and zooming rings, combined with a difference blend. One plain JavaScript file with no dependencies; add it with npx motion-library add starburst.</p>
+<figure><img src="../posters/starburst.webp" alt="Starburst: Counter-rotating ray fans and zooming rings, combined with a difference blend" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/starburst">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Starburst?</h2>
+<p>A sunburst of rays spins, flickers and streams outward through bands of colour. The pointer moves a second ray fan, and the two cross into moiré arcs.</p>
+
+<h2>How does Starburst work?</h2>
+<p>Two counter-rotating wedge fans and log-spaced rings combined with difference blending; constant-ratio ring spacing makes the outward motion an endless zoom.</p>
+
+<h2>How do I add Starburst to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add starburst</code>. It writes <code>animations/starburst.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/starburst.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add starburst --rays 48</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Rays</td><td><code>--rays</code></td><td>18</td><td>4 to 48</td><td>1</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+<tr><td>Rings</td><td><code>--rings</code></td><td>1</td><td>0 to 1</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Generative &amp; math</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Starburst: two fans of radial wedges turning in opposite directions, combined with a difference blend, so a
+// wedge over a wedge cancels to black and a wedge over a gap stays lit. The overlap pattern spins faster than either
+// fan and pulses as the wedges sweep in and out of step. A set of rings flowing outward is differenced in too,
+// cutting every ray into a polar checkerboard, and a radial colour wash is multiplied over the black-and-white result.
+// The pointer (or an idle ghost) carries the second fan's hub: pull it off centre and the two ray fans beat into
+// moiré fringes, arcs that run through both hubs.
+const PARAMS = { rays: 18, speed: 1, rings: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, D = 1;
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * D | 0; canvas.height = H * D | 0; };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  function fan(cx, cy, n, rot, R) {
+    ctx.beginPath();
+    for (let i = 0; i &lt; n; i++) { const a = rot + i * Math.PI * 2 / n, b = a + Math.PI / n; ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, a, b); ctx.closePath(); }
+    ctx.fill();
+  }
+  // the pointer, in CSS pixels of the stage; an idle ghost takes over when nobody is pointing and circles the centre
+  const ghostX = g =&gt; W / 2 + Math.min(W, H) * (0.035 * Math.cos(g * 0.7) + 0.07 * Math.sin(g * 0.23 + 0.4));
+  const ghostY = g =&gt; H / 2 + Math.min(W, H) * (0.035 * Math.sin(g * 0.9) + 0.05 * Math.cos(g * 0.31 + 0.9));
+  let gt = reduce ? 3 : 0, tx = ghostX(gt), ty = ghostY(gt), mx = tx, my = ty, lastMove = -1e9, last = performance.now();
+  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); tx = e.clientX - b.left; ty = e.clientY - b.top; lastMove = performance.now(); };
+  const onLeave = () =&gt; { lastMove = -1e9; };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
+  let raf; const t0 = performance.now();
+  function frame(now) {
+    const t = reduce ? 3 : (now - t0) / 1000 * PARAMS.speed;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const live = now - lastMove &lt; 2500;
+    if (!reduce) gt = (now - t0) / 1000 * PARAMS.speed;
+    if (!live) { tx = ghostX(gt); ty = ghostY(gt); }
+    const k = 1 - Math.exp(-dt * (live ? 14 : 3));
+    mx += (tx - mx) * k; my += (ty - my) * k;
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2, R = Math.hypot(W, H), n = Math.round(PARAMS.rays);
+    ctx.fillStyle = '#fff';
+    fan(cx, cy, n, t * .25, R);
+    ctx.globalCompositeOperation = 'difference';
+    // the second fan turns the other way, its hub on the pointer (idle: circling near the centre, so the overlap breathes)
+    fan(mx, my, n, -t * .18, R * 2);
+    if (PARAMS.rings &gt; 0) {   // rings at log-spaced radii flowing outward: an endless zoom
+      const m = Math.min(W, H) * .5, q = (t * .35) % 1;
+      ctx.beginPath();
+      for (let k = -2; k &lt; 14; k += 2) {
+        const r0 = m * Math.pow(1.38, k + q * 2 - 6), r1 = m * Math.pow(1.38, k + 1 + q * 2 - 6);
+        ctx.moveTo(cx + r1, cy); ctx.arc(cx, cy, r1, 0, Math.PI * 2); ctx.moveTo(cx + r0, cy); ctx.arc(cx, cy, r0, 0, Math.PI * 2, true);
+      }
+      ctx.globalAlpha = Math.min(1, PARAMS.rings); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    // colour: a radial wash multiplied over the black-and-white figure
+    ctx.globalCompositeOperation = 'multiply';
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * .55);
+    const h = (t * 8) % 360;
+    g.addColorStop(0, `hsl(${h + 40} 100% 82%)`); g.addColorStop(.35, `hsl(${h + 350} 92% 62%)`); g.addColorStop(.75, `hsl(${h + 260} 85% 48%)`); g.addColorStop(1, `hsl(${h + 230} 80% 22%)`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // lift the blacks to the house near-black
+    ctx.globalCompositeOperation = 'lighten'; ctx.fillStyle = '#0a0910'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

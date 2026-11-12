@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scrub reveal: Words light up one by one, scrubbed by scroll · Motion Library</title>
+<meta name="description" content="Scrub reveal is a DOM effect: words light up one by one, scrubbed by scroll. One plain JavaScript file with no dependencies; add it with npx motion-library add scrub-reveal.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/scrub-reveal.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Scrub reveal · Motion Library">
+<meta property="og:description" content="Words light up one by one, scrubbed by scroll">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/scrub-reveal.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Scrub reveal",
+  "description": "Words light up one by one, scrubbed by scroll",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Scroll, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/scrub-reveal.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/scrub-reveal.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Scroll",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/scroll"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Scrub reveal",
+    "item": "https://ajeckblad.github.io/motion-library/fx/scrub-reveal.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/scroll">Scroll</a></header>
+<main class="s-page">
+<article>
+<h1>Scrub reveal</h1>
+<p class="tldr">Scrub reveal is a DOM effect: words light up one by one, scrubbed by scroll. One plain JavaScript file with no dependencies; add it with npx motion-library add scrub-reveal.</p>
+<figure><img src="../posters/scrub-reveal.webp" alt="Scrub reveal: Words light up one by one, scrubbed by scroll" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/scrub-reveal">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Scrub reveal?</h2>
+<p>A product statement pins in place and lights up one word at a time as the page scrolls.</p>
+
+<h2>How does Scrub reveal work?</h2>
+<p>Progress through the pinned stretch maps to each word’s opacity, offset by its place in the sentence, so it tracks the scroll exactly in both directions.</p>
+
+<h2>How do I add Scrub reveal to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add scrub-reveal</code>. It writes <code>animations/scrub-reveal.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/scrub-reveal.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add scrub-reveal --spread 1</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Spread</td><td><code>--spread</code></td><td>0.35</td><td>0.05 to 1</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Scroll</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it follows scrolling</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Scrub reveal, on a headphones product page: the statement under the hero lights up word by word as the page scrolls past it, and dims again if you scroll back.
+// Every word maps scroll progress to opacity, offset by its place in the sentence, so the reader sets the pace and the line can never run ahead of them. The page scrolls itself here, slowing through the statement, and a real wheel or swipe takes over.
+const PARAMS = { spread: 0.35 };
+
+export default function (stage) {
+  const AH = 340, MINW = 400;
+  const text = 'Noise cancelling that *listens first.* Twelve microphones measure the room forty thousand times a second, so the train, the café and the open office each go *quiet in their own way.*';
+  const root = document.createElement('div');
+  root.className = 'sr-root';
+  root.innerHTML = `&lt;style&gt;
+    .sr-root { position: absolute; inset: 0; overflow: hidden; background: #0b0b0d; color: #f4f4f6; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .sr-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .sr-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+    .sr-scroll::-webkit-scrollbar { display: none; }
+    .sr-nav { position: sticky; top: 0; z-index: 2; height: 40px; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: rgba(11,11,13,.82); box-shadow: 0 1px 0 #1d1d22; font-size: 11.5px; font-weight: 560; color: #a5a5ad; }
+    .sr-nav strong { margin-right: auto; color: #f4f4f6; font-weight: 650; }
+    .sr-nav b { color: #0b0b0d; background: #f4f4f6; padding: 5px 12px; border-radius: 999px; font-weight: 650; }
+    .sr-hero { height: ${AH - 40}px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 0 26px; }
+    .sr-hero small { font-size: 11px; font-weight: 650; letter-spacing: .1em; color: #7fd1ff; }
+    .sr-hero h1 { margin: 8px 0 10px; font-size: 36px; line-height: 1.02; font-weight: 740; font-stretch: 106%; letter-spacing: -0.03em; }
+    .sr-hero p { margin: 0; font-size: 12.5px; color: #a5a5ad; }
+    .sr-hero svg { width: 190px; height: 210px; }
+    .sr-track { position: relative; }
+    .sr-sticky { position: sticky; top: 40px; height: ${AH - 40}px; display: grid; align-content: center; padding: 0 26px; box-sizing: border-box; }
+    .sr-p { margin: 0; max-width: 520px; font-size: 25px; line-height: 1.22; font-weight: 650; letter-spacing: -0.02em; }
+    .sr-p span { opacity: .14; }
+    .sr-p span.k { color: #7fd1ff; }
+    .sr-specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 24px 26px 60px; }
+    .sr-specs div { padding: 14px; border-radius: 14px; background: #16161a; }
+    .sr-specs b { display: block; font-size: 26px; font-weight: 720; letter-spacing: -0.02em; }
+    .sr-specs span { font-size: 11px; color: #a5a5ad; }
+  &lt;/style&gt;
+  &lt;div class=&quot;sr-art&quot;&gt;&lt;div class=&quot;sr-scroll&quot;&gt;
+    &lt;div class=&quot;sr-nav&quot;&gt;&lt;strong&gt;Over-ear headphones&lt;/strong&gt;&lt;span&gt;Overview&lt;/span&gt;&lt;span&gt;Tech specs&lt;/span&gt;&lt;b&gt;Buy&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;sr-hero&quot;&gt;
+      &lt;div&gt;&lt;small&gt;NEW&lt;/small&gt;&lt;h1&gt;Quiet, wherever you are.&lt;/h1&gt;&lt;p&gt;From €349 · Three colours · Ships in two days&lt;/p&gt;&lt;/div&gt;
+      &lt;svg viewBox=&quot;0 0 190 210&quot; aria-hidden=&quot;true&quot;&gt;
+        &lt;defs&gt;&lt;linearGradient id=&quot;sr-band&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;0&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;#3b3b44&quot;/&gt;&lt;stop offset=&quot;.5&quot; stop-color=&quot;#6b6b78&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;#2c2c33&quot;/&gt;&lt;/linearGradient&gt;
+        &lt;linearGradient id=&quot;sr-cup&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;#4a4a55&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;#1c1c22&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;
+        &lt;path d=&quot;M34 120 C 30 40, 160 40, 156 120&quot; fill=&quot;none&quot; stroke=&quot;url(#sr-band)&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot;/&gt;
+        &lt;path d=&quot;M44 110 C 44 58, 146 58, 146 110&quot; fill=&quot;none&quot; stroke=&quot;#25252b&quot; stroke-width=&quot;5&quot;/&gt;
+        &lt;rect x=&quot;28&quot; y=&quot;104&quot; width=&quot;12&quot; height=&quot;30&quot; rx=&quot;5&quot; fill=&quot;#8a8a96&quot;/&gt;&lt;rect x=&quot;150&quot; y=&quot;104&quot; width=&quot;12&quot; height=&quot;30&quot; rx=&quot;5&quot; fill=&quot;#8a8a96&quot;/&gt;
+        &lt;rect x=&quot;14&quot; y=&quot;122&quot; width=&quot;42&quot; height=&quot;70&quot; rx=&quot;20&quot; fill=&quot;url(#sr-cup)&quot;/&gt;&lt;rect x=&quot;134&quot; y=&quot;122&quot; width=&quot;42&quot; height=&quot;70&quot; rx=&quot;20&quot; fill=&quot;url(#sr-cup)&quot;/&gt;
+        &lt;rect x=&quot;44&quot; y=&quot;128&quot; width=&quot;16&quot; height=&quot;58&quot; rx=&quot;8&quot; fill=&quot;#121216&quot;/&gt;&lt;rect x=&quot;130&quot; y=&quot;128&quot; width=&quot;16&quot; height=&quot;58&quot; rx=&quot;8&quot; fill=&quot;#121216&quot;/&gt;
+        &lt;path d=&quot;M20 136 q4 -8 12 -9&quot; stroke=&quot;#8a8a96&quot; stroke-width=&quot;1.6&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot; opacity=&quot;.7&quot;/&gt;&lt;circle cx=&quot;160&quot; cy=&quot;176&quot; r=&quot;2&quot; fill=&quot;#7fd1ff&quot;/&gt;
+      &lt;/svg&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;sr-track&quot;&gt;&lt;div class=&quot;sr-sticky&quot;&gt;&lt;p class=&quot;sr-p&quot;&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;sr-specs&quot;&gt;&lt;div&gt;&lt;b&gt;40 h&lt;/b&gt;&lt;span&gt;Battery, noise cancelling on&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;12&lt;/b&gt;&lt;span&gt;Microphones&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;250 g&lt;/b&gt;&lt;span&gt;Lighter than a paperback&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const art = root.querySelector('.sr-art'), sc = root.querySelector('.sr-scroll'), track = root.querySelector('.sr-track'), p = root.querySelector('.sr-p');
+  track.style.height = (AH - 40) * 2.6 + 'px';
+  let key = false;
+  const words = text.split(' ').map((w, i, a) =&gt; {
+    const s = document.createElement('span');
+    if (w.startsWith('*')) { key = true; w = w.slice(1); }
+    s.textContent = w.replace('*', '') + (i &lt; a.length - 1 ? ' ' : '');
+    if (key) s.className = 'k';
+    if (w.endsWith('*')) key = false;
+    p.append(s); return s;
+  });
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1, aw = W / s;
+    art.style.width = aw + 'px'; art.style.top = (H - AH * s) / 2 + 'px'; art.style.transform = `scale(${s})`;
+    p.style.fontSize = Math.min(27, Math.max(20, aw * 0.05)).toFixed(1) + 'px';
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // Simulated reader. Stops are in page positions: the top, the start and end of the statement's track, the specs.
+  const T = () =&gt; track.offsetTop - 40, span = () =&gt; track.offsetHeight - (AH - 40), end = () =&gt; sc.scrollHeight - sc.clientHeight;
+  const stops = [[() =&gt; 0, 0, 1000], [T, 1100, 200], [() =&gt; T() + span() * 0.5, 2000, 500], [() =&gt; T() + span(), 1700, 1300], [end, 900, 1200], [() =&gt; 0, 1800, 300]];
+  const ease = t =&gt; t &lt; 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let seg = null, si = 0, userUntil = 0, raf;
+  const take = () =&gt; { userUntil = performance.now() + 3000; seg = null; };
+  ['wheel', 'touchstart', 'pointerdown'].forEach(e =&gt; sc.addEventListener(e, take, { passive: true }));
+  function drive(now) {
+    if (now &lt; userUntil) return;
+    if (!seg) { const [at, dur, hold] = stops[si++ % stops.length]; seg = { from: sc.scrollTop, to: Math.min(end(), at()), t0: now, dur, hold }; }
+    const k = seg.dur ? Math.min(1, (now - seg.t0) / seg.dur) : 1;
+    sc.scrollTop = seg.from + (seg.to - seg.from) * ease(k);
+    if (now - seg.t0 &gt;= seg.dur + seg.hold) seg = null;
+  }
+  function frame(now) {
+    drive(now);
+    // progress through the pinned stretch only: 0 when the statement pins, 1 when it lets go
+    const prog = Math.min(1, Math.max(0, (sc.scrollTop - T()) / span()));
+    const n = words.length, sp = PARAMS.spread;
+    words.forEach((w, i) =&gt; {
+      const k = Math.min(1, Math.max(0, (prog * (1 + sp) - i / n) / sp));
+      w.style.opacity = (0.14 + 0.86 * k).toFixed(3);
+    });
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

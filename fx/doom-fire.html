@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doom fire: The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly · Motion Library</title>
+<meta name="description" content="Doom fire is a Canvas effect: the PlayStation Doom fire: copy heat up, jitter sideways, cool randomly. One plain JavaScript file with no dependencies; add it with npx motion-library add doom-fire.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/doom-fire.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Doom fire · Motion Library">
+<meta property="og:description" content="The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/doom-fire.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Doom fire",
+  "description": "The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Simulation, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/doom-fire.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/doom-fire.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Simulation",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/simulation"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Doom fire",
+    "item": "https://ajeckblad.github.io/motion-library/fx/doom-fire.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/simulation">Simulation</a></header>
+<main class="s-page">
+<article>
+<h1>Doom fire</h1>
+<p class="tldr">Doom fire is a Canvas effect: the PlayStation Doom fire: copy heat up, jitter sideways, cool randomly. One plain JavaScript file with no dependencies; add it with npx motion-library add doom-fire.</p>
+<figure><img src="../posters/doom-fire.webp" alt="Doom fire: The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/doom-fire">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Doom fire?</h2>
+<p>A wall of chunky pixel fire sways, dies down and roars back; drag to add heat anywhere.</p>
+
+<h2>How does Doom fire work?</h2>
+<p>Heat values 0–36 rise from a hot bottom row: each cell copies upward, shifted sideways and cooled by one shared random number, then a 37-colour ramp turns it into flame.</p>
+
+<h2>How do I add Doom fire to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add doom-fire</code>. It writes <code>animations/doom-fire.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/doom-fire.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add doom-fire --wind 1</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Wind</td><td><code>--wind</code></td><td>0.5</td><td>-1 to 1</td><td>0.05</td></tr>
+<tr><td>Pixel size</td><td><code>--pixel</code></td><td>5</td><td>2 to 10</td><td>1</td></tr>
+<tr><td>Flame height</td><td><code>--height</code></td><td>1</td><td>0.4 to 1.6</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Simulation</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// The PlayStation Doom fire. A grid of heat values 0–36; the bottom row is held at 36. Every frame each cell copies
+// its heat to the cell above, randomly nudged one column left or right and randomly cooled by 0 or 1. That’s the
+// whole algorithm: the random cooling makes the flame tongues, the random sideways copy makes them lick and sway, and
+// a 37-colour palette from black through red and yellow to white does the rest. Every so often the source goes out
+// and the fire collapses, then it reignites. Wind skews the sideways copy; drag to add heat.
+const PARAMS = { wind: 0.5, pixel: 5, height: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const off = document.createElement('canvas'), octx = off.getContext('2d');
+  // the 37-entry fire ramp, black -&gt; deep red -&gt; orange -&gt; gold -&gt; white (the original’s, with its olive yellows warmed)
+  const RAMP = [
+    0x0a0709, 0x1f0707, 0x2f0f07, 0x470f07, 0x571707, 0x671f07, 0x771f07, 0x8f2707, 0x9f2f07, 0xaf3f07, 0xbf4707, 0xc74707,
+    0xdf4f07, 0xdf5707, 0xdf5707, 0xd75f07, 0xd75f07, 0xd7670f, 0xcf6f0f, 0xcf770f, 0xcf7f0f, 0xcf8717, 0xc78717, 0xc78f17,
+    0xd79a1f, 0xdfa327, 0xdfa327, 0xe7ae2f, 0xe7ae2f, 0xefb837, 0xf0bf3f, 0xf4c747, 0xf7d055, 0xfadc7a, 0xfce8a8, 0xfff4d6, 0xffffff];
+  const PAL = new Uint32Array(37);
+  RAMP.forEach((c, i) =&gt; { PAL[i] = 0xff000000 | ((c &amp; 255) &lt;&lt; 16) | (c &amp; 0xff00) | (c &gt;&gt; 16); });
+  let W = 0, H = 0, D = 1, C = 0, R = 0, fire, img;
+  const px = () =&gt; Math.max(2, Math.round(PARAMS.pixel));
+  const resize = () =&gt; {
+    D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    canvas.width = Math.round(W * D); canvas.height = Math.round(H * D);
+    const c = Math.ceil(W / px()), r = Math.ceil(H / px());
+    if (c === C &amp;&amp; r === R) return;
+    C = c; R = r; fire = new Uint8Array(C * R); off.width = C; off.height = R; img = octx.createImageData(C, R);
+    for (let i = 0; i &lt; R * 1.5; i++) spread();
+  };
+  let source = 36;
+  const spread = () =&gt; {
+    const wind = Math.max(-1, Math.min(1, PARAMS.wind));
+    // cooling odds per row (the original uses 0.5), scaled so the flames reach about half-way up any stage
+    const cool = Math.max(0.05, Math.min(0.95, 36 / (0.68 * R * Math.max(0.2, PARAMS.height))));
+    for (let x = 0; x &lt; C; x++) fire[(R - 1) * C + x] = source;
+    for (let y = 1; y &lt; R; y++) {
+      for (let x = 0; x &lt; C; x++) {
+        const src = y * C + x, p = fire[src];
+        if (p === 0) { fire[src - C] = 0; continue; }
+        // the original: one random r in 0..3 picks both the sideways step (1 - r) and whether to cool (r &amp; 1)
+        const r = Math.random() * 4 | 0;
+        let dx = 1 - r;
+        if (Math.random() &lt; Math.abs(wind)) dx += wind &gt; 0 ? 1 : -1;
+        let nx = x + dx; if (nx &lt; 0) nx += C; else if (nx &gt;= C) nx -= C;
+        const v = p - ((r &amp; 1) &amp;&amp; Math.random() &lt; cool * 2 ? 1 : 0);
+        fire[(y - 1) * C + nx] = v &gt; 0 ? v : 0;
+      }
+    }
+  };
+
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  let down = false, hx = -1, hy = -1;
+  const pm = e =&gt; { const r = canvas.getBoundingClientRect(); hx = (e.clientX - r.left) / px() | 0; hy = (e.clientY - r.top) / px() | 0; };
+  const pd = e =&gt; { down = true; pm(e); };
+  const pu = () =&gt; { down = false; };
+  stage.addEventListener('pointermove', pm); stage.addEventListener('pointerdown', pd); addEventListener('pointerup', pu);
+
+  const draw = () =&gt; {
+    const p = new Uint32Array(img.data.buffer);
+    for (let i = 0; i &lt; C * R; i++) p[i] = PAL[fire[i]];
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, C * px() * D, R * px() * D);
+  };
+
+  let raf, n = 0; const t0 = performance.now();
+  function frame(now) {
+    const t = ((now - t0) / 1000) % 18;
+    source = t &gt; 15 &amp;&amp; t &lt; 16.4 ? 0 : 36;          // the source goes out briefly, then reignites
+    if (down &amp;&amp; hx &gt;= 0) for (let y = -3; y &lt;= 3; y++) for (let x = -3; x &lt;= 3; x++) {
+      const X = hx + x, Y = hy + y; if (X &gt;= 0 &amp;&amp; X &lt; C &amp;&amp; Y &gt;= 0 &amp;&amp; Y &lt; R &amp;&amp; x * x + y * y &lt;= 9) fire[Y * C + X] = 36;
+    }
+    if (!reduce || n++ % 10 === 0) spread();
+    draw();
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); stage.removeEventListener('pointermove', pm); stage.removeEventListener('pointerdown', pd); removeEventListener('pointerup', pu); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directional tabs: Content enters from the side of the tab you picked · Motion Library</title>
+<meta name="description" content="Directional tabs is a DOM effect: content enters from the side of the tab you picked. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-tabs.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/directional-tabs.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Directional tabs · Motion Library">
+<meta property="og:description" content="Content enters from the side of the tab you picked">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/directional-tabs.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Directional tabs",
+  "description": "Content enters from the side of the tab you picked",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Page transitions, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/directional-tabs.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/directional-tabs.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Page transitions",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/transitions"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Directional tabs",
+    "item": "https://ajeckblad.github.io/motion-library/fx/directional-tabs.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/transitions">Page transitions</a></header>
+<main class="s-page">
+<article>
+<h1>Directional tabs</h1>
+<p class="tldr">Directional tabs is a DOM effect: content enters from the side of the tab you picked. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-tabs.</p>
+<figure><img src="../posters/directional-tabs.webp" alt="Directional tabs: Content enters from the side of the tab you picked" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/directional-tabs">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Directional tabs?</h2>
+<p>Picking a category further right slides products in from the right; going back slides them from the left.</p>
+
+<h2>How does Directional tabs work?</h2>
+<p>Old content fades out moving the opposite way, new content enters from a fraction of the width, and the underline slides and stretches to the new label.</p>
+
+<h2>How do I add Directional tabs to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add directional-tabs</code>. It writes <code>animations/directional-tabs.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/directional-tabs.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add directional-tabs --duration 800</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Duration (ms)</td><td><code>--duration</code></td><td>240</td><td>150 to 800</td><td>10</td></tr>
+<tr><td>Distance</td><td><code>--distance</code></td><td>0.3</td><td>0 to 1</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Page transitions</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>12.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Directional tabs: in a shop app's category tabs, the products slide in from the right when you pick a tab further along, and from the left when you go back.
+// The direction mirrors where the tab sits, so the tabs feel like pages laid side by side. The content only travels part of the way and fades, which keeps the move quick and calm instead of a full-width shove.
+const PARAMS = { duration: 240, distance: 0.3 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sh = w =&gt; `&lt;ellipse cx=&quot;50&quot; cy=&quot;84&quot; rx=&quot;${w}&quot; ry=&quot;3.6&quot; fill=&quot;#000&quot; opacity=&quot;.09&quot;/&gt;`;
+  const ART = {
+    mug: c =&gt; `${sh(24)}&lt;path d=&quot;M63 45h4.5a8.5 8.5 0 0 1 0 17H63&quot; fill=&quot;none&quot; stroke=&quot;${c}&quot; stroke-width=&quot;5.5&quot;/&gt;&lt;path d=&quot;M29 37h36v34a11 11 0 0 1-11 11H40a11 11 0 0 1-11-11z&quot; fill=&quot;${c}&quot;/&gt;&lt;path d=&quot;M51 37h14v34a11 11 0 0 1-11 11h-3z&quot; fill=&quot;#000&quot; opacity=&quot;.08&quot;/&gt;&lt;ellipse cx=&quot;47&quot; cy=&quot;37&quot; rx=&quot;18&quot; ry=&quot;3.2&quot; fill=&quot;#000&quot; opacity=&quot;.18&quot;/&gt;`,
+    carafe: c =&gt; `${sh(20)}&lt;path d=&quot;M43 16h14v15c0 3 11 9 11 20v23a8 8 0 0 1-8 8H40a8 8 0 0 1-8-8V51c0-11 11-17 11-20z&quot; fill=&quot;#fff&quot; fill-opacity=&quot;.6&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;path d=&quot;M32.8 58h34.4v16a8 8 0 0 1-8 8H40.8a8 8 0 0 1-8-8z&quot; fill=&quot;${c}&quot; opacity=&quot;.6&quot;/&gt;&lt;path d=&quot;M38 49v21&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2.5&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;rect x=&quot;42&quot; y=&quot;12&quot; width=&quot;16&quot; height=&quot;5&quot; rx=&quot;2.5&quot; fill=&quot;#fff&quot;/&gt;`,
+    board: c =&gt; `${sh(26)}&lt;g transform=&quot;rotate(-10 50 55)&quot;&gt;&lt;rect x=&quot;43&quot; y=&quot;15&quot; width=&quot;12&quot; height=&quot;22&quot; rx=&quot;6&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;27&quot; y=&quot;31&quot; width=&quot;44&quot; height=&quot;52&quot; rx=&quot;10&quot; fill=&quot;${c}&quot;/&gt;&lt;circle cx=&quot;49&quot; cy=&quot;22&quot; r=&quot;2.6&quot; fill=&quot;#fff&quot; opacity=&quot;.75&quot;/&gt;&lt;path d=&quot;M33 44c8 3 22 3 32 0M33 58c8 3 22 3 32 0M33 72c8 3 22 3 32 0&quot; stroke=&quot;#000&quot; stroke-opacity=&quot;.08&quot; stroke-width=&quot;1.4&quot; fill=&quot;none&quot;/&gt;&lt;/g&gt;`,
+    bowl: c =&gt; `${sh(28)}&lt;circle cx=&quot;41&quot; cy=&quot;50&quot; r=&quot;8&quot; fill=&quot;#f2c94c&quot;/&gt;&lt;circle cx=&quot;56&quot; cy=&quot;48&quot; r=&quot;8.5&quot; fill=&quot;#e9b949&quot;/&gt;&lt;circle cx=&quot;49&quot; cy=&quot;44&quot; r=&quot;7&quot; fill=&quot;#9bbf5a&quot;/&gt;&lt;path d=&quot;M22 54h56c0 16-13 28-28 28S22 70 22 54z&quot; fill=&quot;${c}&quot;/&gt;&lt;path d=&quot;M50 54h28c0 16-13 28-28 28z&quot; fill=&quot;#000&quot; opacity=&quot;.07&quot;/&gt;`,
+    vase: c =&gt; `${sh(18)}&lt;path d=&quot;M50 28C49 20 47 13 41 8&quot; stroke=&quot;#5f7d55&quot; stroke-width=&quot;1.6&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M46 14c-6-1-9-5-9-8 5 0 8 3 9 8z&quot; fill=&quot;#7d9a6b&quot;/&gt;&lt;path d=&quot;M44 26h12v6c0 4 13 9 13 25 0 15-9 24-19 24s-19-9-19-24c0-16 13-21 13-25z&quot; fill=&quot;${c}&quot;/&gt;&lt;path d=&quot;M50 26h6v6c0 4 13 9 13 25 0 15-9 24-19 24z&quot; fill=&quot;#000&quot; opacity=&quot;.08&quot;/&gt;`,
+    lamp: c =&gt; `${sh(20)}&lt;ellipse cx=&quot;50&quot; cy=&quot;60&quot; rx=&quot;20&quot; ry=&quot;11&quot; fill=&quot;#fff6d8&quot; opacity=&quot;.55&quot;/&gt;&lt;ellipse cx=&quot;50&quot; cy=&quot;80&quot; rx=&quot;15&quot; ry=&quot;4&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;48.6&quot; y=&quot;44&quot; width=&quot;2.8&quot; height=&quot;36&quot; fill=&quot;#2d2f33&quot;/&gt;&lt;path d=&quot;M28 47c0-14 10-22 22-22s22 8 22 22z&quot; fill=&quot;${c}&quot;/&gt;&lt;path d=&quot;M50 25c12 0 22 8 22 22H50z&quot; fill=&quot;#000&quot; opacity=&quot;.08&quot;/&gt;&lt;ellipse cx=&quot;50&quot; cy=&quot;47&quot; rx=&quot;22&quot; ry=&quot;3&quot; fill=&quot;#fff4d0&quot;/&gt;`,
+    throw: c =&gt; `${sh(30)}&lt;rect x=&quot;20&quot; y=&quot;62&quot; width=&quot;60&quot; height=&quot;18&quot; rx=&quot;7&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;23&quot; y=&quot;45&quot; width=&quot;56&quot; height=&quot;18&quot; rx=&quot;7&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;23&quot; y=&quot;45&quot; width=&quot;56&quot; height=&quot;18&quot; rx=&quot;7&quot; fill=&quot;#fff&quot; opacity=&quot;.16&quot;/&gt;&lt;rect x=&quot;26&quot; y=&quot;28&quot; width=&quot;52&quot; height=&quot;18&quot; rx=&quot;7&quot; fill=&quot;${c}&quot;/&gt;&lt;path d=&quot;M34 28v18M40 28v18M34 45v18M40 45v18M34 62v18M40 62v18&quot; stroke=&quot;#fff&quot; stroke-opacity=&quot;.45&quot; stroke-width=&quot;1.6&quot;/&gt;`,
+    towels: c =&gt; `${sh(28)}&lt;rect x=&quot;22&quot; y=&quot;64&quot; width=&quot;56&quot; height=&quot;16&quot; rx=&quot;5&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;25&quot; y=&quot;49&quot; width=&quot;52&quot; height=&quot;16&quot; rx=&quot;5&quot; fill=&quot;#fff&quot; opacity=&quot;.9&quot;/&gt;&lt;rect x=&quot;28&quot; y=&quot;34&quot; width=&quot;48&quot; height=&quot;16&quot; rx=&quot;5&quot; fill=&quot;${c}&quot;/&gt;&lt;path d=&quot;M64 34v16M64 64v16&quot; stroke=&quot;#fff&quot; stroke-width=&quot;3&quot; stroke-opacity=&quot;.7&quot;/&gt;`,
+    candle: c =&gt; `${sh(18)}&lt;path d=&quot;M50 23c3.5 4 4.5 7.5 0 11-4.5-3.5-3.5-7 0-11z&quot; fill=&quot;#f59f00&quot;/&gt;&lt;rect x=&quot;49.3&quot; y=&quot;34&quot; width=&quot;1.4&quot; height=&quot;6&quot; fill=&quot;#33373c&quot;/&gt;&lt;rect x=&quot;33&quot; y=&quot;40&quot; width=&quot;34&quot; height=&quot;42&quot; rx=&quot;6&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;38&quot; y=&quot;56&quot; width=&quot;24&quot; height=&quot;14&quot; rx=&quot;2&quot; fill=&quot;#fff&quot; opacity=&quot;.88&quot;/&gt;`,
+    plant: c =&gt; `${sh(20)}&lt;path d=&quot;M50 58C44 45 34 40 26 40c2 10 12 17 24 18z&quot; fill=&quot;#5c8a5a&quot;/&gt;&lt;path d=&quot;M50 58c6-13 16-18 24-18-2 10-12 17-24 18z&quot; fill=&quot;#6f9e64&quot;/&gt;&lt;path d=&quot;M50 58c-4-16-2-29 6-37 4 12 2 25-6 37z&quot; fill=&quot;#7fb06f&quot;/&gt;&lt;path d=&quot;M50 58c-8-12-10-25-4-35 6 10 8 23 4 35z&quot; fill=&quot;#4f7a4c&quot;/&gt;&lt;path d=&quot;M35 58h30l-4 24H39z&quot; fill=&quot;${c}&quot;/&gt;&lt;rect x=&quot;33&quot; y=&quot;55&quot; width=&quot;34&quot; height=&quot;6&quot; rx=&quot;2&quot; fill=&quot;${c}&quot;/&gt;`,
+  };
+  const tabs = [
+    { name: 'All', count: '64 items', items: [['Stoneware mug', '€24', 'mug', '#c9775a', '#efe6da'], ['Brass table lamp', '€120', 'lamp', '#d9a441', '#e9e7e3'], ['Wool throw', '€89', 'throw', '#b59a82', '#e2e9de'], ['Fern in clay pot', '€22', 'plant', '#e0b08b', '#f2e1e3']] },
+    { name: 'Kitchen', count: '21 items', items: [['Glass carafe', '€32', 'carafe', '#7fa9c4', '#e1e8ef'], ['Oak serving board', '€45', 'board', '#c99a63', '#f4ecd2'], ['Fruit bowl', '€38', 'bowl', '#e8e1d6', '#f3dfd3'], ['Stoneware mug', '€24', 'mug', '#8aa39b', '#e2e9de']] },
+    { name: 'Living', count: '17 items', items: [['Bud vase', '€19', 'vase', '#7f9cb3', '#f2e1e3'], ['Fig leaf candle', '€28', 'candle', '#49606e', '#e9e7e3'], ['Brass table lamp', '€120', 'lamp', '#33373c', '#f4ecd2'], ['Wool throw', '€89', 'throw', '#8a9a6b', '#efe6da']] },
+    { name: 'Bath', count: '11 items', items: [['Linen towel set', '€38', 'towels', '#c9b28f', '#e1e8ef'], ['Cedar candle', '€26', 'candle', '#a3714f', '#efe6da'], ['Bathroom fern', '€22', 'plant', '#e8e1d6', '#e2e9de'], ['Waffle towels', '€34', 'towels', '#8aa39b', '#f2e1e3']] },
+  ];
+  const root = document.createElement('div');
+  root.className = 'dt-root';
+  root.innerHTML = `&lt;style&gt;
+    .dt-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #eef6f5, #d5e8e5); font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; color: #15171a; }
+    .dt-phone { position: absolute; left: 50%; top: 0; width: 280px; height: 580px; border-radius: 46px; background: #0f1113; box-shadow: inset 0 0 0 1.5px #2b2f34, 0 40px 80px -30px rgba(8,45,42,.45), 0 12px 30px -12px rgba(8,45,42,.3); transform-origin: 50% 0; }
+    .dt-screen { position: absolute; inset: 7px; border-radius: 39px; overflow: hidden; background: #fff; isolation: isolate; padding-top: 44px; box-sizing: border-box; }
+    .dt-island { position: absolute; left: 50%; top: 17px; width: 76px; height: 22px; margin-left: -38px; border-radius: 12px; background: #000; z-index: 9; }
+    .dt-sb { position: absolute; left: 0; right: 0; top: 0; height: 44px; padding: 0 24px 0 32px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 650; }
+    .dt-top { display: flex; justify-content: space-between; align-items: center; margin: 6px 16px 8px; }
+    .dt-top h2 { margin: 0; font-size: 27px; font-weight: 750; letter-spacing: -0.02em; }
+    .dt-search { width: 34px; height: 34px; border-radius: 50%; background: #f1f3f5; display: grid; place-items: center; }
+    .dt-tabs { position: relative; display: flex; gap: 20px; padding: 0 16px; border-bottom: 1px solid #ececf0; }
+    .dt-tabs span { height: 36px; display: grid; place-items: center; font-size: 14px; font-weight: 640; color: #9aa0a6; transition: color 200ms ease; }
+    .dt-tabs span.on { color: #15171a; }
+    .dt-line { position: absolute; left: 0; bottom: -1px; width: 100px; height: 2.5px; border-radius: 2px; background: #15171a; transform-origin: 0 0; }
+    .dt-body { position: relative; height: 420px; overflow: hidden; }
+    .dt-pane { position: absolute; inset: 0; padding: 12px 12px 0; opacity: 0; }
+    .dt-meta { display: flex; justify-content: space-between; margin: 0 4px 10px; font-size: 12px; color: #5b6066; }
+    .dt-meta b { color: #15171a; font-weight: 600; }
+    .dt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; }
+    .dt-img { height: 126px; border-radius: 12px; display: grid; place-items: center; }
+    .dt-img svg { width: 74%; }
+    .dt-grid b { display: block; margin: 7px 2px 0; font-size: 12.5px; font-weight: 620; white-space: nowrap; }
+    .dt-grid small { display: block; margin: 2px 2px 0; font-size: 12px; color: #5b6066; }
+    .dt-tap { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: rgba(60,60,67,.28); box-shadow: 0 0 0 1.5px rgba(255,255,255,.75); opacity: 0; z-index: 10; pointer-events: none; }
+  &lt;/style&gt;
+  &lt;div class=&quot;dt-phone&quot;&gt;&lt;div class=&quot;dt-screen&quot;&gt;
+    &lt;div class=&quot;dt-sb&quot;&gt;&lt;span&gt;9:41&lt;/span&gt;&lt;svg width=&quot;58&quot; height=&quot;12&quot; viewBox=&quot;0 0 58 12&quot;&gt;&lt;g fill=&quot;#15171a&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;8&quot; width=&quot;3&quot; height=&quot;4&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;4.5&quot; y=&quot;6&quot; width=&quot;3&quot; height=&quot;6&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;9&quot; y=&quot;3.5&quot; width=&quot;3&quot; height=&quot;8.5&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;13.5&quot; y=&quot;1&quot; width=&quot;3&quot; height=&quot;11&quot; rx=&quot;.8&quot;/&gt;&lt;path d=&quot;M26 3.6a8.5 8.5 0 0 1 11 0l-1.3 1.4a6.6 6.6 0 0 0-8.4 0zM28.4 6.3a5 5 0 0 1 6.2 0l-1.3 1.4a3 3 0 0 0-3.6 0zM31.5 11.5l-1.6-1.8a2.4 2.4 0 0 1 3.2 0z&quot;/&gt;&lt;rect x=&quot;40.5&quot; y=&quot;.8&quot; width=&quot;15&quot; height=&quot;10.4&quot; rx=&quot;3&quot; fill=&quot;none&quot; stroke=&quot;#15171a&quot; stroke-opacity=&quot;.45&quot;/&gt;&lt;rect x=&quot;42&quot; y=&quot;2.3&quot; width=&quot;10&quot; height=&quot;7.4&quot; rx=&quot;1.6&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;&lt;/div&gt;
+    &lt;div class=&quot;dt-top&quot;&gt;&lt;h2&gt;Shop&lt;/h2&gt;&lt;span class=&quot;dt-search&quot;&gt;&lt;svg width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 14 14&quot;&gt;&lt;circle cx=&quot;6&quot; cy=&quot;6&quot; r=&quot;4.5&quot; fill=&quot;none&quot; stroke=&quot;#15171a&quot; stroke-width=&quot;1.6&quot;/&gt;&lt;path d=&quot;M9.5 9.5L13 13&quot; stroke=&quot;#15171a&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;dt-tabs&quot;&gt;${tabs.map(t =&gt; `&lt;span&gt;${t.name}&lt;/span&gt;`).join('')}&lt;i class=&quot;dt-line&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+    &lt;div class=&quot;dt-body&quot;&gt;${tabs.map(t =&gt; `&lt;div class=&quot;dt-pane&quot;&gt;&lt;div class=&quot;dt-meta&quot;&gt;&lt;span&gt;${t.count}&lt;/span&gt;&lt;span&gt;Sort: &lt;b&gt;Popular&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;dt-grid&quot;&gt;${t.items.map(([n, p, a, c, bg]) =&gt; `&lt;div&gt;&lt;div class=&quot;dt-img&quot; style=&quot;background:${bg}&quot;&gt;&lt;svg viewBox=&quot;0 0 100 100&quot;&gt;${ART[a](c)}&lt;/svg&gt;&lt;/div&gt;&lt;b&gt;${n}&lt;/b&gt;&lt;small&gt;${p}&lt;/small&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;
+    &lt;div class=&quot;dt-tap&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;div class=&quot;dt-island&quot;&gt;&lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const $ = s =&gt; root.querySelector(s);
+  const phone = $('.dt-phone'), line = $('.dt-line'), tapEl = $('.dt-tap');
+  const tabEls = [...root.querySelectorAll('.dt-tabs span')], panes = [...root.querySelectorAll('.dt-pane')];
+
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, f = Math.min(1, Math.max(0.66, 0.66 + (H - 260) / 240 * 0.34));
+    const s = Math.min(H * 0.92 / (580 * f), W * 0.86 / 280), top = f &gt;= 1 ? (H - 580 * s) / 2 : H * 0.05;
+    phone.style.transform = `translate(-50%, ${top}px) scale(${s})`;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // The underline is a 100px bar moved and stretched onto the active label (offsetLeft/Width ignore the phone's scale).
+  const lineFor = i =&gt; `translateX(${tabEls[i].offsetLeft}px) scaleX(${tabEls[i].offsetWidth / 100})`;
+  let cur = 0;
+  tabEls[0].classList.add('on'); panes[0].style.opacity = 1; line.style.transform = lineFor(0);
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)', inOut = 'cubic-bezier(0.77, 0, 0.175, 1)';
+  function go(to) {
+    const from = cur, dir = to &gt; from ? 1 : -1, d = reduce ? 0 : PARAMS.distance * 100;
+    cur = to;
+    const el = tabEls[to];
+    const bar = el.offsetParent;
+    tapEl.style.left = bar.offsetLeft + el.offsetLeft + el.offsetWidth / 2 + 'px'; tapEl.style.top = bar.offsetTop + el.offsetTop + 18 + 'px';
+    tapEl.animate([{ opacity: 0, transform: reduce ? 'none' : 'scale(0.8)' }, { opacity: 1, transform: 'scale(1)', offset: 0.3 }, { opacity: 0, transform: reduce ? 'none' : 'scale(1.2)' }], { duration: 460, easing: easeOut });
+    tabEls.forEach((t, i) =&gt; t.classList.toggle('on', i === to));
+    line.animate([{ transform: lineFor(from) }, { transform: lineFor(to) }], { duration: reduce ? 0 : PARAMS.duration, easing: inOut, fill: 'forwards' });
+    // Going right, the old content leaves to the left and the new arrives from the right; going left, the mirror.
+    panes[from].animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dir * d}%)` }], { duration: PARAMS.duration * 0.5, easing: easeOut, fill: 'forwards' });
+    panes[to].animate([{ opacity: 0, transform: `translateX(${dir * d}%)` }, { opacity: 1, transform: 'none' }], { duration: PARAMS.duration, delay: PARAMS.duration * 0.25, easing: easeOut, fill: 'both' });
+  }
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  const order = [2, 1, 3, 0];
+  let n = 0;
+  const step = () =&gt; { go(order[n++ % order.length]); later(step, PARAMS.duration + 1600); };
+  later(step, 900);
+
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

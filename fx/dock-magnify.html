@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dock magnify: Icons swell around the cursor and push apart · Motion Library</title>
+<meta name="description" content="Dock magnify is a DOM effect: icons swell around the cursor and push apart. One plain JavaScript file with no dependencies; add it with npx motion-library add dock-magnify.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/dock-magnify.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Dock magnify · Motion Library">
+<meta property="og:description" content="Icons swell around the cursor and push apart">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/dock-magnify.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Dock magnify",
+  "description": "Icons swell around the cursor and push apart",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/dock-magnify.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/dock-magnify.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Dock magnify",
+    "item": "https://ajeckblad.github.io/motion-library/fx/dock-magnify.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>Dock magnify</h1>
+<p class="tldr">Dock magnify is a DOM effect: icons swell around the cursor and push apart. One plain JavaScript file with no dependencies; add it with npx motion-library add dock-magnify.</p>
+<figure><img src="../posters/dock-magnify.webp" alt="Dock magnify: Icons swell around the cursor and push apart" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/dock-magnify">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Dock magnify?</h2>
+<p>Dock icons swell as the cursor passes, largest under it and tapering over a few neighbours.</p>
+
+<h2>How does Dock magnify work?</h2>
+<p>Scale follows a cosine falloff with distance, and each icon’s offset is computed from the new sizes so the row spreads exactly as wide as it grew; transforms only.</p>
+
+<h2>How do I add Dock magnify to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add dock-magnify</code>. It writes <code>animations/dock-magnify.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/dock-magnify.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add dock-magnify --magnify 2.6</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Magnify</td><td><code>--magnify</code></td><td>1.8</td><td>1 to 2.6</td><td>0.05</td></tr>
+<tr><td>Range (px)</td><td><code>--range</code></td><td>140</td><td>60 to 260</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>10.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Dock magnification: icons swell as the cursor passes, biggest under it and tapering over a few neighbours on a cosine
+// curve. Each icon only scales and slides (transforms), and the slides are worked out from the new sizes, so the row
+// spreads apart exactly as wide as the icons grew. It feels right because the target you are heading for grows to meet you.
+const PARAMS = { magnify: 1.8, range: 140 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380, SZ = 38, GAP = 7;
+  const g = (bg, d) =&gt; ({ bg, d });
+  const apps = [
+    ['Files', g('linear-gradient(#6cc4ff,#2f8be0)', '&lt;path d=&quot;M9 15h9l3 3h12v15H9z&quot; fill=&quot;#fff&quot; opacity=&quot;.95&quot;/&gt;')],
+    ['Mail', g('linear-gradient(#73b8ff,#2c6fe6)', '&lt;rect x=&quot;9&quot; y=&quot;13&quot; width=&quot;24&quot; height=&quot;17&quot; rx=&quot;2.5&quot; fill=&quot;#fff&quot;/&gt;&lt;path d=&quot;M10 15l11 8 11-8&quot; fill=&quot;none&quot; stroke=&quot;#2c6fe6&quot; stroke-width=&quot;2&quot;/&gt;')],
+    ['Calendar', g('#fff', '&lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;42&quot; height=&quot;11&quot; fill=&quot;#f0473e&quot;/&gt;&lt;text x=&quot;21&quot; y=&quot;33&quot; text-anchor=&quot;middle&quot; font-size=&quot;18&quot; font-weight=&quot;700&quot; fill=&quot;#15171a&quot; font-family=&quot;system-ui&quot;&gt;11&lt;/text&gt;')],
+    ['Notes', g('linear-gradient(#ffe27a,#f5c518)', '&lt;rect x=&quot;9&quot; y=&quot;9&quot; width=&quot;24&quot; height=&quot;25&quot; rx=&quot;3&quot; fill=&quot;#fffbea&quot;/&gt;&lt;path d=&quot;M13 17h16M13 22h16M13 27h10&quot; stroke=&quot;#d9b440&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;/&gt;')],
+    ['Music', g('linear-gradient(#ff6b8a,#e5294c)', '&lt;path d=&quot;M18 29V14l11-2.5v15&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2.4&quot;/&gt;&lt;circle cx=&quot;15.5&quot; cy=&quot;29&quot; r=&quot;3.5&quot; fill=&quot;#fff&quot;/&gt;&lt;circle cx=&quot;26.5&quot; cy=&quot;26.5&quot; r=&quot;3.5&quot; fill=&quot;#fff&quot;/&gt;')],
+    ['Photos', g('#fff', '&lt;g opacity=&quot;.9&quot;&gt;&lt;ellipse cx=&quot;21&quot; cy=&quot;13&quot; rx=&quot;4&quot; ry=&quot;7&quot; fill=&quot;#f7b32b&quot;/&gt;&lt;ellipse cx=&quot;21&quot; cy=&quot;29&quot; rx=&quot;4&quot; ry=&quot;7&quot; fill=&quot;#4dabf7&quot;/&gt;&lt;ellipse cx=&quot;13&quot; cy=&quot;21&quot; rx=&quot;7&quot; ry=&quot;4&quot; fill=&quot;#69db7c&quot;/&gt;&lt;ellipse cx=&quot;29&quot; cy=&quot;21&quot; rx=&quot;7&quot; ry=&quot;4&quot; fill=&quot;#da77f2&quot;/&gt;&lt;/g&gt;')],
+    ['Maps', g('linear-gradient(135deg,#b2f2bb 50%,#d0ebff 50%)', '&lt;path d=&quot;M21 9a7 7 0 0 1 7 7c0 6-7 14-7 14s-7-8-7-14a7 7 0 0 1 7-7z&quot; fill=&quot;#f0473e&quot;/&gt;&lt;circle cx=&quot;21&quot; cy=&quot;16&quot; r=&quot;2.6&quot; fill=&quot;#fff&quot;/&gt;')],
+    ['Settings', g('linear-gradient(#adb5bd,#6c757d)', '&lt;circle cx=&quot;21&quot; cy=&quot;21&quot; r=&quot;10&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;4&quot; stroke-dasharray=&quot;4 3.3&quot;/&gt;&lt;circle cx=&quot;21&quot; cy=&quot;21&quot; r=&quot;5&quot; fill=&quot;#fff&quot;/&gt;')],
+    ['Trash', g('rgba(255,255,255,.25)', '&lt;path d=&quot;M13 15h16l-1.5 17h-13z&quot; fill=&quot;#e9ecef&quot;/&gt;&lt;rect x=&quot;11&quot; y=&quot;12&quot; width=&quot;20&quot; height=&quot;3&quot; rx=&quot;1.5&quot; fill=&quot;#e9ecef&quot;/&gt;')],
+  ];
+  const root = document.createElement('div');
+  root.className = 'dk-root';
+  root.innerHTML = `&lt;style&gt;
+    .dk-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 90% at 20% 10%, #f4a361 0, transparent 55%), radial-gradient(90% 80% at 90% 30%, #8e6bd8 0, transparent 60%), linear-gradient(#3b4a7a, #1f2747); font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; }
+    .dk-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .dk-menu { position: absolute; left: 0; right: 0; top: 0; border-radius: 6px; height: 22px; background: rgba(20,22,40,.35); backdrop-filter: blur(8px); color: #fff; font-size: 11px; display: flex; align-items: center; gap: 14px; padding: 0 12px; }
+    .dk-menu b { font-weight: 700; } .dk-menu span:last-child { margin-left: auto; }
+    .dk-win { position: absolute; left: 70px; top: 52px; width: 300px; height: 190px; border-radius: 10px; background: rgba(250,250,252,.92); box-shadow: 0 20px 50px rgba(10,10,30,.35); }
+    .dk-win i { position: absolute; top: 10px; width: 9px; height: 9px; border-radius: 50%; }
+    .dk-win p { position: absolute; left: 18px; right: 18px; top: 40px; margin: 0; font-size: 12px; line-height: 1.6; color: #3a3e43; }
+    .dk-plate { position: absolute; bottom: 10px; height: ${SZ + 14}px; border-radius: 16px; background: rgba(255,255,255,.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); backdrop-filter: blur(14px); transform-origin: 50% 100%; will-change: transform; }
+    .dk-ico { position: absolute; bottom: 17px; width: ${SZ}px; height: ${SZ}px; border-radius: 10px; transform-origin: 50% 100%; will-change: transform; box-shadow: 0 2px 5px rgba(0,0,0,.25); overflow: hidden; }
+    .dk-ico svg { display: block; width: 100%; height: 100%; }
+    .dk-tip { position: absolute; bottom: 0; left: 0; padding: 4px 9px; border-radius: 6px; background: rgba(30,32,40,.85); color: #fff; font-size: 11.5px; font-weight: 550; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s cubic-bezier(.23,1,.32,1); }
+    .dk-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.35)); }
+  &lt;/style&gt;&lt;div class=&quot;dk-scene&quot;&gt;
+    &lt;div class=&quot;dk-menu&quot;&gt;&lt;b&gt;Files&lt;/b&gt;&lt;span&gt;File&lt;/span&gt;&lt;span&gt;Edit&lt;/span&gt;&lt;span&gt;View&lt;/span&gt;&lt;span&gt;Tue 11 Nov  9:41&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;dk-win&quot;&gt;&lt;i style=&quot;left:12px;background:#ff5f57&quot;&gt;&lt;/i&gt;&lt;i style=&quot;left:26px;background:#febc2e&quot;&gt;&lt;/i&gt;&lt;i style=&quot;left:40px;background:#28c840&quot;&gt;&lt;/i&gt;&lt;p&gt;Quarterly plan.pdf&lt;br&gt;Interview notes.txt&lt;br&gt;Homepage draft.fig&lt;br&gt;Receipts, October&lt;/p&gt;&lt;/div&gt;
+    &lt;div class=&quot;dk-plate&quot;&gt;&lt;/div&gt;${apps.map(([, a]) =&gt; `&lt;div class=&quot;dk-ico&quot; style=&quot;background:${a.bg}&quot;&gt;&lt;svg viewBox=&quot;0 0 42 42&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;${a.d}&lt;/svg&gt;&lt;/div&gt;`).join('')}&lt;div class=&quot;dk-tip&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.dk-scene'), plate = root.querySelector('.dk-plate'), tip = root.querySelector('.dk-tip');
+  const icons = [...scene.querySelectorAll('.dk-ico')];
+  let s = 1;
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  // resting layout: icons centred along the bottom
+  const n = apps.length, baseW = n * SZ + (n - 1) * GAP, x0 = (W - baseW) / 2;
+  const centre = i =&gt; x0 + i * (SZ + GAP) + SZ / 2, dockY = H - 17 - SZ / 2;
+  icons.forEach((el, i) =&gt; { el.style.left = `${centre(i) - SZ / 2}px`; });
+  plate.style.left = `${x0 - 7}px`; plate.style.width = `${baseW + 14}px`;
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+
+  // simulated cursor: drops onto the dock, sweeps along it with pauses, then leaves; the real pointer takes over while it is on the stage
+  const steps = [
+    { to: pt(420, 200), move: 300, hold: 400 },
+    { to: pt(centre(1), dockY + 4), move: 900, hold: 700 },
+    { to: pt(centre(4) + 6, dockY + 2), move: 900, hold: 700 },
+    { to: pt(centre(7), dockY + 6), move: 900, hold: 700 },
+    { to: pt(centre(5) - 10, dockY), move: 600, hold: 600 },
+    { to: pt(400, 150), move: 900, hold: 600 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'dk-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#15171a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.05;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  let p = 0, fx = c.x, last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    // presence eases in and out, so entering or leaving the dock grows and settles instead of snapping
+    const over = c.y &gt; H - SZ - 40 &amp;&amp; c.x &gt; x0 - 20 &amp;&amp; c.x &lt; x0 + baseW + 20;
+    p += ((over ? 1 : 0) - p) * (1 - Math.exp(-dt * 14));
+    fx += (c.x - fx) * (1 - Math.exp(-dt * 30));
+    // reduced motion: icons keep their size and place; the name label still shows over the one under the cursor
+    const sc = icons.map((_, i) =&gt; { const d = Math.abs(fx - centre(i)); return 1 + (reduce ? 0 : PARAMS.magnify - 1) * p * (d &lt; PARAMS.range ? (Math.cos(Math.PI * d / PARAMS.range) + 1) / 2 : 0); });
+    const total = sc.reduce((a, v) =&gt; a + v * SZ, 0) + (n - 1) * GAP;
+    // keep the point under the cursor still: grow outward from it rather than from the dock's centre
+    const anchor = Math.max(0, Math.min(1, (fx - x0) / baseW));
+    let x = x0 + baseW * anchor - total * anchor, best = -1, bestD = 1e9;
+    icons.forEach((el, i) =&gt; {
+      const w = sc[i] * SZ, cx = x + w / 2;
+      el.style.transform = `translateX(${cx - centre(i)}px) scale(${sc[i]})`;
+      if (over &amp;&amp; Math.abs(c.x - cx) &lt; bestD) { bestD = Math.abs(c.x - cx); best = i; }
+      x += w + GAP;
+    });
+    plate.style.transform = `translateX(${(x0 + baseW * anchor - total * anchor) - x0}px) scaleX(${(total + 14) / (baseW + 14)})`;
+    plate.style.transformOrigin = '0 100%';
+    if (best &gt;= 0 &amp;&amp; bestD &lt; SZ) {
+      let bx = x0 + baseW * anchor - total * anchor; for (let i = 0; i &lt; best; i++) bx += sc[i] * SZ + GAP;
+      tip.textContent = apps[best][0];
+      tip.style.transform = `translate(${bx + sc[best] * SZ / 2 - tip.offsetWidth / 2}px, ${-(17 + sc[best] * SZ + 10)}px)`;
+      tip.style.opacity = 1;
+    } else tip.style.opacity = 0;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

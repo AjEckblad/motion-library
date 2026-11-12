@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arc spinner: The arc grows and shrinks while it turns · Motion Library</title>
+<meta name="description" content="Arc spinner is a DOM effect: the arc grows and shrinks while it turns. One plain JavaScript file with no dependencies; add it with npx motion-library add arc-spinner.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/arc-spinner.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Arc spinner · Motion Library">
+<meta property="og:description" content="The arc grows and shrinks while it turns">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/arc-spinner.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Arc spinner",
+  "description": "The arc grows and shrinks while it turns",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Micro & loading, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/arc-spinner.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/arc-spinner.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Micro & loading",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/micro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Arc spinner",
+    "item": "https://ajeckblad.github.io/motion-library/fx/arc-spinner.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/micro">Micro &amp; loading</a></header>
+<main class="s-page">
+<article>
+<h1>Arc spinner</h1>
+<p class="tldr">Arc spinner is a DOM effect: the arc grows and shrinks while it turns. One plain JavaScript file with no dependencies; add it with npx motion-library add arc-spinner.</p>
+<figure><img src="../posters/arc-spinner.webp" alt="Arc spinner: The arc grows and shrinks while it turns" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/arc-spinner">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Arc spinner?</h2>
+<p>A checkout shows a small spinner on the shipping line, then a larger one inside the Pay button.</p>
+
+<h2>How does Arc spinner work?</h2>
+<p>The ring rotates while its stroke dash grows and shrinks, on mismatched periods, so it never repeats the same way twice in a row.</p>
+
+<h2>How do I add Arc spinner to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add arc-spinner</code>. It writes <code>animations/arc-spinner.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/arc-spinner.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add arc-spinner --speed 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.25 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Micro &amp; loading</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>6.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Arc spinners in a checkout summary: the shipping line waits on a small spinner, then the Pay button carries a larger one
+// while the payment goes through. Each ring rotates while its arc grows and shrinks on a different period, so it never
+// quite repeats. It feels right because the wait sits exactly where the answer will appear, and the changing arc reads as progress.
+const PARAMS = { speed: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const rot = (1.6 / PARAMS.speed).toFixed(2), dash = (1.4 / PARAMS.speed).toFixed(2);
+  const spinner = (size, colour) =&gt; `&lt;svg class=&quot;as-spin&quot; width=&quot;${size}&quot; height=&quot;${size}&quot; viewBox=&quot;25 25 50 50&quot;&gt;&lt;circle cx=&quot;50&quot; cy=&quot;50&quot; r=&quot;20&quot; stroke=&quot;${colour}&quot;/&gt;&lt;/svg&gt;`;
+  const root = document.createElement('div');
+  root.className = 'as-root';
+  root.innerHTML = `&lt;style&gt;
+    .as-root { position: absolute; inset: 0; overflow: hidden; background: #f4f1f3; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .as-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .as-card { position: absolute; left: 100px; right: 100px; top: 26px; border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px rgba(20,24,30,.06), 0 10px 30px -12px rgba(60,20,40,.18); padding: 18px 20px 20px; }
+    .as-card h2 { margin: 0 0 12px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+    .as-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; } .as-item i { width: 36px; height: 36px; border-radius: 8px; flex: none; }
+    .as-item small { display: block; font-size: 11.5px; color: #7a7f85; } .as-item b { margin-left: auto; font-weight: 600; }
+    .as-line { display: flex; justify-content: space-between; align-items: center; height: 26px; font-size: 13px; color: #5b6066; }
+    .as-line:first-of-type { margin-top: 8px; border-top: 1px solid #f0f1f3; padding-top: 8px; }
+    .as-val { position: relative; min-width: 60px; height: 20px; text-align: right; color: #15171a; font-variant-numeric: tabular-nums; }
+    .as-val &gt; * { position: absolute; right: 0; top: 0; bottom: 0; display: flex; align-items: center; }
+    .as-total { font-size: 15px; font-weight: 700; color: #15171a; border-top: 1px solid #f0f1f3; margin-top: 6px; height: 36px; }
+    .as-pay { position: relative; width: 100%; height: 44px; margin-top: 12px; border: 0; border-radius: 11px; background: #15171a; color: #fff; font: 650 14px system-ui, -apple-system, sans-serif; overflow: hidden; }
+    .as-pay &gt; span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .as-spin { animation: as-rot ${rot}s linear infinite; } .as-spin circle { fill: none; stroke-width: 5; stroke-linecap: round; animation: as-dash ${dash}s ease-in-out infinite; }
+    ${reduce ? `.as-spin { animation: as-pulse ${rot}s ease-in-out infinite alternate; } .as-spin circle { animation: none; stroke-dasharray: 70 200; } @keyframes as-pulse { to { opacity: .35; } }` : ''}
+    @keyframes as-rot { to { transform: rotate(360deg); } }
+    @keyframes as-dash { 0% { stroke-dasharray: 1 200; stroke-dashoffset: 0; } 50% { stroke-dasharray: 90 200; stroke-dashoffset: -35; } 100% { stroke-dasharray: 90 200; stroke-dashoffset: -124; } }
+    .as-secure { margin-top: 10px; text-align: center; font-size: 11.5px; color: #8a8f94; }
+  &lt;/style&gt;&lt;div class=&quot;as-scene&quot;&gt;&lt;div class=&quot;as-card&quot;&gt;&lt;h2&gt;Order summary&lt;/h2&gt;
+    &lt;div class=&quot;as-item&quot;&gt;&lt;i style=&quot;background:linear-gradient(135deg,#ffd8a8,#e8590c)&quot;&gt;&lt;/i&gt;&lt;div&gt;Canvas tote bag&lt;small&gt;Natural · Qty 1&lt;/small&gt;&lt;/div&gt;&lt;b&gt;$34.00&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;as-item&quot;&gt;&lt;i style=&quot;background:linear-gradient(135deg,#d0ebff,#1c7ed6)&quot;&gt;&lt;/i&gt;&lt;div&gt;Cotton socks, 3 pairs&lt;small&gt;Navy · Qty 2&lt;/small&gt;&lt;/div&gt;&lt;b&gt;$36.00&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;as-line&quot;&gt;Subtotal&lt;span class=&quot;as-val&quot;&gt;&lt;span&gt;$70.00&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;as-line&quot;&gt;Shipping&lt;span class=&quot;as-val as-ship&quot;&gt;&lt;span class=&quot;w&quot;&gt;${spinner(16, '#d63c74')}&lt;/span&gt;&lt;span class=&quot;d&quot; style=&quot;opacity:0&quot;&gt;$4.90&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;as-line as-total&quot;&gt;Total&lt;span class=&quot;as-val as-tot&quot;&gt;&lt;span class=&quot;w&quot; style=&quot;color:#adb5bd&quot;&gt;—&lt;/span&gt;&lt;span class=&quot;d&quot; style=&quot;opacity:0&quot;&gt;$74.90&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;button class=&quot;as-pay&quot; type=&quot;button&quot;&gt;&lt;span class=&quot;p1&quot;&gt;Pay $74.90&lt;/span&gt;&lt;span class=&quot;p2&quot; style=&quot;opacity:0&quot;&gt;${spinner(20, '#fff')}Processing payment&lt;/span&gt;&lt;span class=&quot;p3&quot; style=&quot;opacity:0;background:#2f9e44&quot;&gt;Payment complete&lt;/span&gt;&lt;/button&gt;
+    &lt;div class=&quot;as-secure&quot;&gt;Payments are encrypted end to end.&lt;/div&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.as-scene');
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight, s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const q = sel =&gt; root.querySelector(sel);
+  const ease = 'cubic-bezier(0.23, 1, 0.32, 1)', anims = new Set();
+  const still = k =&gt; reduce ? k.map(({ transform, ...f }) =&gt; f) : k;   // reduced motion: keep the fades and colour, drop the movement
+  const show = (el, on) =&gt; { const a = el.animate(still([{ opacity: on ? 0 : 1, transform: `translateY(${on ? 4 : 0}px)` }, { opacity: on ? 1 : 0, transform: `translateY(${on ? 0 : -4}px)` }]), { duration: 220, easing: ease, fill: 'forwards' }); anims.add(a); };
+  const swap = (a, b) =&gt; { show(a, false); show(b, true); };
+  let timers = [];
+  const later = (ms, fn) =&gt; timers.push(setTimeout(fn, ms));
+  function cycle() {
+    anims.forEach(a =&gt; a.cancel()); anims.clear(); timers = [];
+    later(1700, () =&gt; { swap(q('.as-ship .w'), q('.as-ship .d')); swap(q('.as-tot .w'), q('.as-tot .d')); });
+    later(2700, () =&gt; { const b = q('.as-pay'); anims.add(b.animate(still([{ transform: 'scale(1)' }, { transform: 'scale(0.97)', offset: 0.4 }, { transform: 'scale(1)' }]), { duration: 200, easing: ease })); swap(q('.p1'), q('.p2')); });
+    later(5000, () =&gt; swap(q('.p2'), q('.p3')));
+    later(6600, () =&gt; { [q('.as-ship .d'), q('.as-tot .d'), q('.p3')].forEach(el =&gt; show(el, false)); [q('.as-ship .w'), q('.as-tot .w'), q('.p1')].forEach(el =&gt; show(el, true)); });
+    timers.push(setTimeout(cycle, 7200));
+  }
+  cycle();
+  return () =&gt; { timers.forEach(clearTimeout); anims.forEach(a =&gt; a.cancel()); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

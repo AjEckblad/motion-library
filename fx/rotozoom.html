@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotozoom: One texture lookup through a rotating, breathing scale matrix · Motion Library</title>
+<meta name="description" content="Rotozoom is a WebGL effect: one texture lookup through a rotating, breathing scale matrix. One plain JavaScript file with no dependencies; add it with npx motion-library add rotozoom.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/rotozoom.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Rotozoom · Motion Library">
+<meta property="og:description" content="One texture lookup through a rotating, breathing scale matrix">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/rotozoom.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Rotozoom",
+  "description": "One texture lookup through a rotating, breathing scale matrix",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Retro & signal, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/rotozoom.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/rotozoom.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Retro & signal",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/retro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Rotozoom",
+    "item": "https://ajeckblad.github.io/motion-library/fx/rotozoom.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/retro">Retro &amp; signal</a></header>
+<main class="s-page">
+<article>
+<h1>Rotozoom</h1>
+<p class="tldr">Rotozoom is a WebGL effect: one texture lookup through a rotating, breathing scale matrix. One plain JavaScript file with no dependencies; add it with npx motion-library add rotozoom.</p>
+<figure><img src="../posters/rotozoom.webp" alt="Rotozoom: One texture lookup through a rotating, breathing scale matrix" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/rotozoom">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Rotozoom?</h2>
+<p>A XOR pattern of nested squares spins and zooms in and out across the screen.</p>
+
+<h2>How does Rotozoom work?</h2>
+<p>Each pixel’s coordinates go through a rotation-and-scale matrix that changes per frame, then look up a 256×256 x ^ y texture; mipmaps stop shimmer when zoomed out.</p>
+
+<h2>How do I add Rotozoom to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add rotozoom</code>. It writes <code>animations/rotozoom.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/rotozoom.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add rotozoom --speed 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+<tr><td>Zoom</td><td><code>--zoom</code></td><td>1</td><td>0.3 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Retro &amp; signal</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.1 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Rotozoom: the whole screen is one texture lookup through a rotation-and-scale matrix that changes every frame,
+// the effect every 90s demo opened with. The texture is the classic XOR pattern (x ^ y), built once on the CPU
+// at 256×256 and coloured with a palette. Nearest-neighbour magnification keeps the texels hard-edged when you
+// zoom in; mipmaps keep it from shimmering when you zoom out.
+const PARAMS = { speed: 1, zoom: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+  // the texture: XOR of the coordinates → nested squares at every power of two
+  const N = 256, px = new Uint8Array(N * N * 4);
+  for (let y = 0; y &lt; N; y++) for (let x = 0; x &lt; N; x++) {
+    const v = ((x ^ y) &amp; 255) / 255, i = (y * N + x) * 4;
+    // a three-stop ramp, navy → hot pink → pale gold, over the XOR value
+    const k = v &lt; 0.55 ? v / 0.55 : (v - 0.55) / 0.45, A = v &lt; 0.55 ? [10, 8, 48] : [255, 58, 128], B = v &lt; 0.55 ? [255, 58, 128] : [255, 226, 150];
+    const e = k * k * (3 - 2 * k);
+    for (let c = 0; c &lt; 3; c++) px[i + c] = A[c] + (B[c] - A[c]) * e;
+    px[i + 3] = 255;
+  }
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, N, N, 0, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+  const vs = `#version 300 es
+  in vec2 p; void main() { gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform vec2 R; uniform float T, Z; uniform sampler2D S;
+  void main() {
+    vec2 p = (gl_FragCoord.xy - .5 * R) / R.y;
+    float a = T * .35 + .6 * sin(T * .21);
+    float s = exp(1.4 * sin(T * .29)) * .55 / Z;             // zoom breathes in and out, ~16× end to end
+    mat2 m = mat2(cos(a), sin(a), -sin(a), cos(a)) * s;
+    vec2 uv = m * p + vec2(T * .11, T * .07);
+    vec3 col = texture(S, uv).rgb;
+    // CRT-ish finish: slight vignette
+    col *= 1. - .35 * dot(p, p);
+    o = vec4(col, 1);
+  }`;
+  const sh = (t, s) =&gt; { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ['R', 'T', 'Z', 'S'].forEach(n =&gt; U[n] = gl.getUniformLocation(prog, n));
+  gl.uniform1i(U.S, 0);
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); canvas.width = (stage.clientWidth || 1) * d | 0; canvas.height = (stage.clientHeight || 1) * d | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf, last = performance.now(), t = 2;
+  function frame(now) {
+    t += Math.min(0.05, (now - last) / 1000) * PARAMS.speed * (reduce ? 0.06 : 1); last = now;
+    gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform1f(U.T, t); gl.uniform1f(U.Z, PARAMS.zoom);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); gl.deleteTexture(tex); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

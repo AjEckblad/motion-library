@@ -1,0 +1,1701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Motion Library</title>
+<meta name="description" content="Live web animations and effects: hover to watch, read how each one works, tune it and copy plain JavaScript or install it with npx.">
+<meta name="theme-color" content="#0c0c0e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23f2f2f3' stroke-width='3'/%3E%3Cpath d='M16 16 L25 10' stroke='%23f2f2f3' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%23f2f2f3'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
+<!--static:ld--><script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Motion Library",
+  "url": "https://ajeckblad.github.io/motion-library/index.html",
+  "inLanguage": [
+   "en",
+   "zh-Hans"
+  ],
+  "description": "214 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies, tunable live and installable with npx."
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Motion Library effects",
+  "numberOfItems": 214,
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Curl-noise flow field",
+    "url": "https://ajeckblad.github.io/motion-library/fx/curl-flow.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Drone light show",
+    "url": "https://ajeckblad.github.io/motion-library/fx/drone-show.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Particle life",
+    "url": "https://ajeckblad.github.io/motion-library/fx/particle-life.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 4,
+    "name": "Cloud chamber",
+    "url": "https://ajeckblad.github.io/motion-library/fx/cloud-chamber.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 5,
+    "name": "Spiral galaxy",
+    "url": "https://ajeckblad.github.io/motion-library/fx/galaxy.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 6,
+    "name": "Strange attractor",
+    "url": "https://ajeckblad.github.io/motion-library/fx/strange-attractor.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 7,
+    "name": "Slime mould maps Tokyo",
+    "url": "https://ajeckblad.github.io/motion-library/fx/physarum.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 8,
+    "name": "Lightning arcs",
+    "url": "https://ajeckblad.github.io/motion-library/fx/lightning.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 9,
+    "name": "Iron filings",
+    "url": "https://ajeckblad.github.io/motion-library/fx/iron-filings.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 10,
+    "name": "Galton board",
+    "url": "https://ajeckblad.github.io/motion-library/fx/galton-board.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 11,
+    "name": "Pin art",
+    "url": "https://ajeckblad.github.io/motion-library/fx/pin-art.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 12,
+    "name": "3D paper confetti",
+    "url": "https://ajeckblad.github.io/motion-library/fx/confetti.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 13,
+    "name": "Firefly sync",
+    "url": "https://ajeckblad.github.io/motion-library/fx/firefly-sync.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 14,
+    "name": "GPU particles (262k)",
+    "url": "https://ajeckblad.github.io/motion-library/fx/gpu-particles.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 15,
+    "name": "Hydrogen orbitals",
+    "url": "https://ajeckblad.github.io/motion-library/fx/orbitals.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 16,
+    "name": "Roche limit",
+    "url": "https://ajeckblad.github.io/motion-library/fx/roche-limit.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 17,
+    "name": "Starling murmuration",
+    "url": "https://ajeckblad.github.io/motion-library/fx/murmuration.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 18,
+    "name": "States of matter",
+    "url": "https://ajeckblad.github.io/motion-library/fx/states-of-matter.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 19,
+    "name": "Bonfire embers",
+    "url": "https://ajeckblad.github.io/motion-library/fx/embers.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 20,
+    "name": "Calligraphy brush",
+    "url": "https://ajeckblad.github.io/motion-library/fx/calligraphy.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 21,
+    "name": "Harmonograph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/harmonograph.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 22,
+    "name": "Chladni plate",
+    "url": "https://ajeckblad.github.io/motion-library/fx/chladni.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 23,
+    "name": "Crystal growth (DLA)",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dla-crystal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 24,
+    "name": "Wind tunnel",
+    "url": "https://ajeckblad.github.io/motion-library/fx/wind-tunnel.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 25,
+    "name": "Fireworks",
+    "url": "https://ajeckblad.github.io/motion-library/fx/fireworks.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 26,
+    "name": "Bokeh",
+    "url": "https://ajeckblad.github.io/motion-library/fx/bokeh.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 27,
+    "name": "Nebula",
+    "url": "https://ajeckblad.github.io/motion-library/fx/nebula.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 28,
+    "name": "Ink fluid",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ink-fluid.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 29,
+    "name": "Liquid image distortion",
+    "url": "https://ajeckblad.github.io/motion-library/fx/liquid-distort.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 30,
+    "name": "Lava lamp",
+    "url": "https://ajeckblad.github.io/motion-library/fx/lava-lamp.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 31,
+    "name": "Fire & smoke",
+    "url": "https://ajeckblad.github.io/motion-library/fx/fire-smoke.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 32,
+    "name": "Lava flow",
+    "url": "https://ajeckblad.github.io/motion-library/fx/lava-flow.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 33,
+    "name": "Ferrofluid",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ferrofluid.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 34,
+    "name": "Paper marbling",
+    "url": "https://ajeckblad.github.io/motion-library/fx/marbling.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 35,
+    "name": "Rain on glass",
+    "url": "https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 36,
+    "name": "Ink drop in water",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ink-drop.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 37,
+    "name": "Dripping text",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dripping-text.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 38,
+    "name": "Liquid mercury",
+    "url": "https://ajeckblad.github.io/motion-library/fx/mercury.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 39,
+    "name": "Kelvin–Helmholtz clouds",
+    "url": "https://ajeckblad.github.io/motion-library/fx/billow-clouds.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 40,
+    "name": "Paint swirl",
+    "url": "https://ajeckblad.github.io/motion-library/fx/paint-swirl.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 41,
+    "name": "SPH water tank",
+    "url": "https://ajeckblad.github.io/motion-library/fx/sph-water.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 42,
+    "name": "Portal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/portal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 43,
+    "name": "Geode",
+    "url": "https://ajeckblad.github.io/motion-library/fx/geode.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 44,
+    "name": "Glass lens refraction",
+    "url": "https://ajeckblad.github.io/motion-library/fx/glass-lens.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 45,
+    "name": "Dust to the wind",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dust-bust.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 46,
+    "name": "Cloth reveal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 47,
+    "name": "Liquid metal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/liquid-metal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 48,
+    "name": "Mandelbulb fractal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/mandelbulb.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 49,
+    "name": "Infinite tunnel",
+    "url": "https://ajeckblad.github.io/motion-library/fx/infinite-tunnel.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 50,
+    "name": "Glass prism",
+    "url": "https://ajeckblad.github.io/motion-library/fx/glass-prism.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 51,
+    "name": "Dot globe with arcs",
+    "url": "https://ajeckblad.github.io/motion-library/fx/point-globe.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 52,
+    "name": "Extruded 3D type",
+    "url": "https://ajeckblad.github.io/motion-library/fx/extruded-type.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 53,
+    "name": "Holographic card",
+    "url": "https://ajeckblad.github.io/motion-library/fx/holo-card.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 54,
+    "name": "Iridescent torus knot",
+    "url": "https://ajeckblad.github.io/motion-library/fx/torus-knot.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 55,
+    "name": "Jelly cube",
+    "url": "https://ajeckblad.github.io/motion-library/fx/jelly-cube.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 56,
+    "name": "Neon geodesic sphere",
+    "url": "https://ajeckblad.github.io/motion-library/fx/neon-geodesic.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 57,
+    "name": "Spheres on a knot",
+    "url": "https://ajeckblad.github.io/motion-library/fx/path-spheres.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 58,
+    "name": "SDF shape morph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/sdf-morph.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 59,
+    "name": "Paper fold",
+    "url": "https://ajeckblad.github.io/motion-library/fx/paper-fold.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 60,
+    "name": "Menger sponge",
+    "url": "https://ajeckblad.github.io/motion-library/fx/menger-sponge.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 61,
+    "name": "Gyroid fly-through",
+    "url": "https://ajeckblad.github.io/motion-library/fx/gyroid.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 62,
+    "name": "Black hole",
+    "url": "https://ajeckblad.github.io/motion-library/fx/black-hole.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 63,
+    "name": "Tesseract",
+    "url": "https://ajeckblad.github.io/motion-library/fx/tesseract.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 64,
+    "name": "Soap bubble",
+    "url": "https://ajeckblad.github.io/motion-library/fx/soap-bubble.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 65,
+    "name": "Terrain flyover",
+    "url": "https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 66,
+    "name": "Volumetric clouds",
+    "url": "https://ajeckblad.github.io/motion-library/fx/volumetric-clouds.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 67,
+    "name": "Brilliant-cut diamond",
+    "url": "https://ajeckblad.github.io/motion-library/fx/gem.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 68,
+    "name": "Klein bottle",
+    "url": "https://ajeckblad.github.io/motion-library/fx/klein-bottle.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 69,
+    "name": "Inflated type",
+    "url": "https://ajeckblad.github.io/motion-library/fx/inflated-type.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 70,
+    "name": "Melting chrome logo",
+    "url": "https://ajeckblad.github.io/motion-library/fx/melting-logo.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 71,
+    "name": "DNA double helix",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dna-helix.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 72,
+    "name": "3D fractal tree",
+    "url": "https://ajeckblad.github.io/motion-library/fx/fractal-tree.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 73,
+    "name": "Shatter & rewind",
+    "url": "https://ajeckblad.github.io/motion-library/fx/shatter.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 74,
+    "name": "CRT monitor",
+    "url": "https://ajeckblad.github.io/motion-library/fx/crt-monitor.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 75,
+    "name": "CMYK halftone",
+    "url": "https://ajeckblad.github.io/motion-library/fx/cmyk-halftone.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 76,
+    "name": "Reaction–diffusion",
+    "url": "https://ajeckblad.github.io/motion-library/fx/reaction-diffusion.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 77,
+    "name": "Guilloche spirograph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/guilloche.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 78,
+    "name": "RGB-split glitch",
+    "url": "https://ajeckblad.github.io/motion-library/fx/rgb-glitch.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 79,
+    "name": "Domain-warped marble",
+    "url": "https://ajeckblad.github.io/motion-library/fx/domain-warp.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 80,
+    "name": "Truchet flow",
+    "url": "https://ajeckblad.github.io/motion-library/fx/truchet.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 81,
+    "name": "Kaleidoscope",
+    "url": "https://ajeckblad.github.io/motion-library/fx/kaleidoscope.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 82,
+    "name": "Ordered dither",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dither.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 83,
+    "name": "Pen sketch",
+    "url": "https://ajeckblad.github.io/motion-library/fx/pen-sketch.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 84,
+    "name": "ASCII render",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ascii-render.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 85,
+    "name": "Pixel sort",
+    "url": "https://ajeckblad.github.io/motion-library/fx/pixel-sort.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 86,
+    "name": "Hyperbolic tiling",
+    "url": "https://ajeckblad.github.io/motion-library/fx/hyperbolic-tiling.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 87,
+    "name": "Op-art moiré",
+    "url": "https://ajeckblad.github.io/motion-library/fx/op-art-moire.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 88,
+    "name": "Bauhaus composition",
+    "url": "https://ajeckblad.github.io/motion-library/fx/bauhaus.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 89,
+    "name": "Memphis pattern",
+    "url": "https://ajeckblad.github.io/motion-library/fx/memphis.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 90,
+    "name": "Phyllotaxis",
+    "url": "https://ajeckblad.github.io/motion-library/fx/phyllotaxis.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 91,
+    "name": "Rose curve",
+    "url": "https://ajeckblad.github.io/motion-library/fx/rose-curve.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 92,
+    "name": "Superformula",
+    "url": "https://ajeckblad.github.io/motion-library/fx/superformula.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 93,
+    "name": "Hex wave",
+    "url": "https://ajeckblad.github.io/motion-library/fx/hex-wave.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 94,
+    "name": "Wave lines",
+    "url": "https://ajeckblad.github.io/motion-library/fx/wave-lines.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 95,
+    "name": "Starburst",
+    "url": "https://ajeckblad.github.io/motion-library/fx/starburst.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 96,
+    "name": "Log spiral",
+    "url": "https://ajeckblad.github.io/motion-library/fx/spiral.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 97,
+    "name": "Woven tartan",
+    "url": "https://ajeckblad.github.io/motion-library/fx/tartan.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 98,
+    "name": "Clifford attractor",
+    "url": "https://ajeckblad.github.io/motion-library/fx/clifford-attractor.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 99,
+    "name": "Barnsley fern",
+    "url": "https://ajeckblad.github.io/motion-library/fx/barnsley-fern.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 100,
+    "name": "Chaos game",
+    "url": "https://ajeckblad.github.io/motion-library/fx/sierpinski.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 101,
+    "name": "Dragon curve",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dragon-curve.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 102,
+    "name": "Dot-matrix wave",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dot-matrix-wave.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 103,
+    "name": "Metaballs",
+    "url": "https://ajeckblad.github.io/motion-library/fx/metaballs.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 104,
+    "name": "Aurora curtains",
+    "url": "https://ajeckblad.github.io/motion-library/fx/aurora-ribbons.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 105,
+    "name": "Ripple grid",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ripple-grid.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 106,
+    "name": "Voronoi cells",
+    "url": "https://ajeckblad.github.io/motion-library/fx/voronoi-cells.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 107,
+    "name": "Quasicrystal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/quasicrystal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 108,
+    "name": "Topographic contours",
+    "url": "https://ajeckblad.github.io/motion-library/fx/topographic.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 109,
+    "name": "Wave interference",
+    "url": "https://ajeckblad.github.io/motion-library/fx/interference.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 110,
+    "name": "Plasma",
+    "url": "https://ajeckblad.github.io/motion-library/fx/plasma.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 111,
+    "name": "Heatmap",
+    "url": "https://ajeckblad.github.io/motion-library/fx/heatmap.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 112,
+    "name": "Julia set",
+    "url": "https://ajeckblad.github.io/motion-library/fx/julia-set.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 113,
+    "name": "Brian’s Brain",
+    "url": "https://ajeckblad.github.io/motion-library/fx/brians-brain.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 114,
+    "name": "Langton’s ant",
+    "url": "https://ajeckblad.github.io/motion-library/fx/langtons-ant.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 115,
+    "name": "Falling sand",
+    "url": "https://ajeckblad.github.io/motion-library/fx/falling-sand.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 116,
+    "name": "Doom fire",
+    "url": "https://ajeckblad.github.io/motion-library/fx/doom-fire.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 117,
+    "name": "Water ripples",
+    "url": "https://ajeckblad.github.io/motion-library/fx/water-ripple.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 118,
+    "name": "Double pendulums",
+    "url": "https://ajeckblad.github.io/motion-library/fx/double-pendulum.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 119,
+    "name": "N-body orbits",
+    "url": "https://ajeckblad.github.io/motion-library/fx/orbits.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 120,
+    "name": "Vortex drain",
+    "url": "https://ajeckblad.github.io/motion-library/fx/vortex.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 121,
+    "name": "Plexus",
+    "url": "https://ajeckblad.github.io/motion-library/fx/plexus.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 122,
+    "name": "Digital rain",
+    "url": "https://ajeckblad.github.io/motion-library/fx/matrix-rain.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 123,
+    "name": "Warp starfield",
+    "url": "https://ajeckblad.github.io/motion-library/fx/starfield-warp.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 124,
+    "name": "Oscilloscope",
+    "url": "https://ajeckblad.github.io/motion-library/fx/oscilloscope.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 125,
+    "name": "Copper bars",
+    "url": "https://ajeckblad.github.io/motion-library/fx/copper-bars.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 126,
+    "name": "Checker tunnel",
+    "url": "https://ajeckblad.github.io/motion-library/fx/checker-tunnel.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 127,
+    "name": "Rotozoom",
+    "url": "https://ajeckblad.github.io/motion-library/fx/rotozoom.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 128,
+    "name": "Seven-segment clock",
+    "url": "https://ajeckblad.github.io/motion-library/fx/seven-segment.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 129,
+    "name": "LED dot-matrix sign",
+    "url": "https://ajeckblad.github.io/motion-library/fx/led-matrix.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 130,
+    "name": "Radar sweep",
+    "url": "https://ajeckblad.github.io/motion-library/fx/radar-sweep.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 131,
+    "name": "Heart monitor",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ekg.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 132,
+    "name": "Spectrum analyser",
+    "url": "https://ajeckblad.github.io/motion-library/fx/audio-bars.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 133,
+    "name": "Neon tubes",
+    "url": "https://ajeckblad.github.io/motion-library/fx/neon-pipes.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 134,
+    "name": "Targeting HUD",
+    "url": "https://ajeckblad.github.io/motion-library/fx/crosshair-hud.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 135,
+    "name": "Fade & scale in",
+    "url": "https://ajeckblad.github.io/motion-library/fx/fade-scale.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 136,
+    "name": "Stagger grid",
+    "url": "https://ajeckblad.github.io/motion-library/fx/stagger-grid.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 137,
+    "name": "Easing curves race",
+    "url": "https://ajeckblad.github.io/motion-library/fx/easing-race.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 138,
+    "name": "3D card flip",
+    "url": "https://ajeckblad.github.io/motion-library/fx/card-flip.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 139,
+    "name": "Anticipation & follow-through",
+    "url": "https://ajeckblad.github.io/motion-library/fx/anticipation.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 140,
+    "name": "List reorder (FLIP)",
+    "url": "https://ajeckblad.github.io/motion-library/fx/list-reorder.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 141,
+    "name": "Add & remove",
+    "url": "https://ajeckblad.github.io/motion-library/fx/add-remove.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 142,
+    "name": "Number ticker",
+    "url": "https://ajeckblad.github.io/motion-library/fx/number-ticker.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 143,
+    "name": "Accordion FAQ",
+    "url": "https://ajeckblad.github.io/motion-library/fx/accordion-faq.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 144,
+    "name": "Tab swap",
+    "url": "https://ajeckblad.github.io/motion-library/fx/tab-swap.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 145,
+    "name": "Push slide",
+    "url": "https://ajeckblad.github.io/motion-library/fx/push-slide.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 146,
+    "name": "Circle reveal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/circle-reveal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 147,
+    "name": "Staircase wipe",
+    "url": "https://ajeckblad.github.io/motion-library/fx/staircase-wipe.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 148,
+    "name": "Shared-element expand",
+    "url": "https://ajeckblad.github.io/motion-library/fx/shared-expand.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 149,
+    "name": "View Transitions morph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/view-transition.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 150,
+    "name": "iOS sheet",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ios-sheet.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 151,
+    "name": "Lightbox zoom",
+    "url": "https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 152,
+    "name": "Directional tabs",
+    "url": "https://ajeckblad.github.io/motion-library/fx/directional-tabs.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 153,
+    "name": "Blur crossfade",
+    "url": "https://ajeckblad.github.io/motion-library/fx/blur-crossfade.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 154,
+    "name": "Card stack swipe",
+    "url": "https://ajeckblad.github.io/motion-library/fx/card-stack-swipe.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 155,
+    "name": "Letter rise stagger",
+    "url": "https://ajeckblad.github.io/motion-library/fx/letter-rise.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 156,
+    "name": "Scramble decode",
+    "url": "https://ajeckblad.github.io/motion-library/fx/scramble.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 157,
+    "name": "Variable-font wave",
+    "url": "https://ajeckblad.github.io/motion-library/fx/vf-wave.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 158,
+    "name": "Typewriter",
+    "url": "https://ajeckblad.github.io/motion-library/fx/typewriter.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 159,
+    "name": "Line mask reveal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/line-mask.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 160,
+    "name": "Split-flap board",
+    "url": "https://ajeckblad.github.io/motion-library/fx/split-flap.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 161,
+    "name": "Odometer counter",
+    "url": "https://ajeckblad.github.io/motion-library/fx/odometer.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 162,
+    "name": "Rotating word",
+    "url": "https://ajeckblad.github.io/motion-library/fx/rotating-word.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 163,
+    "name": "Marker highlight",
+    "url": "https://ajeckblad.github.io/motion-library/fx/highlighter.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 164,
+    "name": "Text on a circle",
+    "url": "https://ajeckblad.github.io/motion-library/fx/text-circle.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 165,
+    "name": "Parallax layers",
+    "url": "https://ajeckblad.github.io/motion-library/fx/parallax.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 166,
+    "name": "Scrub reveal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/scrub-reveal.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 167,
+    "name": "Pinned horizontal track",
+    "url": "https://ajeckblad.github.io/motion-library/fx/pinned-track.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 168,
+    "name": "Zoom-through",
+    "url": "https://ajeckblad.github.io/motion-library/fx/zoom-through.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 169,
+    "name": "Velocity-skew marquee",
+    "url": "https://ajeckblad.github.io/motion-library/fx/velocity-skew.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 170,
+    "name": "Reading progress",
+    "url": "https://ajeckblad.github.io/motion-library/fx/reading-progress.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 171,
+    "name": "Sticky card stack",
+    "url": "https://ajeckblad.github.io/motion-library/fx/sticky-stack.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 172,
+    "name": "Timeline draw",
+    "url": "https://ajeckblad.github.io/motion-library/fx/timeline-draw.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 173,
+    "name": "Image-sequence scrub",
+    "url": "https://ajeckblad.github.io/motion-library/fx/sequence-scrub.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 174,
+    "name": "Snap gallery",
+    "url": "https://ajeckblad.github.io/motion-library/fx/snap-gallery.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 175,
+    "name": "Magnetic button",
+    "url": "https://ajeckblad.github.io/motion-library/fx/magnetic.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 176,
+    "name": "Click ripple",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ripple.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 177,
+    "name": "3D tilt card",
+    "url": "https://ajeckblad.github.io/motion-library/fx/tilt.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 178,
+    "name": "Cursor trail",
+    "url": "https://ajeckblad.github.io/motion-library/fx/cursor-trail.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 179,
+    "name": "Spotlight reveal",
+    "url": "https://ajeckblad.github.io/motion-library/fx/spotlight.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 180,
+    "name": "Image follow",
+    "url": "https://ajeckblad.github.io/motion-library/fx/image-follow.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 181,
+    "name": "Directional fill",
+    "url": "https://ajeckblad.github.io/motion-library/fx/directional-fill.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 182,
+    "name": "Sliding underline",
+    "url": "https://ajeckblad.github.io/motion-library/fx/underline-slide.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 183,
+    "name": "Lit border",
+    "url": "https://ajeckblad.github.io/motion-library/fx/lit-border.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 184,
+    "name": "Dock magnify",
+    "url": "https://ajeckblad.github.io/motion-library/fx/dock-magnify.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 185,
+    "name": "Toggle spring",
+    "url": "https://ajeckblad.github.io/motion-library/fx/toggle.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 186,
+    "name": "Like burst",
+    "url": "https://ajeckblad.github.io/motion-library/fx/like-burst.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 187,
+    "name": "Submit to success",
+    "url": "https://ajeckblad.github.io/motion-library/fx/submit-success.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 188,
+    "name": "Arc spinner",
+    "url": "https://ajeckblad.github.io/motion-library/fx/arc-spinner.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 189,
+    "name": "Skeleton shimmer",
+    "url": "https://ajeckblad.github.io/motion-library/fx/skeleton.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 190,
+    "name": "Copy to tick",
+    "url": "https://ajeckblad.github.io/motion-library/fx/copy-tick.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 191,
+    "name": "Password strength",
+    "url": "https://ajeckblad.github.io/motion-library/fx/password-strength.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 192,
+    "name": "Hold to delete",
+    "url": "https://ajeckblad.github.io/motion-library/fx/hold-delete.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 193,
+    "name": "Bell and badge",
+    "url": "https://ajeckblad.github.io/motion-library/fx/bell-badge.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 194,
+    "name": "Toast stack",
+    "url": "https://ajeckblad.github.io/motion-library/fx/toast-stack.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 195,
+    "name": "Squash & stretch bounce",
+    "url": "https://ajeckblad.github.io/motion-library/fx/squash-bounce.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 196,
+    "name": "Rubber-band drag",
+    "url": "https://ajeckblad.github.io/motion-library/fx/rubber-band.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 197,
+    "name": "Pendulum wave",
+    "url": "https://ajeckblad.github.io/motion-library/fx/pendulum-wave.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 198,
+    "name": "Verlet rope",
+    "url": "https://ajeckblad.github.io/motion-library/fx/verlet-rope.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 199,
+    "name": "Ball collisions",
+    "url": "https://ajeckblad.github.io/motion-library/fx/ball-collisions.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 200,
+    "name": "Snap-point bottom sheet",
+    "url": "https://ajeckblad.github.io/motion-library/fx/bottom-sheet.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 201,
+    "name": "Swipe to dismiss",
+    "url": "https://ajeckblad.github.io/motion-library/fx/swipe-dismiss.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 202,
+    "name": "Chat heads",
+    "url": "https://ajeckblad.github.io/motion-library/fx/chat-heads.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 203,
+    "name": "Jelly app icon",
+    "url": "https://ajeckblad.github.io/motion-library/fx/icon-jelly.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 204,
+    "name": "Pull to refresh",
+    "url": "https://ajeckblad.github.io/motion-library/fx/pull-refresh.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 205,
+    "name": "Shape morph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/shape-morph.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 206,
+    "name": "Icon morph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/icon-morph.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 207,
+    "name": "Gooey blobs",
+    "url": "https://ajeckblad.github.io/motion-library/fx/gooey.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 208,
+    "name": "Line draw-on",
+    "url": "https://ajeckblad.github.io/motion-library/fx/line-draw.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 209,
+    "name": "Liquid button",
+    "url": "https://ajeckblad.github.io/motion-library/fx/liquid-button.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 210,
+    "name": "Play to pause",
+    "url": "https://ajeckblad.github.io/motion-library/fx/play-pause.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 211,
+    "name": "Menu to close",
+    "url": "https://ajeckblad.github.io/motion-library/fx/menu-close.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 212,
+    "name": "Chart morph",
+    "url": "https://ajeckblad.github.io/motion-library/fx/chart-morph.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 213,
+    "name": "Logo draw",
+    "url": "https://ajeckblad.github.io/motion-library/fx/logo-draw.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 214,
+    "name": "Button to menu",
+    "url": "https://ajeckblad.github.io/motion-library/fx/button-menu.html"
+   }
+  ]
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+   {
+    "@type": "Question",
+    "name": "What is this?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "A library of live web animations and effects. Each one is a single plain JavaScript file with no dependencies: hover a card to watch it, open it to read how it works, tune it with the sliders and take the code."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "How do I add one to my project?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Open an effect and copy the command next to “Install”, for example npx motion-library add confetti --pieces 300. Run it in your project folder: it writes animations/confetti.js and prints the two lines that start it. You need Node 18 or newer."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "Do the sliders change what npx installs?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Yes. Every slider you move is added to the command as a flag (--pieces 300), and the CLI writes those values into the file it copies. Reset the sliders and the command goes back to the defaults."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "Can I copy the code by hand instead?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Yes. Copy puts the file, with your slider values, on the clipboard; Download .html gives you a page that runs on its own. Import the default export, call it with a container element that has a size, and call the function it returns to clean up."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "Does it work with React, Vue or Svelte?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Yes. Call the function in your mount hook (useEffect, onMounted, onMount) with a ref to a sized element and return its cleanup. Prompt copies everything an AI coding assistant needs to fit it into your component."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "What about reduced motion?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "The UI pieces respect prefers-reduced-motion: movement is dropped and fades are kept. The big generative pieces render a still or slow down. Test it in your OS settings or your browser’s rendering tools."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "Which browsers?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Every current browser. WebGL pieces need WebGL (all modern browsers have it); a few use WebGL2. Serve your page from a local server or your dev server, since browsers block modules opened as files."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "Are they fast enough for phones?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Most run at 60 fps on a laptop and stay smooth on recent phones. The heaviest shaders have a quality or count slider: lower it for mobile, and only mount effects that are on screen."
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "What is the licence?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "MIT-0. Use them anywhere, change them freely, no credit needed."
+    }
+   }
+  ]
+ }
+]</script><!--/static:ld-->
+</head>
+<body>
+<a class="skip" href="#grid">Skip to animations</a>
+
+<header class="bar">
+  <a class="brand" href="#/" aria-label="Motion Library, show all">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="M16 16 L25 10"/><circle cx="16" cy="16" r="3.5" class="fill"/></svg>
+    <span>Motion Library</span>
+  </a>
+  <div class="bar-actions">
+    <button class="btn btn-ink" id="surprise" type="button">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="3.5"/><circle cx="7.2" cy="7.2" r="1.3" class="fill"/><circle cx="12.8" cy="12.8" r="1.3" class="fill"/><circle cx="12.8" cy="7.2" r="1.3" class="fill"/><circle cx="7.2" cy="12.8" r="1.3" class="fill"/></svg>
+      <span>Surprise me</span>
+    </button>
+    <div class="lang" id="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button>
+    </div>
+    <button class="icon-btn" id="sound" type="button" aria-pressed="false" aria-label="Sound off">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 8h3l4-3.5v11L7 12H4z" class="fill"/><path class="snd-on" d="M13.5 7.5a3.5 3.5 0 010 5M15.5 5.5a6.5 6.5 0 010 9"/><path class="snd-off" d="M13.5 8l4 4M17.5 8l-4 4"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="sheet" aria-labelledby="view-title">
+    <div class="sheet-head">
+      <h1 id="view-title">All animations</h1>
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="head-tools" id="head-tools"></div>
+    </div>
+    <div class="grid" id="grid" tabindex="-1" style="display:block"><!--static:grid-->
+<section class="cat-sec" id="sec-flow" data-cat="flow" style="--hue:#0a87a6"><div class="cat-head"><h2>Flow &amp; particles</h2><span class="cat-count">27 animations</span></div><div class="grid">
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/curl-flow.html"><div class="card-media"><img src="posters/curl-flow.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Curl-noise flow field</span></h3><span class="kind">Canvas</span><p class="trick">Divergence-free curl noise; particles never clump</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/drone-show.html"><div class="card-media"><img src="posters/drone-show.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Drone light show</span></h3><span class="kind">WebGL</span><p class="trick">Formation changes solved as an assignment problem: sort, then swap</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/particle-life.html"><div class="card-media"><img src="posters/particle-life.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Particle life</span></h3><span class="kind">Canvas</span><p class="trick">Asymmetric attraction table between species; lifelike clusters emerge</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/cloud-chamber.html"><div class="card-media"><img src="posters/cloud-chamber.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Cloud chamber</span></h3><span class="kind">Canvas</span><p class="trick">Particle tracks drawn as droplet trails that swell, drift and fade</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/galaxy.html"><div class="card-media"><img src="posters/galaxy.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Spiral galaxy</span></h3><span class="kind">WebGL</span><p class="trick">Stars on log-spiral arms with differential rotation and additive light</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/strange-attractor.html"><div class="card-media"><img src="posters/strange-attractor.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Strange attractor</span></h3><span class="kind">Canvas</span><p class="trick">Particles integrating the Aizawa attractor, with fading-canvas trails</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/physarum.html"><div class="card-media"><img src="posters/physarum.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Slime mould maps Tokyo</span></h3><span class="kind">WebGL</span><p class="trick">Sense, turn, step, deposit: agents carve self-reinforcing trail networks</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/lightning.html"><div class="card-media"><img src="posters/lightning.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Lightning arcs</span></h3><span class="kind">Canvas</span><p class="trick">Midpoint displacement, recursive branches, glow and afterimage</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/iron-filings.html"><div class="card-media"><img src="posters/iron-filings.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Iron filings</span></h3><span class="kind">Canvas</span><p class="trick">Segments align to the field and hop onto flux contours</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/galton-board.html"><div class="card-media"><img src="posters/galton-board.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Galton board</span></h3><span class="kind">Canvas</span><p class="trick">Per-bead coin tosses stack into a binomial bell curve</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/pin-art.html"><div class="card-media"><img src="posters/pin-art.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Pin art</span></h3><span class="kind">WebGL</span><p class="trick">Instanced pins that only slide forward, so imprints persist</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/confetti.html"><div class="card-media"><img src="posters/confetti.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>3D paper confetti</span></h3><span class="kind">Canvas</span><p class="trick">Squash by cos(spin) to fake a 3D tumble, two-sided colour</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/firefly-sync.html"><div class="card-media"><img src="posters/firefly-sync.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Firefly sync</span></h3><span class="kind">Canvas</span><p class="trick">Pulse-coupled oscillators: every flash nudges neighbours forward</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/gpu-particles.html"><div class="card-media"><img src="posters/gpu-particles.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>GPU particles (262k)</span></h3><span class="kind">WebGL</span><p class="trick">Positions live in a float texture; a shader moves them all</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/orbitals.html"><div class="card-media"><img src="posters/orbitals.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Hydrogen orbitals</span></h3><span class="kind">WebGL</span><p class="trick">Metropolis sampling of an exact wavefunction, coloured by phase</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/roche-limit.html"><div class="card-media"><img src="posters/roche-limit.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Roche limit</span></h3><span class="kind">WebGL</span><p class="trick">Tidal stretching past the Roche limit shears rubble into a ring</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/murmuration.html"><div class="card-media"><img src="posters/murmuration.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Starling murmuration</span></h3><span class="kind">Canvas</span><p class="trick">3D flocking where each bird tracks only seven nearest neighbours</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/states-of-matter.html"><div class="card-media"><img src="posters/states-of-matter.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>States of matter</span></h3><span class="kind">Canvas</span><p class="trick">Lennard-Jones atoms plus a thermostat: gas, liquid, crystal</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/embers.html"><div class="card-media"><img src="posters/embers.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Bonfire embers</span></h3><span class="kind">Canvas</span><p class="trick">Temperature-squared buoyancy swirled by a divergence-free curl field</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/calligraphy.html"><div class="card-media"><img src="posters/calligraphy.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Calligraphy brush</span></h3><span class="kind">Canvas</span><p class="trick">Bristle-by-bristle brush with per-bristle ink and dry-brush streaks</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/harmonograph.html"><div class="card-media"><img src="posters/harmonograph.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Harmonograph</span></h3><span class="kind">Canvas</span><p class="trick">Summed decaying sines near a simple ratio, slightly detuned</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/chladni.html"><div class="card-media"><img src="posters/chladni.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Chladni plate</span></h3><span class="kind">WebGL</span><p class="trick">GPU grains hop by local vibration and settle on nodal lines</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/dla-crystal.html"><div class="card-media"><img src="posters/dla-crystal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Crystal growth (DLA)</span></h3><span class="kind">Canvas</span><p class="trick">Diffusion-limited aggregation: random walkers stick on contact</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/wind-tunnel.html"><div class="card-media"><img src="posters/wind-tunnel.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Wind tunnel</span></h3><span class="kind">WebGL</span><p class="trick">GPU lattice Boltzmann solver shedding a Kármán vortex street</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/fireworks.html"><div class="card-media"><img src="posters/fireworks.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Fireworks</span></h3><span class="kind">Canvas</span><p class="trick">Rocket bursts with gravity, drag and six shell types</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/bokeh.html"><div class="card-media"><img src="posters/bokeh.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Bokeh</span></h3><span class="kind">Canvas</span><p class="trick">Circle of confusion: discs grow with distance from the focal plane</p></div></a></article>
+<article class="card" style="--hue:#0a87a6"><a class="card-link" href="fx/nebula.html"><div class="card-media"><img src="posters/nebula.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Nebula</span></h3><span class="kind">WebGL</span><p class="trick">Domain-warped fbm gas, lit toward a star, with dust lanes</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-fluid" data-cat="fluid" style="--hue:#2b74c9"><div class="cat-head"><h2>Fluid</h2><span class="cat-count">14 animations</span></div><div class="grid">
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/ink-fluid.html"><div class="card-media"><img src="posters/ink-fluid.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Ink fluid</span></h3><span class="kind">WebGL</span><p class="trick">Stable fluids: advect, curl, project, repeat</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/liquid-distort.html"><div class="card-media"><img src="posters/liquid-distort.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Liquid image distortion</span></h3><span class="kind">WebGL</span><p class="trick">Offset texture lookups by flowing noise</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/lava-lamp.html"><div class="card-media"><img src="posters/lava-lamp.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Lava lamp</span></h3><span class="kind">WebGL</span><p class="trick">Metaballs: sum the fields, threshold the sum</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/fire-smoke.html"><div class="card-media"><img src="posters/fire-smoke.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Fire &amp; smoke</span></h3><span class="kind">WebGL</span><p class="trick">Fluid solver with buoyant heat that cools into smoke</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/lava-flow.html"><div class="card-media"><img src="posters/lava-flow.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Lava flow</span></h3><span class="kind">WebGL</span><p class="trick">Temperature-dependent viscous flow; crust drawn on advected coordinates</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/ferrofluid.html"><div class="card-media"><img src="posters/ferrofluid.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Ferrofluid</span></h3><span class="kind">WebGL</span><p class="trick">Distance-field blob with cosine spikes that reach for the magnet</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/marbling.html"><div class="card-media"><img src="posters/marbling.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Paper marbling</span></h3><span class="kind">WebGL</span><p class="trick">Backward lookup through comb and swirl warps; paint never smears</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/raindrops-glass.html"><div class="card-media"><img src="posters/raindrops-glass.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Rain on glass</span></h3><span class="kind">Canvas</span><p class="trick">Each drop is a lens showing a sharp, flipped background</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/ink-drop.html"><div class="card-media"><img src="posters/ink-drop.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Ink drop in water</span></h3><span class="kind">Canvas</span><p class="trick">Particles orbiting a sinking, widening vortex ring</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/dripping-text.html"><div class="card-media"><img src="posters/dripping-text.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Dripping text</span></h3><span class="kind">Canvas</span><p class="trick">Gooey blur-and-threshold filter: drips merge with letters, necks snap</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/mercury.html"><div class="card-media"><img src="posters/mercury.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Liquid mercury</span></h3><span class="kind">WebGL</span><p class="trick">Metaball beads that merge, split and mirror an environment</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/billow-clouds.html"><div class="card-media"><img src="posters/billow-clouds.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Kelvin–Helmholtz clouds</span></h3><span class="kind">WebGL</span><p class="trick">Shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/paint-swirl.html"><div class="card-media"><img src="posters/paint-swirl.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Paint swirl</span></h3><span class="kind">WebGL</span><p class="trick">Colour advected around vortices; palette snapping keeps bands crisp</p></div></a></article>
+<article class="card" style="--hue:#2b74c9"><a class="card-link" href="fx/sph-water.html"><div class="card-media"><img src="posters/sph-water.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>SPH water tank</span></h3><span class="kind">Canvas</span><p class="trick">SPH: particles measure their own crowding and push back</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-chrome" data-cat="chrome" style="--hue:#8a6a4f"><div class="cat-head"><h2>Chrome &amp; 3D</h2><span class="cat-count">32 animations</span></div><div class="grid">
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/portal.html"><div class="card-media"><img src="posters/portal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Portal</span></h3><span class="kind">WebGL</span><p class="trick">Rays crossing the ring finish tracing in a second world</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/geode.html"><div class="card-media"><img src="posters/geode.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Geode</span></h3><span class="kind">WebGL</span><p class="trick">Voronoi over directions grows faceted crystals inward</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/glass-lens.html"><div class="card-media"><img src="posters/glass-lens.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Glass lens refraction</span></h3><span class="kind">WebGL</span><p class="trick">Bend the lookup by the lens normal, per colour</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/dust-bust.html"><div class="card-media"><img src="posters/dust-bust.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Dust to the wind</span></h3><span class="kind">WebGL</span><p class="trick">SDF surface sampled by random rays, dissolved point by point</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/cloth-reveal.html"><div class="card-media"><img src="posters/cloth-reveal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Cloth reveal</span></h3><span class="kind">WebGL</span><p class="trick">Verlet cloth with cone collisions: snags, tents, then whips off</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/liquid-metal.html"><div class="card-media"><img src="posters/liquid-metal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Liquid metal</span></h3><span class="kind">WebGL</span><p class="trick">Smooth-minimum blob pinches off a height-field pool; double reflections</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/mandelbulb.html"><div class="card-media"><img src="posters/mandelbulb.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Mandelbulb fractal</span></h3><span class="kind">WebGL</span><p class="trick">Power-8 orbits in spherical coordinates, raymarched by distance estimate</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/infinite-tunnel.html"><div class="card-media"><img src="posters/infinite-tunnel.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Infinite tunnel</span></h3><span class="kind">WebGL</span><p class="trick">Distance-field tube on a winding path, panels from angle and depth</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/glass-prism.html"><div class="card-media"><img src="posters/glass-prism.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Glass prism</span></h3><span class="kind">WebGL</span><p class="trick">Per-channel refraction with total internal reflection for dispersion</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/point-globe.html"><div class="card-media"><img src="posters/point-globe.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Dot globe with arcs</span></h3><span class="kind">Canvas</span><p class="trick">Fibonacci sphere of dots, noise continents, great-circle arcs</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/extruded-type.html"><div class="card-media"><img src="posters/extruded-type.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Extruded 3D type</span></h3><span class="kind">Canvas</span><p class="trick">Text mask stacked back to front through one 3D rotation</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/holo-card.html"><div class="card-media"><img src="posters/holo-card.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Holographic card</span></h3><span class="kind">DOM</span><p class="trick">Spring-driven CSS 3D tilt, color-dodge foil, glare tracking the light</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/torus-knot.html"><div class="card-media"><img src="posters/torus-knot.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Iridescent torus knot</span></h3><span class="kind">WebGL</span><p class="trick">Tube swept along a (p, q) knot with parallel-transport frames</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/jelly-cube.html"><div class="card-media"><img src="posters/jelly-cube.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Jelly cube</span></h3><span class="kind">WebGL</span><p class="trick">Mass-spring lattice drives free-form deformation; thickness-based light absorption</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/neon-geodesic.html"><div class="card-media"><img src="posters/neon-geodesic.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Neon geodesic sphere</span></h3><span class="kind">Canvas</span><p class="trick">Icosphere wireframe stroked as neon, glow from cheap downscaled copies</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/path-spheres.html"><div class="card-media"><img src="posters/path-spheres.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Spheres on a knot</span></h3><span class="kind">WebGL</span><p class="trick">Analytically ray-traced spheres with soft shadows and interreflections</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/sdf-morph.html"><div class="card-media"><img src="posters/sdf-morph.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>SDF shape morph</span></h3><span class="kind">WebGL</span><p class="trick">Five distance functions blended in turn, twisting at each midpoint</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/paper-fold.html"><div class="card-media"><img src="posters/paper-fold.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Paper fold</span></h3><span class="kind">DOM</span><p class="trick">Nested CSS 3D hinges, shaded from their true normals</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/menger-sponge.html"><div class="card-media"><img src="posters/menger-sponge.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Menger sponge</span></h3><span class="kind">WebGL</span><p class="trick">Box minus a cross, repeated by folding space each level</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/gyroid.html"><div class="card-media"><img src="posters/gyroid.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Gyroid fly-through</span></h3><span class="kind">WebGL</span><p class="trick">Thickened gyroid sheet with a tube carved along the camera path</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/black-hole.html"><div class="card-media"><img src="posters/black-hole.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Black hole</span></h3><span class="kind">WebGL</span><p class="trick">Rays bent toward the hole each step; Doppler-beamed accretion disk</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/tesseract.html"><div class="card-media"><img src="posters/tesseract.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Tesseract</span></h3><span class="kind">WebGL</span><p class="trick">Rigid 4D rotation projected to 3D turns the cube inside out</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/soap-bubble.html"><div class="card-media"><img src="posters/soap-bubble.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Soap bubble</span></h3><span class="kind">WebGL</span><p class="trick">Thin-film interference from a draining, swirling film thickness</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/terrain-flyover.html"><div class="card-media"><img src="posters/terrain-flyover.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Terrain flyover</span></h3><span class="kind">WebGL</span><p class="trick">Slope-damped noise layers carve erosion-like ridges</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/volumetric-clouds.html"><div class="card-media"><img src="posters/volumetric-clouds.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Volumetric clouds</span></h3><span class="kind">WebGL</span><p class="trick">March a noise density, with a second march toward the sun</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/gem.html"><div class="card-media"><img src="posters/gem.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Brilliant-cut diamond</span></h3><span class="kind">WebGL</span><p class="trick">Facet-plane intersection, total internal reflection, per-channel dispersion</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/klein-bottle.html"><div class="card-media"><img src="posters/klein-bottle.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Klein bottle</span></h3><span class="kind">WebGL</span><p class="trick">Parametric mesh as an additive hologram, see-through self-intersection</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/inflated-type.html"><div class="card-media"><img src="posters/inflated-type.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Inflated type</span></h3><span class="kind">WebGL</span><p class="trick">Pressure membrane solved inside glyphs gives a balloon profile</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/melting-logo.html"><div class="card-media"><img src="posters/melting-logo.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Melting chrome logo</span></h3><span class="kind">WebGL</span><p class="trick">Distance-field text melted by sampling the field from above</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/dna-helix.html"><div class="card-media"><img src="posters/dna-helix.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>DNA double helix</span></h3><span class="kind">Canvas</span><p class="trick">Pre-shaded sphere sprites sorted back to front, no 3D engine</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/fractal-tree.html"><div class="card-media"><img src="posters/fractal-tree.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>3D fractal tree</span></h3><span class="kind">Canvas</span><p class="trick">Three-way recursive branching around the golden angle, grown level by level</p></div></a></article>
+<article class="card" style="--hue:#8a6a4f"><a class="card-link" href="fx/shatter.html"><div class="card-media"><img src="posters/shatter.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Shatter &amp; rewind</span></h3><span class="kind">WebGL</span><p class="trick">Voronoi shards on ballistic paths; time slows, stops, reverses</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-shaders" data-cat="shaders" style="--hue:#7b8c10"><div class="cat-head"><h2>Shaders &amp; glitch</h2><span class="cat-count">13 animations</span></div><div class="grid">
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/crt-monitor.html"><div class="card-media"><img src="posters/crt-monitor.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>CRT monitor</span></h3><span class="kind">WebGL</span><p class="trick">Simulated electron beam, phosphor decay and aperture-grille stripes</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/cmyk-halftone.html"><div class="card-media"><img src="posters/cmyk-halftone.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>CMYK halftone</span></h3><span class="kind">WebGL</span><p class="trick">Rotated dot screens (C15° M75° Y0° K45°) printed in light</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/reaction-diffusion.html"><div class="card-media"><img src="posters/reaction-diffusion.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Reaction–diffusion</span></h3><span class="kind">WebGL</span><p class="trick">Gray–Scott: two chemicals, feed and kill</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/guilloche.html"><div class="card-media"><img src="posters/guilloche.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Guilloche spirograph</span></h3><span class="kind">Canvas</span><p class="trick">A hypotrochoid, drawn as a seven-line ribbon</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/rgb-glitch.html"><div class="card-media"><img src="posters/rgb-glitch.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>RGB-split glitch</span></h3><span class="kind">Canvas</span><p class="trick">Shift the colour channels, displace slices</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/domain-warp.html"><div class="card-media"><img src="posters/domain-warp.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Domain-warped marble</span></h3><span class="kind">WebGL</span><p class="trick">Noise sampled at noise-warped coordinates: f(p + g(p + h(p)))</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/truchet.html"><div class="card-media"><img src="posters/truchet.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Truchet flow</span></h3><span class="kind">WebGL</span><p class="trick">Random quarter-arc tiles that always connect, checkerboard flow</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/kaleidoscope.html"><div class="card-media"><img src="posters/kaleidoscope.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Kaleidoscope</span></h3><span class="kind">WebGL</span><p class="trick">Polar angle wrapped into one mirrored wedge</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/dither.html"><div class="card-media"><img src="posters/dither.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Ordered dither</span></h3><span class="kind">WebGL</span><p class="trick">Ordered dithering against an 8×8 Bayer threshold matrix</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/pen-sketch.html"><div class="card-media"><img src="posters/pen-sketch.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Pen sketch</span></h3><span class="kind">WebGL</span><p class="trick">Hatching layered by lighting; outlines from depth and normal jumps</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/ascii-render.html"><div class="card-media"><img src="posters/ascii-render.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>ASCII render</span></h3><span class="kind">WebGL</span><p class="trick">Brightness picks a glyph, edges pick - / |  by direction</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/pixel-sort.html"><div class="card-media"><img src="posters/pixel-sort.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Pixel sort</span></h3><span class="kind">WebGL</span><p class="trick">GPU odd-even transposition sort within bright runs per column</p></div></a></article>
+<article class="card" style="--hue:#7b8c10"><a class="card-link" href="fx/hyperbolic-tiling.html"><div class="card-media"><img src="posters/hyperbolic-tiling.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Hyperbolic tiling</span></h3><span class="kind">WebGL</span><p class="trick">Fold pixels into one triangle by reflections; glide by Möbius map</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-generative" data-cat="generative" style="--hue:#7a5af5"><div class="cat-head"><h2>Generative &amp; math</h2><span class="cat-count">26 animations</span></div><div class="grid">
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/op-art-moire.html"><div class="card-media"><img src="posters/op-art-moire.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Op-art moiré</span></h3><span class="kind">WebGL</span><p class="trick">Two fine ring gratings beat into broad, fast-moving moiré fringes</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/bauhaus.html"><div class="card-media"><img src="posters/bauhaus.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Bauhaus composition</span></h3><span class="kind">Canvas</span><p class="trick">Primary tiles that re-compose themselves through staggered, eased tweens</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/memphis.html"><div class="card-media"><img src="posters/memphis.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Memphis pattern</span></h3><span class="kind">Canvas</span><p class="trick">Jittered-grid confetti of Memphis shapes, wrapping seamlessly in three parallax layers</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/phyllotaxis.html"><div class="card-media"><img src="posters/phyllotaxis.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Phyllotaxis</span></h3><span class="kind">Canvas</span><p class="trick">Seeds at the golden angle, radius ∝ √age: why 137.5° packs perfectly</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/rose-curve.html"><div class="card-media"><img src="posters/rose-curve.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Rose curve</span></h3><span class="kind">Canvas</span><p class="trick">r = cos(kθ) traced by a comet pen, k gliding between fractions</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/superformula.html"><div class="card-media"><img src="posters/superformula.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Superformula</span></h3><span class="kind">Canvas</span><p class="trick">Gielis superformula outlines blended radius by radius, echoed into ribbons</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/hex-wave.html"><div class="card-media"><img src="posters/hex-wave.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Hex wave</span></h3><span class="kind">Canvas</span><p class="trick">Honeycomb prisms lifted by summed travelling rings and a swell</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/wave-lines.html"><div class="card-media"><img src="posters/wave-lines.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Wave lines</span></h3><span class="kind">Canvas</span><p class="trick">Harmonics phase-shifted line to line; hidden-line ridges drift diagonally</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/starburst.html"><div class="card-media"><img src="posters/starburst.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Starburst</span></h3><span class="kind">Canvas</span><p class="trick">Counter-rotating ray fans and zooming rings, combined with a difference blend</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/spiral.html"><div class="card-media"><img src="posters/spiral.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Log spiral</span></h3><span class="kind">WebGL</span><p class="trick">Rotating log spirals look like an endless zoom inward</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/tartan.html"><div class="card-media"><img src="posters/tartan.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Woven tartan</span></h3><span class="kind">WebGL</span><p class="trick">Real 2/2 twill per pixel: a mirrored sett on warp and weft</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/clifford-attractor.html"><div class="card-media"><img src="posters/clifford-attractor.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Clifford attractor</span></h3><span class="kind">WebGL</span><p class="trick">A million GPU orbits a frame into a log-tone-mapped density buffer</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/barnsley-fern.html"><div class="card-media"><img src="posters/barnsley-fern.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Barnsley fern</span></h3><span class="kind">Canvas</span><p class="trick">Chaos game with four affine maps, shaded by hit count</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/sierpinski.html"><div class="card-media"><img src="posters/sierpinski.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Chaos game</span></h3><span class="kind">Canvas</span><p class="trick">Random jumps toward corners converge on the Sierpinski triangle</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/dragon-curve.html"><div class="card-media"><img src="posters/dragon-curve.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Dragon curve</span></h3><span class="kind">Canvas</span><p class="trick">Each fold copies the curve and swings it open by 90°</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/dot-matrix-wave.html"><div class="card-media"><img src="posters/dot-matrix-wave.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Dot-matrix wave</span></h3><span class="kind">WebGL</span><p class="trick">One disc per cell, sized and coloured by rolling waves</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/metaballs.html"><div class="card-media"><img src="posters/metaballs.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Metaballs</span></h3><span class="kind">WebGL</span><p class="trick">Summed inverse-square fields, thresholded into one surface</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/aurora-ribbons.html"><div class="card-media"><img src="posters/aurora-ribbons.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Aurora curtains</span></h3><span class="kind">WebGL</span><p class="trick">Folded light curtains: bright hems, stretched-noise rays, altitude colour</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/ripple-grid.html"><div class="card-media"><img src="posters/ripple-grid.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Ripple grid</span></h3><span class="kind">WebGL</span><p class="trick">Damped ring waves displace the coordinates a grid is drawn in</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/voronoi-cells.html"><div class="card-media"><img src="posters/voronoi-cells.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Voronoi cells</span></h3><span class="kind">WebGL</span><p class="trick">Nearest and second-nearest seed distances; walls where F2 − F1 ≈ 0</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/quasicrystal.html"><div class="card-media"><img src="posters/quasicrystal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Quasicrystal</span></h3><span class="kind">WebGL</span><p class="trick">N rotated plane waves summed: ordered, symmetric, never repeating</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/topographic.html"><div class="card-media"><img src="posters/topographic.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Topographic contours</span></h3><span class="kind">WebGL</span><p class="trick">Isolines of morphing noise terrain, made pixel-exact with fwidth</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/interference.html"><div class="card-media"><img src="posters/interference.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Wave interference</span></h3><span class="kind">WebGL</span><p class="trick">Point sources summed as complex waves; fixed fringes, travelling crests</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/plasma.html"><div class="card-media"><img src="posters/plasma.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Plasma</span></h3><span class="kind">WebGL</span><p class="trick">Four sines summed, through a dark-light-dark ramp, not a rainbow</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/heatmap.html"><div class="card-media"><img src="posters/heatmap.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Heatmap</span></h3><span class="kind">WebGL</span><p class="trick">A drifting field, sampled per cell, through a perceptual heat palette</p></div></a></article>
+<article class="card" style="--hue:#7a5af5"><a class="card-link" href="fx/julia-set.html"><div class="card-media"><img src="posters/julia-set.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Julia set</span></h3><span class="kind">WebGL</span><p class="trick">z → z² + c, with c gliding along the Mandelbrot edge</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-simulation" data-cat="simulation" style="--hue:#c2410c"><div class="cat-head"><h2>Simulation</h2><span class="cat-count">9 animations</span></div><div class="grid">
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/brians-brain.html"><div class="card-media"><img src="posters/brians-brain.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Brian’s Brain</span></h3><span class="kind">Canvas</span><p class="trick">Three-state cellular automaton: fire, refractory, off; gliders everywhere</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/langtons-ant.html"><div class="card-media"><img src="posters/langtons-ant.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Langton’s ant</span></h3><span class="kind">Canvas</span><p class="trick">Turn right on empty, left on filled, flip, step: then a highway</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/falling-sand.html"><div class="card-media"><img src="posters/falling-sand.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Falling sand</span></h3><span class="kind">Canvas</span><p class="trick">Cellular automaton: grains fall, slide diagonally, water spreads sideways</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/doom-fire.html"><div class="card-media"><img src="posters/doom-fire.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Doom fire</span></h3><span class="kind">Canvas</span><p class="trick">The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/water-ripple.html"><div class="card-media"><img src="posters/water-ripple.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Water ripples</span></h3><span class="kind">WebGL</span><p class="trick">Height-field wave equation on the GPU, refracting a grid beneath</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/double-pendulum.html"><div class="card-media"><img src="posters/double-pendulum.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Double pendulums</span></h3><span class="kind">Canvas</span><p class="trick">Chaos: pendulums a fraction of a milliradian apart diverge completely</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/orbits.html"><div class="card-media"><img src="posters/orbits.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>N-body orbits</span></h3><span class="kind">Canvas</span><p class="trick">Every body pulls every other; leapfrog integration keeps orbits closed</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/vortex.html"><div class="card-media"><img src="posters/vortex.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Vortex drain</span></h3><span class="kind">Canvas</span><p class="trick">Lamb–Oseen vortex plus inflow; differential rotation winds colour into arms</p></div></a></article>
+<article class="card" style="--hue:#c2410c"><a class="card-link" href="fx/plexus.html"><div class="card-media"><img src="posters/plexus.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Plexus</span></h3><span class="kind">Canvas</span><p class="trick">Drifting points linked by distance-faded lines, found through a grid</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-retro" data-cat="retro" style="--hue:#16a34a"><div class="cat-head"><h2>Retro &amp; signal</h2><span class="cat-count">13 animations</span></div><div class="grid">
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/matrix-rain.html"><div class="card-media"><img src="posters/matrix-rain.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Digital rain</span></h3><span class="kind">Canvas</span><p class="trick">Falling glyph heads with fading tails, stamped from a cached atlas</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/starfield-warp.html"><div class="card-media"><img src="posters/starfield-warp.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Warp starfield</span></h3><span class="kind">Canvas</span><p class="trick">Perspective-projected stars whose streak length grows with speed</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/oscilloscope.html"><div class="card-media"><img src="posters/oscilloscope.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Oscilloscope</span></h3><span class="kind">Canvas</span><p class="trick">X-Y Lissajous beam with speed-dependent brightness and phosphor afterglow</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/copper-bars.html"><div class="card-media"><img src="posters/copper-bars.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Copper bars</span></h3><span class="kind">WebGL</span><p class="trick">Per-scanline colour ramps on a rolling drum, in 12-bit colour</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/checker-tunnel.html"><div class="card-media"><img src="posters/checker-tunnel.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Checker tunnel</span></h3><span class="kind">WebGL</span><p class="trick">Angle and inverse radius as texture coordinates; a flat checker becomes a tube</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/rotozoom.html"><div class="card-media"><img src="posters/rotozoom.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Rotozoom</span></h3><span class="kind">WebGL</span><p class="trick">One texture lookup through a rotating, breathing scale matrix</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/seven-segment.html"><div class="card-media"><img src="posters/seven-segment.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Seven-segment clock</span></h3><span class="kind">Canvas</span><p class="trick">Bevelled hexagon segments with lit glow and unlit ghosts</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/led-matrix.html"><div class="card-media"><img src="posters/led-matrix.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>LED dot-matrix sign</span></h3><span class="kind">WebGL</span><p class="trick">5×7 bitmap text stepped one LED column at a time, bloomed per LED</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/radar-sweep.html"><div class="card-media"><img src="posters/radar-sweep.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Radar sweep</span></h3><span class="kind">WebGL</span><p class="trick">Phosphor decay as exp(−angle since the beam passed)</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/ekg.html"><div class="card-media"><img src="posters/ekg.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Heart monitor</span></h3><span class="kind">Canvas</span><p class="trick">Gaussian PQRST beats written in place behind an erase bar</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/audio-bars.html"><div class="card-media"><img src="posters/audio-bars.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Spectrum analyser</span></h3><span class="kind">Canvas</span><p class="trick">Synthesised spectrum, fast-attack bars, peak caps falling under gravity</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/neon-pipes.html"><div class="card-media"><img src="posters/neon-pipes.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Neon tubes</span></h3><span class="kind">Canvas</span><p class="trick">Hot core, coloured glass, and a mip-pyramid bloom</p></div></a></article>
+<article class="card" style="--hue:#16a34a"><a class="card-link" href="fx/crosshair-hud.html"><div class="card-media"><img src="posters/crosshair-hud.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Targeting HUD</span></h3><span class="kind">Canvas</span><p class="trick">Spring-damped reticle, edge rulers, and brackets that close to lock</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-basics" data-cat="basics" style="--hue:#3b5bdb"><div class="cat-head"><h2>Basics</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/fade-scale.html"><div class="card-media"><img src="posters/fade-scale.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Fade &amp; scale in</span></h3><span class="kind">DOM</span><p class="trick">Cards rise from 94% scale, never from zero</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/stagger-grid.html"><div class="card-media"><img src="posters/stagger-grid.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Stagger grid</span></h3><span class="kind">DOM</span><p class="trick">Delay grows with distance from the tap</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/easing-race.html"><div class="card-media"><img src="posters/easing-race.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Easing curves race</span></h3><span class="kind">DOM</span><p class="trick">Same distance, same time, four easing curves</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/card-flip.html"><div class="card-media"><img src="posters/card-flip.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>3D card flip</span></h3><span class="kind">DOM</span><p class="trick">rotateY on a spring, with the back face hidden</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/anticipation.html"><div class="card-media"><img src="posters/anticipation.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Anticipation &amp; follow-through</span></h3><span class="kind">DOM</span><p class="trick">Crouch before the hop, wobble after the landing</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/list-reorder.html"><div class="card-media"><img src="posters/list-reorder.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>List reorder (FLIP)</span></h3><span class="kind">DOM</span><p class="trick">FLIP reorder; rising rows pass above falling ones</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/add-remove.html"><div class="card-media"><img src="posters/add-remove.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Add &amp; remove</span></h3><span class="kind">DOM</span><p class="trick">The gap closes after the item leaves, and opens before it returns</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/number-ticker.html"><div class="card-media"><img src="posters/number-ticker.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Number ticker</span></h3><span class="kind">DOM</span><p class="trick">Each digit is a 0–9 strip that rolls to its value</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/accordion-faq.html"><div class="card-media"><img src="posters/accordion-faq.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Accordion FAQ</span></h3><span class="kind">DOM</span><p class="trick">Height to a measured value, text a beat later</p></div></a></article>
+<article class="card" style="--hue:#3b5bdb"><a class="card-link" href="fx/tab-swap.html"><div class="card-media"><img src="posters/tab-swap.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Tab swap</span></h3><span class="kind">DOM</span><p class="trick">A clipped copy of the tabs; the leading edge moves first</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-transitions" data-cat="transitions" style="--hue:#0e9488"><div class="cat-head"><h2>Page transitions</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/push-slide.html"><div class="card-media"><img src="posters/push-slide.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Push slide</span></h3><span class="kind">DOM</span><p class="trick">The new screen pushes; the old one drifts slower</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/circle-reveal.html"><div class="card-media"><img src="posters/circle-reveal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Circle reveal</span></h3><span class="kind">DOM</span><p class="trick">A clip-path circle grows from the tap point</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/staircase-wipe.html"><div class="card-media"><img src="posters/staircase-wipe.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Staircase wipe</span></h3><span class="kind">DOM</span><p class="trick">Bars cover in a stagger, the page swaps unseen</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/shared-expand.html"><div class="card-media"><img src="posters/shared-expand.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Shared-element expand</span></h3><span class="kind">DOM</span><p class="trick">FLIP with a uniform scale and a clip</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/view-transition.html"><div class="card-media"><img src="posters/view-transition.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>View Transitions morph</span></h3><span class="kind">DOM</span><p class="trick">The browser morphs matching view-transition-names</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/ios-sheet.html"><div class="card-media"><img src="posters/ios-sheet.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>iOS sheet</span></h3><span class="kind">DOM</span><p class="trick">The page steps back as the sheet comes up</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/lightbox-zoom.html"><div class="card-media"><img src="posters/lightbox-zoom.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Lightbox zoom</span></h3><span class="kind">DOM</span><p class="trick">The square crop opens out to the full photo</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/directional-tabs.html"><div class="card-media"><img src="posters/directional-tabs.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Directional tabs</span></h3><span class="kind">DOM</span><p class="trick">Content enters from the side of the tab you picked</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/blur-crossfade.html"><div class="card-media"><img src="posters/blur-crossfade.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Blur crossfade</span></h3><span class="kind">DOM</span><p class="trick">A short blur hides the double image</p></div></a></article>
+<article class="card" style="--hue:#0e9488"><a class="card-link" href="fx/card-stack-swipe.html"><div class="card-media"><img src="posters/card-stack-swipe.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Card stack swipe</span></h3><span class="kind">DOM</span><p class="trick">Drag, stamp, throw; the stack springs up</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-text" data-cat="text" style="--hue:#4f5d75"><div class="cat-head"><h2>Text</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/letter-rise.html"><div class="card-media"><img src="posters/letter-rise.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Letter rise stagger</span></h3><span class="kind">DOM</span><p class="trick">Letters spring up from a clipped line, 40 ms apart</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/scramble.html"><div class="card-media"><img src="posters/scramble.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Scramble decode</span></h3><span class="kind">DOM</span><p class="trick">Characters churn through random glyphs, then lock left to right</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/vf-wave.html"><div class="card-media"><img src="posters/vf-wave.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Variable-font wave</span></h3><span class="kind">DOM</span><p class="trick">A sine wave rolls through variable-font weight and width</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/typewriter.html"><div class="card-media"><img src="posters/typewriter.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Typewriter</span></h3><span class="kind">DOM</span><p class="trick">Typing with randomised keystroke delays and pauses at punctuation</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/line-mask.html"><div class="card-media"><img src="posters/line-mask.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Line mask reveal</span></h3><span class="kind">DOM</span><p class="trick">Lines slide up one by one from behind a clipping edge</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/split-flap.html"><div class="card-media"><img src="posters/split-flap.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Split-flap board</span></h3><span class="kind">DOM</span><p class="trick">Each character flips through the alphabet, one fold at a time</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/odometer.html"><div class="card-media"><img src="posters/odometer.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Odometer counter</span></h3><span class="kind">DOM</span><p class="trick">Digit wheels roll and carries ripple left, like a mileage counter</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/rotating-word.html"><div class="card-media"><img src="posters/rotating-word.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Rotating word</span></h3><span class="kind">DOM</span><p class="trick">One word cycles through a clipped slot with a slight blur</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/highlighter.html"><div class="card-media"><img src="posters/highlighter.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Marker highlight</span></h3><span class="kind">DOM</span><p class="trick">An uneven marker stroke sweeps behind key phrases</p></div></a></article>
+<article class="card" style="--hue:#4f5d75"><a class="card-link" href="fx/text-circle.html"><div class="card-media"><img src="posters/text-circle.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Text on a circle</span></h3><span class="kind">DOM</span><p class="trick">Text on an SVG circle turns, easing toward a target speed</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-scroll" data-cat="scroll" style="--hue:#2f9e44"><div class="cat-head"><h2>Scroll</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/parallax.html"><div class="card-media"><img src="posters/parallax.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Parallax layers</span></h3><span class="kind">DOM</span><p class="trick">Layers move at speeds that fall with depth</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/scrub-reveal.html"><div class="card-media"><img src="posters/scrub-reveal.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Scrub reveal</span></h3><span class="kind">DOM</span><p class="trick">Words light up one by one, scrubbed by scroll</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/pinned-track.html"><div class="card-media"><img src="posters/pinned-track.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Pinned horizontal track</span></h3><span class="kind">DOM</span><p class="trick">Vertical scroll slides a sticky row sideways</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/zoom-through.html"><div class="card-media"><img src="posters/zoom-through.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Zoom-through</span></h3><span class="kind">DOM</span><p class="trick">Exponential scale flies the view through a letter’s counter</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/velocity-skew.html"><div class="card-media"><img src="posters/velocity-skew.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Velocity-skew marquee</span></h3><span class="kind">DOM</span><p class="trick">Scroll velocity speeds up the marquee and skews it</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/reading-progress.html"><div class="card-media"><img src="posters/reading-progress.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Reading progress</span></h3><span class="kind">DOM</span><p class="trick">An eased scaleX progress bar plus minutes left to read</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/sticky-stack.html"><div class="card-media"><img src="posters/sticky-stack.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Sticky card stack</span></h3><span class="kind">DOM</span><p class="trick">Sticky cards stack; each steps back as the next arrives</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/timeline-draw.html"><div class="card-media"><img src="posters/timeline-draw.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Timeline draw</span></h3><span class="kind">DOM</span><p class="trick">A scroll-scrubbed line draws down; milestones trigger as it passes</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/sequence-scrub.html"><div class="card-media"><img src="posters/sequence-scrub.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Image-sequence scrub</span></h3><span class="kind">Canvas</span><p class="trick">Scroll position picks the frame of an image sequence</p></div></a></article>
+<article class="card" style="--hue:#2f9e44"><a class="card-link" href="fx/snap-gallery.html"><div class="card-media"><img src="posters/snap-gallery.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Snap gallery</span></h3><span class="kind">DOM</span><p class="trick">Scroll snapping; the centre card scales up, neighbours dim</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-hover" data-cat="hover" style="--hue:#b07a00"><div class="cat-head"><h2>Hover &amp; cursor</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/magnetic.html"><div class="card-media"><img src="posters/magnetic.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Magnetic button</span></h3><span class="kind">DOM</span><p class="trick">Pulled toward the cursor, label pulled further</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/ripple.html"><div class="card-media"><img src="posters/ripple.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Click ripple</span></h3><span class="kind">DOM</span><p class="trick">A circle expands from the exact press point</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/tilt.html"><div class="card-media"><img src="posters/tilt.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>3D tilt card</span></h3><span class="kind">DOM</span><p class="trick">The card turns toward the pointer, glare follows</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/cursor-trail.html"><div class="card-media"><img src="posters/cursor-trail.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Cursor trail</span></h3><span class="kind">Canvas</span><p class="trick">Each point chases the one before it</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/spotlight.html"><div class="card-media"><img src="posters/spotlight.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Spotlight reveal</span></h3><span class="kind">DOM</span><p class="trick">A soft mask follows the cursor over a dark layer</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/image-follow.html"><div class="card-media"><img src="posters/image-follow.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Image follow</span></h3><span class="kind">DOM</span><p class="trick">A preview trails the cursor and swaps per row</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/directional-fill.html"><div class="card-media"><img src="posters/directional-fill.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Directional fill</span></h3><span class="kind">DOM</span><p class="trick">The fill enters and leaves the way the cursor did</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/underline-slide.html"><div class="card-media"><img src="posters/underline-slide.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Sliding underline</span></h3><span class="kind">DOM</span><p class="trick">One underline travels between links and stretches</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/lit-border.html"><div class="card-media"><img src="posters/lit-border.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Lit border</span></h3><span class="kind">DOM</span><p class="trick">Card edges catch a light that follows the cursor</p></div></a></article>
+<article class="card" style="--hue:#b07a00"><a class="card-link" href="fx/dock-magnify.html"><div class="card-media"><img src="posters/dock-magnify.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Dock magnify</span></h3><span class="kind">DOM</span><p class="trick">Icons swell around the cursor and push apart</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-micro" data-cat="micro" style="--hue:#d63c74"><div class="cat-head"><h2>Micro &amp; loading</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/toggle.html"><div class="card-media"><img src="posters/toggle.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Toggle spring</span></h3><span class="kind">DOM</span><p class="trick">The knob stretches while it travels</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/like-burst.html"><div class="card-media"><img src="posters/like-burst.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Like burst</span></h3><span class="kind">DOM</span><p class="trick">Squash, pop, ring and sparks on one beat</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/submit-success.html"><div class="card-media"><img src="posters/submit-success.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Submit to success</span></h3><span class="kind">DOM</span><p class="trick">The button becomes the spinner becomes the tick</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/arc-spinner.html"><div class="card-media"><img src="posters/arc-spinner.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Arc spinner</span></h3><span class="kind">DOM</span><p class="trick">The arc grows and shrinks while it turns</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/skeleton.html"><div class="card-media"><img src="posters/skeleton.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Skeleton shimmer</span></h3><span class="kind">DOM</span><p class="trick">A light sweep says loading, then content fades in</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/copy-tick.html"><div class="card-media"><img src="posters/copy-tick.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Copy to tick</span></h3><span class="kind">DOM</span><p class="trick">The copy icon turns into a tick, with a Copied tag</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/password-strength.html"><div class="card-media"><img src="posters/password-strength.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Password strength</span></h3><span class="kind">DOM</span><p class="trick">Meter and checklist update on every keystroke</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/hold-delete.html"><div class="card-media"><img src="posters/hold-delete.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Hold to delete</span></h3><span class="kind">DOM</span><p class="trick">Slow fill while held, fast snap back on release</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/bell-badge.html"><div class="card-media"><img src="posters/bell-badge.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Bell and badge</span></h3><span class="kind">DOM</span><p class="trick">The bell rings, the count rolls up</p></div></a></article>
+<article class="card" style="--hue:#d63c74"><a class="card-link" href="fx/toast-stack.html"><div class="card-media"><img src="posters/toast-stack.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Toast stack</span></h3><span class="kind">DOM</span><p class="trick">New toasts in front, older ones step back</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-springs" data-cat="springs" style="--hue:#d9601a"><div class="cat-head"><h2>Springs &amp; physics</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/squash-bounce.html"><div class="card-media"><img src="posters/squash-bounce.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Squash &amp; stretch bounce</span></h3><span class="kind">DOM</span><p class="trick">Stretch with speed, squash on impact</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/rubber-band.html"><div class="card-media"><img src="posters/rubber-band.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Rubber-band drag</span></h3><span class="kind">DOM</span><p class="trick">Resistance grows past the edge, release springs back</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/pendulum-wave.html"><div class="card-media"><img src="posters/pendulum-wave.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Pendulum wave</span></h3><span class="kind">DOM</span><p class="trick">Lengths tuned so the row drifts in and out of sync</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/verlet-rope.html"><div class="card-media"><img src="posters/verlet-rope.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Verlet rope</span></h3><span class="kind">DOM</span><p class="trick">Points remember where they were; lengths are enforced</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/ball-collisions.html"><div class="card-media"><img src="posters/ball-collisions.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Ball collisions</span></h3><span class="kind">DOM</span><p class="trick">Elastic impulses along the line between centres</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/bottom-sheet.html"><div class="card-media"><img src="posters/bottom-sheet.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Snap-point bottom sheet</span></h3><span class="kind">DOM</span><p class="trick">Aim with the throw, then spring to the nearest snap point</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/swipe-dismiss.html"><div class="card-media"><img src="posters/swipe-dismiss.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Swipe to dismiss</span></h3><span class="kind">DOM</span><p class="trick">Fly off with the throw, rubber-band the wrong way</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/chat-heads.html"><div class="card-media"><img src="posters/chat-heads.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Chat heads</span></h3><span class="kind">DOM</span><p class="trick">Each bubble chases the one in front on its own spring</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/icon-jelly.html"><div class="card-media"><img src="posters/icon-jelly.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Jelly app icon</span></h3><span class="kind">DOM</span><p class="trick">A second spring turns speed into stretch</p></div></a></article>
+<article class="card" style="--hue:#d9601a"><a class="card-link" href="fx/pull-refresh.html"><div class="card-media"><img src="posters/pull-refresh.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Pull to refresh</span></h3><span class="kind">DOM</span><p class="trick">Rubber-band pull, hold on a shelf, spring home</p></div></a></article>
+</div></section>
+<section class="cat-sec" id="sec-morph" data-cat="morph" style="--hue:#b8359a"><div class="cat-head"><h2>Morph &amp; SVG</h2><span class="cat-count">10 animations</span></div><div class="grid">
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/shape-morph.html"><div class="card-media"><img src="posters/shape-morph.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Shape morph</span></h3><span class="kind">Canvas</span><p class="trick">Every shape is the same 160 polar radii</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/icon-morph.html"><div class="card-media"><img src="posters/icon-morph.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Icon morph</span></h3><span class="kind">DOM</span><p class="trick">Two icons drawn with the same points, interpolated</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/gooey.html"><div class="card-media"><img src="posters/gooey.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Gooey blobs</span></h3><span class="kind">DOM</span><p class="trick">Blur, then a hard alpha threshold</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/line-draw.html"><div class="card-media"><img src="posters/line-draw.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Line draw-on</span></h3><span class="kind">DOM</span><p class="trick">stroke-dasharray equals the path length</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/liquid-button.html"><div class="card-media"><img src="posters/liquid-button.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Liquid button</span></h3><span class="kind">Canvas</span><p class="trick">Edge points on springs, pushed by the pointer</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/play-pause.html"><div class="card-media"><img src="posters/play-pause.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Play to pause</span></h3><span class="kind">DOM</span><p class="trick">Two four-point halves of a triangle slide into two bars</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/menu-close.html"><div class="card-media"><img src="posters/menu-close.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Menu to close</span></h3><span class="kind">DOM</span><p class="trick">Three two-point lines, the middle one shrinks to a dot</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/chart-morph.html"><div class="card-media"><img src="posters/chart-morph.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Chart morph</span></h3><span class="kind">DOM</span><p class="trick">Every dataset resampled to the same 48 points</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/logo-draw.html"><div class="card-media"><img src="posters/logo-draw.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Logo draw</span></h3><span class="kind">DOM</span><p class="trick">Dash length = path length, then slide the offset to zero</p></div></a></article>
+<article class="card" style="--hue:#b8359a"><a class="card-link" href="fx/button-menu.html"><div class="card-media"><img src="posters/button-menu.webp" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>Button to menu</span></h3><span class="kind">DOM</span><p class="trick">One surface, a rounded clip-path opening from the button corner</p></div></a></article>
+</div></section>
+<!--/static:grid--></div>
+    <div class="empty" id="empty" hidden></div>
+    <section class="faq" id="faq" aria-labelledby="faq-title"><!--static:faq--><h2 id="faq-title">Questions</h2><div class="faq-list">
+<details class="faq-item"><summary><h3>What is this?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>A library of live web animations and effects. Each one is a single plain JavaScript file with no dependencies: hover a card to watch it, open it to read how it works, tune it with the sliders and take the code.</p></details>
+<details class="faq-item"><summary><h3>How do I add one to my project?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>Open an effect and copy the command next to “Install”, for example npx motion-library add confetti --pieces 300. Run it in your project folder: it writes animations/confetti.js and prints the two lines that start it. You need Node 18 or newer.</p></details>
+<details class="faq-item"><summary><h3>Do the sliders change what npx installs?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>Yes. Every slider you move is added to the command as a flag (--pieces 300), and the CLI writes those values into the file it copies. Reset the sliders and the command goes back to the defaults.</p></details>
+<details class="faq-item"><summary><h3>Can I copy the code by hand instead?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>Yes. Copy puts the file, with your slider values, on the clipboard; Download .html gives you a page that runs on its own. Import the default export, call it with a container element that has a size, and call the function it returns to clean up.</p></details>
+<details class="faq-item"><summary><h3>Does it work with React, Vue or Svelte?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>Yes. Call the function in your mount hook (useEffect, onMounted, onMount) with a ref to a sized element and return its cleanup. Prompt copies everything an AI coding assistant needs to fit it into your component.</p></details>
+<details class="faq-item"><summary><h3>What about reduced motion?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>The UI pieces respect prefers-reduced-motion: movement is dropped and fades are kept. The big generative pieces render a still or slow down. Test it in your OS settings or your browser’s rendering tools.</p></details>
+<details class="faq-item"><summary><h3>Which browsers?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>Every current browser. WebGL pieces need WebGL (all modern browsers have it); a few use WebGL2. Serve your page from a local server or your dev server, since browsers block modules opened as files.</p></details>
+<details class="faq-item"><summary><h3>Are they fast enough for phones?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>Most run at 60 fps on a laptop and stay smooth on recent phones. The heaviest shaders have a quality or count slider: lower it for mobile, and only mount effects that are on screen.</p></details>
+<details class="faq-item"><summary><h3>What is the licence?</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>MIT-0. Use them anywhere, change them freely, no credit needed.</p></details>
+</div><!--/static:faq--></section>
+  </section>
+
+  <nav class="dial" id="dial" aria-label="Categories">
+    <div class="dial-items" id="dial-items" role="radiogroup" aria-label="Categories"></div>
+  </nav>
+</main>
+
+<div class="tray" id="tray" hidden></div>
+
+<section class="detail" id="detail" hidden aria-modal="true" role="dialog" aria-labelledby="d-title"></section>
+<section class="compare" id="compare" hidden aria-modal="true" role="dialog" aria-label="Compare animations"></section>
+<div class="popover" id="popover" hidden role="dialog" aria-label="Choose a group"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

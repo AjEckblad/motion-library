@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lightbox zoom: The square crop opens out to the full photo · Motion Library</title>
+<meta name="description" content="Lightbox zoom is a DOM effect: the square crop opens out to the full photo. One plain JavaScript file with no dependencies; add it with npx motion-library add lightbox-zoom.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Lightbox zoom · Motion Library">
+<meta property="og:description" content="The square crop opens out to the full photo">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/lightbox-zoom.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Lightbox zoom",
+  "description": "The square crop opens out to the full photo",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Page transitions, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/lightbox-zoom.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Page transitions",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/transitions"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Lightbox zoom",
+    "item": "https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/transitions">Page transitions</a></header>
+<main class="s-page">
+<article>
+<h1>Lightbox zoom</h1>
+<p class="tldr">Lightbox zoom is a DOM effect: the square crop opens out to the full photo. One plain JavaScript file with no dependencies; add it with npx motion-library add lightbox-zoom.</p>
+<figure><img src="../posters/lightbox-zoom.webp" alt="Lightbox zoom: The square crop opens out to the full photo" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/lightbox-zoom">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Lightbox zoom?</h2>
+<p>A tapped photo grows from its square into a full-screen viewer; swipe down and it shrinks back home.</p>
+
+<h2>How does Lightbox zoom work?</h2>
+<p>The tile is a centre crop, so the photo scales uniformly while a clip-path opens the crop to the full frame: FLIP with only transform and clip-path.</p>
+
+<h2>How do I add Lightbox zoom to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add lightbox-zoom</code>. It writes <code>animations/lightbox-zoom.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/lightbox-zoom.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add lightbox-zoom --duration 1000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Duration (ms)</td><td><code>--duration</code></td><td>440</td><td>200 to 1000</td><td>10</td></tr>
+<tr><td>Backdrop</td><td><code>--backdrop</code></td><td>1</td><td>0.5 to 1</td><td>0.01</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Page transitions</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>12.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Lightbox zoom: tap a photo in your library and it grows out of its square into the full-screen viewer over a black backdrop; swipe it down and it shrinks back into the same square.
+// The square tile is a centre crop of the full photo, so the photo scales uniformly while a clip opens the crop out to the full frame (FLIP: transform and clip-path only). The dismiss starts by following the finger down, then flies home, which is why the way back feels like your own gesture.
+const PARAMS = { duration: 440, backdrop: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let uid = 0;
+  const tag = Math.random().toString(36).slice(2, 7);
+  // A landscape photo drawn in SVG: a sky gradient, an optional sun, layered ridges and optional water.
+  const photo = p =&gt; {
+    const id = `lb${tag}${uid++}`, W = 120, H = 90;
+    let s = `&lt;svg viewBox=&quot;0 0 ${W} ${H}&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;${id}&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;${p.sky[0]}&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;${p.sky[1]}&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect width=&quot;${W}&quot; height=&quot;${H}&quot; fill=&quot;url(#${id})&quot;/&gt;`;
+    if (p.sun) s += `&lt;circle cx=&quot;${p.sun[0]}&quot; cy=&quot;${p.sun[1]}&quot; r=&quot;${p.sun[2]}&quot; fill=&quot;${p.sun[3]}&quot;/&gt;`;
+    p.ridges.forEach((c, i) =&gt; {
+      const base = H * (p.y0 + i * p.dy), amp = p.amp * (1 - i * 0.22);
+      let d = `M0 ${H}`;
+      for (let x = 0; x &lt;= W; x += 3) d += ` L${x} ${(base - amp * (Math.sin(x * 0.045 + p.seed + i * 1.7) * 0.6 + Math.sin(x * 0.11 + p.seed * 2 + i) * 0.3 + Math.sin(x * 0.23 + i * 3) * 0.1)).toFixed(1)}`;
+      s += `&lt;path d=&quot;${d} L${W} ${H}Z&quot; fill=&quot;${c}&quot;/&gt;`;
+    });
+    if (p.water) s += `&lt;rect y=&quot;${H * p.water[0]}&quot; width=&quot;${W}&quot; height=&quot;${H}&quot; fill=&quot;${p.water[1]}&quot;/&gt;&lt;path d=&quot;M20 ${H * p.water[0] + 6}h22M66 ${H * p.water[0] + 10}h30M34 ${H * p.water[0] + 16}h18&quot; stroke=&quot;#fff&quot; stroke-opacity=&quot;.25&quot; stroke-width=&quot;1.2&quot;/&gt;`;
+    return s + '&lt;/svg&gt;';
+  };
+  const P = [
+    { sky: ['#f4b39a', '#fde4cc'], sun: [86, 42, 9, '#fff3df'], ridges: ['#c48f95', '#8f6a83', '#4d3f5e'], y0: 0.55, dy: 0.11, amp: 16, seed: 1 },
+    { sky: ['#8fc3dc', '#e4f1f4'], ridges: ['#8db1bf', '#557f8e', '#2d4f5b'], water: [0.8, '#5b8796'], y0: 0.42, dy: 0.12, amp: 22, seed: 2 },
+    { sky: ['#f0a35e', '#f9dcb0'], sun: [30, 34, 10, '#fff1d0'], ridges: ['#e49a5f', '#cc7443', '#9c4f2e'], y0: 0.6, dy: 0.12, amp: 8, seed: 3 },
+    { sky: ['#cbd8cd', '#eef2ea'], ridges: ['#a9bfaa', '#7a977d', '#46634e'], y0: 0.42, dy: 0.15, amp: 14, seed: 4 },
+    { sky: ['#2f3a68', '#e08a6a'], sun: [62, 60, 8, '#ffd59a'], ridges: ['#28305a'], water: [0.66, '#34416f'], y0: 0.64, dy: 0, amp: 5, seed: 5 },
+    { sky: ['#5d9de4', '#d8eafb'], ridges: ['#eef3f8', '#93a7bd', '#4f6378'], y0: 0.4, dy: 0.15, amp: 24, seed: 6 },
+    { sky: ['#0d1430', '#2a3a6e'], sun: [92, 20, 5, '#f4f1e0'], ridges: ['#1b2546', '#10172e'], y0: 0.62, dy: 0.1, amp: 10, seed: 7 },
+    { sky: ['#b9dcef', '#f2f8ef'], ridges: ['#b7d48c', '#88b462', '#5f8c43'], y0: 0.55, dy: 0.12, amp: 10, seed: 8 },
+    { sky: ['#bfb0e3', '#f2e7f5'], sun: [40, 38, 8, '#fffaf4'], ridges: ['#a08bcb', '#7460a6', '#4a3d78'], y0: 0.52, dy: 0.12, amp: 14, seed: 9 },
+  ];
+  const tiles = Array.from({ length: 15 }, (_, i) =&gt; P[(i * 4 + (i &gt;&gt; 2)) % P.length]);
+  const sbIcons = c =&gt; `&lt;svg width=&quot;58&quot; height=&quot;12&quot; viewBox=&quot;0 0 58 12&quot;&gt;&lt;g fill=&quot;${c}&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;8&quot; width=&quot;3&quot; height=&quot;4&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;4.5&quot; y=&quot;6&quot; width=&quot;3&quot; height=&quot;6&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;9&quot; y=&quot;3.5&quot; width=&quot;3&quot; height=&quot;8.5&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;13.5&quot; y=&quot;1&quot; width=&quot;3&quot; height=&quot;11&quot; rx=&quot;.8&quot;/&gt;&lt;path d=&quot;M26 3.6a8.5 8.5 0 0 1 11 0l-1.3 1.4a6.6 6.6 0 0 0-8.4 0zM28.4 6.3a5 5 0 0 1 6.2 0l-1.3 1.4a3 3 0 0 0-3.6 0zM31.5 11.5l-1.6-1.8a2.4 2.4 0 0 1 3.2 0z&quot;/&gt;&lt;rect x=&quot;40.5&quot; y=&quot;.8&quot; width=&quot;15&quot; height=&quot;10.4&quot; rx=&quot;3&quot; fill=&quot;none&quot; stroke=&quot;${c}&quot; stroke-opacity=&quot;.45&quot;/&gt;&lt;rect x=&quot;42&quot; y=&quot;2.3&quot; width=&quot;10&quot; height=&quot;7.4&quot; rx=&quot;1.6&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;`;
+  const ico = d =&gt; `&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;20&quot; height=&quot;20&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;${d}&lt;/svg&gt;`;
+  const FW = 266, FH = 200, FY = 183; // the photo in the viewer: full width, 4:3, centred
+
+  const root = document.createElement('div');
+  root.className = 'lb-root';
+  root.innerHTML = `&lt;style&gt;
+    .lb-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #eef6f5, #d5e8e5); font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; color: #15171a; }
+    .lb-phone { position: absolute; left: 50%; top: 0; width: 280px; height: 580px; border-radius: 46px; background: #0f1113; box-shadow: inset 0 0 0 1.5px #2b2f34, 0 40px 80px -30px rgba(8,45,42,.45), 0 12px 30px -12px rgba(8,45,42,.3); transform-origin: 50% 0; }
+    .lb-screen { position: absolute; inset: 7px; border-radius: 39px; overflow: hidden; background: #fff; isolation: isolate; }
+    .lb-island { position: absolute; left: 50%; top: 17px; width: 76px; height: 22px; margin-left: -38px; border-radius: 12px; background: #000; z-index: 9; }
+    .lb-sb { position: absolute; left: 0; right: 0; top: 0; height: 44px; padding: 0 24px 0 32px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 650; z-index: 8; }
+    .lb-sb.w { color: #fff; opacity: 0; }
+    .lb-lib { position: absolute; inset: 0; padding-top: 44px; }
+    .lb-top { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 14px 2px; }
+    .lb-top h2 { margin: 0; font-size: 27px; font-weight: 750; letter-spacing: -0.02em; }
+    .lb-top span { font-size: 13px; color: #007aff; }
+    .lb-day { margin: 0 14px 10px; font-size: 12.5px; color: #8a8a8f; }
+    .lb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .lb-grid div { aspect-ratio: 1; overflow: hidden; }
+    .lb-grid svg, .lb-photo svg { display: block; width: 100%; height: 100%; }
+    .lb-back { position: absolute; inset: 0; background: #000; opacity: 0; }
+    .lb-photo { position: absolute; left: 0; top: ${FY}px; width: ${FW}px; height: ${FH}px; transform-origin: 0 0; visibility: hidden; will-change: transform, clip-path; }
+    .lb-chrome { position: absolute; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: #fff; opacity: 0; }
+    .lb-chrome.t { top: 44px; height: 44px; }
+    .lb-chrome.b { bottom: 22px; height: 44px; padding: 0 28px; }
+    .lb-date { text-align: center; font-size: 13px; font-weight: 640; line-height: 1.25; }
+    .lb-date small { display: block; font-size: 11px; font-weight: 500; opacity: .7; }
+    .lb-tap { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: rgba(120,120,128,.4); box-shadow: 0 0 0 1.5px rgba(255,255,255,.75); opacity: 0; z-index: 10; pointer-events: none; }
+  &lt;/style&gt;
+  &lt;div class=&quot;lb-phone&quot;&gt;&lt;div class=&quot;lb-screen&quot;&gt;
+    &lt;div class=&quot;lb-lib&quot;&gt;&lt;div class=&quot;lb-top&quot;&gt;&lt;h2&gt;Library&lt;/h2&gt;&lt;span&gt;Select&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;lb-day&quot;&gt;Today · Lofoten, Norway&lt;/div&gt;
+      &lt;div class=&quot;lb-grid&quot;&gt;${tiles.map(p =&gt; `&lt;div&gt;${photo(p)}&lt;/div&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;lb-back&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;lb-photo&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;lb-chrome t&quot;&gt;${ico('&lt;path d=&quot;M15 5l-7 7 7 7&quot;/&gt;')}&lt;div class=&quot;lb-date&quot;&gt;14 August&lt;small&gt;18:42&lt;/small&gt;&lt;/div&gt;&lt;span style=&quot;width:20px&quot;&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;lb-chrome b&quot;&gt;${ico('&lt;path d=&quot;M12 15V4M8 8l4-4 4 4M6 11v8.5h12V11&quot;/&gt;')}${ico('&lt;path d=&quot;M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z&quot;/&gt;')}${ico('&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;8&quot;/&gt;&lt;path d=&quot;M12 11v5M12 8h.01&quot;/&gt;')}${ico('&lt;path d=&quot;M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13&quot;/&gt;')}&lt;/div&gt;
+    &lt;div class=&quot;lb-sb&quot;&gt;&lt;span&gt;9:41&lt;/span&gt;${sbIcons('#15171a')}&lt;/div&gt;&lt;div class=&quot;lb-sb w&quot;&gt;&lt;span&gt;9:41&lt;/span&gt;${sbIcons('#fff')}&lt;/div&gt;
+    &lt;div class=&quot;lb-tap&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;div class=&quot;lb-island&quot;&gt;&lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const $ = s =&gt; root.querySelector(s);
+  const phone = $('.lb-phone'), screen = $('.lb-screen'), lib = $('.lb-lib'), backdrop = $('.lb-back'), ph = $('.lb-photo'), sbW = $('.lb-sb.w'), tapEl = $('.lb-tap');
+  const chrome = [...root.querySelectorAll('.lb-chrome')], cells = [...root.querySelectorAll('.lb-grid div')];
+
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, f = Math.min(1, Math.max(0.66, 0.66 + (H - 260) / 240 * 0.34));
+    const s = Math.min(H * 0.92 / (580 * f), W * 0.86 / 280), top = f &gt;= 1 ? (H - 580 * s) / 2 : H * 0.05;
+    phone.style.transform = `translate(-50%, ${top}px) scale(${s})`;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const local = el =&gt; { const sr = screen.getBoundingClientRect(), r = el.getBoundingClientRect(), k = sr.width / 266; return { x: (r.left - sr.left) / k, y: (r.top - sr.top) / k, w: r.width / k, h: r.height / k }; };
+  // The square tile shows the middle of the photo: scale uniformly and clip the sides away.
+  const inverted = t =&gt; {
+    const k = Math.max(t.w / FW, t.h / FH), ix = (FW - t.w / k) / 2, iy = (FH - t.h / k) / 2;
+    return { transform: `translate(${t.x - k * ix}px, ${t.y - FY - k * iy}px) scale(${k})`, clipPath: `inset(${iy}px ${ix}px ${iy}px ${ix}px)` };
+  };
+  const full = { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0px 0px 0px 0px)' };
+  const dragged = { transform: `translate(${FW * 0.05}px, ${FH * 0.05 + 54}px) scale(0.9)`, clipPath: 'inset(0px 0px 0px 0px)' };
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)', curve = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const tapAt = (x, y, dy = 0) =&gt; {
+    if (reduce) dy = 0;
+    tapEl.style.left = x + 'px'; tapEl.style.top = y + 'px';
+    tapEl.animate(dy ? [{ opacity: 0, transform: reduce ? 'none' : 'scale(0.8)' }, { opacity: 1, transform: 'scale(1)', offset: 0.15 }, { opacity: 1, transform: `translateY(${dy}px)`, offset: 0.85 }, { opacity: 0, transform: `translateY(${dy}px) scale(1.1)` }]
+      : [{ opacity: 0, transform: reduce ? 'none' : 'scale(0.8)' }, { opacity: 1, transform: 'scale(1)', offset: 0.3 }, { opacity: 0, transform: reduce ? 'none' : 'scale(1.2)' }], { duration: dy ? 520 : 460, easing: easeOut });
+  };
+
+  function open(i) {
+    const cell = cells[i], t = local(cell);
+    ph.innerHTML = cell.innerHTML; ph.style.visibility = 'visible'; cell.style.visibility = 'hidden';
+    const o = { duration: PARAMS.duration, easing: curve, fill: 'both' };
+    // Reduced motion: the photo fades in full size instead of zooming out of its square.
+    ph.animate(reduce ? [{ ...full, opacity: 0 }, { ...full, opacity: 1 }] : [inverted(t), full], o);
+    backdrop.animate([{ opacity: 0 }, { opacity: PARAMS.backdrop }], { duration: PARAMS.duration * 0.7, easing: easeOut, fill: 'both' });
+    sbW.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 80, fill: 'both' });
+    chrome.forEach(c =&gt; c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: PARAMS.duration * 0.6, easing: easeOut, fill: 'both' }));
+  }
+  function dismiss(i) {
+    const cell = cells[i], t = local(cell);
+    // 1. The photo follows the finger down and shrinks a little; the black thins out.
+    chrome.forEach(c =&gt; c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: easeOut, fill: 'both' }));
+    ph.animate([full, reduce ? full : dragged], { duration: 300, easing: easeOut, fill: 'both' });
+    backdrop.animate([{ opacity: PARAMS.backdrop }, { opacity: PARAMS.backdrop * 0.55 }], { duration: 300, easing: easeOut, fill: 'both' });
+    // 2. Release: it flies back into its square.
+    later(() =&gt; {
+      if (reduce) cell.style.visibility = ''; // the square is already back under the fading photo
+      ph.animate(reduce ? [{ ...full, opacity: 1 }, { ...full, opacity: 0 }] : [dragged, inverted(t)], { duration: PARAMS.duration, easing: curve, fill: 'both' }).onfinish = () =&gt; { cell.style.visibility = ''; ph.style.visibility = 'hidden'; };
+      backdrop.animate([{ opacity: PARAMS.backdrop * 0.55 }, { opacity: 0 }], { duration: PARAMS.duration * 0.6, easing: easeOut, fill: 'both' });
+      sbW.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'both' });
+    }, 320);
+  }
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  const order = [4, 9, 1, 12];
+  let n = 0;
+  function cycle() {
+    const i = order[n++ % order.length], t = local(cells[i]);
+    later(() =&gt; tapAt(t.x + t.w / 2, t.y + t.h / 2), 700);
+    later(() =&gt; open(i), 820);
+    later(() =&gt; tapAt(FW / 2, FY + FH / 2, 54), 820 + PARAMS.duration + 1600);
+    later(() =&gt; dismiss(i), 820 + PARAMS.duration + 1680);
+    later(cycle, 820 + PARAMS.duration * 2 + 1680 + 320 + 900);
+  }
+  cycle();
+
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List reorder (FLIP): FLIP reorder; rising rows pass above falling ones · Motion Library</title>
+<meta name="description" content="List reorder (FLIP) is a DOM effect: FLIP reorder; rising rows pass above falling ones. One plain JavaScript file with no dependencies; add it with npx motion-library add list-reorder.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/list-reorder.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="List reorder (FLIP) · Motion Library">
+<meta property="og:description" content="FLIP reorder; rising rows pass above falling ones">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/list-reorder.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "List reorder (FLIP)",
+  "description": "FLIP reorder; rising rows pass above falling ones",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Basics, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/list-reorder.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/list-reorder.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Basics",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/basics"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "List reorder (FLIP)",
+    "item": "https://ajeckblad.github.io/motion-library/fx/list-reorder.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/basics">Basics</a></header>
+<main class="s-page">
+<article>
+<h1>List reorder (FLIP)</h1>
+<p class="tldr">List reorder (FLIP) is a DOM effect: FLIP reorder; rising rows pass above falling ones. One plain JavaScript file with no dependencies; add it with npx motion-library add list-reorder.</p>
+<figure><img src="../posters/list-reorder.webp" alt="List reorder (FLIP): FLIP reorder; rising rows pass above falling ones" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/list-reorder">Open it live, tune it and copy the code</a></p>
+
+<h2>What is List reorder (FLIP)?</h2>
+<p>A running club’s leaderboard re-ranks by distance, pace or climb, and each runner glides to their new place.</p>
+
+<h2>How does List reorder (FLIP) work?</h2>
+<p>FLIP: measure each row, reorder, transform each back to its old spot and animate to zero; rows moving up pass above those going down.</p>
+
+<h2>How do I add List reorder (FLIP) to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add list-reorder</code>. It writes <code>animations/list-reorder.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/list-reorder.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add list-reorder --duration 1200</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Duration (ms)</td><td><code>--duration</code></td><td>300</td><td>150 to 1200</td><td>10</td></tr>
+<tr><td>Lift</td><td><code>--lift</code></td><td>0.03</td><td>0 to 0.08</td><td>0.005</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Basics</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.4 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// List reorder (FLIP): a running club's weekly leaderboard re-ranks when you sort by distance, pace or climb, and every row glides to its new place.
+// Each row is measured, moved in the layout, then shifted back with a transform and played to zero, so only transform animates. Rows that climb lift slightly and pass over the ones going down, so you can follow who moved.
+const PARAMS = { duration: 300, lift: 0.03 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AW = 440, AH = 318;
+  const people = [
+    { name: 'Maya Okafor', ini: 'MO', c: '#e8590c', km: 42.6, pace: 312, climb: 410 },
+    { name: 'Jonas Berg', ini: 'JB', c: '#3b5bdb', km: 38.1, pace: 288, climb: 655 },
+    { name: 'Priya Nair', ini: 'PN', c: '#0e9488', km: 35.4, pace: 331, climb: 290 },
+    { name: 'Tom Ellis', ini: 'TE', c: '#b8359a', km: 29.8, pace: 276, climb: 520 },
+    { name: 'Ines Duarte', ini: 'ID', c: '#2f9e44', km: 24.3, pace: 305, climb: 735 },
+  ];
+  const sorts = [
+    { key: 'Distance', by: (a, b) =&gt; b.km - a.km, val: p =&gt; `${p.km.toFixed(1)} km`, frac: p =&gt; p.km / 45 },
+    { key: 'Pace', by: (a, b) =&gt; a.pace - b.pace, val: p =&gt; `${Math.floor(p.pace / 60)}:${String(p.pace % 60).padStart(2, '0')} /km`, frac: p =&gt; (360 - p.pace) / 100 },
+    { key: 'Climb', by: (a, b) =&gt; b.climb - a.climb, val: p =&gt; `${p.climb} m`, frac: p =&gt; p.climb / 780 },
+  ];
+  const root = document.createElement('div');
+  root.className = 'lr-root';
+  root.innerHTML = `&lt;style&gt;
+    .lr-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .lr-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 16px 16px 12px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
+    .lr-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .lr-head h3 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.015em; font-stretch: 106%; }
+    .lr-head p { margin: 2px 0 0; font-size: 11.5px; color: #5b6066; }
+    .lr-seg { position: relative; display: flex; padding: 3px; border-radius: 10px; background: #f1f3f6; }
+    .lr-seg span { position: relative; z-index: 1; width: 62px; height: 26px; display: grid; place-items: center; font-size: 12px; font-weight: 600; color: #5b6066; }
+    .lr-seg span.on { color: #15171a; }
+    .lr-pill { position: absolute; left: 3px; top: 3px; width: 62px; height: 26px; border-radius: 7px; background: #fff; box-shadow: 0 1px 2px rgba(20,30,60,.12), 0 2px 6px -2px rgba(20,30,60,.14); transition: transform 240ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .lr-list { position: relative; }
+    .lr-ranks { position: absolute; left: 0; top: 0; }
+    .lr-ranks b { display: grid; place-items: center; width: 22px; height: 44px; margin-bottom: 4px; font-size: 12.5px; font-weight: 700; color: #9aa0a6; font-variant-numeric: tabular-nums; }
+    .lr-ranks b:nth-child(-n+3) { color: #b07a00; }
+    .lr-rows { margin-left: 28px; }
+    .lr-row { position: relative; height: 44px; margin-bottom: 4px; border-radius: 11px; display: grid; grid-template-columns: 30px 1fr 110px 72px; align-items: center; gap: 10px; padding: 0 10px; box-sizing: border-box; background: #fff; }
+    .lr-row::before { content: &quot;&quot;; position: absolute; inset: 0; border-radius: inherit; background: #f6f7f9; }
+    .lr-row::after { content: &quot;&quot;; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 10px 22px -10px rgba(20,30,60,.35), 0 0 0 1px rgba(20,30,60,.06); background: #fff; opacity: var(--up, 0); transition: opacity 160ms ease; }
+    .lr-row &gt; * { position: relative; z-index: 1; }
+    .lr-av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .lr-name { font-size: 13px; font-weight: 620; white-space: nowrap; }
+    .lr-bar { height: 6px; border-radius: 3px; background: #e6e9ef; overflow: hidden; }
+    .lr-bar i { display: block; height: 100%; border-radius: 3px; transform-origin: 0 50%; transition: transform 300ms cubic-bezier(0.77, 0, 0.175, 1); }
+    .lr-val { position: relative; height: 16px; text-align: right; font-size: 12.5px; font-weight: 640; font-variant-numeric: tabular-nums; }
+    .lr-val span { position: absolute; right: 0; top: 0; white-space: nowrap; }
+  &lt;/style&gt;
+  &lt;div class=&quot;lr-board&quot;&gt;
+    &lt;div class=&quot;lr-head&quot;&gt;&lt;div&gt;&lt;h3&gt;Running club&lt;/h3&gt;&lt;p&gt;This week · 5 members&lt;/p&gt;&lt;/div&gt;
+      &lt;div class=&quot;lr-seg&quot;&gt;&lt;i class=&quot;lr-pill&quot;&gt;&lt;/i&gt;${sorts.map(s =&gt; `&lt;span&gt;${s.key}&lt;/span&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;lr-list&quot;&gt;&lt;div class=&quot;lr-ranks&quot;&gt;${people.map((_, i) =&gt; `&lt;b&gt;${i + 1}&lt;/b&gt;`).join('')}&lt;/div&gt;&lt;div class=&quot;lr-rows&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.lr-board'), rowsEl = root.querySelector('.lr-rows'), pill = root.querySelector('.lr-pill');
+  const segs = [...root.querySelectorAll('.lr-seg span')];
+  people.forEach(p =&gt; {
+    const el = document.createElement('div'); el.className = 'lr-row';
+    el.innerHTML = `&lt;span class=&quot;lr-av&quot; style=&quot;background:${p.c}&quot;&gt;${p.ini}&lt;/span&gt;&lt;span class=&quot;lr-name&quot;&gt;${p.name}&lt;/span&gt;&lt;span class=&quot;lr-bar&quot;&gt;&lt;i style=&quot;background:${p.c}&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;lr-val&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;`;
+    p.el = el; p.bar = el.querySelector('.lr-bar i'); p.val = el.querySelector('.lr-val');
+  });
+
+  let scale = 1;
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / AW, stage.clientHeight / AH) * 0.92; scale = Math.min(s, 1.6); board.style.transform = `translate(-50%, -50%) scale(${scale})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  if (reduce) pill.style.transition = 'none';
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)', inOut = 'cubic-bezier(0.77, 0, 0.175, 1)';
+  const setVal = (p, text, animate) =&gt; {
+    const old = p.val.firstElementChild, next = document.createElement('span'); next.textContent = text; p.val.append(next);
+    if (!animate) { old.remove(); return; }
+    old.animate([{ opacity: 1 }, { opacity: 0, transform: reduce ? 'none' : 'translateY(-5px)' }], { duration: 140, easing: easeOut, fill: 'forwards' }).onfinish = () =&gt; old.remove();
+    next.animate([{ opacity: 0, transform: reduce ? 'none' : 'translateY(5px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: 80, easing: easeOut, fill: 'backwards' });
+  };
+
+  function sortBy(k, animate) {
+    const s = sorts[k];
+    segs.forEach((el, i) =&gt; el.classList.toggle('on', i === k));
+    pill.style.transform = `translateX(${k * 62}px)`;
+    // First: where every row is now.
+    const first = new Map(people.map(p =&gt; [p, p.el.getBoundingClientRect().top]));
+    // Last: put them in their new order.
+    [...people].sort(s.by).forEach(p =&gt; rowsEl.append(p.el));
+    people.forEach(p =&gt; {
+      setVal(p, s.val(p), animate);
+      p.bar.style.transform = `scaleX(${Math.max(0.06, Math.min(1, s.frac(p))).toFixed(3)})`;
+      if (!animate) return;
+      // Reduced motion: rows land in their new places and fade up instead of gliding.
+      if (reduce) { p.el.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 240, easing: easeOut }); return; }
+      // Invert, then Play: transform each row back to where it was and animate to zero.
+      const dy = (first.get(p) - p.el.getBoundingClientRect().top) / scale;
+      if (Math.abs(dy) &lt; 1) return;
+      const up = dy &gt; 0;
+      p.el.style.zIndex = up ? 2 : 1;
+      p.el.style.setProperty('--up', up ? 1 : 0);
+      const lift = up ? 1 + PARAMS.lift : 1;
+      p.el.animate([
+        { transform: `translateY(${dy}px)` },
+        { transform: `translateY(${dy * 0.5}px) scale(${lift})`, offset: 0.5 },
+        { transform: 'none' },
+      ], { duration: PARAMS.duration, easing: inOut }).onfinish = () =&gt; { p.el.style.zIndex = ''; p.el.style.setProperty('--up', 0); };
+    });
+  }
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  let k = 0;
+  sortBy(0, false);
+  const step = () =&gt; {
+    k = (k + 1) % sorts.length;
+    segs[k].animate([{ transform: 'scale(1)' }, { transform: 'scale(0.95)' }, { transform: 'scale(1)' }], { duration: reduce ? 0 : 200, easing: easeOut });
+    sortBy(k, true);
+    later(step, PARAMS.duration + 1900);
+  };
+  later(step, 1200);
+
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

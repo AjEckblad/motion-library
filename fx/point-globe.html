@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dot globe with arcs: Fibonacci sphere of dots, noise continents, great-circle arcs · Motion Library</title>
+<meta name="description" content="Dot globe with arcs is a Canvas effect: fibonacci sphere of dots, noise continents, great-circle arcs. One plain JavaScript file with no dependencies; add it with npx motion-library add point-globe.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/point-globe.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Dot globe with arcs · Motion Library">
+<meta property="og:description" content="Fibonacci sphere of dots, noise continents, great-circle arcs">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/point-globe.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Dot globe with arcs",
+  "description": "Fibonacci sphere of dots, noise continents, great-circle arcs",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/point-globe.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/point-globe.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Dot globe with arcs",
+    "item": "https://ajeckblad.github.io/motion-library/fx/point-globe.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Dot globe with arcs</h1>
+<p class="tldr">Dot globe with arcs is a Canvas effect: fibonacci sphere of dots, noise continents, great-circle arcs. One plain JavaScript file with no dependencies; add it with npx motion-library add point-globe.</p>
+<figure><img src="../posters/point-globe.webp" alt="Dot globe with arcs: Fibonacci sphere of dots, noise continents, great-circle arcs" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/point-globe">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Dot globe with arcs?</h2>
+<p>A dotted globe spins with arcs hopping between land points; drag to spin.</p>
+
+<h2>How does Dot globe with arcs work?</h2>
+<p>Golden-angle spiral dots with 3D noise for land, rotated and perspective-divided by hand on a 2D canvas; arcs follow great circles.</p>
+
+<h2>How do I add Dot globe with arcs to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add point-globe</code>. It writes <code>animations/point-globe.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/point-globe.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add point-globe --dots 30000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Dots</td><td><code>--dots</code></td><td>12000</td><td>3000 to 30000</td><td>1000</td></tr>
+<tr><td>Arcs</td><td><code>--arcs</code></td><td>6</td><td>0 to 20</td><td>1</td></tr>
+<tr><td>Spin</td><td><code>--spin</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>6.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Point globe: thousands of dots spread evenly over a sphere (a Fibonacci spiral), kept where a noise
+// &quot;continent&quot; map says land. Flight arcs leave the surface along great circles, rise with distance and land
+// with a ping. Everything is projected by hand on a 2D canvas; drag to spin.
+const PARAMS = { dots: 12000, arcs: 6, spin: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // value noise for the continents
+  const perm = Uint8Array.from({ length: 256 }, () =&gt; Math.random() * 256);
+  const hsh = (x, y, z) =&gt; perm[(perm[(perm[x &amp; 255] + y) &amp; 255] + z) &amp; 255] / 255, sm = t =&gt; t * t * (3 - 2 * t), lp = (a, b, t) =&gt; a + (b - a) * t;
+  const noise = (x, y, z) =&gt; { const X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z), u = sm(x - X), v = sm(y - Y), w = sm(z - Z);
+    return lp(lp(lp(hsh(X, Y, Z), hsh(X + 1, Y, Z), u), lp(hsh(X, Y + 1, Z), hsh(X + 1, Y + 1, Z), u), v), lp(lp(hsh(X, Y, Z + 1), hsh(X + 1, Y, Z + 1), u), lp(hsh(X, Y + 1, Z + 1), hsh(X + 1, Y + 1, Z + 1), u), v), w); };
+  const land = (x, y, z) =&gt; noise(x * 1.6 + 5, y * 1.6 + 5, z * 1.6 + 5) * 0.65 + noise(x * 4 + 9, y * 4 + 9, z * 4 + 9) * 0.35 &gt; 0.53 - Math.abs(y) * 0.06;
+  const N = Math.round(PARAMS.dots), dots = [], landIdx = [];
+  for (let i = 0; i &lt; N; i++) {
+    const y = 1 - (i + 0.5) / N * 2, r = Math.sqrt(1 - y * y), a = i * 2.39996323;    // golden-angle spiral: even spacing
+    const x = Math.cos(a) * r, z = Math.sin(a) * r, isLand = land(x, y, z);
+    if (isLand || i % 5 === 0) { dots.push([x, y, z, isLand]); if (isLand) landIdx.push(dots.length - 1); }
+  }
+  const arcs = [], pings = [];
+  const slerp = (a, b, t) =&gt; { const d = Math.acos(Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])), s = Math.sin(d) || 1; const k0 = Math.sin((1 - t) * d) / s, k1 = Math.sin(t * d) / s; return [a[0] * k0 + b[0] * k1, a[1] * k0 + b[1] * k1, a[2] * k0 + b[2] * k1, d]; };
+  const newArc = now =&gt; { const a = dots[landIdx[Math.random() * landIdx.length | 0]], b = dots[landIdx[Math.random() * landIdx.length | 0]]; return { a, b, t0: now + Math.random() * 1200, dur: 1600 + Math.random() * 1400, hue: Math.random() }; };
+
+  let ang = 0.5, vel = 0, dragX = null;
+  const onDown = e =&gt; { dragX = e.clientX; canvas.style.cursor = 'grabbing'; canvas.setPointerCapture?.(e.pointerId); };
+  const onMove = e =&gt; { if (dragX == null) return; vel = (e.clientX - dragX) * 0.01; ang += vel; dragX = e.clientX; };
+  const onUp = () =&gt; { dragX = null; canvas.style.cursor = 'grab'; };
+  canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointercancel', onUp);
+
+  let raf, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (dragX == null) { ang += vel + dt * 0.18 * PARAMS.spin; vel *= 0.94; }
+    const R = Math.min(W, H) * 0.36, cx = W / 2, cy = H / 2, tilt = 0.38, ca = Math.cos(ang), sa = Math.sin(ang), ct = Math.cos(tilt), st = Math.sin(tilt);
+    const proj = (x, y, z) =&gt; { const x1 = x * ca + z * sa, z1 = -x * sa + z * ca, y1 = y * ct - z1 * st, z2 = y * st + z1 * ct, k = 3.2 / (3.2 - z2); return [cx + x1 * R * k, cy - y1 * R * k, z2, k]; };
+    const bg = ctx.createRadialGradient(cx, cy, R * 0.2, cx, cy, Math.max(W, H) * 0.75); bg.addColorStop(0, '#0d1b33'); bg.addColorStop(1, '#050913');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    const glow = ctx.createRadialGradient(cx, cy, R * 0.95, cx, cy, R * 1.35); glow.addColorStop(0, 'rgba(70,150,255,.35)'); glow.addColorStop(1, 'rgba(70,150,255,0)');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(10,22,45,.9)'; ctx.beginPath(); ctx.arc(cx, cy, R * 1.0, 0, 7); ctx.fill();
+    // dots: only the near side, brighter toward the light and the limb fading out
+    for (const [x, y, z, isLand] of dots) {
+      const [sx, sy, sz, k] = proj(x, y, z); if (sz &lt; -0.05) continue;
+      const lit = 0.35 + 0.65 * Math.max(0, x * ca * 0.6 + y * 0.5 + 0.4), a = Math.min(1, sz * 3 + 0.15);
+      if (isLand) { ctx.fillStyle = `rgba(${120 + 135 * lit | 0},${200 + 55 * lit | 0},255,${a})`; const s = 1.5 * k; ctx.fillRect(sx - s / 2, sy - s / 2, s, s); }
+      else { ctx.fillStyle = `rgba(80,130,200,${a * 0.25})`; ctx.fillRect(sx - 0.5, sy - 0.5, 1, 1); }
+    }
+    // arcs along great circles, lifted by distance, with a bright head and a fading tail
+    while (arcs.length &lt; PARAMS.arcs) arcs.push(newArc(now));
+    for (let i = arcs.length - 1; i &gt;= 0; i--) {
+      const A = arcs[i], p = (now - A.t0) / A.dur; if (p &lt; 0) continue;
+      if (p &gt; 1.6) { arcs.splice(i, 1); continue; }
+      const head = Math.min(1, p), tail = Math.max(0, p - 0.6), dist = slerp(A.a, A.b, 0)[3];
+      const col = A.hue &lt; 0.5 ? [255, 120, 200] : [255, 190, 90];
+      let prev = null;
+      for (let s = 0; s &lt;= 40; s++) {
+        const t = tail + (head - tail) * s / 40, q = slerp(A.a, A.b, t), lift = 1 + Math.sin(Math.PI * t) * dist * 0.22;
+        const P = proj(q[0] * lift, q[1] * lift, q[2] * lift);
+        if (prev &amp;&amp; P[2] &gt; -0.15 &amp;&amp; prev[2] &gt; -0.15) { ctx.strokeStyle = `rgba(${col},${(s / 40) * 0.9})`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(P[0], P[1]); ctx.stroke(); }
+        prev = P;
+      }
+      if (p &lt; 1 &amp;&amp; prev &amp;&amp; prev[2] &gt; -0.15) { ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(prev[0], prev[1], 2.4, 0, 7); ctx.fill(); }
+      if (p &gt;= 1 &amp;&amp; !A.pinged) { A.pinged = true; pings.push({ p: A.b, t0: now, col }); }
+    }
+    for (let i = pings.length - 1; i &gt;= 0; i--) {
+      const g = pings[i], k = (now - g.t0) / 900; if (k &gt; 1) { pings.splice(i, 1); continue; }
+      const [sx, sy, sz] = proj(g.p[0], g.p[1], g.p[2]); if (sz &lt; 0) continue;
+      ctx.strokeStyle = `rgba(${g.col},${1 - k})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(sx, sy, 3 + k * 16, (3 + k * 16) * Math.max(0.3, sz), 0, 0, 7); ctx.stroke();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

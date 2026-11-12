@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glass lens refraction: Bend the lookup by the lens normal, per colour · Motion Library</title>
+<meta name="description" content="Glass lens refraction is a WebGL effect: bend the lookup by the lens normal, per colour. One plain JavaScript file with no dependencies; add it with npx motion-library add glass-lens.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/glass-lens.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Glass lens refraction · Motion Library">
+<meta property="og:description" content="Bend the lookup by the lens normal, per colour">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/glass-lens.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Glass lens refraction",
+  "description": "Bend the lookup by the lens normal, per colour",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/glass-lens.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/glass-lens.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Glass lens refraction",
+    "item": "https://ajeckblad.github.io/motion-library/fx/glass-lens.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Glass lens refraction</h1>
+<p class="tldr">Glass lens refraction is a WebGL effect: bend the lookup by the lens normal, per colour. One plain JavaScript file with no dependencies; add it with npx motion-library add glass-lens.</p>
+<figure><img src="../posters/glass-lens.webp" alt="Glass lens refraction: Bend the lookup by the lens normal, per colour" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/glass-lens">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Glass lens refraction?</h2>
+<p>A glass lens follows the pointer, bending the scene with a coloured fringe at its edge.</p>
+
+<h2>How does Glass lens refraction work?</h2>
+<p>Each pixel samples the scene offset by the lens surface normal, with red, green and blue offset slightly differently for dispersion.</p>
+
+<h2>How do I add Glass lens refraction to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add glass-lens</code>. It writes <code>animations/glass-lens.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/glass-lens.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add glass-lens --ior 2</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Refraction</td><td><code>--ior</code></td><td>1.3</td><td>1 to 2</td><td>0.01</td></tr>
+<tr><td>Dispersion</td><td><code>--dispersion</code></td><td>0.02</td><td>0 to 0.08</td><td>0.002</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Glass lens refraction: inside the lens each pixel samples the scene behind it through a domed surface,
+// pulled toward the centre (magnification). Red, green and blue bend by slightly different amounts: dispersion.
+const PARAMS = { ior: 1.3, dispersion: 0.02 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+
+  // The scene behind the glass, painted once.
+  const pic = document.createElement('canvas'); pic.width = 1200; pic.height = 900;
+  const g = pic.getContext('2d');
+  g.fillStyle = '#0e0d12'; g.fillRect(0, 0, 1200, 900);
+  g.fillStyle = '#2c2936'; for (let x = 0; x &lt; 1200; x += 60) for (let y = 0; y &lt; 900; y += 60) { g.beginPath(); g.arc(x + 30, y + 30, 6, 0, 7); g.fill(); }
+  g.fillStyle = '#ece4d6'; g.font = '900 210px &quot;Mona Sans&quot;, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('REFRACT', 600, 330);
+  g.fillStyle = '#ff6a1f'; g.fillText('LIGHT', 600, 580);
+  g.strokeStyle = '#8fd3ff'; g.lineWidth = 6; for (let i = 0; i &lt; 8; i++) { g.beginPath(); g.moveTo(80 + i * 150, 760); g.lineTo(160 + i * 150, 840); g.stroke(); }
+
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform sampler2D img; uniform vec2 R, M; uniform float IOR, DISP;
+  vec3 scene(vec2 st) {
+    vec2 a = vec2(R.x / R.y, 1.), cover = a.x &gt; 4. / 3. ? vec2(1., (4. / 3.) / a.x) : vec2(a.x / (4. / 3.), 1.);
+    vec2 tc = (st - .5) * cover + .5; return texture(img, vec2(tc.x, 1. - tc.y)).rgb;
+  }
+  void main() {
+    vec2 a = vec2(R.x / R.y, 1.), q = uv * a, m = M * a;
+    float r = .3, d = length(q - m) / r;
+    vec3 col = scene(uv);
+    float shadow = smoothstep(1.25, .95, length(q - m - vec2(.02, -.03)) / r) * .18;
+    col *= 1. - shadow;
+    if (d &lt; 1.) {
+      float h = sqrt(1. - d * d);                      // dome height
+      float mag = (IOR - 1.) * 1.1;
+      vec2 dir = (q - m);
+      vec3 c;
+      c.r = scene((m + dir * (1. - mag * (1. + DISP * 6.) * h)) / a).r;
+      c.g = scene((m + dir * (1. - mag * h)) / a).g;
+      c.b = scene((m + dir * (1. - mag * (1. - DISP * 6.) * h)) / a).b;
+      float rim = smoothstep(.82, 1., d);
+      float hi = pow(max(0., dot(normalize(vec3(dir / r, h)), normalize(vec3(-.5, .6, .8)))), 40.);
+      col = mix(c * 1.04, vec3(1.), rim * .35) + hi * .6;
+    }
+    o = vec4(col, 1);
+  }`;
+  const sh = (t, s) =&gt; { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pic);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const u = n =&gt; gl.getUniformLocation(prog, n), uR = u('R'), uM = u('M'), uI = u('IOR'), uD = u('DISP');
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 1.5); canvas.width = stage.clientWidth * d | 0; canvas.height = stage.clientHeight * d | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5, lastMove = -1e9, raf;
+  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); tx = (e.clientX - b.left) / b.width; ty = 1 - (e.clientY - b.top) / b.height; lastMove = performance.now(); };
+  canvas.addEventListener('pointermove', onMove);
+  function frame(now) {
+    const t = now / 1000;
+    if (now - lastMove &gt; 1500) { tx = 0.5 + Math.cos(t * 0.6) * 0.28; ty = 0.5 + Math.sin(t * 0.9) * 0.2; }
+    mx += (tx - mx) * 0.1; my += (ty - my) * 0.1;
+    gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform2f(uM, mx, my); gl.uniform1f(uI, PARAMS.ior); gl.uniform1f(uD, PARAMS.dispersion);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

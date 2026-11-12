@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skeleton shimmer: A light sweep says loading, then content fades in · Motion Library</title>
+<meta name="description" content="Skeleton shimmer is a DOM effect: a light sweep says loading, then content fades in. One plain JavaScript file with no dependencies; add it with npx motion-library add skeleton.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/skeleton.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Skeleton shimmer · Motion Library">
+<meta property="og:description" content="A light sweep says loading, then content fades in">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/skeleton.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Skeleton shimmer",
+  "description": "A light sweep says loading, then content fades in",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Micro & loading, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/skeleton.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/skeleton.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Micro & loading",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/micro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Skeleton shimmer",
+    "item": "https://ajeckblad.github.io/motion-library/fx/skeleton.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/micro">Micro &amp; loading</a></header>
+<main class="s-page">
+<article>
+<h1>Skeleton shimmer</h1>
+<p class="tldr">Skeleton shimmer is a DOM effect: a light sweep says loading, then content fades in. One plain JavaScript file with no dependencies; add it with npx motion-library add skeleton.</p>
+<figure><img src="../posters/skeleton.webp" alt="Skeleton shimmer: A light sweep says loading, then content fades in" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/skeleton">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Skeleton shimmer?</h2>
+<p>Grey placeholder rows hold a cart drawer’s layout under a sweeping light, then real items fade in.</p>
+
+<h2>How does Skeleton shimmer work?</h2>
+<p>Placeholders match the real rows’ sizes, so nothing jumps; each row cross-fades over its own placeholder, 50 ms after the one above.</p>
+
+<h2>How do I add Skeleton shimmer to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add skeleton</code>. It writes <code>animations/skeleton.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/skeleton.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add skeleton --speed 4</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Shimmer speed</td><td><code>--speed</code></td><td>1.4</td><td>0.4 to 4</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Micro &amp; loading</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.4 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Skeleton shimmer in a shopping cart drawer: grey shapes the size of the real rows hold the layout while a soft light
+// sweeps across them, then each real row fades in over its placeholder, one after another.
+// It feels right because nothing jumps when the content lands, and the sweep says &quot;working on it&quot; without a spinner in your face.
+const PARAMS = { speed: 1.4 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const dur = (1.6 / PARAMS.speed).toFixed(2);
+  const rows = [['Merino crew jumper', 'Oat · M', '$88', 'linear-gradient(135deg,#f1e3c8,#c9a66b)'], ['Leather card holder', 'Tan', '$42', 'linear-gradient(135deg,#f0b48a,#a0522d)'], ['Wool beanie', 'Forest green', '$26', 'linear-gradient(135deg,#b7d3b0,#2f6b3a)']];
+  const root = document.createElement('div');
+  root.className = 'sk-root';
+  root.innerHTML = `&lt;style&gt;
+    .sk-root { position: absolute; inset: 0; overflow: hidden; background: #e9e6ea; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .sk-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .sk-page { position: absolute; inset: 0; padding: 26px; opacity: .5; } .sk-page i { display: block; height: 12px; border-radius: 6px; background: #d4d0d6; margin-bottom: 12px; }
+    .sk-drawer { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 300px; border-radius: 16px; background: #fff; box-shadow: -16px 0 40px -20px rgba(40,10,30,.35); padding: 20px 20px; box-sizing: border-box; }
+    .sk-drawer h2 { margin: 0 0 16px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; display: flex; justify-content: space-between; } .sk-drawer h2 span { font-size: 12.5px; font-weight: 500; color: #7a7f85; }
+    .sk-row { position: relative; height: 64px; margin-bottom: 8px; }
+    .sk-row &gt; div { position: absolute; inset: 0; display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; }
+    .sk-b { border-radius: 6px; background: linear-gradient(90deg, #eceef1 0%, #eceef1 40%, #f8f9fa 50%, #eceef1 60%, #eceef1 100%); background-size: 300% 100%; animation: ${reduce ? `sk-pulse ${dur * 2}s ease-in-out infinite alternate` : `sk-sh ${dur}s linear infinite`}; }
+    @keyframes sk-pulse { to { opacity: .55; } }
+    @keyframes sk-sh { from { background-position: 100% 0; } to { background-position: 0 0; } }
+    .sk-th { width: 52px; height: 52px; border-radius: 10px; }
+    .sk-real { opacity: 0; } .sk-real b { display: block; font-size: 13.5px; font-weight: 600; } .sk-real small { font-size: 12px; color: #7a7f85; } .sk-real em { font-style: normal; font-weight: 600; font-size: 13.5px; }
+    .sk-foot { position: absolute; left: 20px; right: 20px; bottom: 20px; }
+    .sk-sum { position: relative; height: 22px; margin-bottom: 12px; } .sk-sum &gt; * { position: absolute; inset: 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; }
+    .sk-go { height: 44px; border-radius: 11px; background: #15171a; color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 650; }
+  &lt;/style&gt;&lt;div class=&quot;sk-scene&quot;&gt;
+    &lt;div class=&quot;sk-page&quot;&gt;&lt;i style=&quot;width:40%&quot;&gt;&lt;/i&gt;&lt;i style=&quot;width:28%&quot;&gt;&lt;/i&gt;&lt;i style=&quot;width:34%;height:120px;border-radius:12px&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+    &lt;div class=&quot;sk-drawer&quot;&gt;&lt;h2&gt;Your cart &lt;span&gt;3 items&lt;/span&gt;&lt;/h2&gt;
+      ${rows.map(([n, v, p, bg]) =&gt; `&lt;div class=&quot;sk-row&quot;&gt;&lt;div class=&quot;sk-skel&quot;&gt;&lt;div class=&quot;sk-b sk-th&quot;&gt;&lt;/div&gt;&lt;div style=&quot;display:grid;gap:7px&quot;&gt;&lt;div class=&quot;sk-b&quot; style=&quot;height:11px;width:80%&quot;&gt;&lt;/div&gt;&lt;div class=&quot;sk-b&quot; style=&quot;height:9px;width:45%&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;sk-b&quot; style=&quot;height:11px;width:36px&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;sk-real&quot;&gt;&lt;i class=&quot;sk-th&quot; style=&quot;background:${bg}&quot;&gt;&lt;/i&gt;&lt;div&gt;&lt;b&gt;${n}&lt;/b&gt;&lt;small&gt;${v}&lt;/small&gt;&lt;/div&gt;&lt;em&gt;${p}&lt;/em&gt;&lt;/div&gt;&lt;/div&gt;`).join('')}
+      &lt;div class=&quot;sk-foot&quot;&gt;&lt;div class=&quot;sk-sum&quot;&gt;&lt;div class=&quot;sk-skel&quot;&gt;&lt;div class=&quot;sk-b&quot; style=&quot;height:12px;width:70px&quot;&gt;&lt;/div&gt;&lt;div class=&quot;sk-b&quot; style=&quot;height:12px;width:50px&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;sk-real&quot;&gt;Subtotal&lt;span&gt;$156&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;sk-go&quot;&gt;Checkout&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.sk-scene');
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight, s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const pairs = [...root.querySelectorAll('.sk-row, .sk-sum')].map(r =&gt; [r.querySelector('.sk-skel'), r.querySelector('.sk-real')]);
+  const anims = new Set();
+  let loaded = false;
+  const swap = () =&gt; {
+    loaded = !loaded;
+    pairs.forEach(([skel, real], i) =&gt; {
+      // arriving content staggers in 50 ms apart; going back to loading is one quiet beat
+      const o = { duration: loaded ? 300 : 200, delay: loaded ? i * 50 : 0, easing: 'cubic-bezier(0.23, 1, 0.32, 1)', fill: 'forwards' };
+      anims.add(real.animate([{ opacity: loaded ? 0 : 1, transform: `translateY(${loaded &amp;&amp; !reduce ? 4 : 0}px)` }, { opacity: loaded ? 1 : 0, transform: 'none' }], o));
+      anims.add(skel.animate([{ opacity: loaded ? 1 : 0 }, { opacity: loaded ? 0 : 1 }], o));
+    });
+  };
+  let t1 = setTimeout(function tick() { swap(); t1 = setTimeout(tick, loaded ? 2600 : 2200); }, 2200);
+  return () =&gt; { clearTimeout(t1); anims.forEach(a =&gt; a.cancel()); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

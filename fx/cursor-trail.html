@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursor trail: Each point chases the one before it · Motion Library</title>
+<meta name="description" content="Cursor trail is a Canvas effect: each point chases the one before it. One plain JavaScript file with no dependencies; add it with npx motion-library add cursor-trail.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/cursor-trail.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Cursor trail · Motion Library">
+<meta property="og:description" content="Each point chases the one before it">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/cursor-trail.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Cursor trail",
+  "description": "Each point chases the one before it",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/cursor-trail.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/cursor-trail.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Cursor trail",
+    "item": "https://ajeckblad.github.io/motion-library/fx/cursor-trail.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>Cursor trail</h1>
+<p class="tldr">Cursor trail is a Canvas effect: each point chases the one before it. One plain JavaScript file with no dependencies; add it with npx motion-library add cursor-trail.</p>
+<figure><img src="../posters/cursor-trail.webp" alt="Cursor trail: Each point chases the one before it" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/cursor-trail">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Cursor trail?</h2>
+<p>A warm ribbon trails behind the cursor, tapering and curling with every gesture.</p>
+
+<h2>How does Cursor trail work?</h2>
+<p>The first point sits on the cursor and each other point eases toward the one ahead; drawn opaque, fading into the page colour, so joints never bead.</p>
+
+<h2>How do I add Cursor trail to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add cursor-trail</code>. It writes <code>animations/cursor-trail.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/cursor-trail.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add cursor-trail --points 60</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Points</td><td><code>--points</code></td><td>24</td><td>4 to 60</td><td>1</td></tr>
+<tr><td>Ease</td><td><code>--ease</code></td><td>0.35</td><td>0.05 to 0.8</td><td>0.01</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>6.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Cursor trail on a portfolio landing page: the head of a ribbon follows the cursor and every point behind it eases
+// toward the point ahead, so the ribbon tapers and curls behind each movement and then catches up when the cursor rests.
+// It feels right because the trail records the gesture you just made, which gives a quiet page some personality without hiding the text.
+const PARAMS = { points: 24, ease: 0.35 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const root = document.createElement('div');
+  root.className = 'ct-root';
+  root.innerHTML = `&lt;style&gt;
+    .ct-root { position: absolute; inset: 0; overflow: hidden; background: #141310; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #f4efe6; }
+    .ct-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .ct-nav { position: absolute; left: 30px; right: 30px; top: 24px; display: flex; align-items: center; gap: 22px; font-size: 12.5px; color: #a8a196; }
+    .ct-mono { margin-right: auto; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #f4efe6; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #f4efe6; letter-spacing: .02em; }
+    .ct-dot { width: 7px; height: 7px; border-radius: 50%; background: #7bd88f; display: inline-block; margin-right: 6px; }
+    .ct-hero { position: absolute; left: 30px; top: 104px; width: 470px; }
+    .ct-hero h1 { margin: 0; font-size: 38px; line-height: 1.04; font-weight: 700; letter-spacing: -0.035em; }
+    .ct-hero h1 em { font-style: italic; font-weight: 500; color: #f2b84b; }
+    .ct-hero p { margin: 16px 0 0; width: 330px; font-size: 14px; line-height: 1.5; color: #a8a196; }
+    .ct-foot { position: absolute; left: 30px; right: 30px; bottom: 26px; display: flex; justify-content: space-between; font-size: 12px; color: #7d776d; border-top: 1px solid #2b2924; padding-top: 14px; }
+    .ct-foot b { color: #f4efe6; font-weight: 600; }
+    .ct-canvas { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; pointer-events: none; mix-blend-mode: screen; }
+    .ct-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.4)); }
+  &lt;/style&gt;&lt;div class=&quot;ct-scene&quot;&gt;
+    &lt;div class=&quot;ct-nav&quot;&gt;&lt;div class=&quot;ct-mono&quot;&gt;RA&lt;/div&gt;&lt;span&gt;Work&lt;/span&gt;&lt;span&gt;About&lt;/span&gt;&lt;span&gt;Notes&lt;/span&gt;&lt;span style=&quot;color:#f4efe6&quot;&gt;&lt;i class=&quot;ct-dot&quot;&gt;&lt;/i&gt;Available in March&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;ct-hero&quot;&gt;&lt;h1&gt;Interfaces that feel &lt;em&gt;calm&lt;/em&gt;, quick and a little playful.&lt;/h1&gt;&lt;p&gt;Independent product designer. Ten years of apps, tools and the small details in between.&lt;/p&gt;&lt;/div&gt;
+    &lt;div class=&quot;ct-foot&quot;&gt;&lt;span&gt;Selected work, 2019 to now&lt;/span&gt;&lt;span&gt;&lt;b&gt;12&lt;/b&gt; projects ↓&lt;/span&gt;&lt;/div&gt;
+    &lt;canvas class=&quot;ct-canvas&quot;&gt;&lt;/canvas&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.ct-scene'), canvas = root.querySelector('.ct-canvas'), ctx = canvas.getContext('2d');
+  let s = 1;
+  const fit = () =&gt; {
+    const w = stage.clientWidth, h = stage.clientHeight, d = Math.min(devicePixelRatio, 2);
+    s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`;
+    canvas.width = Math.round(W * s * d); canvas.height = Math.round(H * s * d); ctx.setTransform(s * d, 0, 0, s * d, 0, 0);
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+
+  // simulated cursor: long, curving gestures with short rests so the trail always has something to draw
+  const steps = [
+    { to: pt(380, 300), move: 600, hold: 150, bow: 0.3 },
+    { to: pt(150, 140), move: 900, hold: 120, bow: -0.35 },
+    { to: pt(430, 110), move: 800, hold: 400, bow: 0.3 },
+    { to: pt(260, 250), move: 700, hold: 120, bow: 0.45 },
+    { to: pt(80, 300), move: 800, hold: 120, bow: -0.3 },
+    { to: pt(300, 190), move: 750, hold: 500, bow: 0.4 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'ct-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#fff&quot; stroke=&quot;#141310&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * st.bow;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  const n = Math.max(2, Math.round(PARAMS.points));
+  const pts = Array.from({ length: n }, () =&gt; ({ x: from.x, y: from.y }));
+  let raf;
+  function frame(now) {
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    if (reduce) {
+      // reduced motion: no ribbon chasing the cursor; the stroke is inked where the cursor passes and fades out in place
+      ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
+      ctx.lineCap = 'round'; ctx.strokeStyle = 'hsl(40, 90%, 62%)'; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(c.x, c.y); ctx.stroke();
+      pts[0].x = c.x; pts[0].y = c.y;
+      raf = requestAnimationFrame(frame); return;
+    }
+    pts[0].x = c.x; pts[0].y = c.y;
+    for (let i = 1; i &lt; n; i++) { pts[i].x += (pts[i - 1].x - pts[i].x) * PARAMS.ease; pts[i].y += (pts[i - 1].y - pts[i].y) * PARAMS.ease; }
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = 'round';
+    for (let i = n - 1; i &gt; 0; i--) {
+      const k = 1 - i / n;
+      ctx.strokeStyle = `hsl(${40 - 30 * (1 - k)}, ${60 + 30 * k}%, ${16 + 46 * k}%)`;   // opaque, fading into the page colour, so joints never bead
+      ctx.lineWidth = 1.5 + 13 * k;
+      ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[i - 1].x, pts[i - 1].y); ctx.stroke();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

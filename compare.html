@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion Library vs Magic UI, Aceternity UI, React Bits, Animata and fx-lab</title>
+<meta name="description" content="How Motion Library compares with Magic UI, Aceternity UI, React Bits, Animata and fx-lab: framework, install, tuning, price, licence and size, from each project’s own pages (checked 2026-11-11).">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/compare.html">
+<meta name="theme-color" content="#0c0c0e">
+<link rel="stylesheet" href="css/static.css">
+<script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "Motion Library compared with Magic UI, Aceternity UI, React Bits, Animata and fx-lab",
+ "dateModified": "2026-11-11",
+ "about": [
+  {
+   "@type": "SoftwareApplication",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "Magic UI",
+   "url": "https://magicui.design/"
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "Aceternity UI",
+   "url": "https://ui.aceternity.com/"
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "React Bits",
+   "url": "https://reactbits.dev/"
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "Animata",
+   "url": "https://animata.design/"
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "fx-lab",
+   "url": "https://fx.rosuh.me/"
+  }
+ ]
+}</script>
+<style>.cmp-wrap{overflow-x:auto}.cmp th:first-child{position:sticky;left:0;background:var(--frame)}.cmp td,.cmp th{min-width:170px;font-size:14px}.src{font-size:13px;color:var(--muted)}.src a{color:var(--muted)}</style>
+</head>
+<body>
+<header class="s-bar"><a href="index.html">Motion Library</a><span>/</span><span>Compare</span></header>
+<main class="s-page" style="max-width:1100px">
+<article>
+<h1>How does Motion Library compare with other animation libraries?</h1>
+<p class="tldr">Of these six, Motion Library is the only one that both runs without a framework and lets you tune an effect on the site, then install it already tuned with one npx command. Magic UI, Aceternity UI, React Bits and Animata are React component libraries; fx-lab is, like Motion Library, framework-free plain code.</p>
+<p class="src">Facts below come only from each project’s own website or repository, checked on 2026-11-11. “Not stated” means those pages don’t say.</p>
+
+<h2>Side by side</h2>
+<div class="cmp-wrap"><table class="cmp">
+<thead><tr><th></th><th><a href="index.html">Motion Library</a></th><th><a href="https://magicui.design/">Magic UI</a></th><th><a href="https://ui.aceternity.com/">Aceternity UI</a></th><th><a href="https://reactbits.dev/">React Bits</a></th><th><a href="https://animata.design/">Animata</a></th><th><a href="https://fx.rosuh.me/">fx-lab</a></th></tr></thead>
+<tbody>
+<tr><th>Framework</th><td>None: plain JavaScript, one file per effect</td><td>React, TypeScript, Tailwind CSS and Motion</td><td>React 19, Tailwind CSS v4 and Motion</td><td>React (plain CSS or Tailwind)</td><td>React and Tailwind CSS (Framer Motion optional)</td><td>None: zero-dependency WebGL2, Canvas 2D and DOM</td></tr>
+<tr><th>How you install</th><td><code>npx motion-library add &lt;id&gt;</code>, Copy, or Download .html</td><td>Copy and paste</td><td>Copy and paste, or <code>npx shadcn@latest add @aceternity/…</code></td><td><code>npx shadcn@latest add @react-bits/…</code>, jsrepo, or copy</td><td>Copy the file into your project</td><td>Copy one self-contained snippet</td></tr>
+<tr><th>Tune before you take it</th><td>Yes: sliders on every effect, carried into the install command as flags</td><td>Not stated</td><td>Not stated</td><td>Yes: live demo with controls</td><td>Not stated</td><td>Not stated</td></tr>
+<tr><th>Price</th><td>Free</td><td>Free; Magic UI Pro $199 once</td><td>Free components; All-Access from $169 (1 year) or $199 (lifetime)</td><td>Free; React Bits Pro (price not stated)</td><td>Free</td><td>Not stated</td></tr>
+<tr><th>Licence</th><td>MIT-0</td><td>MIT</td><td>Free components: not stated; Pro: Aceternity License</td><td>MIT + Commons Clause</td><td>MIT</td><td>MIT</td></tr>
+<tr><th>Size</th><td>214 effects</td><td>150+ components and effects</td><td>100+ to 118+ free components (both stated)</td><td>215+ components and backgrounds</td><td>157+ components</td><td>99 effects</td></tr>
+<tr><th>Language</th><td>JavaScript</td><td>TypeScript</td><td>TypeScript (.tsx)</td><td>JavaScript or TypeScript</td><td>TypeScript</td><td>Not stated</td></tr>
+</tbody>
+</table></div>
+
+<h2>Which animation library works without React?</h2>
+<p>Motion Library and fx-lab. Every Motion Library effect is one plain JavaScript file whose default export takes a container element, so it runs in plain HTML, React, Vue, Svelte or Astro alike. Magic UI, Aceternity UI, React Bits and Animata are built for React.</p>
+
+<h2>Which one lets me install an effect already tuned?</h2>
+<p>Motion Library: every slider on the site is also a CLI flag, so <code>npx motion-library add confetti --pieces 300</code> writes the file with your values in it. React Bits has live controls on its demos; its pages don’t say whether the install command carries them.</p>
+
+<h2>Which ones are completely free?</h2>
+<p>Motion Library (MIT-0) and Animata (MIT) state no paid tier. Magic UI, Aceternity UI and React Bits keep free components and sell a Pro tier. fx-lab’s pages don’t mention price; its licence is MIT.</p>
+
+<h2>Where do these facts come from?</h2>
+<ul class="src">
+<li>Magic UI: <a href="https://magicui.design/">magicui.design/</a>, <a href="https://magicui.design/docs">magicui.design/docs</a>, <a href="https://github.com/magicuidesign/magicui">github.com/magicuidesign/magicui</a></li>
+<li>Aceternity UI: <a href="https://ui.aceternity.com/">ui.aceternity.com/</a>, <a href="https://ui.aceternity.com/pricing">ui.aceternity.com/pricing</a>, <a href="https://ui.aceternity.com/installation">ui.aceternity.com/installation</a>, <a href="https://ui.aceternity.com/licence">ui.aceternity.com/licence</a></li>
+<li>React Bits: <a href="https://reactbits.dev/">reactbits.dev/</a>, <a href="https://reactbits.dev/get-started/installation">reactbits.dev/get-started/installation</a>, <a href="https://github.com/DavidHDev/react-bits">github.com/DavidHDev/react-bits</a></li>
+<li>Animata: <a href="https://animata.design/">animata.design/</a>, <a href="https://animata.design/docs">animata.design/docs</a>, <a href="https://github.com/codse/animata">github.com/codse/animata</a></li>
+<li>fx-lab: <a href="https://github.com/rosuh/fx-lab">github.com/rosuh/fx-lab</a>, <a href="https://fx.rosuh.me/">fx.rosuh.me/</a></li>
+</ul>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Water ripples: Height-field wave equation on the GPU, refracting a grid beneath · Motion Library</title>
+<meta name="description" content="Water ripples is a WebGL effect: height-field wave equation on the GPU, refracting a grid beneath. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/water-ripple.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Water ripples · Motion Library">
+<meta property="og:description" content="Height-field wave equation on the GPU, refracting a grid beneath">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/water-ripple.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Water ripples",
+  "description": "Height-field wave equation on the GPU, refracting a grid beneath",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Simulation, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/water-ripple.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/water-ripple.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Simulation",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/simulation"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Water ripples",
+    "item": "https://ajeckblad.github.io/motion-library/fx/water-ripple.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/simulation">Simulation</a></header>
+<main class="s-page">
+<article>
+<h1>Water ripples</h1>
+<p class="tldr">Water ripples is a WebGL effect: height-field wave equation on the GPU, refracting a grid beneath. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.</p>
+<figure><img src="../posters/water-ripple.webp" alt="Water ripples: Height-field wave equation on the GPU, refracting a grid beneath" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/water-ripple">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Water ripples?</h2>
+<p>Raindrops and the pointer send rings across clear water, bending the grid beneath; click for a big drop.</p>
+
+<h2>How does Water ripples work?</h2>
+<p>The wave equation on two ping-pong float textures: new height is half the neighbour sum minus the previous height, damped; the slope refracts the grid and curvature adds caustics.</p>
+
+<h2>How do I add Water ripples to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add water-ripple</code>. It writes <code>animations/water-ripple.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/water-ripple.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add water-ripple --damping 0.998</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Damping</td><td><code>--damping</code></td><td>0.985</td><td>0.95 to 0.998</td><td>0.001</td></tr>
+<tr><td>Refraction</td><td><code>--refraction</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+<tr><td>Rain</td><td><code>--rain</code></td><td>1</td><td>0 to 4</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Simulation</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>9.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Water ripples: a height field run through the discrete wave equation on the GPU. Each step a cell becomes the average
+// of its four neighbours, times two, minus its own previous height, then loses a little energy; two textures hold
+// &quot;now&quot; and &quot;before&quot; and swap. The surface’s slope bends the view of a tiled floor beneath it (refraction), the
+// curvature focuses light into caustic brightening, and a specular term catches the crests. Move to drag a wake,
+// click for a big drop; with no pointer, rain falls and a ghost finger trails through.
+const PARAMS = { damping: 0.985, refraction: 1, rain: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl || !gl.getExtension('EXT_color_buffer_float')) { stage.textContent = 'This needs WebGL2 with float render targets.'; return () =&gt; canvas.remove(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const simFS = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform sampler2D S; uniform vec2 px; uniform float damp; uniform vec4 drops[8]; uniform float aspect;
+  void main() {
+    vec2 c = texture(S, uv).rg;
+    float n = texture(S, uv + vec2(px.x, 0)).r + texture(S, uv - vec2(px.x, 0)).r + texture(S, uv + vec2(0, px.y)).r + texture(S, uv - vec2(0, px.y)).r;
+    float h = (n * .5 - c.g) * damp;
+    for (int i = 0; i &lt; 8; i++) {
+      vec4 d = drops[i]; if (d.w == 0.) continue;
+      vec2 q = (uv - d.xy) * vec2(aspect, 1);
+      h += d.w * exp(-dot(q, q) / (d.z * d.z));
+    }
+    o = vec4(h, c.r, 0, 1);
+  }`;
+  const viewFS = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform sampler2D S; uniform vec2 px, R; uniform float refr, T;
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  vec3 floorCol(vec2 p) {
+    // a crisp line grid with dots at the crossings, tinted cyan to violet across the field
+    float N = 12.;
+    vec2 q = p * N, f = abs(fract(q) - .5);
+    float w = fwidth(q.x) * .9;
+    float line = smoothstep(.5 - w * 1.6, .5, max(f.x, f.y));
+    vec2 q4 = p * N * 4.; vec2 f4 = abs(fract(q4) - .5); float w4 = fwidth(q4.x);
+    float fine = smoothstep(.5 - w4, .5, max(f4.x, f4.y)) * .14;
+    float dot_ = smoothstep(.065 + w, .065 - w, length(fract(q) - .5 - sign(fract(q) - .5) * .5));
+    vec3 tint = mix(vec3(.25, .95, 1.), vec3(.75, .45, 1.), clamp(p.x * .6 + p.y * .3 - .1, 0., 1.));
+    vec3 col = vec3(.012, .02, .035) + vec3(.02, .04, .07) * (1. - length(p - vec2(.6, .5)));
+    col += tint * (line * .55 + fine * .5);
+    col += vec3(1) * dot_ * .9;
+    return col;
+  }
+  void main() {
+    float h = texture(S, uv).r;
+    float hx = texture(S, uv + vec2(px.x, 0)).r - texture(S, uv - vec2(px.x, 0)).r;
+    float hy = texture(S, uv + vec2(0, px.y)).r - texture(S, uv - vec2(0, px.y)).r;
+    float lap = texture(S, uv + vec2(px.x, 0)).r + texture(S, uv - vec2(px.x, 0)).r + texture(S, uv + vec2(0, px.y)).r + texture(S, uv - vec2(0, px.y)).r - 4. * h;
+    vec3 n = normalize(vec3(-hx * 6., -hy * 6., 1.));
+    vec2 asp = vec2(R.x / R.y, 1);
+    vec2 p = uv * asp + n.xy * .09 * refr;
+    vec3 col = floorCol(p);
+    col *= 1. + clamp(-lap * 40., -.6, 2.);
+    col += vec3(.15, .4, .6) * clamp(-lap * 25., 0., 1.) * .5;                   // converging surface focuses light: caustics
+    vec3 L = normalize(vec3(-.4, .6, .7)), V = vec3(0, 0, 1), Hh = normalize(L + V);
+    col += vec3(.9, .97, 1.) * pow(max(dot(n, Hh), 0.), 180.) * 1.4;
+    col += vec3(.1, .3, .5) * smoothstep(.0, .25, abs(n.x) + abs(n.y)) * .3;
+    float vig = smoothstep(1.25, .35, length((uv - .5) * asp));
+    o = vec4(pow(col * (.55 + .45 * vig), vec3(.95)), 1);
+  }`;
+  const sh = (t, s) =&gt; { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const mk = fs =&gt; { const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(pr, 0, 'p'); gl.linkProgram(pr); return pr; };
+  const sim = mk(simFS), view = mk(viewFS);
+  const u = (pr, n) =&gt; gl.getUniformLocation(pr, n);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  let tex = [], fbo = [], SW = 0, SH = 0;
+  const makeTargets = () =&gt; {
+    tex.forEach(t =&gt; gl.deleteTexture(t)); fbo.forEach(f =&gt; gl.deleteFramebuffer(f)); tex = []; fbo = [];
+    for (let i = 0; i &lt; 2; i++) {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, SW, SH, 0, gl.RGBA, gl.HALF_FLOAT, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+      tex.push(t); fbo.push(f);
+    }
+  };
+  const resize = () =&gt; {
+    const d = Math.min(devicePixelRatio, 2); canvas.width = (stage.clientWidth || 1) * d | 0; canvas.height = (stage.clientHeight || 1) * d | 0;
+    const s = Math.min(1, 420 / Math.max(stage.clientWidth, stage.clientHeight, 1));
+    const w = Math.max(16, Math.round((stage.clientWidth || 1) * s)), h = Math.max(16, Math.round((stage.clientHeight || 1) * s));
+    if (w !== SW || h !== SH) { SW = w; SH = h; makeTargets(); }
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // drops queued for the next sim step: [x, y, radius, amplitude] in uv space
+  let queue = [];
+  const drop = (x, y, r, a) =&gt; { if (queue.length &lt; 8) queue.push([x, y, r, a]); };
+  let lastPointer = -1e9, lx = -1, ly = -1;
+  const toUV = e =&gt; { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height]; };
+  const pm = e =&gt; {
+    const [x, y] = toUV(e); lastPointer = performance.now();
+    if (lx &gt;= 0) { const dd = Math.hypot(x - lx, y - ly); if (dd &gt; 0.002) drop(x, y, 0.012, Math.min(0.5, dd * 6)); }
+    lx = x; ly = y;
+  };
+  const pd = e =&gt; { const [x, y] = toUV(e); lastPointer = performance.now(); drop(x, y, 0.03, 1.6); };
+  const pl = () =&gt; { lx = -1; };
+  stage.addEventListener('pointermove', pm); stage.addEventListener('pointerdown', pd); stage.addEventListener('pointerleave', pl);
+
+  let cur = 0, raf, frameN = 0, nextRain = 0, gx = -1, gy = -1; const t0 = performance.now();
+  const dropArr = new Float32Array(32);
+  function frame(now) {
+    const t = (now - t0) / 1000; frameN++;
+    const idle = now - lastPointer &gt; 2500;
+    if (t &gt; nextRain &amp;&amp; PARAMS.rain &gt; 0) {
+      drop(Math.random(), Math.random(), 0.008 + Math.random() * 0.014, 0.4 + Math.random() * 0.9);
+      nextRain = t + (0.15 + Math.random() * 0.6) / PARAMS.rain;
+    }
+    if (idle &amp;&amp; !reduce) {
+      // ghost finger: a slow figure-of-eight wake
+      const x = 0.5 + 0.33 * Math.sin(t * 0.55), y = 0.5 + 0.28 * Math.sin(t * 1.1 + 0.6);
+      if (gx &gt;= 0) drop(x, y, 0.011, Math.min(0.4, Math.hypot(x - gx, y - gy) * 7));
+      gx = x; gy = y;
+    }
+    const steps = reduce ? (frameN % 10 === 0 ? 1 : 0) : 2;
+    gl.useProgram(sim); gl.viewport(0, 0, SW, SH);
+    gl.uniform2f(u(sim, 'px'), 1 / SW, 1 / SH); gl.uniform1f(u(sim, 'damp'), Math.min(0.999, PARAMS.damping)); gl.uniform1f(u(sim, 'aspect'), SW / SH);
+    for (let s = 0; s &lt; steps; s++) {
+      dropArr.fill(0);
+      if (s === 0) queue.forEach((d, i) =&gt; dropArr.set(d, i * 4));
+      gl.uniform4fv(u(sim, 'drops'), dropArr);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[1 - cur]); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[cur]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3); cur = 1 - cur;
+    }
+    if (steps) queue = [];
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.useProgram(view); gl.bindTexture(gl.TEXTURE_2D, tex[cur]);
+    gl.uniform2f(u(view, 'px'), 1 / SW, 1 / SH); gl.uniform2f(u(view, 'R'), canvas.width, canvas.height);
+    gl.uniform1f(u(view, 'refr'), PARAMS.refraction); gl.uniform1f(u(view, 'T'), t);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); stage.removeEventListener('pointermove', pm); stage.removeEventListener('pointerdown', pd); stage.removeEventListener('pointerleave', pl); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

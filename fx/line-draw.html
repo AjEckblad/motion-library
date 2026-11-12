@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Line draw-on: stroke-dasharray equals the path length · Motion Library</title>
+<meta name="description" content="Line draw-on is a DOM effect: stroke-dasharray equals the path length. One plain JavaScript file with no dependencies; add it with npx motion-library add line-draw.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/line-draw.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Line draw-on · Motion Library">
+<meta property="og:description" content="stroke-dasharray equals the path length">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/line-draw.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Line draw-on",
+  "description": "stroke-dasharray equals the path length",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Morph & SVG, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/line-draw.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/line-draw.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Morph & SVG",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/morph"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Line draw-on",
+    "item": "https://ajeckblad.github.io/motion-library/fx/line-draw.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/morph">Morph &amp; SVG</a></header>
+<main class="s-page">
+<article>
+<h1>Line draw-on</h1>
+<p class="tldr">Line draw-on is a DOM effect: stroke-dasharray equals the path length. One plain JavaScript file with no dependencies; add it with npx motion-library add line-draw.</p>
+<figure><img src="../posters/line-draw.webp" alt="Line draw-on: stroke-dasharray equals the path length" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/line-draw">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Line draw-on?</h2>
+<p>Two lines on an analytics card trace the week left to right, the second just after the first.</p>
+
+<h2>How does Line draw-on work?</h2>
+<p>Set the dash length and dash offset to the path’s getTotalLength(), then animate the offset to zero so the line draws itself.</p>
+
+<h2>How do I add Line draw-on to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add line-draw</code>. It writes <code>animations/line-draw.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/line-draw.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add line-draw --duration 4000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Draw (ms)</td><td><code>--duration</code></td><td>1600</td><td>500 to 4000</td><td>50</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Morph &amp; SVG</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.5 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Line draw-on: set each line's dash to its full length and offset it by the same amount, and it disappears; slide the offset to zero and it draws itself. On an analytics card the lines trace the week left to right, the way you would read them, and the labels arrive only once there is a line to label.
+const PARAMS = { duration: 1600 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.createElement('div');
+  root.className = 'ldr-root';
+  const visits = [42, 48, 45, 58, 64, 61, 78], signups = [8, 11, 9, 14, 13, 18, 22];
+  const X = i =&gt; 30 + i * 52, Yv = v =&gt; 150 - v * 1.6, Ys = v =&gt; 150 - v * 4;
+  const smooth = pts =&gt; pts.reduce((d, p, i) =&gt; { if (!i) return `M${p[0]} ${p[1]}`; const q = pts[i - 1], mx = (q[0] + p[0]) / 2; return d + `C${mx} ${q[1]} ${mx} ${p[1]} ${p[0]} ${p[1]}`; }, '');
+  const pv = visits.map((v, i) =&gt; [X(i), Yv(v)]), ps = signups.map((v, i) =&gt; [X(i), Ys(v)]);
+  root.innerHTML = `&lt;style&gt;
+    .ldr-root { position: absolute; inset: 0; overflow: hidden; background: #f1ecf0; font-family: system-ui, -apple-system, sans-serif; }
+    .ldr-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
+    .ldr-card { position: absolute; left: 20px; top: 22px; width: 380px; height: 276px; border-radius: 18px; background: #fff; box-shadow: 0 1px 2px rgba(42,15,38,.07), 0 16px 36px -18px rgba(42,15,38,.3); }
+    .ldr-h { position: absolute; left: 20px; top: 18px; font-size: 14px; font-weight: 700; color: #1d0b1a; }
+    .ldr-s { position: absolute; left: 20px; top: 38px; font-size: 11px; color: #8a7686; }
+    .ldr-lg { position: absolute; right: 18px; top: 20px; display: flex; gap: 12px; font-size: 11px; font-weight: 600; color: #5b4657; }
+    .ldr-lg i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+    .ldr-card svg { position: absolute; left: 0; top: 66px; width: 380px; height: 196px; overflow: visible; }
+    .ldr-f { opacity: 0; transition: opacity 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .ldr-tag { transform: translateY(4px); }
+    .ldr-card.on .ldr-f { opacity: 1; transform: none; }
+    .ldr-card.out .ldr-fade { opacity: 0; transition: opacity 300ms ease-out; }
+    ${reduce ? '.ldr-tag { transform: none; }' : ''}
+  &lt;/style&gt;
+  &lt;div class=&quot;ldr-b&quot;&gt;&lt;div class=&quot;ldr-card&quot;&gt;
+    &lt;div class=&quot;ldr-h&quot;&gt;Store visits and sign-ups&lt;/div&gt;&lt;div class=&quot;ldr-s&quot;&gt;This week · thousands / hundreds&lt;/div&gt;
+    &lt;div class=&quot;ldr-lg&quot;&gt;&lt;span&gt;&lt;i style=&quot;background:#b8359a&quot;&gt;&lt;/i&gt;Visits&lt;/span&gt;&lt;span&gt;&lt;i style=&quot;background:#2b74c9&quot;&gt;&lt;/i&gt;Sign-ups&lt;/span&gt;&lt;/div&gt;
+    &lt;svg viewBox=&quot;0 0 380 196&quot; fill=&quot;none&quot;&gt;
+      ${[30, 70, 110, 150].map(y =&gt; `&lt;line x1=&quot;30&quot; x2=&quot;342&quot; y1=&quot;${y}&quot; y2=&quot;${y}&quot; stroke=&quot;#f1e8ef&quot;/&gt;`).join('')}
+      &lt;g class=&quot;ldr-fade&quot;&gt;
+        &lt;path class=&quot;ldr-l&quot; d=&quot;${smooth(pv)}&quot; stroke=&quot;#b8359a&quot; stroke-width=&quot;2.6&quot; stroke-linecap=&quot;round&quot;/&gt;
+        &lt;path class=&quot;ldr-l&quot; d=&quot;${smooth(ps)}&quot; stroke=&quot;#2b74c9&quot; stroke-width=&quot;2.6&quot; stroke-linecap=&quot;round&quot;/&gt;
+        &lt;g class=&quot;ldr-f ldr-tag&quot;&gt;&lt;circle cx=&quot;${pv[6][0]}&quot; cy=&quot;${pv[6][1]}&quot; r=&quot;4.5&quot; fill=&quot;#fff&quot; stroke=&quot;#b8359a&quot; stroke-width=&quot;2.4&quot;/&gt;&lt;rect x=&quot;${pv[6][0] - 40}&quot; y=&quot;${pv[6][1] - 32}&quot; width=&quot;44&quot; height=&quot;20&quot; rx=&quot;6&quot; fill=&quot;#2a0f26&quot;/&gt;&lt;text x=&quot;${pv[6][0] - 18}&quot; y=&quot;${pv[6][1] - 18}&quot; fill=&quot;#fff&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot; text-anchor=&quot;middle&quot;&gt;78.4k&lt;/text&gt;&lt;/g&gt;
+        &lt;g class=&quot;ldr-f ldr-tag&quot; style=&quot;transition-delay:80ms&quot;&gt;&lt;circle cx=&quot;${ps[6][0]}&quot; cy=&quot;${ps[6][1]}&quot; r=&quot;4.5&quot; fill=&quot;#fff&quot; stroke=&quot;#2b74c9&quot; stroke-width=&quot;2.4&quot;/&gt;&lt;text x=&quot;${ps[6][0] - 10}&quot; y=&quot;${ps[6][1] + 20}&quot; fill=&quot;#2b74c9&quot; font-size=&quot;11&quot; font-weight=&quot;700&quot; text-anchor=&quot;middle&quot;&gt;2,214&lt;/text&gt;&lt;/g&gt;
+      &lt;/g&gt;
+      ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) =&gt; `&lt;text x=&quot;${X(i)}&quot; y=&quot;176&quot; fill=&quot;#9a8996&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot;&gt;${d}&lt;/text&gt;`).join('')}
+    &lt;/svg&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.ldr-b'), card = root.querySelector('.ldr-card');
+  const lines = [...root.querySelectorAll('.ldr-l')];
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / 420, stage.clientHeight / 320); board.style.transform = `scale(${s}) translate(-50%, -50%)`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const lens = lines.map(p =&gt; p.getTotalLength());
+  const anims = new Set(), T = new Set(), after = (ms, f) =&gt; { const id = setTimeout(() =&gt; { T.delete(id); f(); }, ms); T.add(id); };
+  const run = () =&gt; {
+    card.classList.remove('on', 'out'); anims.forEach(a =&gt; a.cancel()); anims.clear();
+    lines.forEach((p, i) =&gt; {
+      // reduced motion: the finished line fades in instead of drawing itself
+      if (reduce) { anims.add(p.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: i * 120, easing: 'ease-out', fill: 'both' })); return; }
+      p.style.strokeDasharray = lens[i] + ' ' + lens[i];
+      // A line being drawn is on screen the whole time, so ease-in-out reads like a steady hand.
+      anims.add(p.animate([{ strokeDashoffset: lens[i] }, { strokeDashoffset: 0 }], { duration: PARAMS.duration, delay: i * PARAMS.duration * 0.18, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'both' }));
+    });
+    after(PARAMS.duration * 1.12, () =&gt; card.classList.add('on'));
+    after(PARAMS.duration * 1.18 + 2400, () =&gt; card.classList.add('out'));
+    after(PARAMS.duration * 1.18 + 2800, run);
+  };
+  run();
+  return () =&gt; { T.forEach(clearTimeout); T.clear(); anims.forEach(a =&gt; a.cancel()); anims.clear(); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

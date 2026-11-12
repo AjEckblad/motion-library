@@ -1,0 +1,357 @@
+// Drone light show: a fleet of drones lifts off a barge and flies formations over a night city: a turning globe,
+// Saturn and its ring, a beating heart, a word. Every change of formation is an assignment problem: each drone needs
+// its own spot, and the show only looks clean if no drone crosses the sky to reach it. Targets are matched by
+// sorting both sets into bands, then thousands of swap tests each keep a swap only if it shortens the total flight.
+// The bay reflects everything: the image is mirrored at the waterline, broken up by the swell and stretched toward you.
+const PARAMS = { drones: 1500, speed: 1, glow: 1 };
+const WORD = 'HELLO';
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const hdr = !!gl.getExtension('EXT_color_buffer_float');
+  const N = Math.max(200, Math.round(PARAMS.drones));
+
+  // the world is in metres: the camera floats 4 m above the bay; the drones fly 500 m away, the city stands at 760 m
+  const CAMH = 4, FOC = 4, HOR = -0.44, CZ = 500, CY = 98, RAD = 46;
+  const BASE = ((FOC * -CAMH) / 760 + HOR) * 0.5 + 0.5;          // the city's waterline, as a fraction of the height
+
+  // ── small JS noise for the continents and Saturn's bands
+  const hash3 = (x, y, z) => { const h = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return h - Math.floor(h); };
+  const vnoise = (x, y, z) => {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), s = v => v * v * (3 - 2 * v);
+    const u = s(x - xi), v = s(y - yi), w = s(z - zi), L = (a, b, t) => a + (b - a) * t;
+    const c = (i, j, k) => hash3(xi + i, yi + j, zi + k);
+    return L(L(L(c(0, 0, 0), c(1, 0, 0), u), L(c(0, 1, 0), c(1, 1, 0), u), v), L(L(c(0, 0, 1), c(1, 0, 1), u), L(c(0, 1, 1), c(1, 1, 1), u), v), w);
+  };
+  const fbm = (x, y, z) => vnoise(x, y, z) * 0.55 + vnoise(x * 2.1, y * 2.1, z * 2.1) * 0.3 + vnoise(x * 4.3, y * 4.3, z * 4.3) * 0.15;
+  const smooth = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const lin = c => c.map(v => v * v);                             // colours are picked by eye, mixed as light
+
+  // ── formations: each knows a colour per slot and where slot k is at time t (it returns that slot's brightness)
+  function makePad() {
+    const rows = Math.max(4, Math.round(Math.sqrt(N / 7))), cols = Math.ceil(N / rows), col = new Float32Array(N * 3);
+    for (let k = 0; k < N; k++) col.set(lin([0.55, 0.68, 0.85]), k * 3);
+    return { col, pos(k, t, o) { o[0] = ((k % cols) - (cols - 1) / 2) * 1.3; o[1] = 0.7; o[2] = CZ + (((k / cols) | 0) - (rows - 1) / 2) * 1.3; return 0.07; } };
+  }
+  function makeGlobe() {
+    const P = new Float32Array(N * 3), col = new Float32Array(N * 3);
+    for (let k = 0; k < N; k++) {
+      const y = 1 - 2 * (k + 0.5) / N, r = Math.sqrt(1 - y * y), a = k * 2.399963, x = Math.cos(a) * r, z = Math.sin(a) * r;
+      P[k * 3] = x; P[k * 3 + 1] = y; P[k * 3 + 2] = z;
+      const n = fbm(x * 1.05 + 5.2, y * 1.05 + 1.3, z * 1.05 - 2.7);
+      let c;
+      if (Math.abs(y) > 0.9) c = [0.85, 0.93, 1];
+      else if (n > 0.5) { const m = Math.min(1, (n - 0.5) * 8); c = [0.12 + 0.85 * m * m, 0.9 - 0.18 * m, 0.22]; }   // forest, then desert inland
+      else { const m = Math.min(1, (0.5 - n) * 9); c = [0.0, 0.8 - 0.55 * m, 1]; }                                  // shallows, then deep ocean
+      col.set(lin(c), k * 3);
+    }
+    return { col, pos(k, t, o) {
+      let x = P[k * 3], y = P[k * 3 + 1], z = P[k * 3 + 2], u;
+      const a = t * 0.28, ca = Math.cos(a), sa = Math.sin(a); u = x * ca + z * sa; z = -x * sa + z * ca; x = u;   // spin
+      u = x * 0.917 - y * 0.399; y = x * 0.399 + y * 0.917; x = u;                                            // axial tilt
+      u = y * 0.955 + z * 0.296; z = -y * 0.296 + z * 0.955; y = u;                                           // north leans toward us
+      o[0] = x * RAD; o[1] = CY + y * RAD; o[2] = CZ + z * RAD;
+      return 0.08 + 0.92 * smooth(-0.2, 0.45, -z);                    // the far side is dimmed, as a show designer would
+    } };
+  }
+  function makeSaturn() {
+    const P = new Float32Array(N * 3), col = new Float32Array(N * 3), NP = Math.round(N * 0.42);
+    for (let k = 0; k < N; k++) {
+      let x, y, z, c;
+      if (k < NP) {
+        y = 1 - 2 * (k + 0.5) / NP; const r = Math.sqrt(1 - y * y), a = k * 2.399963; x = Math.cos(a) * r * 0.58; z = Math.sin(a) * r * 0.58; y *= 0.53;
+        const band = 0.5 + 0.5 * Math.sin(y * 19 + fbm(x * 3, y * 3, z * 3) * 4);
+        c = [1 - 0.12 * band, 0.86 - 0.38 * band, 0.6 - 0.42 * band];
+      } else {
+        let r; do { r = Math.sqrt(0.72 + Math.random() * 1.38); } while (r > 1.2 && r < 1.26);   // Cassini division
+        const a = Math.random() * Math.PI * 2; x = Math.cos(a) * r; z = Math.sin(a) * r; y = (Math.random() - 0.5) * 0.02;
+        const s = r < 0.98 ? 0.5 : r < 1.2 ? 1 : 0.72; c = [0.98 * s, 0.86 * s, 0.62 * s];
+      }
+      P[k * 3] = x; P[k * 3 + 1] = y; P[k * 3 + 2] = z; col.set(lin(c), k * 3);
+    }
+    return { col, pos(k, t, o) {
+      let x = P[k * 3], y = P[k * 3 + 1], z = P[k * 3 + 2], u;
+      u = y * 0.927 - z * 0.375; z = y * 0.375 + z * 0.927; y = u;                                            // tip the ring open
+      u = x * 0.98 - y * 0.199; y = x * 0.199 + y * 0.98; x = u;
+      const a = 0.45 * Math.sin(t * 0.32), ca = Math.cos(a), sa = Math.sin(a); u = x * ca + z * sa; z = -x * sa + z * ca; x = u;
+      o[0] = x * RAD; o[1] = CY + y * RAD; o[2] = CZ + z * RAD;
+      if (k < NP) return 0.1 + 0.9 * smooth(-0.15, 0.3, -z);
+      return z > 0 && x * x + (y * 1.08) ** 2 < 0.56 * 0.56 ? 0.08 : 1;   // ring behind the planet goes dark
+    } };
+  }
+  function makeHeart() {
+    const M = 240, poly = [];
+    for (let i = 0; i < M; i++) { const s = (i / M) * Math.PI * 2; poly.push([(16 * Math.sin(s) ** 3) / 17, (13 * Math.cos(s) - 5 * Math.cos(2 * s) - 2 * Math.cos(3 * s) - Math.cos(4 * s)) / 17 + 0.12]); }
+    const inside = (x, y) => { let c = false; for (let i = 0, j = M - 1; i < M; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; } return c; };
+    const edge = (x, y) => { let m = 9; for (const [px, py] of poly) m = Math.min(m, (px - x) ** 2 + (py - y) ** 2); return Math.sqrt(m); };
+    const P = new Float32Array(N * 3), col = new Float32Array(N * 3);
+    for (let k = 0; k < N;) {
+      const x = Math.random() * 2 - 1, y = Math.random() * 2 - 1.05;
+      if (!inside(x, y)) continue;
+      const d = Math.min(1, edge(x, y) / 0.42), z = (k % 2 ? 1 : -1) * 0.36 * Math.sqrt(d);
+      P[k * 3] = x; P[k * 3 + 1] = y; P[k * 3 + 2] = z;
+      const hl = Math.max(0, 1 - Math.hypot(x + 0.42, y - 0.36) / 0.55) * (z < 0 ? 1 : 0.3);
+      col.set(lin([1, 0.12 + 0.55 * hl, 0.3 + 0.45 * hl]), k * 3); k++;
+    }
+    return { col, pos(k, t, o) {
+      const tau = (t * 1.15) % 1, beat = 1 + 0.07 * (Math.exp(-(((tau - 0.1) / 0.05) ** 2)) + 0.6 * Math.exp(-(((tau - 0.3) / 0.06) ** 2)));
+      let x = P[k * 3] * beat, y = P[k * 3 + 1] * beat, z = P[k * 3 + 2] * beat, u;
+      const a = 0.5 * Math.sin(t * 0.55), ca = Math.cos(a), sa = Math.sin(a); u = x * ca + z * sa; z = -x * sa + z * ca; x = u;
+      o[0] = x * RAD; o[1] = CY + y * RAD; o[2] = CZ + z * RAD;
+      return z < 0.05 ? 1 : 0.4;
+    } };
+  }
+  function makeWord() {
+    const c = document.createElement('canvas'); c.width = 1200; c.height = 300;
+    const g = c.getContext('2d'); g.font = '900 220px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#fff'; g.fillText(WORD, 600, 150, 1160);
+    const px = g.getImageData(0, 0, 1200, 300).data, spots = [];
+    for (let y = 0; y < 300; y += 2) for (let x = 0; x < 1200; x += 2) if (px[(y * 1200 + x) * 4 + 3] > 140) spots.push(x, y);
+    let x0 = 1e9, x1 = -1e9; for (let i = 0; i < spots.length; i += 2) { x0 = Math.min(x0, spots[i]); x1 = Math.max(x1, spots[i]); }
+    const sc = 2.5 / Math.max(1, x1 - x0), cx = (x0 + x1) / 2, P = new Float32Array(N * 3), col = new Float32Array(N * 3), n = spots.length / 2;
+    for (let k = 0; k < N; k++) {
+      const s = n ? (Math.random() * n) | 0 : 0, x = ((spots[s * 2] ?? 600) - cx + Math.random() * 2) * sc, y = -((spots[s * 2 + 1] ?? 150) - 150 + Math.random() * 2) * sc;
+      P[k * 3] = x; P[k * 3 + 1] = y; P[k * 3 + 2] = 0;
+      col.set(lin([1, 0.78 + 0.18 * (x / 2.5 + 0.5), 0.45 + 0.5 * (x / 2.5 + 0.5)]), k * 3);
+    }
+    return { col, pos(k, t, o) {
+      const x = P[k * 3], y = P[k * 3 + 1];
+      o[0] = x * RAD; o[1] = CY + y * RAD; o[2] = CZ + Math.sin(x * 2.2 - t * 1.6) * 6;
+      return 0.5 + 0.5 * Math.max(0, Math.sin(x * 2.6 - t * 3.4)) ** 3 + 0.12 * Math.sin(t * 9 + k);   // a shimmer runs along the letters
+    } };
+  }
+
+  const pad = makePad(), forms = { globe: makeGlobe(), saturn: makeSaturn(), heart: makeHeart(), word: makeWord() };
+  const SHOW = [
+    { form: pad, tr: 0, hold: 1.2 },
+    { form: forms.globe, tr: 5.6, hold: 7, kind: 'launch' },
+    { form: forms.saturn, tr: 4.6, hold: 7.5 },
+    { form: forms.heart, tr: 4.6, hold: 6.5 },
+    { form: forms.word, tr: 4.6, hold: 6.5 },
+    { form: pad, tr: 6.2, hold: 2.4, kind: 'land' },
+  ];
+
+  // ── assignment: band-sort both sets, then keep every swap that shortens the total (squared) flight
+  const cur = new Float32Array(N * 3), curCol = new Float32Array(N * 3), from = new Float32Array(N * 3), fromCol = new Float32Array(N * 3);
+  const delay = new Float32Array(N), Q = new Float32Array(N * 3), tmp = [0, 0, 0];
+  let perm = new Int32Array(N);
+  function assign(form, tEnd) {
+    for (let k = 0; k < N; k++) { form.pos(k, tEnd, tmp); Q[k * 3] = tmp[0]; Q[k * 3 + 1] = tmp[1]; Q[k * 3 + 2] = tmp[2]; }
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (let i = 0; i < N; i++) { x0 = Math.min(x0, from[i * 3]); x1 = Math.max(x1, from[i * 3]); y0 = Math.min(y0, from[i * 3 + 1]); y1 = Math.max(y1, from[i * 3 + 1]); }
+    const flat = y1 - y0 < (x1 - x0) * 0.2;                       // a flat pad sorts by x first: drones rise straight up
+    const a = flat ? 0 : 1, b = flat ? 1 : 0, ap = flat ? 0 : 1, bp = flat ? 2 : 0, sgn = flat ? -1 : 1;
+    const ip = Array.from({ length: N }, (_, i) => i).sort((i, j) => from[i * 3 + ap] - from[j * 3 + ap]);
+    const iq = Array.from({ length: N }, (_, i) => i).sort((i, j) => Q[i * 3 + a] - Q[j * 3 + a]);
+    const band = Math.max(1, Math.round(Math.sqrt(N) * 0.9)), out = new Int32Array(N);
+    for (let s = 0; s < N; s += band) {
+      const e = Math.min(N, s + band);
+      const bp2 = ip.slice(s, e).sort((i, j) => sgn * (from[i * 3 + bp] - from[j * 3 + bp])), bq = iq.slice(s, e).sort((i, j) => Q[i * 3 + b] - Q[j * 3 + b]);
+      for (let m = 0; m < bp2.length; m++) { out[bp2[m]] = bq[m]; ip[s + m] = bp2[m]; }
+    }
+    const d2 = (i, s) => (from[i * 3] - Q[s * 3]) ** 2 + (from[i * 3 + 1] - Q[s * 3 + 1]) ** 2 + (from[i * 3 + 2] - Q[s * 3 + 2]) ** 2;
+    for (let it = 0; it < N * 50; it++) {
+      const p = (Math.random() * N) | 0, q = Math.random() < 0.8 ? Math.min(N - 1, p + 1 + ((Math.random() * 40) | 0)) : (Math.random() * N) | 0;
+      const i = ip[p], j = ip[q]; if (i === j) continue;
+      const si = out[i], sj = out[j];
+      if (d2(i, sj) + d2(j, si) < d2(i, si) + d2(j, sj)) { out[i] = sj; out[j] = si; }
+    }
+    return out;
+  }
+  let si = 0, segT0 = 0;
+  function begin(seg, t0) {
+    from.set(cur); fromCol.set(curCol);
+    perm = seg.tr ? assign(seg.form, t0 + seg.tr) : perm;
+    let xm = 1; for (let i = 0; i < N; i++) xm = Math.max(xm, Math.abs(from[i * 3]));
+    for (let i = 0; i < N; i++) delay[i] = seg.kind === 'launch' ? (Math.abs(from[i * 3]) / xm) * 1.1 + Math.random() * 0.25 : Math.random() * 0.5;
+  }
+  for (let k = 0; k < N; k++) { pad.pos(k, 0, tmp); cur.set(tmp, k * 3); perm[k] = k; const b = 0.07; curCol[k * 3] = pad.col[k * 3] * b; curCol[k * 3 + 1] = pad.col[k * 3 + 1] * b; curCol[k * 3 + 2] = pad.col[k * 3 + 2] * b; }
+  const phase = Float32Array.from({ length: N * 3 }, () => Math.random() * 6.283);
+
+  function update(t) {
+    let seg = SHOW[si];
+    while (t - segT0 > seg.tr + seg.hold) { segT0 += seg.tr + seg.hold; si = (si + 1) % SHOW.length; seg = SHOW[si]; begin(seg, segT0); }
+    const maxD = seg.kind === 'launch' ? 1.35 : 0.5, span = Math.max(0.5, seg.tr - maxD), f = seg.form;
+    for (let i = 0; i < N; i++) {
+      const s = perm[i], bright = f.pos(s, t, tmp);
+      let e = seg.tr ? Math.min(1, Math.max(0, (t - segT0 - delay[i]) / span)) : 1;
+      e = e * e * e * (e * (e * 6 - 15) + 10);                    // smootherstep: drones accelerate and brake
+      const ax = from[i * 3], ay = from[i * 3 + 1], az = from[i * 3 + 2];
+      let x, y, z;
+      if (seg.kind === 'launch' || seg.kind === 'land') {
+        // a curved path: climb first then swing over (launch), or swing over the pad then descend (landing)
+        const up = seg.kind === 'launch', cx = up ? ax : tmp[0], cy = up ? tmp[1] : ay, cz = up ? az : tmp[2], u = 1 - e;
+        x = u * u * ax + 2 * u * e * cx + e * e * tmp[0]; y = u * u * ay + 2 * u * e * cy + e * e * tmp[1]; z = u * u * az + 2 * u * e * cz + e * e * tmp[2];
+      } else { x = ax + (tmp[0] - ax) * e; y = ay + (tmp[1] - ay) * e; z = az + (tmp[2] - az) * e; }
+      cur[i * 3] = x; cur[i * 3 + 1] = y; cur[i * 3 + 2] = z;
+      const dim = 1 - 0.3 * Math.sin(Math.PI * e);
+      for (let c = 0; c < 3; c++) curCol[i * 3 + c] = (fromCol[i * 3 + c] * (1 - e) + f.col[s * 3 + c] * bright * e) * dim;
+    }
+  }
+
+  // ── GL plumbing
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = (vs, fs) => {
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i < n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
+    return { p, u };
+  };
+  const QUAD = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const HEAD = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  float h1(float n) { return fract(sin(n * 127.1) * 43758.5453); }
+  float h2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  vec3 L(vec3 c) { return c * c; }
+  const float FOC = ${FOC.toFixed(1)}, HOR = ${HOR.toFixed(3)}, CAMH = ${CAMH.toFixed(1)};
+  `;
+  // the sky and the city, drawn per pixel: two rows of blocks with lit windows, towers with blinking beacons
+  const skyP = prog(QUAD, HEAD + `
+  uniform vec2 R; uniform float T, A, BASE;
+  vec3 blocks(float x, float w, float seed, float hmax) {
+    float i = floor(x / w), f = fract(x / w), r = h1(i + seed), r2 = h1(i * 1.7 + seed + 3.1);
+    float h = hmax * (.14 + .86 * pow(r, 2.3)), tower = step(.9, r2);
+    h = mix(h, hmax * (1.3 + .7 * r), tower);
+    h *= mix(1., .45, step(r2, .12));
+    h -= step(min(f, 1. - f), .14) * step(hmax * .55, h) * h * .1;            // stepped crowns
+    h += tower * step(abs(f - .5), .03) * hmax * .4;                          // and a spire
+    return vec3(h, i + seed * 7.3, tower);
+  }
+  void main() {
+    vec2 c = uv * 2. - 1.; float hh = uv.y - BASE; vec3 col = vec3(0);
+    if (hh > 0.) {
+      vec3 sky = mix(vec3(.38, .2, .21), vec3(.08, .075, .16), smoothstep(0., .2, hh));
+      col = L(mix(sky, vec3(.02, .028, .065), smoothstep(.14, .72, hh)));
+      vec2 sp = vec2(c.x * A, c.y) * 110., si = floor(sp); float s = h2(si);
+      if (s > .99) { vec2 sf = fract(sp) - .5 - (vec2(h2(si + 1.7), h2(si + 4.2)) - .5) * .5; col += vec3(.7, .76, 1.) * exp(-dot(sf, sf) * 26.) * (s - .99) * 40. * smoothstep(.1, .45, hh) * (.7 + .3 * sin(T * 2. + s * 300.)); }
+      for (int k = 0; k < 2; k++) {
+        float Z = k == 0 ? 1100. : 760., W = k == 0 ? 36. : 27., HM = k == 0 ? 100. : 66., SEED = k == 0 ? 11.3 : 3.7;
+        float x = c.x * A * Z / FOC, y = (c.y - HOR) * Z / FOC + CAMH, mpp = Z / FOC * 2. / R.y;
+        vec3 b = blocks(x, W, SEED, HM);
+        if (y < b.x) {
+          col = k == 0 ? L(vec3(.085, .066, .11)) : L(vec3(.024, .026, .046));
+          vec2 g = vec2(x / 2.8, y / 3.3), gi = floor(g), gf = fract(g), aa = fwidth(g);
+          float win = smoothstep(.2 - aa.x, .2 + aa.x, gf.x) * smoothstep(.8 + aa.x, .8 - aa.x, gf.x) * smoothstep(.25 - aa.y, .25 + aa.y, gf.y) * smoothstep(.72 + aa.y, .72 - aa.y, gf.y);
+          win = mix(win, .3, clamp(max(aa.x, aa.y) * 2. - .6, 0., 1.));
+          float on = step(.6, h2(gi + b.y * 1.31)) * step(.45, h2(vec2(floor(x / 11.), floor(y / 8.)) + b.y));
+          vec3 wc = mix(vec3(1., .64, .34), vec3(.62, .8, 1.), step(.78, h2(gi * .37 + b.y)));
+          col += L(wc) * win * on * (k == 0 ? .3 : .85);
+        }
+        if (b.z > .5) {                                                       // aviation light on the spire
+          float xc = (floor(x / W) + .5) * W, top = blocks(xc, W, SEED, HM).x + 1.;
+          float d = length(vec2(x - xc, y - top)) / mpp;
+          col += vec3(1., .08, .04) * exp(-d * d * .35) * 3. * step(.55, fract(T * .6 + h1(b.y)));
+        }
+      }
+    }
+    o = vec4(col, 1);
+  }`);
+  // the drones: a sharp core and a faint halo per light
+  const droneP = prog(`#version 300 es
+  layout(location = 0) in vec3 P; layout(location = 1) in vec3 C;
+  uniform float A, S; out vec3 col;
+  void main() { gl_Position = vec4(${FOC.toFixed(1)} * P.x / P.z / A, ${FOC.toFixed(1)} * (P.y - ${CAMH.toFixed(1)}) / P.z + ${HOR.toFixed(3)}, 0, 1); gl_PointSize = S * ${CZ.toFixed(1)} / P.z; col = C; }`,
+  `#version 300 es
+  precision mediump float; in vec3 col; out vec4 o;
+  void main() { vec2 q = gl_PointCoord * 2. - 1.; float r2 = dot(q, q); if (r2 > 1.) discard; o = vec4(col * (exp(-r2 * 11.) + .1 * exp(-r2 * 3.)), 1); }`);
+  // the bay: the scene mirrored at the waterline, rippled by three swells and stretched toward the viewer
+  const waterP = prog(QUAD, HEAD + `
+  uniform sampler2D S; uniform vec2 R; uniform float T, A, BASE;
+  void main() {
+    vec3 c = texture(S, uv).rgb; float d = BASE - uv.y;
+    if (d > 0.) {
+      float z = 1. / (d + .006);
+      float w = sin(z * .9 - T * 1.3 + sin(uv.x * A * 7. + z * .13) * 1.5) * .6 + sin(z * 2.3 + T * 1.9 + uv.x * A * 19.) * .3 + sin(z * 5.1 - T * 2.7 + uv.x * A * 41.) * .15;
+      vec2 m = vec2(uv.x + w * d * .05, 2. * BASE - uv.y);
+      vec3 r = vec3(0);
+      for (int k = 0; k < 8; k++) r += texture(S, m + vec2((float(k) - 3.5) * .0012 * w, float(k) * d * .018)).rgb;
+      float fres = mix(.7, .28, smoothstep(0., .22, d));
+      c += r / 8. * fres * vec3(.82, .9, 1.) + L(vec3(.012, .018, .036)) * (1. - fres);
+    }
+    o = vec4(c, 1);
+  }`);
+  const downP = prog(QUAD, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D S; uniform vec2 H;
+  void main() { o = (texture(S, uv) * 4. + texture(S, uv - H) + texture(S, uv + H) + texture(S, uv + vec2(H.x, -H.y)) + texture(S, uv - vec2(H.x, -H.y))) / 8.; }`);
+  const upP = prog(QUAD, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D S; uniform vec2 H;
+  void main() { o = (texture(S, uv + vec2(-2. * H.x, 0)) + texture(S, uv + vec2(2. * H.x, 0)) + texture(S, uv + vec2(0, 2. * H.y)) + texture(S, uv + vec2(0, -2. * H.y))
+    + 2. * (texture(S, uv + H) + texture(S, uv - H) + texture(S, uv + vec2(H.x, -H.y)) + texture(S, uv - vec2(H.x, -H.y)))) / 12.; }`);
+  const finalP = prog(QUAD, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D S, B; uniform float K, T; uniform vec2 R;
+  float h2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  void main() {
+    vec3 c = texture(S, uv).rgb + texture(B, uv).rgb * K;
+    c = (c * (2.51 * c + .03)) / (c * (2.43 * c + .59) + .14);
+    c = pow(clamp(c, 0., 1.), vec3(1. / 2.2));
+    c *= mix(1., smoothstep(1.25, .35, length((uv - .5) * vec2(1.1, 1.))), .3);
+    o = vec4(c + (h2(uv * R + fract(T) * 91.) - .5) / 128., 1);
+  }`);
+
+  const quad = gl.createVertexArray(); gl.bindVertexArray(quad);
+  const qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const dv = gl.createVertexArray(); gl.bindVertexArray(dv);
+  const data = new Float32Array(N * 6), db = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, db); gl.bufferData(gl.ARRAY_BUFFER, data.byteLength, gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
+  gl.bindVertexArray(null);
+
+  const fmt = hdr ? [gl.RGBA16F, gl.HALF_FLOAT] : [gl.RGBA8, gl.UNSIGNED_BYTE];
+  const rt = (w, h) => {
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, fmt[0], w, h, 0, gl.RGBA, fmt[1], null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    return { tex, fb, w, h };
+  };
+  let W = 1, H = 1, scene = null, comp = null, mips = [];
+  const resize = () => {
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(1, Math.sqrt(2.4e6 / (w * h))));
+    W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0);
+    for (const r of [scene, comp, ...mips]) if (r) { gl.deleteTexture(r.tex); gl.deleteFramebuffer(r.fb); }
+    scene = rt(W, H); comp = rt(W, H); mips = [];
+    let mw = W, mh = H; for (let i = 0; i < 6; i++) { mw = Math.max(1, mw >> 1); mh = Math.max(1, mh >> 1); mips.push(rt(mw, mh)); }
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const pass = (P, target, tex) => {
+    gl.useProgram(P.p); gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.fb : null); gl.viewport(0, 0, target ? target.w : W, target ? target.h : H);
+    if (tex) { gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(P.u.S, 0); }
+    gl.bindVertexArray(quad);
+  };
+  let raf, last = performance.now(), t = 0;
+  function frame(now) {
+    t += Math.min(0.05, (now - last) / 1000) * PARAMS.speed; last = now;
+    update(t);
+    for (let i = 0; i < N; i++) {
+      const o = i * 6, w = 0.22;
+      data[o] = cur[i * 3] + Math.sin(t * 1.3 + phase[i * 3]) * w; data[o + 1] = cur[i * 3 + 1] + Math.sin(t * 1.7 + phase[i * 3 + 1]) * w; data[o + 2] = cur[i * 3 + 2] + Math.sin(t * 1.1 + phase[i * 3 + 2]) * w;
+      data[o + 3] = curCol[i * 3] * 3; data[o + 4] = curCol[i * 3 + 1] * 3; data[o + 5] = curCol[i * 3 + 2] * 3;
+    }
+    const A = W / H;
+    gl.disable(gl.BLEND);
+    pass(skyP, scene); gl.uniform2f(skyP.u.R, W, H); gl.uniform1f(skyP.u.T, t); gl.uniform1f(skyP.u.A, A); gl.uniform1f(skyP.u.BASE, BASE); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    gl.useProgram(droneP.p); gl.uniform1f(droneP.u.A, A); gl.uniform1f(droneP.u.S, Math.max(5, H / 105)); gl.bindVertexArray(dv);
+    gl.bindBuffer(gl.ARRAY_BUFFER, db); gl.bufferSubData(gl.ARRAY_BUFFER, 0, data); gl.drawArrays(gl.POINTS, 0, N);
+    gl.disable(gl.BLEND);
+    pass(waterP, comp, scene.tex); gl.uniform2f(waterP.u.R, W, H); gl.uniform1f(waterP.u.T, t); gl.uniform1f(waterP.u.A, A); gl.uniform1f(waterP.u.BASE, BASE); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // bloom: halve down the chain, then add each level back up into the one above it
+    let src = comp;
+    for (const m of mips) { pass(downP, m, src.tex); gl.uniform2f(downP.u.H, 0.5 / src.w, 0.5 / src.h); gl.drawArrays(gl.TRIANGLES, 0, 3); src = m; }
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    for (let i = mips.length - 1; i > 0; i--) { pass(upP, mips[i - 1], mips[i].tex); gl.uniform2f(upP.u.H, 0.5 / mips[i].w, 0.5 / mips[i].h); gl.drawArrays(gl.TRIANGLES, 0, 3); }
+    gl.disable(gl.BLEND);
+    pass(finalP, null, comp.tex); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, mips[0].tex); gl.uniform1i(finalP.u.B, 1);
+    gl.uniform1f(finalP.u.K, 0.22 * PARAMS.glow); gl.uniform1f(finalP.u.T, t); gl.uniform2f(finalP.u.R, W, H); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.activeTexture(gl.TEXTURE0);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}

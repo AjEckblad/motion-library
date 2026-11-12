@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline draw: A scroll-scrubbed line draws down; milestones trigger as it passes · Motion Library</title>
+<meta name="description" content="Timeline draw is a DOM effect: a scroll-scrubbed line draws down; milestones trigger as it passes. One plain JavaScript file with no dependencies; add it with npx motion-library add timeline-draw.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/timeline-draw.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Timeline draw · Motion Library">
+<meta property="og:description" content="A scroll-scrubbed line draws down; milestones trigger as it passes">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/timeline-draw.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Timeline draw",
+  "description": "A scroll-scrubbed line draws down; milestones trigger as it passes",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Scroll, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/timeline-draw.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/timeline-draw.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Scroll",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/scroll"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Timeline draw",
+    "item": "https://ajeckblad.github.io/motion-library/fx/timeline-draw.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/scroll">Scroll</a></header>
+<main class="s-page">
+<article>
+<h1>Timeline draw</h1>
+<p class="tldr">Timeline draw is a DOM effect: a scroll-scrubbed line draws down; milestones trigger as it passes. One plain JavaScript file with no dependencies; add it with npx motion-library add timeline-draw.</p>
+<figure><img src="../posters/timeline-draw.webp" alt="Timeline draw: A scroll-scrubbed line draws down; milestones trigger as it passes" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/timeline-draw">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Timeline draw?</h2>
+<p>A copper telegraph line draws down the page as you scroll, and each year pops in on arrival.</p>
+
+<h2>How does Timeline draw work?</h2>
+<p>The line is scrubbed by a clip-path edge pinned to a fixed reading line in the viewport, with a glowing tip; milestones are triggered instead, easing in once.</p>
+
+<h2>How do I add Timeline draw to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add timeline-draw</code>. It writes <code>animations/timeline-draw.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/timeline-draw.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add timeline-draw --line 0.9</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Reading line</td><td><code>--line</code></td><td>0.62</td><td>0.3 to 0.9</td><td>0.01</td></tr>
+<tr><td>Pop (ms)</td><td><code>--pop</code></td><td>300</td><td>120 to 800</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Scroll</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it follows scrolling</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Timeline draw, on a history article about the first transatlantic telegraph cable: a copper line lays itself down the page as you scroll, like the cable paying out over the seabed, and each year pops in as the line reaches it.
+// The line is scrubbed: a clip edge follows a fixed reading line in the viewport, so the drawing always stops exactly where your eyes are, and goes back up if you scroll back. The milestones are triggered instead (they ease in once, and out if you return), because text should arrive whole, not half-faded.
+const PARAMS = { line: 0.62, pop: 300 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400, STEP = 118, X0 = 46;
+  const events = [
+    ['1854', 'A company is formed', 'Cyrus Field raises money to join Ireland and Newfoundland by telegraph, under 3,000 km of ocean.'],
+    ['1857', 'The first attempt', 'The cable snaps 600 km out from Ireland and sinks out of reach.'],
+    ['1858', 'Ninety-eight words', 'Queen Victoria’s message to President Buchanan takes sixteen hours to send. The cable dies three weeks later.'],
+    ['1865', 'The largest ship afloat', 'The Great Eastern pays out a thicker cable, until it breaks with 1,000 km to go.'],
+    ['1866', 'It holds', 'A new cable lands in Heart’s Content. Weeks later the lost one is hooked from the seabed and finished too.'],
+  ];
+  const H = events.length * STEP + 40;
+  const xAt = y =&gt; X0 + 14 * Math.sin(y / 46) + 6 * Math.sin(y / 17);
+  let d = ''; for (let y = 0; y &lt;= H; y += 4) d += `${y ? 'L' : 'M'}${xAt(y).toFixed(1)} ${y}`;
+  const root = document.createElement('div');
+  root.className = 'td-root';
+  root.innerHTML = `&lt;style&gt;
+    .td-root { position: absolute; inset: 0; overflow: hidden; background: #f4f1ea; color: #12343b; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .td-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .td-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+    .td-scroll::-webkit-scrollbar { display: none; }
+    .td-head { padding: 26px 26px 16px; max-width: 520px; }
+    .td-head small { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; color: #b4652f; }
+    .td-head h1 { margin: 8px 0 8px; font: 600 31px/1.04 ui-serif, &quot;Iowan Old Style&quot;, Georgia, serif; letter-spacing: -0.02em; }
+    .td-head p { margin: 0; font: italic 400 13.5px/1.45 ui-serif, Georgia, serif; color: #3f5b60; }
+    .td-head span { display: block; margin-top: 10px; font-size: 11px; color: #6b7f82; }
+    .td-line { position: relative; height: ${H}px; margin: 10px 0 0 10px; }
+    .td-line svg { position: absolute; left: 0; top: 0; width: 100px; height: ${H}px; overflow: visible; }
+    .td-ink { will-change: clip-path; }
+    .td-tip { position: absolute; left: 0; top: 0; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: #e0894a; box-shadow: 0 0 0 4px rgba(224,137,74,.25), 0 0 14px 4px rgba(224,137,74,.45); will-change: transform; }
+    .td-ev { position: absolute; left: 0; right: 24px; height: ${STEP}px; }
+    .td-dot { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: #f4f1ea; border: 3px solid #b4652f; box-sizing: border-box; opacity: 0; }
+    .td-ring { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; border: 2px solid #b4652f; box-sizing: border-box; opacity: 0; }
+    .td-card { position: absolute; left: 92px; right: 0; top: -12px; opacity: 0; }
+    .td-card b { font: 700 22px/1 &quot;Mona Sans&quot;, system-ui, sans-serif; letter-spacing: -0.02em; color: #b4652f; font-variant-numeric: tabular-nums; }
+    .td-card h3 { margin: 4px 0 3px; font-size: 13.5px; font-weight: 680; }
+    .td-card p { margin: 0; max-width: 380px; font: 400 12.5px/1.45 ui-serif, Georgia, serif; color: #3f5b60; }
+    .td-end { padding: 10px 26px 120px 102px; font: italic 400 13px/1.5 ui-serif, Georgia, serif; color: #3f5b60; }
+  &lt;/style&gt;
+  &lt;div class=&quot;td-art&quot;&gt;&lt;div class=&quot;td-scroll&quot;&gt;
+    &lt;div class=&quot;td-head&quot;&gt;&lt;small&gt;HISTORY · TELEGRAPHY&lt;/small&gt;&lt;h1&gt;The cable that crossed the Atlantic&lt;/h1&gt;&lt;p&gt;Twelve years, five attempts and one very large ship. How two continents first talked in minutes instead of weeks.&lt;/p&gt;&lt;span&gt;By Ruth Adeyemi · 15 min read&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;td-line&quot;&gt;
+      &lt;svg viewBox=&quot;0 0 100 ${H}&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;${d}&quot; fill=&quot;none&quot; stroke=&quot;#12343b&quot; stroke-opacity=&quot;.14&quot; stroke-width=&quot;2&quot; stroke-dasharray=&quot;2 6&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;g class=&quot;td-ink&quot;&gt;&lt;path d=&quot;${d}&quot; fill=&quot;none&quot; stroke=&quot;#7a3f1a&quot; stroke-width=&quot;6&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;path d=&quot;${d}&quot; fill=&quot;none&quot; stroke=&quot;#c97a40&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;
+      ${events.map(([y, h, p], i) =&gt; `&lt;div class=&quot;td-ev&quot; style=&quot;top:${40 + i * STEP}px&quot;&gt;&lt;i class=&quot;td-ring&quot; style=&quot;left:${xAt(40 + i * STEP).toFixed(1)}px&quot;&gt;&lt;/i&gt;&lt;i class=&quot;td-dot&quot; style=&quot;left:${xAt(40 + i * STEP).toFixed(1)}px&quot;&gt;&lt;/i&gt;&lt;div class=&quot;td-card&quot;&gt;&lt;b&gt;${y}&lt;/b&gt;&lt;h3&gt;${h}&lt;/h3&gt;&lt;p&gt;${p}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;`).join('')}
+      &lt;i class=&quot;td-tip&quot;&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;td-end&quot;&gt;From then on, news crossed the ocean faster than the ships that used to carry it.&lt;/div&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const box = root.querySelector('.td-art'), sc = root.querySelector('.td-scroll'), line = root.querySelector('.td-line');
+  const ink = root.querySelector('.td-ink'), tip = root.querySelector('.td-tip');
+  const evs = [...root.querySelectorAll('.td-ev')].map(el =&gt; ({ dot: el.querySelector('.td-dot'), ring: el.querySelector('.td-ring'), card: el.querySelector('.td-card'), on: false }));
+  const fit = () =&gt; {
+    const W = stage.clientWidth, Hh = stage.clientHeight, s = Math.min(Hh / AH, W / MINW) || 1;
+    box.style.width = W / s + 'px'; box.style.top = (Hh - AH * s) / 2 + 'px'; box.style.transform = `scale(${s})`;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // Simulated reader: down the timeline one year at a time, a pause on each, then back to the top.
+  const T = () =&gt; line.offsetTop, end = () =&gt; sc.scrollHeight - sc.clientHeight;
+  const at = i =&gt; () =&gt; Math.min(end(), T() + 40 + i * STEP - AH * PARAMS.line + 30);
+  const stops = [[() =&gt; 0, 0, 1100], ...events.map((_, i) =&gt; [at(i), i ? 900 : 1100, 900]), [end, 900, 1200], [() =&gt; 0, 1700, 300]];
+  const ease = t =&gt; t &lt; 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let seg = null, si = 0, userUntil = 0, raf;
+  const take = () =&gt; { userUntil = performance.now() + 3000; seg = null; };
+  ['wheel', 'touchstart', 'pointerdown'].forEach(e =&gt; sc.addEventListener(e, take, { passive: true }));
+  function drive(now) {
+    if (now &lt; userUntil) return;
+    if (!seg) { const [to, dur, hold] = stops[si++ % stops.length]; seg = { from: sc.scrollTop, to: Math.max(0, to()), t0: now, dur, hold }; }
+    const k = seg.dur ? Math.min(1, (now - seg.t0) / seg.dur) : 1;
+    sc.scrollTop = seg.from + (seg.to - seg.from) * ease(k);
+    if (now - seg.t0 &gt;= seg.dur + seg.hold) seg = null;
+  }
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  // reduced motion: milestones fade in place; no pop, no ripple ring, no slide
+  const still = k =&gt; reduce ? k.map(({ transform, ...f }) =&gt; f) : k;
+  function toggle(e, on) {
+    e.on = on;
+    const o = { duration: PARAMS.pop, easing: easeOut, fill: 'forwards' };
+    if (on) {
+      e.dot.animate(still([{ opacity: 0, transform: 'scale(0.95)' }, { opacity: 1, transform: 'scale(1.25)', offset: 0.45 }, { opacity: 1, transform: 'scale(1)' }]), o);
+      if (!reduce) e.ring.animate([{ opacity: 0.8, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(2.6)' }], { ...o, duration: PARAMS.pop * 2.4 });
+      e.card.animate(still([{ opacity: 0, transform: 'translateX(10px)' }, { opacity: 1, transform: 'none' }]), { ...o, delay: 60 });
+    } else {
+      e.dot.animate([{ opacity: 1 }, { opacity: 0 }], { ...o, duration: PARAMS.pop * 0.6 });
+      e.card.animate(still([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(6px)' }]), { ...o, duration: PARAMS.pop * 0.6 });
+    }
+  }
+  function frame(now) {
+    drive(now);
+    // the reading line sits at a fixed height in the viewport; the cable is drawn down to it
+    const y = Math.max(0, Math.min(H, sc.scrollTop + AH * PARAMS.line - T()));
+    ink.style.clipPath = `inset(0 -20px ${(H - y).toFixed(1)}px -20px)`;
+    tip.style.transform = `translate(${xAt(y).toFixed(1)}px, ${y.toFixed(1)}px)`;
+    tip.style.opacity = y &gt; 2 &amp;&amp; y &lt; H - 2 ? 1 : 0;
+    evs.forEach((e, i) =&gt; { const on = y &gt;= 40 + i * STEP; if (on !== e.on) toggle(e, on); });
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

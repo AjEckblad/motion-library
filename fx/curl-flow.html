@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curl-noise flow field: Divergence-free curl noise; particles never clump · Motion Library</title>
+<meta name="description" content="Curl-noise flow field is a Canvas effect: divergence-free curl noise; particles never clump. One plain JavaScript file with no dependencies; add it with npx motion-library add curl-flow.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/curl-flow.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Curl-noise flow field · Motion Library">
+<meta property="og:description" content="Divergence-free curl noise; particles never clump">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/curl-flow.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Curl-noise flow field",
+  "description": "Divergence-free curl noise; particles never clump",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/curl-flow.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/curl-flow.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Curl-noise flow field",
+    "item": "https://ajeckblad.github.io/motion-library/fx/curl-flow.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Curl-noise flow field</h1>
+<p class="tldr">Curl-noise flow field is a Canvas effect: divergence-free curl noise; particles never clump. One plain JavaScript file with no dependencies; add it with npx motion-library add curl-flow.</p>
+<figure><img src="../posters/curl-flow.webp" alt="Curl-noise flow field: Divergence-free curl noise; particles never clump" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/curl-flow">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Curl-noise flow field?</h2>
+<p>Particles swirl in smooth streams that leave soft trails and never pile up.</p>
+
+<h2>How does Curl-noise flow field work?</h2>
+<p>Each particle follows the curl of a noise field, which has no sources or sinks; a translucent fill each frame instead of a clear keeps the trails.</p>
+
+<h2>How do I add Curl-noise flow field to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add curl-flow</code>. It writes <code>animations/curl-flow.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/curl-flow.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add curl-flow --count 8000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Particles</td><td><code>--count</code></td><td>4000</td><td>500 to 8000</td><td>100</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.2 to 3</td><td>0.1</td></tr>
+<tr><td>Field scale</td><td><code>--scale</code></td><td>0.0025</td><td>0.0008 to 0.006</td><td>0.0001</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>2.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Curl-noise flow field: particles follow the curl of a smooth stream function, which has no sources or sinks,
+// so they swirl without ever bunching up. A faint fill each frame leaves the trails.
+const PARAMS = { count: 4000, speed: 1, scale: 0.0025 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.fillStyle = '#07161c'; ctx.fillRect(0, 0, W, H); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // stream function ψ = Σ a·sin(kx·x + p)·cos(ky·y + q); velocity = (∂ψ/∂y, −∂ψ/∂x)
+  const waves = [[1, 1.0, 1.3, 0.0, 0.7], [0.6, 2.1, 1.7, 1.3, 2.2], [0.35, 3.7, 4.1, 2.6, 0.4]];
+  const field = (x, y, t) =&gt; {
+    let vx = 0, vy = 0; const s = PARAMS.scale;
+    for (const [a, kx, ky, p, q] of waves) {
+      const X = kx * x * s + p + t * 0.15 * kx, Y = ky * y * s + q - t * 0.1 * ky;
+      vx += -a * ky * Math.sin(X) * Math.sin(Y);   // ∂ψ/∂y
+      vy += -a * kx * Math.cos(X) * Math.cos(Y);   // −∂ψ/∂x
+    }
+    return [vx, vy];
+  };
+  const n = Math.round(PARAMS.count);
+  const P = new Float32Array(n * 3);
+  const spawn = i =&gt; { P[i * 3] = Math.random() * W; P[i * 3 + 1] = Math.random() * H; P[i * 3 + 2] = 60 + Math.random() * 200; };
+  for (let i = 0; i &lt; n; i++) spawn(i);
+  const palette = ['#3bc9db', '#99e9f2', '#0a87a6', '#ffffff'];
+  let raf;
+  function frame(now) {
+    const t = now / 1000;
+    ctx.fillStyle = 'rgba(7, 22, 28, 0.09)'; ctx.fillRect(0, 0, W, H);
+    ctx.lineWidth = 1;
+    for (let c = 0; c &lt; palette.length; c++) {
+      ctx.strokeStyle = palette[c]; ctx.globalAlpha = c === 3 ? 0.35 : 0.55; ctx.beginPath();
+      for (let i = c; i &lt; n; i += palette.length) {
+        const x = P[i * 3], y = P[i * 3 + 1];
+        const [vx, vy] = field(x, y, t);
+        const nx = x + vx * PARAMS.speed * 0.9, ny = y + vy * PARAMS.speed * 0.9;
+        ctx.moveTo(x, y); ctx.lineTo(nx, ny);
+        P[i * 3] = nx; P[i * 3 + 1] = ny;
+        if (--P[i * 3 + 2] &lt; 0 || nx &lt; 0 || nx &gt; W || ny &lt; 0 || ny &gt; H) spawn(i);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staircase wipe: Bars cover in a stagger, the page swaps unseen · Motion Library</title>
+<meta name="description" content="Staircase wipe is a DOM effect: bars cover in a stagger, the page swaps unseen. One plain JavaScript file with no dependencies; add it with npx motion-library add staircase-wipe.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/staircase-wipe.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Staircase wipe · Motion Library">
+<meta property="og:description" content="Bars cover in a stagger, the page swaps unseen">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/staircase-wipe.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Staircase wipe",
+  "description": "Bars cover in a stagger, the page swaps unseen",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Page transitions, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/staircase-wipe.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/staircase-wipe.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Page transitions",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/transitions"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Staircase wipe",
+    "item": "https://ajeckblad.github.io/motion-library/fx/staircase-wipe.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/transitions">Page transitions</a></header>
+<main class="s-page">
+<article>
+<h1>Staircase wipe</h1>
+<p class="tldr">Staircase wipe is a DOM effect: bars cover in a stagger, the page swaps unseen. One plain JavaScript file with no dependencies; add it with npx motion-library add staircase-wipe.</p>
+<figure><img src="../posters/staircase-wipe.webp" alt="Staircase wipe: Bars cover in a stagger, the page swaps unseen" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/staircase-wipe">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Staircase wipe?</h2>
+<p>Next sends coloured bars down over a shop page in turn, revealing the next collection as they leave.</p>
+
+<h2>How does Staircase wipe work?</h2>
+<p>The bars cover the page, the content swaps while hidden, and the bars carry on downward instead of reversing; they take the next collection’s colour.</p>
+
+<h2>How do I add Staircase wipe to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add staircase-wipe</code>. It writes <code>animations/staircase-wipe.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/staircase-wipe.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add staircase-wipe --bars 14</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Bars</td><td><code>--bars</code></td><td>6</td><td>2 to 14</td><td>1</td></tr>
+<tr><td>Stagger (ms)</td><td><code>--stagger</code></td><td>60</td><td>0 to 160</td><td>5</td></tr>
+<tr><td>Bar duration (ms)</td><td><code>--duration</code></td><td>500</td><td>200 to 1200</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Page transitions</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Staircase wipe: on a homeware shop's website, clicking &quot;Next collection&quot; sends bars down over the page one after another; the page swaps while it's hidden and the bars carry on out the bottom.
+// The bars take the colour of the collection you're heading to, so the wipe already hints at the next page. They never reverse, which keeps the motion moving forward like turning a page.
+const PARAMS = { bars: 6, stagger: 60, duration: 500 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sh = w =&gt; `&lt;ellipse cx=&quot;50&quot; cy=&quot;86&quot; rx=&quot;${w}&quot; ry=&quot;3.6&quot; fill=&quot;#000&quot; opacity=&quot;.12&quot;/&gt;`;
+  const pages = [
+    { n: '01', title: 'Summer&lt;br&gt;linen', sub: 'Washed flax for long, warm evenings. 24 pieces, cut and sewn in Lithuania.', next: 'Stoneware', bg: '#efe6da', ink: '#2b2118', disc: '#e4d6c3', accent: '#59613f',
+      art: `${sh(30)}&lt;rect x=&quot;20&quot; y=&quot;64&quot; width=&quot;60&quot; height=&quot;18&quot; rx=&quot;6&quot; fill=&quot;#8a9a6b&quot;/&gt;&lt;rect x=&quot;23&quot; y=&quot;47&quot; width=&quot;56&quot; height=&quot;18&quot; rx=&quot;6&quot; fill=&quot;#f4efe6&quot;/&gt;&lt;rect x=&quot;26&quot; y=&quot;30&quot; width=&quot;52&quot; height=&quot;18&quot; rx=&quot;6&quot; fill=&quot;#c9b28f&quot;/&gt;&lt;path d=&quot;M66 30v18M66 64v18&quot; stroke=&quot;#fff&quot; stroke-width=&quot;3&quot; stroke-opacity=&quot;.6&quot;/&gt;&lt;path d=&quot;M62 47v18&quot; stroke=&quot;#c9b28f&quot; stroke-width=&quot;3&quot;/&gt;` },
+    { n: '02', title: 'Hand-thrown&lt;br&gt;stoneware', sub: 'Mugs, bowls and vases made in small batches. 18 pieces, each one a little different.', next: 'Lighting', bg: '#f3dfd3', ink: '#3a1f14', disc: '#ebcdbb', accent: '#b5532f',
+      art: `${sh(34)}&lt;path d=&quot;M50 30C49 22 47 15 41 10&quot; stroke=&quot;#5f7d55&quot; stroke-width=&quot;1.6&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M46 16c-6-1-9-5-9-8 5 0 8 3 9 8z&quot; fill=&quot;#7d9a6b&quot;/&gt;&lt;path d=&quot;M28 28h12v6c0 4 12 9 12 24 0 14-8 24-18 24s-18-10-18-24c0-15 12-20 12-24z&quot; fill=&quot;#7f9cb3&quot; transform=&quot;translate(6 0)&quot;/&gt;&lt;path d=&quot;M62 45h4a8 8 0 0 1 0 16h-4&quot; fill=&quot;none&quot; stroke=&quot;#c9775a&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M44 42h20v30a10 10 0 0 1-10 10h0a10 10 0 0 1-10-10z&quot; fill=&quot;#c9775a&quot; transform=&quot;translate(4 0)&quot;/&gt;&lt;ellipse cx=&quot;58&quot; cy=&quot;42&quot; rx=&quot;10&quot; ry=&quot;2.2&quot; fill=&quot;#000&quot; opacity=&quot;.18&quot;/&gt;` },
+    { n: '03', title: 'Lighting for&lt;br&gt;dark months', sub: 'Brass and linen lamps with a warm, low glow. 9 pieces, all dimmable.', next: 'Summer linen', bg: '#1d2023', ink: '#f3efe6', disc: '#2a2e32', accent: '#c99a3b',
+      art: `&lt;ellipse cx=&quot;50&quot; cy=&quot;62&quot; rx=&quot;30&quot; ry=&quot;20&quot; fill=&quot;#ffe6a8&quot; opacity=&quot;.18&quot;/&gt;&lt;ellipse cx=&quot;50&quot; cy=&quot;58&quot; rx=&quot;18&quot; ry=&quot;12&quot; fill=&quot;#ffe6a8&quot; opacity=&quot;.25&quot;/&gt;${sh(22)}&lt;ellipse cx=&quot;50&quot; cy=&quot;82&quot; rx=&quot;15&quot; ry=&quot;4&quot; fill=&quot;#c99a3b&quot;/&gt;&lt;rect x=&quot;48.6&quot; y=&quot;46&quot; width=&quot;2.8&quot; height=&quot;36&quot; fill=&quot;#8a7a5a&quot;/&gt;&lt;path d=&quot;M28 48c0-14 10-22 22-22s22 8 22 22z&quot; fill=&quot;#d9a441&quot;/&gt;&lt;path d=&quot;M50 26c12 0 22 8 22 22H50z&quot; fill=&quot;#000&quot; opacity=&quot;.1&quot;/&gt;&lt;ellipse cx=&quot;50&quot; cy=&quot;48&quot; rx=&quot;22&quot; ry=&quot;3&quot; fill=&quot;#fff4d0&quot;/&gt;` },
+  ];
+  const root = document.createElement('div');
+  root.className = 'sw-root';
+  root.innerHTML = `&lt;style&gt;
+    .sw-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #eef6f5, #d5e8e5); font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .sw-win { position: absolute; inset: 5% 4%; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(8,45,42,.08), 0 30px 60px -28px rgba(8,45,42,.45); display: flex; flex-direction: column; }
+    .sw-chrome { flex: none; height: max(20px, 6.5%); display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #f1f3f5; border-bottom: 1px solid #e1e5e9; }
+    .sw-chrome i { width: 9px; height: 9px; border-radius: 50%; background: #d3d7dc; }
+    .sw-url { margin: 0 auto; width: 46%; height: 62%; border-radius: 6px; background: #fff; display: grid; place-items: center; font-size: max(7.5px, 1.5vmin); color: #5b6066; white-space: nowrap; overflow: hidden; }
+    .sw-view { position: relative; flex: 1; container-type: size; overflow: hidden; }
+    .sw-page { position: absolute; inset: 0; padding: 4cqh 5cqw; box-sizing: border-box; }
+    .sw-nav { display: flex; justify-content: space-between; font-size: max(7.5px, 3.4cqh); font-weight: 600; opacity: .85; }
+    .sw-nav span { display: flex; gap: 3.5cqw; }
+    .sw-nav b { font-weight: 800; letter-spacing: -0.01em; }
+    .sw-copy { position: absolute; left: 5cqw; top: 20cqh; width: 50cqw; }
+    .sw-n { font-size: max(7px, 3cqh); font-weight: 650; letter-spacing: .08em; opacity: .7; }
+    .sw-copy h2 { margin: 2.5cqh 0 0; font-size: min(12.5cqh, 6.4cqw); line-height: .95; font-weight: 780; letter-spacing: -0.035em; font-stretch: 110%; }
+    .sw-copy p { margin: 3.5cqh 0 0; max-width: 42cqw; font-size: max(7.5px, 3.5cqh); line-height: 1.4; opacity: .78; }
+    .sw-btn { display: inline-flex; margin-top: 4.5cqh; height: 8.5cqh; padding: 0 3.5cqw; align-items: center; border-radius: 999px; font-size: max(7.5px, 3.3cqh); font-weight: 650; }
+    .sw-art { position: absolute; right: 5cqw; top: 15cqh; width: min(64cqh, 40cqw); height: min(64cqh, 40cqw); border-radius: 50%; display: grid; place-items: center; }
+    .sw-art svg { width: 86%; height: 86%; }
+    .sw-next { position: absolute; right: 5cqw; bottom: 5cqh; font-size: max(7.5px, 3.3cqh); font-weight: 650; display: flex; gap: 1.2cqw; align-items: center; }
+    .sw-next u { text-decoration: none; opacity: .65; font-weight: 500; }
+    .sw-bars { position: absolute; inset: 0; display: flex; pointer-events: none; z-index: 2; }
+    .sw-bars i { flex: 1; transform: translateY(-101%); margin-right: -1px; }
+    .sw-cur { position: absolute; z-index: 3; width: max(14px, 4.5cqh); left: 0; top: 0; pointer-events: none; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.3)); }
+  &lt;/style&gt;
+  &lt;div class=&quot;sw-win&quot;&gt;&lt;div class=&quot;sw-chrome&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;span class=&quot;sw-url&quot;&gt;/collections&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;sw-view&quot;&gt;&lt;section class=&quot;sw-page&quot;&gt;&lt;/section&gt;&lt;div class=&quot;sw-bars&quot;&gt;&lt;/div&gt;
+      &lt;svg class=&quot;sw-cur&quot; viewBox=&quot;0 0 16 22&quot;&gt;&lt;path d=&quot;M1.5 1.5v16l4.2-4 2.8 6.4 2.6-1.1-2.7-6.3h5.8z&quot; fill=&quot;#fff&quot; stroke=&quot;#15171a&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const page = root.querySelector('.sw-page'), barsEl = root.querySelector('.sw-bars'), view = root.querySelector('.sw-view'), cur = root.querySelector('.sw-cur'), url = root.querySelector('.sw-url');
+  const n = Math.round(PARAMS.bars);
+  const bars = Array.from({ length: n }, () =&gt; barsEl.appendChild(document.createElement('i')));
+  let k = 0;
+  const arrow = '&lt;svg width=&quot;1em&quot; height=&quot;1em&quot; viewBox=&quot;0 0 16 16&quot;&gt;&lt;path d=&quot;M3 8h10M9 4l4 4-4 4&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  const paint = p =&gt; {
+    page.style.background = p.bg; page.style.color = p.ink;
+    url.textContent = '/collections/' + p.title.replace('&lt;br&gt;', ' ').toLowerCase().replace(/[^a-z]+/g, '-');
+    page.innerHTML = `&lt;div class=&quot;sw-nav&quot;&gt;&lt;span&gt;&lt;b&gt;Collections&lt;/b&gt;&lt;span&gt;Shop&lt;/span&gt;&lt;span&gt;Journal&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;Search&lt;/span&gt;&lt;span&gt;Bag (2)&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;sw-copy&quot;&gt;&lt;div class=&quot;sw-n&quot;&gt;${p.n} / 03 · NEW SEASON&lt;/div&gt;&lt;h2&gt;${p.title}&lt;/h2&gt;&lt;p&gt;${p.sub}&lt;/p&gt;&lt;span class=&quot;sw-btn&quot; style=&quot;background:${p.ink};color:${p.bg}&quot;&gt;Shop the collection&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;sw-art&quot; style=&quot;background:${p.disc}&quot;&gt;&lt;svg viewBox=&quot;0 0 100 100&quot;&gt;${p.art}&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;sw-next&quot;&gt;&lt;u&gt;Next&lt;/u&gt;${p.next} ${arrow}&lt;/div&gt;`;
+  };
+  paint(pages[0]);
+  // The cursor rests on &quot;Next collection&quot;, bottom right.
+  const place = () =&gt; { const w = view.clientWidth, h = view.clientHeight; cur.style.transform = `translate(${w * 0.9}px, ${h * 0.93}px)`; };
+  const ro = new ResizeObserver(place); ro.observe(view); place();
+
+  const ease = 'cubic-bezier(0.77, 0, 0.175, 1)';
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  function wipe() {
+    const next = pages[(k + 1) % pages.length];
+    cur.animate([{ scale: '1' }, { scale: '0.86' }, { scale: '1' }], { duration: reduce ? 0 : 200, easing: 'ease' });
+    bars.forEach((b, i) =&gt; {
+      b.style.background = next.accent;
+      // Reduced motion: each bar fades in where it lands instead of dropping; the stagger stays.
+      b.animate(reduce ? [{ transform: 'translateY(0)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }] : [{ transform: 'translateY(-101%)' }, { transform: 'translateY(0)' }], { duration: PARAMS.duration, delay: 120 + i * PARAMS.stagger, easing: ease, fill: 'forwards' });
+    });
+    const covered = 120 + PARAMS.duration + (n - 1) * PARAMS.stagger;
+    later(() =&gt; {
+      k = (k + 1) % pages.length; paint(pages[k]);
+      bars.forEach((b, i) =&gt; b.animate(reduce ? [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(0)', opacity: 0 }] : [{ transform: 'translateY(0)' }, { transform: 'translateY(101%)' }],
+        { duration: PARAMS.duration, delay: i * PARAMS.stagger, easing: ease, fill: 'forwards' }));
+    }, covered + 80);
+    later(wipe, covered * 2 + 1900);
+  }
+  later(wipe, 900);
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotating word: One word cycles through a clipped slot with a slight blur · Motion Library</title>
+<meta name="description" content="Rotating word is a DOM effect: one word cycles through a clipped slot with a slight blur. One plain JavaScript file with no dependencies; add it with npx motion-library add rotating-word.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/rotating-word.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Rotating word · Motion Library">
+<meta property="og:description" content="One word cycles through a clipped slot with a slight blur">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/rotating-word.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Rotating word",
+  "description": "One word cycles through a clipped slot with a slight blur",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Text, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/rotating-word.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/rotating-word.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Text",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/text"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Rotating word",
+    "item": "https://ajeckblad.github.io/motion-library/fx/rotating-word.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/text">Text</a></header>
+<main class="s-page">
+<article>
+<h1>Rotating word</h1>
+<p class="tldr">Rotating word is a DOM effect: one word cycles through a clipped slot with a slight blur. One plain JavaScript file with no dependencies; add it with npx motion-library add rotating-word.</p>
+<figure><img src="../posters/rotating-word.webp" alt="Rotating word: One word cycles through a clipped slot with a slight blur" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/rotating-word">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Rotating word?</h2>
+<p>A headline’s last word cycles through families, flatmates, clubs and teams, and the calendar beside it follows.</p>
+
+<h2>How does Rotating word work?</h2>
+<p>The word slides up through a clipped slot with a few pixels of blur while an underline wipes in; it ends a left-aligned line, so nothing else moves.</p>
+
+<h2>How do I add Rotating word to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add rotating-word</code>. It writes <code>animations/rotating-word.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/rotating-word.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add rotating-word --hold 5000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Hold (ms)</td><td><code>--hold</code></td><td>2200</td><td>800 to 5000</td><td>50</td></tr>
+<tr><td>Slide (ms)</td><td><code>--duration</code></td><td>480</td><td>150 to 1200</td><td>10</td></tr>
+<tr><td>Blur (px)</td><td><code>--blur</code></td><td>6</td><td>0 to 16</td><td>0.5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Text</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Rotating word, in a shared calendar's landing-page hero: one word of the headline cycles through who the product is for, sliding up through a clipped line with a touch of blur, and the calendar beside it changes to match.
+// Only the word that changes moves, so the sentence stays readable; the clip hides the handover, and a few pixels of blur turn two words passing each other into one soft motion. The word sits at the end of a left-aligned line, so nothing else on the line has to shift.
+const PARAMS = { hold: 2200, duration: 480, blur: 6 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400;
+  const sets = [
+    { word: 'families', ev: [['Mon', '08:15', 'School run', '#ffb86b'], ['Tue', '17:30', 'Swimming lessons', '#7cc4ff'], ['Thu', '10:00', 'Dentist, both kids', '#ff8fa3'], ['Sun', '13:00', 'Lunch at Gran\'s', '#a3e08f']] },
+    { word: 'flatmates', ev: [['Mon', '07:00', 'Bins out', '#a3e08f'], ['Wed', 'All day', 'Rent due', '#ff8fa3'], ['Thu', '18:30', 'Room viewing', '#7cc4ff'], ['Fri', '20:00', 'Quiz night', '#ffb86b']] },
+    { word: 'clubs', ev: [['Tue', '19:00', 'Training, pitch 2', '#7cc4ff'], ['Thu', '19:00', 'Training, pitch 2', '#7cc4ff'], ['Fri', '17:00', 'Kit wash rota', '#a3e08f'], ['Sat', '14:00', 'Away game', '#ffb86b']] },
+    { word: 'teams', ev: [['Mon', '09:30', 'Stand-up', '#a3e08f'], ['Tue', '14:00', 'Design review', '#ff8fa3'], ['Wed', '11:00', '1:1 with Ali', '#7cc4ff'], ['Fri', '16:00', 'Sprint demo', '#ffb86b']] },
+  ];
+  const root = document.createElement('div');
+  root.className = 'rw-root';
+  root.innerHTML = `&lt;style&gt;
+    .rw-root { position: absolute; inset: 0; overflow: hidden; background: #f3f1ff; color: #1d1a45; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .rw-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .rw-nav { position: absolute; left: 28px; right: 24px; top: 18px; display: flex; align-items: center; gap: 16px; font-size: 12px; font-weight: 560; color: #4c4880; }
+    .rw-nav svg { width: 22px; height: 22px; margin-right: auto; }
+    .rw-nav b { font-weight: 640; color: #fff; background: #5b3df5; padding: 7px 13px; border-radius: 999px; }
+    .rw-left { position: absolute; left: 28px; top: 76px; }
+    .rw-badge { display: inline-flex; gap: 6px; align-items: center; padding: 5px 10px; border-radius: 999px; background: #fff; font-size: 11px; font-weight: 600; color: #4c4880; box-shadow: 0 1px 2px rgba(29,26,69,.08); }
+    .rw-badge i { width: 6px; height: 6px; border-radius: 50%; background: #5b3df5; }
+    .rw-h { margin: 14px 0 12px; font-weight: 760; font-stretch: 106%; letter-spacing: -0.035em; line-height: 1.04; }
+    .rw-l2 { display: flex; white-space: pre; }
+    .rw-slot { position: relative; overflow: hidden; padding: 0 .08em .14em 0; margin-bottom: -.14em; }
+    .rw-w { position: absolute; left: 0; top: 0; color: #5b3df5; will-change: transform, opacity, filter; }
+    .rw-under { position: absolute; left: 0; bottom: .02em; height: .2em; width: 100%; }
+    .rw-sub { width: 230px; font-size: 13px; line-height: 1.45; color: #57538a; }
+    .rw-cta { margin-top: 16px; display: flex; gap: 8px; font-size: 12px; font-weight: 640; }
+    .rw-cta span { padding: 9px 14px; border-radius: 999px; background: #1d1a45; color: #fff; }
+    .rw-cta span + span { background: #fff; color: #1d1a45; box-shadow: 0 1px 2px rgba(29,26,69,.1); }
+    .rw-cal { position: absolute; right: 22px; top: 78px; width: 36%; max-width: 210px; min-width: 140px; padding: 10px; border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(29,26,69,.06), 0 20px 40px -22px rgba(45,30,140,.45); box-sizing: border-box; }
+    .rw-cal header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 650; margin-bottom: 8px; }
+    .rw-cal header span { color: #8a86b3; font-weight: 560; }
+    .rw-grid { position: relative; height: 196px; }
+    .rw-ev { position: absolute; left: 0; right: 0; height: 42px; display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 6px; padding: 0 8px 0 0; border-radius: 9px; box-sizing: border-box; font-size: 10.5px; line-height: 1.2; }
+    .rw-ev small { display: grid; place-items: center; height: 100%; border-radius: 9px 0 0 9px; font-size: 9px; font-weight: 700; color: #1d1a45; }
+    .rw-ev b { display: block; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rw-ev span { color: #6f6b9c; font-size: 9.5px; }
+    .rw-ev div { min-width: 0; }
+  &lt;/style&gt;
+  &lt;div class=&quot;rw-art&quot;&gt;
+    &lt;div class=&quot;rw-nav&quot;&gt;&lt;svg viewBox=&quot;0 0 22 22&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;2.5&quot; y=&quot;4&quot; width=&quot;17&quot; height=&quot;15&quot; rx=&quot;4&quot; fill=&quot;none&quot; stroke=&quot;#1d1a45&quot; stroke-width=&quot;1.8&quot;/&gt;&lt;path d=&quot;M2.5 9h17&quot; stroke=&quot;#1d1a45&quot; stroke-width=&quot;1.8&quot;/&gt;&lt;circle cx=&quot;14.5&quot; cy=&quot;14&quot; r=&quot;2&quot; fill=&quot;#5b3df5&quot;/&gt;&lt;/svg&gt;&lt;span&gt;Product&lt;/span&gt;&lt;span&gt;Pricing&lt;/span&gt;&lt;span&gt;Sign in&lt;/span&gt;&lt;b&gt;Get started&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;rw-left&quot;&gt;
+      &lt;span class=&quot;rw-badge&quot;&gt;&lt;i&gt;&lt;/i&gt;New: shared availability&lt;/span&gt;
+      &lt;div class=&quot;rw-h&quot;&gt;&lt;div&gt;One calendar&lt;/div&gt;&lt;div class=&quot;rw-l2&quot;&gt;for &lt;span class=&quot;rw-slot&quot;&gt;&lt;span class=&quot;rw-sizer&quot;&gt;&lt;/span&gt;&lt;svg class=&quot;rw-under&quot; viewBox=&quot;0 0 100 10&quot; preserveAspectRatio=&quot;none&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M2 7 C 30 3, 60 2, 98 5&quot; fill=&quot;none&quot; stroke=&quot;#5b3df5&quot; stroke-opacity=&quot;.35&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;rw-sub&quot;&gt;See who is free, book the dentist, plan the trip. Everyone sees the same week.&lt;/div&gt;
+      &lt;div class=&quot;rw-cta&quot;&gt;&lt;span&gt;Start free&lt;/span&gt;&lt;span&gt;See how it works&lt;/span&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;rw-cal&quot;&gt;&lt;header&gt;This week&lt;span&gt;9 – 15 Mar&lt;/span&gt;&lt;/header&gt;&lt;div class=&quot;rw-grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const art = root.querySelector('.rw-art'), head = root.querySelector('.rw-h'), slot = root.querySelector('.rw-slot');
+  const sizer = root.querySelector('.rw-sizer'), under = root.querySelector('.rw-under'), grid = root.querySelector('.rw-grid');
+  const words = sets.map(s =&gt; { const w = document.createElement('span'); w.className = 'rw-w'; w.textContent = s.word + '.'; w.style.opacity = 0; slot.append(w); return w; });
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1, aw = W / s;
+    art.style.width = aw + 'px'; art.style.top = (H - AH * s) / 2 + 'px'; art.style.transform = `scale(${s})`;
+    // the headline is sized so the longest word still fits beside the calendar
+    const col = aw - 28 - Math.max(140, Math.min(210, aw * 0.36)) - 22 - 18;
+    head.style.fontSize = Math.min(42, col / 6.4).toFixed(1) + 'px';
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  const paintCal = (s, animate) =&gt; {
+    const old = [...grid.children];
+    old.forEach(e =&gt; e.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: easeOut, fill: 'forwards' }).onfinish = () =&gt; e.remove());
+    s.ev.forEach(([day, time, label, c], i) =&gt; {
+      const e = document.createElement('div'); e.className = 'rw-ev';
+      e.innerHTML = `&lt;small style=&quot;background:${c}&quot;&gt;${day}&lt;/small&gt;&lt;div&gt;&lt;b&gt;${label}&lt;/b&gt;&lt;span&gt;${time}&lt;/span&gt;&lt;/div&gt;`;
+      e.style.cssText = `top:${i * 49}px;background:color-mix(in srgb, ${c} 22%, #fff)`;
+      grid.append(e);
+      if (animate) e.animate([{ opacity: 0, transform: reduce ? 'none' : 'translateY(6px) scale(0.97)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 60 + i * 50, easing: easeOut, fill: 'backwards' });
+    });
+  };
+  let k = 0, timer;
+  const B = () =&gt; `blur(${PARAMS.blur}px)`;
+  function show(i, first) {
+    const w = words[i], s = sets[i];
+    sizer.textContent = s.word + '.';
+    sizer.style.visibility = 'hidden';
+    w.getAnimations().forEach(a =&gt; a.cancel());
+    if (first) { w.style.opacity = 1; paintCal(s, false); }
+    else {
+      w.style.opacity = 1;
+      w.animate([{ transform: reduce ? 'none' : 'translateY(70%)', opacity: 0, filter: B() }, { transform: 'none', opacity: 1, filter: 'blur(0)' }], { duration: PARAMS.duration, delay: 60, easing: easeOut, fill: 'backwards' });
+      // the underline wipes in under the new word once it has landed
+      under.animate(reduce ? [{ opacity: 0 }, { opacity: 1 }] : [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 420, delay: 60 + PARAMS.duration * 0.6, easing: easeOut, fill: 'backwards' });
+      paintCal(s, true);
+    }
+    timer = setTimeout(() =&gt; {
+      // leaving: up and out of the clip, a little faster than the arrival
+      w.animate([{ transform: 'none', opacity: 1, filter: 'blur(0)' }, { transform: reduce ? 'none' : 'translateY(-70%)', opacity: 0, filter: B() }], { duration: PARAMS.duration * 0.75, easing: easeOut, fill: 'forwards' });
+      k = (k + 1) % sets.length; show(k, false);
+    }, PARAMS.hold + PARAMS.duration);
+  }
+  show(0, true);
+  return () =&gt; { clearTimeout(timer); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

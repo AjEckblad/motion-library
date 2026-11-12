@@ -1,0 +1,123 @@
+// Aurora curtains: each layer is a ribbon of light hanging from a wavy lower edge. The edge is a 1D noise curve that
+// drifts sideways, and the curtain is folded by bending x with more noise, so it pleats like fabric. Above the edge
+// the light fades upwards exponentially and changes from green to violet, as real aurora does with altitude. Fine
+// vertical rays come from very stretched noise (fast across, slow up), and they shimmer as it scrolls. Layers further
+// back are higher, fainter and bluer. Under it all: a few hundred hashed stars with a slow twinkle, and a horizon haze.
+// The pointer (or an idle ghost) grabs the nearest hem and lifts it, and kinks the fold there into a bright pleat.
+const PARAMS = { layers: 3, speed: 1, rays: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const vs = `#version 300 es
+  in vec2 p; void main() { gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform vec2 R, M; uniform float T, D, MA, u_layers, u_speed, u_rays;
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  vec2 hash2(vec2 p) { return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453); }
+  float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + 1.), f.x), f.y); }
+  float fbm(vec2 p) { float s = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 5; i++) { s += a * noise(p); p = m * p; a *= .5; } return s; }
+  float n1(float x) { float i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(hash(vec2(i, 0)), hash(vec2(i + 1., 0)), f); }
+  void main() {
+    vec2 p = (gl_FragCoord.xy - .5 * R) / R.y;
+    float asp = R.x / R.y;
+    // sky
+    vec3 col = mix(vec3(.012, .02, .045), vec3(.004, .006, .018), smoothstep(-.5, .5, p.y));
+    // stars
+    vec2 sg = gl_FragCoord.xy / D / 3.;
+    vec2 si = floor(sg); float sh = hash(si);
+    if (sh > .985) {
+      vec2 so = hash2(si) - .5;
+      float sd = length(fract(sg) - .5 - so * .6);
+      float tw = .6 + .4 * sin(T * 2. + sh * 300.);
+      col += vec3(.75, .82, 1.) * smoothstep(.35, .0, sd) * tw * (sh - .985) * 50. * .9;
+    }
+    vec3 au = vec3(0);
+    float ca = cos(.32), sa = sin(.32);
+    p = mat2(ca, sa, -sa, ca) * p + vec2(0, .08);              // the whole display sweeps diagonally across the sky
+    vec2 mp = mat2(ca, sa, -sa, ca) * M + vec2(0, .08);        // the pointer, in the same frame
+    float pw = .7 + .3 * MA;
+    for (int i = 0; i < 5; i++) {
+      float fi = float(i);
+      if (fi >= u_layers) break;
+      float depth = fi / max(1., u_layers - 1.);
+      float x = p.x * (1.15 - .3 * depth) + fi * 3.7;
+      // fold the curtain: where the fold map's slope nears zero we see the sheet edge-on, so it gets brighter
+      float k1 = 3.1 + fi * .7, k2 = 7.3 - fi * .9, ph = T * (.18 + .05 * fi) + fi * 2.;
+      // the pointer kinks the fold map: its slope dips towards zero there, so a bright pleat forms under it
+      float dx = x - (mp.x * (1.15 - .3 * depth) + fi * 3.7), gx = exp(-dx * dx * 9.), kc = .6 * pw;
+      float xf = x + .26 * sin(x * k1 + ph) / k1 * 3. + .1 * sin(x * k2 - ph * 1.3) / k2 * 3. - kc * dx * gx;
+      float slope = 1. + .78 * cos(x * k1 + ph) + .3 * cos(x * k2 - ph * 1.3) - kc * (1. - 18. * dx * dx) * gx;
+      float fold = clamp(.4 / max(abs(slope), .12), .4, 2.4);
+      float edge = -.3 + .2 * depth + .14 * (n1(xf * .9 + T * .05 + fi * 11.) - .5) + .05 * sin(xf * 2.1 - T * .17 + fi * 1.9)
+                 + .018 * sin(xf * 7. + T * .6 + fi);
+      float grab = gx * exp(-(mp.y - edge) * (mp.y - edge) * 7.) * pw;   // the hem nearest the pointer follows it
+      edge = mix(edge, mp.y - .04, grab * .85);
+      float d = p.y - edge;
+      if (d < -.1) continue;
+      float h = max(d, 0.);
+      float lower = smoothstep(-.008, .012, d);
+      float r = n1(xf * 80. + T * .5 + fi * 31.) * .55 + n1(xf * 230. - T * 1.1 + fi * 7.) * .45;
+      float rays = mix(1., .15 + 1.7 * r * r, clamp(u_rays, 0., 2.) * .5);
+      float body = exp(-h * (1.7 + depth) / (.6 + .4 * fold)) * lower;
+      float hem = exp(-abs(d - .004) * 120.) * 1.4 + exp(min(d, 0.) * 45.) * (1. - lower) * .2;
+      float present = .25 + .75 * smoothstep(.15, .6, n1(xf * .7 - T * .06 + fi * 4.3 + 1.));
+      vec3 low = mix(vec3(.22, 1., .5), vec3(.16, .85, .8), depth);
+      vec3 high = mix(vec3(.6, .2, .95), vec3(.25, .3, 1.), depth);
+      vec3 c = mix(low, high, smoothstep(.06, .5, h));
+      c = mix(vec3(.95, .3, .6), c, smoothstep(-.02, .006, d));                     // a pink fringe under the hem
+      float lit = 1. + 1.4 * grab * exp(-(p.y - mp.y) * (p.y - mp.y) * 5.);
+      au += c * (body * rays * fold * .8 + hem * fold * .6) * mix(present, 1., grab) * lit * (1. - .45 * depth);
+    }
+    au *= .7;
+    col += au;
+    col = 1. - exp(-col * 1.4);
+    o = vec4(pow(col, vec3(.95)), 1);
+  }`;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ['R', 'M', 'T', 'D', 'MA', 'u_layers', 'u_speed', 'u_rays'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+  let dpr = 1;
+  const resize = () => { dpr = Math.min(devicePixelRatio, 2); canvas.width = (stage.clientWidth || 1) * dpr | 0; canvas.height = (stage.clientHeight || 1) * dpr | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  // the pointer, in shader space (units of stage height, origin at the centre, y up); an idle ghost takes over
+  // when nobody is pointing and drifts along just above the hems
+  const ghostX = (g, asp) => asp * 0.3 * Math.sin(g * 0.21 + 0.5);
+  const ghostY = (g, x) => (-0.22 - 0.315 * x) / 0.95 + 0.07 * Math.sin(g * 0.53 + 1.1);
+  let gt = reduce ? 3 : 0, asp0 = canvas.width / canvas.height, tx = ghostX(gt, asp0), ty = ghostY(gt, tx), mx = tx, my = ty, ma = 0, lastMove = -1e9;
+  const toLocal = e => { const b = canvas.getBoundingClientRect(); return [(e.clientX - b.left - b.width / 2) / b.height, (b.height / 2 - (e.clientY - b.top)) / b.height]; };
+  const onMove = e => { [tx, ty] = toLocal(e); lastMove = performance.now(); };
+  const onLeave = () => { lastMove = -1e9; };
+  const onDown = e => { onMove(e); };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerleave', onLeave);
+  let raf, t = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    t += dt * PARAMS.speed * (reduce ? 0.05 : 1);
+    const live = now - lastMove < 2500, asp = canvas.width / canvas.height;
+    if (!reduce) gt += dt;
+    if (!live) { tx = ghostX(gt, asp); ty = ghostY(gt, tx); }
+    const k = 1 - Math.exp(-dt * (live ? 14 : 3));
+    mx += (tx - mx) * k; my += (ty - my) * k; ma += ((live ? 1 : 0) - ma) * (1 - Math.exp(-dt * 4));
+
+    gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform1f(U.T, t); gl.uniform1f(U.D, dpr);
+    gl.uniform2f(U.M, mx, my); gl.uniform1f(U.MA, ma);
+    gl.uniform1f(U.u_layers, PARAMS.layers);
+    gl.uniform1f(U.u_speed, PARAMS.speed);
+    gl.uniform1f(U.u_rays, PARAMS.rays);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerleave', onLeave); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}

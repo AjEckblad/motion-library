@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spotlight reveal: A soft mask follows the cursor over a dark layer · Motion Library</title>
+<meta name="description" content="Spotlight reveal is a DOM effect: a soft mask follows the cursor over a dark layer. One plain JavaScript file with no dependencies; add it with npx motion-library add spotlight.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/spotlight.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Spotlight reveal · Motion Library">
+<meta property="og:description" content="A soft mask follows the cursor over a dark layer">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/spotlight.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Spotlight reveal",
+  "description": "A soft mask follows the cursor over a dark layer",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/spotlight.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/spotlight.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Spotlight reveal",
+    "item": "https://ajeckblad.github.io/motion-library/fx/spotlight.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>Spotlight reveal</h1>
+<p class="tldr">Spotlight reveal is a DOM effect: a soft mask follows the cursor over a dark layer. One plain JavaScript file with no dependencies; add it with npx motion-library add spotlight.</p>
+<figure><img src="../posters/spotlight.webp" alt="Spotlight reveal: A soft mask follows the cursor over a dark layer" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/spotlight">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Spotlight reveal?</h2>
+<p>A soft round hole in a dark veil follows the cursor, revealing a colourful calendar preview beneath.</p>
+
+<h2>How does Spotlight reveal work?</h2>
+<p>A radial-gradient mask on the veil moves with the cursor, smoothed so the light trails slightly behind; no canvas needed.</p>
+
+<h2>How do I add Spotlight reveal to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add spotlight</code>. It writes <code>animations/spotlight.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/spotlight.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add spotlight --radius 300</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Radius (px)</td><td><code>--radius</code></td><td>110</td><td>40 to 300</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>6.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Spotlight reveal on a product landing page: the app preview sits under a dark veil, and a soft round hole in the
+// veil follows the cursor, so the colourful calendar shows only where you look. The light trails the cursor slightly.
+// It feels right because it turns a static screenshot into something you explore, and the trailing light reads like a real torch.
+const PARAMS = { radius: 110 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const days = ['Mon 12', 'Tue 13', 'Wed 14', 'Thu 15', 'Fri 16'];
+  // [day, start row, rows, colour, title]
+  const ev = [[0, 0, 2, '#4dabf7', 'Standup'], [0, 3, 3, '#ffa94d', 'Design review'], [1, 1, 2, '#69db7c', 'Lunch with Priya'], [1, 4, 2, '#4dabf7', 'Standup'],
+    [2, 0, 4, '#da77f2', 'Focus: onboarding flow'], [2, 5, 1, '#ffa94d', '1:1 with Sam'], [3, 2, 2, '#ff8787', 'Quarterly planning'], [3, 4, 2, '#69db7c', 'Gym'],
+    [4, 0, 1, '#4dabf7', 'Standup'], [4, 2, 3, '#ffd43b', 'Ship release 4.2'], [4, 5, 1, '#da77f2', 'Demo day']];
+  const root = document.createElement('div');
+  root.className = 'sl-root';
+  root.innerHTML = `&lt;style&gt;
+    .sl-root { position: absolute; inset: 0; overflow: hidden; background: #0e0f12; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #f1f3f5; }
+    .sl-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .sl-head { position: absolute; left: 0; right: 0; top: 24px; text-align: center; z-index: 2; }
+    .sl-head h2 { margin: 0; font-size: 26px; font-weight: 720; letter-spacing: -0.03em; }
+    .sl-head p { margin: 6px 0 0; font-size: 13px; color: #8d939a; }
+    .sl-app { position: absolute; left: 40px; right: 40px; top: 100px; bottom: 0; border-radius: 14px 14px 0 0; background: #fff; color: #15171a; padding: 12px 12px 0; box-sizing: border-box; overflow: hidden; }
+    .sl-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 650; margin-bottom: 10px; }
+    .sl-bar i { width: 8px; height: 8px; border-radius: 50%; background: #e9ecef; } .sl-bar span { margin-left: 8px; } .sl-bar em { margin-left: auto; font-style: normal; font-weight: 500; color: #868e96; }
+    .sl-cal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .sl-day { font-size: 10.5px; color: #868e96; font-weight: 600; padding: 0 2px 6px; }
+    .sl-col { position: relative; height: 210px; border-radius: 8px; background: repeating-linear-gradient(#f8f9fa 0 34px, #f1f3f5 34px 35px); }
+    .sl-ev { position: absolute; left: 3px; right: 3px; border-radius: 6px; padding: 5px 6px; font-size: 10.5px; font-weight: 650; line-height: 1.2; color: #15171a; box-sizing: border-box; overflow: hidden; }
+    .sl-veil { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; background: rgba(14,15,18,.9); pointer-events: none; z-index: 1; }
+    .sl-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.4)); }
+  &lt;/style&gt;&lt;div class=&quot;sl-scene&quot;&gt;
+    &lt;div class=&quot;sl-app&quot;&gt;&lt;div class=&quot;sl-bar&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;span&gt;Week 46&lt;/span&gt;&lt;em&gt;5 meetings · 2 focus blocks&lt;/em&gt;&lt;/div&gt;
+      &lt;div class=&quot;sl-cal&quot;&gt;${days.map(d =&gt; `&lt;div&gt;&lt;div class=&quot;sl-day&quot;&gt;${d}&lt;/div&gt;&lt;div class=&quot;sl-col&quot;&gt;${ev.filter(e =&gt; days[e[0]] === d).map(e =&gt; `&lt;div class=&quot;sl-ev&quot; style=&quot;top:${e[1] * 35 + 2}px;height:${e[2] * 35 - 4}px;background:${e[3]}&quot;&gt;${e[4]}&lt;/div&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;sl-veil&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;sl-head&quot;&gt;&lt;h2&gt;Your whole week, in one view.&lt;/h2&gt;&lt;p&gt;Meetings, focus time and deadlines on a single calendar.&lt;/p&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.sl-scene'), veil = root.querySelector('.sl-veil');
+  let s = 1;
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+
+  // simulated cursor: looks around the calendar with pauses; the real pointer takes over while it is on the stage
+  const steps = [
+    { to: pt(130, 200), move: 500, hold: 700 },
+    { to: pt(270, 230), move: 900, hold: 800 },
+    { to: pt(420, 290), move: 900, hold: 800 },
+    { to: pt(330, 330), move: 700, hold: 600 },
+    { to: pt(170, 300), move: 900, hold: 700 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'sl-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#15171a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.15;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  let sx = c.x, sy = c.y, last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    const a = reduce ? 1 : 1 - Math.exp(-dt * 9);   // reduced motion: the light sits exactly on the cursor, no trailing                       // the light trails the cursor, the same at any frame rate
+    sx += (c.x - sx) * a; sy += (c.y - sy) * a;
+    const r = PARAMS.radius;
+    const mask = `radial-gradient(circle ${r}px at ${sx}px ${sy}px, transparent 0, transparent ${r * 0.5}px, #000 ${r}px)`;
+    veil.style.maskImage = mask; veil.style.webkitMaskImage = mask;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geode: Voronoi over directions grows faceted crystals inward · Motion Library</title>
+<meta name="description" content="Geode is a WebGL effect: Voronoi over directions grows faceted crystals inward. One plain JavaScript file with no dependencies; add it with npx motion-library add geode.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/geode.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Geode · Motion Library">
+<meta property="og:description" content="Voronoi over directions grows faceted crystals inward">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/geode.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Geode",
+  "description": "Voronoi over directions grows faceted crystals inward",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/geode.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/geode.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Geode",
+    "item": "https://ajeckblad.github.io/motion-library/fx/geode.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Geode</h1>
+<p class="tldr">Geode is a WebGL effect: Voronoi over directions grows faceted crystals inward. One plain JavaScript file with no dependencies; add it with npx motion-library add geode.</p>
+<figure><img src="../posters/geode.webp" alt="Geode: Voronoi over directions grows faceted crystals inward" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/geode">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Geode?</h2>
+<p>A grey stone cracks open like a book to reveal agate bands and a purple crystal lining.</p>
+
+<h2>How does Geode work?</h2>
+<p>One SDF: a noise-roughened sphere split into halves with hollows, whose walls are pushed in by a Voronoi pattern over directions with a squarish metric.</p>
+
+<h2>How do I add Geode to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add geode</code>. It writes <code>animations/geode.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/geode.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add geode --crystals 1.8</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Crystal size</td><td><code>--crystals</code></td><td>1</td><td>0.6 to 1.8</td><td>0.05</td></tr>
+<tr><td>Sparkle</td><td><code>--sparkle</code></td><td>1</td><td>0 to 2.5</td><td>0.1</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.4 to 2</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Geode: a rough grey stone that cracks in half and opens like a book, and inside it is lined with amethyst. All of
+// it is one distance function, raymarched. The stone is a sphere roughened with noise; each half keeps only one side
+// of the cut and has a hollow carved out of it. The hollow's wall is pushed inward into points by a Voronoi pattern
+// on the sphere of directions: every cell becomes a faceted crystal pointing at the centre, paler at its tip. On the
+// cut face you see the layers in section: the rind, the stone, bands of agate, then the crystals.
+const PARAMS = { crystals: 1, sparkle: 1, speed: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+  const FS = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform vec2 R; uniform float T, OPEN, CR, SP;
+  mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+  vec3 h3(vec3 p) { p = fract(p * vec3(.1031, .103, .0973)); p += dot(p, p.yxz + 33.33); return fract((p.xxy + p.yxx) * p.zyx); }
+  float n3(vec3 p) { vec3 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(mix(h3(i).x, h3(i + vec3(1, 0, 0)).x, f.x), mix(h3(i + vec3(0, 1, 0)).x, h3(i + vec3(1, 1, 0)).x, f.x), f.y), mix(mix(h3(i + vec3(0, 0, 1)).x, h3(i + vec3(1, 0, 1)).x, f.x), mix(h3(i + vec3(0, 1, 1)).x, h3(i + vec3(1, 1, 1)).x, f.x), f.y), f.z); }
+  float fbm(vec3 p) { return n3(p) * .55 + n3(p * 2.1) * .28 + n3(p * 4.3) * .17; }
+  // crystals: distance to the nearest Voronoi point among directions; near a point the wall stands tallest
+  vec2 vor(vec3 n) {
+    vec3 p = n * 5.5 * CR, i = floor(p), f = fract(p); float d1 = 9., d2 = 9.;
+    for (int z = -1; z &lt;= 1; z++) for (int y = -1; y &lt;= 1; y++) for (int x = -1; x &lt;= 1; x++) {
+      vec3 g = vec3(x, y, z), q = g + h3(i + g) * .8 + .1 - f; float d = max(max(abs(q.x), abs(q.y)), abs(q.z)) * .7 + length(q) * .3;   // faceted
+      if (d &lt; d1) { d2 = d1; d1 = d; } else if (d &lt; d2) d2 = d;
+    }
+    return vec2(d1, d2 - d1);
+  }
+  float rock(vec3 p) { return length(p) - 1. - .07 * fbm(p * 2.6) - .025 * fbm(p * 9.); }
+  float cavity(vec3 p) { vec2 v = vor(normalize(p)); return .7 - .26 * smoothstep(.75, .0, v.x) - length(p); }   // &gt; 0 inside the stone around the hollow
+  // one half: the stone, minus the hollow, minus everything on the far side of the cut
+  float half_(vec3 p, out float mat) {
+    float r = rock(p), c = cavity(p), cut = p.x;
+    float d = max(max(r, c), cut);
+    mat = cut &gt; max(r, c) - .002 ? 2. : (c &gt; r ? 1. : 0.);        // 0 outer stone, 1 crystal, 2 the cut face
+    return d;
+  }
+  vec3 local(vec3 p, float s) {                                   // each half swings open about a hinge at the back
+    p.x *= s; p -= vec3(-.06, 0, -1.) * vec3(1., 1., 1.); p.xz *= rot(-OPEN * 1.25); p += vec3(-.06, 0, -1.);
+    return p;
+  }
+  float map(vec3 p, out float mat, out float side) {
+    float ma, mb; vec3 pa = local(p, 1.), pb = local(p, -1.);
+    float da = half_(pa, ma), db = half_(pb, mb);
+    side = da &lt; db ? 1. : -1.; mat = da &lt; db ? ma : mb; return min(da, db) * .7;
+  }
+  float map(vec3 p) { float m, s; return map(p, m, s); }
+  vec3 nrm(vec3 p) { vec2 e = vec2(.0015, 0); return normalize(vec3(map(p + e.xyy) - map(p - e.xyy), map(p + e.yxy) - map(p - e.yxy), map(p + e.yyx) - map(p - e.yyx))); }
+  void main() {
+    vec2 q = (uv * 2. - 1.) * vec2(R.x / R.y, 1.);
+    vec3 ro = vec3(0, .55, 4.2), rd = normalize(vec3(q, -2.2)); rd.yz *= rot(-.1);
+    ro.xz *= rot(.35 * sin(T * .17)); rd.xz *= rot(.35 * sin(T * .17));
+    // a dark velvet display case under a spotlight
+    vec3 col = mix(vec3(.05, .03, .06), vec3(.012, .01, .016), length(q * vec2(.6, .9)));
+    float t = 0., mat = 0., side = 1.; bool hit = false;
+    for (int i = 0; i &lt; 120; i++) { float d = map(ro + rd * t, mat, side); if (d &lt; .0012) { hit = true; break; } t += d; if (t &gt; 9.) break; }
+    if (hit) {
+      vec3 p = ro + rd * t, n = nrm(p), L = normalize(vec3(-.5, .9, .6)), V = -rd, H = normalize(L + V);
+      vec3 lp = local(p, side); float r = length(lp);
+      float dif = max(dot(n, L), 0.), amb = .18 + .12 * n.y;
+      vec3 base;
+      if (mat &lt; .5) base = mix(vec3(.36, .33, .3), vec3(.5, .47, .42), fbm(lp * 6.)) * (.8 + .2 * n3(lp * 30.));   // the stone's skin
+      else if (mat &lt; 1.5) {
+        vec2 v = vor(normalize(lp)); float tip = smoothstep(.62, .48, r);
+        base = mix(vec3(.24, .06, .36), vec3(.82, .62, .95), tip) * (.75 + .5 * smoothstep(0., .08, v.y));   // amethyst: deep at the root, pale at the tip
+      } else {
+        // the cut face: rind, stone, agate bands, then the crystal layer
+        float band = sin(r * 140. + fbm(lp * 7.) * 6.);
+        base = r &gt; .95 ? vec3(.42, .38, .34) : r &gt; .8 ? vec3(.58, .55, .5) * (.85 + .15 * n3(lp * 25.)) : r &gt; .72 ? mix(vec3(.78, .8, .86), vec3(.55, .6, .72), .5 + .5 * band) : vec3(.5, .3, .62);
+      }
+      col = base * (amb + dif * .95);
+      float sp = pow(max(dot(n, H), 0.), mat &gt; .5 &amp;&amp; mat &lt; 1.5 ? 90. : 18.) * (mat &gt; .5 &amp;&amp; mat &lt; 1.5 ? 2.2 * SP : .25);
+      if (mat &gt; .5 &amp;&amp; mat &lt; 1.5) sp *= .4 + 1.6 * step(.82, h3(floor(lp * 60.)).x);   // facets glint one by one
+      col += vec3(1., .96, 1.) * sp;
+      col *= 1. - .5 * smoothstep(.0, .6, -dot(n, L)) * step(mat, .5);
+    }
+    o = vec4(pow(col, vec3(1. / 2.2)), 1);
+  }`;
+  const VS = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const sh = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, FS)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  gl.useProgram(p); const U = n =&gt; gl.getUniformLocation(p, n);
+  gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  let W = 1, H = 1;
+  const resize = () =&gt; { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(290000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); gl.viewport(0, 0, W, H); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf, last = performance.now(), t = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt * PARAMS.speed;
+    // closed, then it splits and swings open, holds, and closes again
+    const c = t % 11, open = c &lt; 1.5 ? 0 : c &lt; 3.6 ? (1 - Math.cos(Math.PI * (c - 1.5) / 2.1)) / 2 : c &lt; 9.2 ? 1 : c &lt; 10.6 ? (1 + Math.cos(Math.PI * (c - 9.2) / 1.4)) / 2 : 0;
+    gl.uniform2f(U('R'), W, H); gl.uniform1f(U('T'), t); gl.uniform1f(U('OPEN'), open); gl.uniform1f(U('CR'), PARAMS.crystals); gl.uniform1f(U('SP'), PARAMS.sparkle);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

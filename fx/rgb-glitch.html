@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RGB-split glitch: Shift the colour channels, displace slices · Motion Library</title>
+<meta name="description" content="RGB-split glitch is a Canvas effect: shift the colour channels, displace slices. One plain JavaScript file with no dependencies; add it with npx motion-library add rgb-glitch.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/rgb-glitch.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="RGB-split glitch · Motion Library">
+<meta property="og:description" content="Shift the colour channels, displace slices">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/rgb-glitch.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "RGB-split glitch",
+  "description": "Shift the colour channels, displace slices",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Shaders & glitch, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/rgb-glitch.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/rgb-glitch.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Shaders & glitch",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/shaders"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "RGB-split glitch",
+    "item": "https://ajeckblad.github.io/motion-library/fx/rgb-glitch.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/shaders">Shaders &amp; glitch</a></header>
+<main class="s-page">
+<article>
+<h1>RGB-split glitch</h1>
+<p class="tldr">RGB-split glitch is a Canvas effect: shift the colour channels, displace slices. One plain JavaScript file with no dependencies; add it with npx motion-library add rgb-glitch.</p>
+<figure><img src="../posters/rgb-glitch.webp" alt="RGB-split glitch: Shift the colour channels, displace slices" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/rgb-glitch">Open it live, tune it and copy the code</a></p>
+
+<h2>What is RGB-split glitch?</h2>
+<p>A picture splits into colour channels while slices jump sideways in random bursts.</p>
+
+<h2>How does RGB-split glitch work?</h2>
+<p>Each colour channel is drawn separately with additive blending and offset; during unpredictable bursts horizontal slices shift and scanlines jitter.</p>
+
+<h2>How do I add RGB-split glitch to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add rgb-glitch</code>. It writes <code>animations/rgb-glitch.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/rgb-glitch.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add rgb-glitch --intensity 2</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Intensity</td><td><code>--intensity</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+<tr><td>Bursts / second</td><td><code>--rate</code></td><td>0.8</td><td>0 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Shaders &amp; glitch</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>3.2 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// RGB-split glitch: the picture is split into red, green and blue copies and added back together.
+// Aligned, they rebuild the original; offset, the colour splits. In bursts, slices jump sideways.
+const PARAMS = { intensity: 1, rate: 0.8 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, d = 1, src, chans;
+  const build = () =&gt; {
+    // the source picture
+    src = document.createElement('canvas'); src.width = W * d; src.height = H * d;
+    const s = src.getContext('2d'); s.scale(d, d);
+    s.fillStyle = '#101205'; s.fillRect(0, 0, W, H);
+    s.fillStyle = '#e9f5a0'; s.font = `900 ${Math.min(W * 0.2, H * 0.34)}px &quot;Mona Sans&quot;, system-ui, sans-serif`; s.textAlign = 'center'; s.textBaseline = 'middle';
+    s.fillText('GLITCH', W / 2, H * 0.46);
+    s.fillStyle = '#7b8c10'; s.fillRect(W * 0.18, H * 0.7, W * 0.64, H * 0.05);
+    s.fillStyle = '#ffffff'; s.font = `600 ${Math.max(11, H * 0.05)}px &quot;Mona Sans&quot;, system-ui, sans-serif`; s.fillText('signal lost · retrying', W / 2, H * 0.82);
+    // one copy per channel: multiply by pure red, green or blue
+    chans = ['#ff0000', '#00ff00', '#0000ff'].map(c =&gt; {
+      const k = document.createElement('canvas'); k.width = src.width; k.height = src.height;
+      const g = k.getContext('2d'); g.drawImage(src, 0, 0); g.globalCompositeOperation = 'multiply'; g.fillStyle = c; g.fillRect(0, 0, k.width, k.height);
+      return k;
+    });
+  };
+  const resize = () =&gt; { d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; build(); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  let burst = 0, next = performance.now() + 600, raf;
+  function frame(now) {
+    if (now &gt; next) { burst = 1; next = now + (400 + Math.random() * 1600) / Math.max(0.05, PARAMS.rate); }
+    burst *= 0.9;
+    const k = (0.15 + burst) * PARAMS.intensity, jitter = () =&gt; (Math.random() - 0.5) * 2;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'lighter';
+    const off = W * d * 0.012 * k;
+    ctx.drawImage(chans[0], -off + jitter() * off * 0.3, 0);
+    ctx.drawImage(chans[1], 0, jitter() * off * 0.2);
+    ctx.drawImage(chans[2], off + jitter() * off * 0.3, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    if (burst &gt; 0.2) {
+      // displaced horizontal slices
+      for (let i = 0; i &lt; 6; i++) {
+        const y = Math.random() * canvas.height, h = (0.01 + Math.random() * 0.07) * canvas.height, dx = jitter() * canvas.width * 0.08 * k;
+        ctx.drawImage(canvas, 0, y, canvas.width, h, dx, y, canvas.width, h);
+      }
+    }
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    for (let y = 0; y &lt; canvas.height; y += 4 * d) ctx.fillRect(0, y, canvas.width, d);   // scanlines
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

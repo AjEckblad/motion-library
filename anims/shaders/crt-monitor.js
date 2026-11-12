@@ -1,0 +1,246 @@
+// A colour CRT, simulated from the glass inwards. A tiny 320×240 picture (a BIOS boot, then a game of Breakout that
+// plays itself) is drawn in code each frame. A second pass lets it fade like phosphor: each colour keeps a little of
+// the last frame, so the moving ball leaves a short trail. The last pass is the tube itself. The electron beam draws
+// 240 lines, and brighter lines draw fatter. The glass bulges, so the picture bends at the corners. An aperture
+// grille (fine vertical red, green and blue phosphor stripes) splits every white into colours, and glow spreads into
+// the glass. Every loop the set powers on as a bright line that opens into a picture, warms up, degausses with a
+// colour wobble, boots and plays. Once, the camera moves close enough to see the stripes. Then it switches off to a dot.
+const PARAMS = { curve: 1, glow: 1, mask: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const half = !!gl.getExtension('EXT_color_buffer_float');     // half-float phosphor so slow fades don't get stuck
+
+  // ── the picture the computer sends: drawn with the 2D canvas at the tube's own resolution
+  const W = 320, H = 240, scr = document.createElement('canvas'); scr.width = W; scr.height = H;
+  const g = scr.getContext('2d');
+  const FONT = 'bold 11px ui-monospace, Menlo, Consolas, monospace';
+  const BOOT = [   // [seconds into the loop, text, colour, characters per second]
+    [1.45, 'HANDMADE SYSTEMS  ML-84', '#ffffff', 70], [1.9, 'COLOUR VIDEO BIOS  V1.84', '#9fb4c8', 70],
+    [2.6, 'MEMORY TEST ....... 640K OK', '#c9d6e2', 55], [3.3, 'PHOSPHOR R G B ......... OK', '#c9d6e2', 55],
+    [4.2, 'APERTURE GRILLE ... ALIGNED', '#c9d6e2', 55], [4.75, 'DEGAUSS ............. DONE', '#c9d6e2', 55],
+    [5.5, 'READY.', '#7dffa0', 40], [5.95, '> RUN "BREAKOUT"', '#ffd166', 9],
+  ];
+  const ROWS = ['#ff3b3b', '#ff8a1f', '#ffd21f', '#3bdc4a', '#22c8ff', '#6a5cff'];
+  let game = null;
+  const newGame = () => {
+    const b = []; for (let r = 0; r < 6; r++) for (let c = 0; c < 14; c++) b.push({ x: 12 + c * 21.2, y: 38 + r * 9, on: true, r });
+    return { bricks: b, bx: 160, by: 150, vx: 118, vy: -150, px: 160, score: 0, t: 0 };
+  };
+  const step = (s, dt) => {
+    s.bx += s.vx * dt; s.by += s.vy * dt;
+    if (s.bx < 10) { s.bx = 10; s.vx = Math.abs(s.vx); } if (s.bx > 306) { s.bx = 306; s.vx = -Math.abs(s.vx); }
+    if (s.by < 24) { s.by = 24; s.vy = Math.abs(s.vy); }
+    if (s.by > 214 && s.by < 222 && s.vy > 0 && Math.abs(s.bx + 2 - s.px) < 22) {   // paddle: where it hits sets the angle
+      const off = (s.bx + 2 - s.px) / 22, sp = 196; s.vx = sp * off * 0.85 + (off === 0 ? 30 : 0); s.vy = -Math.sqrt(Math.max(sp * sp - s.vx * s.vx, 9000));
+    }
+    if (s.by > 240) { s.bx = 160; s.by = 150; s.vy = -150; }
+    for (const k of s.bricks) if (k.on && s.bx + 4 > k.x && s.bx < k.x + 19 && s.by + 4 > k.y && s.by < k.y + 7) {
+      k.on = false; s.score += 10 * (6 - k.r); s.vy = -s.vy; break;
+    }
+    // the computer plays the paddle: it chases the ball, aiming a little off-centre to send it at an angle
+    const aim = s.bx + 2 + Math.sin(s.t * 1.7) * 12; s.px += Math.max(-260 * dt, Math.min(260 * dt, aim - s.px)); s.px = Math.max(26, Math.min(294, s.px));
+    s.t += dt;
+  };
+  function paint(t) {
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    g.font = FONT; g.textBaseline = 'top';
+    if (t < 7.3) {
+      game = null;
+      [['#ff3b3b', 0], ['#ff8a1f', 1], ['#ffd21f', 2], ['#3bdc4a', 3], ['#22c8ff', 4], ['#6a5cff', 5]].forEach(([c, i]) => { g.fillStyle = c; g.fillRect(14, 16 + i * 4, 26, 3); });
+      let cy = 0, cx = 0, any = false;
+      BOOT.forEach(([t0, s, c, cps], i) => {
+        const n = Math.max(0, Math.min(s.length, Math.floor((t - t0) * cps)));
+        const y = i < 2 ? 15 + i * 13 : 54 + (i - 2) * 16 + (i > 5 ? 10 : 0), x = i < 2 ? 48 : 14;
+        if (t >= t0) { g.fillStyle = c; g.fillText(s.slice(0, n), x, y); cy = y; cx = x + g.measureText(s.slice(0, n)).width; any = true; }
+      });
+      if (any && Math.floor(t * 2.6) % 2 === 0) { g.fillStyle = '#e8eef4'; g.fillRect(cx + 1, cy, 6, 10); }   // block cursor
+      return;
+    }
+    // the game: simulated in fixed steps from its own start, so it plays the same way every loop
+    if (!game) game = newGame();
+    const gt = t - 7.3; while (game.t < gt) step(game, 1 / 240);
+    g.fillStyle = '#ffffff'; g.fillText('SCORE ' + String(game.score).padStart(4, '0'), 12, 6); g.fillStyle = '#ffd166'; g.fillText('HI 1984', 250, 6);
+    g.fillStyle = '#5a6672'; g.fillRect(6, 20, 308, 2); g.fillRect(6, 20, 2, 210); g.fillRect(312, 20, 2, 210);
+    for (const k of game.bricks) if (k.on) {
+      g.fillStyle = ROWS[k.r]; g.fillRect(k.x, k.y, 19, 7);
+      g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(k.x, k.y, 19, 1);         // a lit top edge on every brick
+      g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(k.x, k.y + 6, 19, 1);
+    }
+    g.fillStyle = '#e8f4ff'; g.fillRect(game.px - 18, 218, 36, 5); g.fillStyle = '#22c8ff'; g.fillRect(game.px - 18, 222, 36, 1);
+    g.fillStyle = '#ffffff'; g.fillRect(game.bx, game.by, 4, 4);
+  }
+
+  // ── GL
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  // phosphor persistence: keep the brighter of the new picture and the old one faded a little (each colour fades at its own rate)
+  const phosFs = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D N, P; uniform vec3 DK;
+  void main() { vec3 n = texture(N, uv).rgb; n = n * n; o = vec4(max(n, texture(P, uv).rgb * DK), 1); }`;
+  // glow: a separable Gaussian blur of the picture at quarter size (a cheap, smooth bloom)
+  const blurFs = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D S; uniform vec2 D; uniform float L;
+  void main() { vec3 s = vec3(0); float w = 0.; for (int i = -6; i <= 6; i++) { float k = exp(-float(i * i) / 12.); s += textureLod(S, uv + D * float(i), L).rgb * k; w += k; } o = vec4(s / w, 1); }`;
+  const tubeFs = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform sampler2D S, B; uniform vec2 R, ZC; uniform float T, VS, HS, BR, FOC, DEG, CURVE, GLOW, MASK, ZOOM, DOT, LED;
+  const vec2 CR = vec2(320, 240);
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + 1.), f.x), f.y); }
+  float sdBox(vec2 p, vec2 b, float r) { vec2 d = abs(p) - b + r; return length(max(d, 0.)) + min(max(d.x, d.y), 0.) - r; }
+  // the box-filtered average of a stripe pattern (duty D) over one pixel: exact anti-aliasing, so no moiré at any zoom
+  float F(float x, float D) { return floor(x) * D + clamp(fract(x), 0., D); }
+  float stripe(float u, float off, float h, float D) { return (F(u - off + h, D) - F(u - off - h, D)) / (2. * h); }
+  vec3 line(vec2 uv, float row, float fy, float foot) {     // one beam line: its colour times a Gaussian across it
+    vec3 c = texture(S, vec2(uv.x, (row + .5) / CR.y)).rgb;
+    float l = dot(c, vec3(.3, .5, .2));
+    float w = mix(.2, .42, sqrt(clamp(l, 0., 1.))) * FOC;    // brighter = fatter beam
+    w = sqrt(w * w + foot * foot);                           // widen by the pixel footprint so far-away lines stay smooth
+    return c * exp(-fy * fy / (2. * w * w)) * (.4 / w);
+  }
+  void main() {
+    vec2 p = (gl_FragCoord.xy - .5 * R) / R.y;
+    p = ZC + p / ZOOM;
+    float px = 1. / (R.y * ZOOM);
+    vec2 hs = vec2(.5 * 4. / 3., .5) * .86;                  // the visible glass, 4:3
+    vec2 q = p / hs;
+    float k = .075 * CURVE;
+    vec2 c = q * (1. + k * q.yx * q.yx);                     // the bulging glass: the picture is squeezed toward its corners
+    vec2 qg = q * (1. + .45 * k * q.yx * q.yx);
+    float glass = sdBox(qg, vec2(1.035, 1.04), .12) * hs.y;  // the tube's face, slightly bigger than the picture
+    vec3 col;
+    if (glass < 0.) {
+      vec2 uv = c * .5 + .5;
+      uv = (uv - .5) / vec2(HS, VS) + .5;                    // the raster opening up at power-on / collapsing at power-off
+      // degauss: a field from the coil pushes the three beams apart and swirls the colours, decaying fast
+      vec2 dg = DEG * vec2(sin(T * 37. + q.y * 5.), cos(T * 29. + q.x * 4.)) * .03;
+      float lines = uv.y * CR.y - .5, row = floor(lines), fy = lines - row;
+      float foot = .5 * CR.y * px / (hs.y * VS) * (1. - k);  // how many beam lines one screen pixel spans
+      vec2 uvr = uv + dg, uvb = uv - dg;
+      vec3 beam;
+      beam.g = (line(uv, row, fy, foot) + line(uv, row + 1., fy - 1., foot) + line(uv, row - 1., fy + 1., foot)).g;
+      float lr = uvr.y * CR.y - .5, rr = floor(lr), lb = uvb.y * CR.y - .5, rb = floor(lb);
+      beam.r = (line(uvr, rr, lr - rr, foot) + line(uvr, rr + 1., lr - rr - 1., foot)).r;
+      beam.b = (line(uvb, rb, lb - rb, foot) + line(uvb, rb + 1., lb - rb - 1., foot)).b;
+      vec2 inside = step(0., uv) * step(uv, vec2(1));
+      beam *= inside.x * inside.y;
+      // with no vertical sweep the beam retraces one line over and over: it glows white whatever the picture is
+      float bare = 1. - smoothstep(0., .25, VS);
+      beam += vec3(.85, .93, 1.) * bare * smoothstep(.5, .45, abs(uv.y - .5)) * smoothstep(.5, .47, abs(uv.x - .5));
+      beam += vec3(.6, .75, 1.) * bare * .06 * exp(-q.y * q.y / .003) * smoothstep(1., .85, abs(q.x / HS));   // its halo in the glass
+      beam *= 1. + DEG * 1.4 * vec3(sin(q.x * 3. + T * 21.), sin(q.y * 4. - T * 17.), sin((q.x - q.y) * 3. + T * 25.));
+      // aperture grille: a red, green and blue stripe per triad, ~230 triads across the glass
+      float u = (q.x * .5 + .5) * 230., h = max(.5 * abs(dFdx(u)), 1e-4), D = .27;
+      vec3 m = vec3(stripe(u, 0., h, D), stripe(u, 1. / 3., h, D), stripe(u, 2. / 3., h, D)) / (3. * D);
+      m *= 1. - .6 * smoothstep(.0025, 0., abs(abs(q.y) - .34) * hs.y - px * .5) * step(.5, MASK);   // the two damper wires
+      beam *= mix(vec3(1), m * 3., clamp(MASK, 0., 1.5));
+      beam *= 1.45;
+      // glow: light scattering in the glass, from the blurred copy of the picture
+      vec2 uc = clamp(uv, 0., 1.);
+      vec3 bloom = texture(B, uc).rgb * .75 + textureLod(B, uc, 1.5).rgb * .25;
+      bloom *= bloom * 1.8;                                  // squared: bright things glow, dim haze stays out of the blacks
+      float fade = smoothstep(.12, 0., max(max(-uv.x, uv.x - 1.), max(-uv.y, uv.y - 1.)));
+      bloom *= GLOW * fade * min(VS * 3., 1.);
+      beam += bloom * .3 * mix(vec3(1), m * 3., clamp(MASK, 0., 1.5)) + bloom * .04;   // mostly caught by the phosphor, a little in the glass
+      beam *= BR / max(VS * HS, .05) * min(1., VS * HS * 20.);   // a thin line carries all the energy: it is very bright
+      // the power-off dot: everything squeezed into one bright point that fades
+      float dd = length(p * vec2(1, 1));
+      beam += DOT * (exp(-dd * dd / .00006) * 2.5 + exp(-dd * dd / .002) * .25) * vec3(.9, .95, 1);
+      // the glass itself: dark grey-green, a soft reflection of the room, brighter toward the rim
+      vec3 gl0 = vec3(.0012, .0015, .0014) + .004 * smoothstep(-.03, .0, glass);
+      float refl = .011 * exp(-dot((q - vec2(-.52, .58)) * vec2(1., 1.7), (q - vec2(-.52, .58)) * vec2(1., 1.7)) * 3.);
+      refl += .003 * smoothstep(.16, -.04, sdBox(q - vec2(.6, .56), vec2(.14, .09), .05)) * (1. - .5 * smoothstep(.02, 0., abs(q.x - .6))) * (.6 + .4 * q.y);   // a window behind the viewer
+      col = gl0 + refl + beam;
+      col = mix(col, col * vec3(.92, .96, .94), smoothstep(-.05, 0., glass));
+    } else {
+      // the bezel: dark plastic with a fine texture, recessed toward the glass, lit from above
+      float tex = noise(p * 900.) * .5 + noise(p * 160.) * .5;
+      col = vec3(.017, .0158, .0148) * (.9 + .16 * tex);
+      float e = .0015, gx = sdBox((p + vec2(e, 0)) / hs * (1. + .45 * k * (p / hs).yx * (p / hs).yx), vec2(1.035, 1.04), .12) - glass / hs.y;
+      float gy = sdBox((p + vec2(0, e)) / hs * (1. + .45 * k * (p / hs).yx * (p / hs).yx), vec2(1.035, 1.04), .12) - glass / hs.y;
+      vec2 n = normalize(vec2(gx, gy) + 1e-6);
+      float bev = smoothstep(.04, 0., glass);
+      col *= 1. - .55 * bev * smoothstep(.0, .5, n.y);                // the recess under the top edge is in shadow
+      col += .012 * bev * smoothstep(.2, -.8, n.y) * smoothstep(.0, .012, glass);   // the bottom lip catches light
+      col *= .55 + .45 * smoothstep(0., .012, glass);
+      // the picture lights the bezel lip a little
+      vec2 uc = clamp((q * .5 + .5 - .5) / vec2(HS, VS) + .5, 0., 1.);
+      col += textureLod(B, uc, 3.).rgb * GLOW * .08 * exp(-glass * 70.) * BR * min(VS * 3., 1.) * min(HS * 3., 1.);
+      // a power light, green when on
+      vec2 lp = p - vec2(hs.x + .1, -hs.y - .02);
+      float led = length(lp);
+      col = mix(col, vec3(.004), smoothstep(.0075, .006, led));
+      col += vec3(.2, 1., .45) * LED * (smoothstep(.0055, .003, led) + .25 * exp(-led * 90.));
+      col *= 1. - .35 * smoothstep(.55, 1.05, length(p * vec2(.75, 1.)));    // the room is darker away from the screen
+    }
+    col = 1. - exp(-col * 1.25);                                     // soft roll-off instead of a hard clip
+    o = vec4(pow(col, vec3(1. / 2.2)), 1);
+  }`;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const mk = fs => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; };
+  const phos = mk(phosFs), tube = mk(tubeFs), blur = mk(blurFs);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const tex = (mip) => { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); return t; };
+  const src = tex(false);
+  const P = [0, 1].map(() => { const t = tex(true); gl.texImage2D(gl.TEXTURE_2D, 0, half ? gl.RGBA16F : gl.RGBA8, W, H, 0, gl.RGBA, half ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null); const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); return { t, fb }; });
+  const BW = W / 4, BH = H / 4;
+  const Bt = [0, 1].map(i => { const t = tex(i === 1); gl.texImage2D(gl.TEXTURE_2D, 0, half ? gl.RGBA16F : gl.RGBA8, BW, BH, 0, gl.RGBA, half ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null); const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); return { t, fb }; });
+  const uBS = gl.getUniformLocation(blur, 'S'), uBD = gl.getUniformLocation(blur, 'D'), uBL = gl.getUniformLocation(blur, 'L');
+  const U = {}; ['S', 'B', 'R', 'ZC', 'T', 'VS', 'HS', 'BR', 'FOC', 'DEG', 'CURVE', 'GLOW', 'MASK', 'ZOOM', 'DOT', 'LED'].forEach(n => U[n] = gl.getUniformLocation(tube, n));
+  const uN = gl.getUniformLocation(phos, 'N'), uP = gl.getUniformLocation(phos, 'P'), uDK = gl.getUniformLocation(phos, 'DK');
+  const resize = () => { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2); canvas.width = w * d | 0; canvas.height = h * d | 0; };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const L = 21, ease = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+  let raf, cur = 0, last = performance.now(); const t0 = last;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const T = (now - t0) / 1000, t = T % L;
+    paint(t);
+    gl.bindTexture(gl.TEXTURE_2D, src); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, scr);
+    // phosphor pass (each colour decays at its own rate: green lingers longest)
+    const nx = 1 - cur; gl.bindFramebuffer(gl.FRAMEBUFFER, P[nx].fb); gl.viewport(0, 0, W, H); gl.useProgram(phos);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, P[cur].t);
+    gl.uniform1i(uN, 0); gl.uniform1i(uP, 1); const k = dt * 60; gl.uniform3f(uDK, Math.pow(0.5, k), Math.pow(0.6, k), Math.pow(0.4, k));
+    gl.drawArrays(gl.TRIANGLES, 0, 3); cur = nx;
+    gl.bindTexture(gl.TEXTURE_2D, P[cur].t); gl.generateMipmap(gl.TEXTURE_2D);
+    gl.useProgram(blur); gl.uniform1i(uBS, 0); gl.viewport(0, 0, BW, BH); gl.activeTexture(gl.TEXTURE0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, Bt[0].fb); gl.bindTexture(gl.TEXTURE_2D, P[cur].t); gl.uniform2f(uBD, 1 / BW, 0); gl.uniform1f(uBL, 2); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, Bt[1].fb); gl.bindTexture(gl.TEXTURE_2D, Bt[0].t); gl.uniform2f(uBD, 0, 1 / BH); gl.uniform1f(uBL, 0); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindTexture(gl.TEXTURE_2D, Bt[1].t); gl.generateMipmap(gl.TEXTURE_2D);
+    // the power cycle
+    let VSv = 1, HSv = 1, BR = 1, FOC = 1, DEG = 0, DOT = 0, LED = 1;
+    if (t < 0.5) { BR = 0; LED = 0; }
+    else if (t < 0.72) { VSv = 0.004; BR = 1; FOC = 1.6; }                        // first just a bright line across the middle
+    else if (t < 1.4) { const x = (t - 0.72) / 0.68; VSv = 0.004 + 0.996 * (1 - Math.pow(1 - x, 3)) * (1 + 0.04 * Math.sin(x * 9) * (1 - x)); BR = 0.8; FOC = 1.6; }
+    if (t >= 0.72 && t < 3.2) { const w = ease((t - 0.72) / 2.4); BR = Math.min(BR, 0.3 + 0.7 * w); FOC = 1.9 - 0.9 * w; }   // warming up: dim and soft, then sharp
+    if (t > 1.35 && t < 2.6) { const x = (t - 1.35) / 1.25; DEG = Math.exp(-x * 4) * (1 - Math.exp(-x * 40)); }
+    if (t > 19.3) {       // power off: squeeze to a line, then to a dot, which fades slowly
+      const a = (t - 19.3) / 0.22, b = (t - 19.52) / 0.18;
+      VSv = Math.max(0.003, 1 - ease(a)); HSv = t > 19.52 ? Math.max(0.004, 1 - ease(b)) : 1;
+      BR = t > 19.7 ? 0 : 1; LED = 0;
+      DOT = t > 19.62 ? Math.exp(-(t - 19.62) * 1.6) : 0;
+    }
+    // the close-up: drift toward the bricks until single phosphor stripes are visible, then back
+    const z = ease((t - 11.6) / 1.6) * (1 - ease((t - 15.2) / 1.6));
+    const ZOOM = Math.exp(z * Math.log(5));
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height); gl.useProgram(tube);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, P[cur].t); gl.uniform1i(U.S, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, Bt[1].t); gl.uniform1i(U.B, 1);
+    gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform2f(U.ZC, -0.362 * z, 0.352 * z);
+    gl.uniform1f(U.T, T); gl.uniform1f(U.VS, VSv); gl.uniform1f(U.HS, HSv); gl.uniform1f(U.BR, BR); gl.uniform1f(U.FOC, FOC);
+    gl.uniform1f(U.DEG, DEG); gl.uniform1f(U.CURVE, PARAMS.curve); gl.uniform1f(U.GLOW, PARAMS.glow); gl.uniform1f(U.MASK, PARAMS.mask);
+    gl.uniform1f(U.ZOOM, ZOOM); gl.uniform1f(U.DOT, DOT); gl.uniform1f(U.LED, LED);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}

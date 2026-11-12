@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D fractal tree: Three-way recursive branching around the golden angle, grown level by level · Motion Library</title>
+<meta name="description" content="3D fractal tree is a Canvas effect: three-way recursive branching around the golden angle, grown level by level. One plain JavaScript file with no dependencies; add it with npx motion-library add fractal-tree.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/fractal-tree.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="3D fractal tree · Motion Library">
+<meta property="og:description" content="Three-way recursive branching around the golden angle, grown level by level">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/fractal-tree.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "3D fractal tree",
+  "description": "Three-way recursive branching around the golden angle, grown level by level",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/fractal-tree.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/fractal-tree.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "3D fractal tree",
+    "item": "https://ajeckblad.github.io/motion-library/fx/fractal-tree.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>3D fractal tree</h1>
+<p class="tldr">3D fractal tree is a Canvas effect: three-way recursive branching around the golden angle, grown level by level. One plain JavaScript file with no dependencies; add it with npx motion-library add fractal-tree.</p>
+<figure><img src="../posters/fractal-tree.webp" alt="3D fractal tree: Three-way recursive branching around the golden angle, grown level by level" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/fractal-tree">Open it live, tune it and copy the code</a></p>
+
+<h2>What is 3D fractal tree?</h2>
+<p>A 3D tree grows level by level, sways in the wind and sheds petals.</p>
+
+<h2>How does 3D fractal tree work?</h2>
+<p>Each branch splits into three shorter ones turned by the golden angle and tilted out, so the crown fills evenly; branches are drawn far to near.</p>
+
+<h2>How do I add 3D fractal tree to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add fractal-tree</code>. It writes <code>animations/fractal-tree.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/fractal-tree.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add fractal-tree --depth 8</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Levels</td><td><code>--depth</code></td><td>7</td><td>4 to 8</td><td>1</td></tr>
+<tr><td>Wind</td><td><code>--wind</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// 3D fractal tree: a trunk that splits into three branches, each turned about the parent's axis by the golden angle
+// and tilted outward, each shorter and thinner, eight levels deep. The whole tree grows in: a branch only starts once
+// its parent is full length, with an ease-out so each one shoots then settles. Wind sways every branch by an amount
+// that grows toward the tips, blossoms open at the ends, petals drift down, and the camera circles the tree.
+const PARAMS = { depth: 7, wind: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  // build the branch list once: each with a level, a parent, a direction offset and a length
+  const GA = Math.PI * (3 - Math.sqrt(5)), D = Math.round(PARAMS.depth), branches = [];
+  let seed = 7; const rnd = () =&gt; (seed = (seed * 16807) % 2147483647) / 2147483647;
+  (function grow(parent, level, yaw, pitch, len) {
+    const b = { parent, level, yaw, pitch, len, i: branches.length }; branches.push(b);
+    if (level &gt;= D) return;
+    for (let k = 0; k &lt; 3; k++) grow(b, level + 1, yaw + k * 2.1 + GA * level + (rnd() - 0.5) * 0.6, 0.45 + rnd() * 0.25, len * (0.68 + rnd() * 0.1));
+  })(null, 0, 0, 0, 1);
+  const petals = Array.from({ length: 60 }, () =&gt; ({ x: (rnd() - 0.5) * 3, y: rnd() * 3, z: (rnd() - 0.5) * 3, ph: rnd() * 6.28 }));
+  const ease = x =&gt; 1 - (1 - Math.min(1, Math.max(0, x))) ** 3;
+  let raf; const t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000, S = Math.min(W, H), cycle = 16, g = (t % cycle) * 1.6;   // grow, hold, regrow
+    const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#1b1530'); bg.addColorStop(1, '#3a2340');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(W / 2, H * 0.93, S * 0.24, S * 0.03, 0, 0, 7); ctx.fill();
+    const cam = t * 0.15, cc = Math.cos(cam), cs = Math.sin(cam);
+    const proj = p =&gt; { const x = p[0] * cc - p[2] * cs, z = p[0] * cs + p[2] * cc, k = 4 / (4 + z); return [W / 2 + x * S * 0.17 * k, H * 0.93 - p[1] * S * 0.17 * k, z, k]; };
+    // positions: walk the list (parents come first), building each branch's frame from its parent's
+    const P = new Array(branches.length), segs = [];
+    for (const b of branches) {
+      const grown = ease(g - b.level * 0.55);                                // each level waits for the one before
+      if (grown &lt;= 0) continue;
+      const sway = Math.sin(t * 1.3 + b.level * 0.7 + b.yaw) * 0.04 * b.level * PARAMS.wind;
+      const base = b.parent ? P[b.parent.i].end : [0, 0, 0];
+      const pd = b.parent ? P[b.parent.i].dir : [0, 1, 0];
+      if (!base) continue;
+      // tilt away from the parent's direction by pitch, around it by yaw
+      const up = pd, side = Math.abs(up[1]) &lt; 0.9 ? [0, 1, 0] : [1, 0, 0];
+      let a = [up[1] * side[2] - up[2] * side[1], up[2] * side[0] - up[0] * side[2], up[0] * side[1] - up[1] * side[0]]; const al = Math.hypot(...a); a = a.map(v =&gt; v / al);
+      const c2 = [up[1] * a[2] - up[2] * a[1], up[2] * a[0] - up[0] * a[2], up[0] * a[1] - up[1] * a[0]];
+      const yw = b.yaw + sway, pt = b.level ? b.pitch + sway * 0.5 : sway * 0.3;
+      const dir = up.map((u, k) =&gt; u * Math.cos(pt) + (a[k] * Math.cos(yw) + c2[k] * Math.sin(yw)) * Math.sin(pt));
+      const L = b.len * grown, end = base.map((v, k) =&gt; v + dir[k] * L);
+      P[b.i] = { end: grown &gt;= 1 ? end : end, dir };
+      segs.push({ a: base, b: end, w: (D + 1 - b.level) ** 1.5 * 0.9, level: b.level, tip: b.level === D, grown });
+    }
+    const pr = segs.map(s =&gt; ({ s, A: proj(s.a), B: proj(s.b) }));
+    pr.sort((x, y) =&gt; (y.A[2] + y.B[2]) - (x.A[2] + x.B[2]));               // far first
+    ctx.lineCap = 'round';
+    for (const { s, A, B } of pr) {
+      const shade = 60 + s.level * 9 - (A[2] + B[2]) * 12;
+      ctx.strokeStyle = `rgb(${shade + 30},${shade},${shade - 10})`; ctx.lineWidth = Math.max(0.6, s.w * A[3] * S / 500);
+      ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
+      if (s.tip &amp;&amp; s.grown &gt;= 1) {                                         // blossoms open at the tips
+        const open = Math.min(1, (g - (D + 1) * 0.55) * 0.8);
+        if (open &gt; 0) { ctx.fillStyle = `rgba(255,${170 + (s.level * 13) % 40},${200},${0.75 * open})`; ctx.beginPath(); ctx.arc(B[0], B[1], S * 0.0055 * B[3] * (0.6 + open), 0, 7); ctx.fill(); }
+      }
+    }
+    // petals falling
+    ctx.fillStyle = 'rgba(255,190,215,.8)';
+    for (const p of petals) {
+      p.y -= 0.004; p.x += Math.sin(t + p.ph) * 0.004 * PARAMS.wind; if (p.y &lt; 0) p.y = 3;
+      if (g &lt; (D + 2) * 0.55) continue;
+      const [x, y, , k] = proj([p.x, p.y, p.z]); ctx.beginPath(); ctx.ellipse(x, y, 2.2 * k, 1.3 * k, t + p.ph, 0, 7); ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

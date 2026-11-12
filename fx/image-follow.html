@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image follow: A preview trails the cursor and swaps per row · Motion Library</title>
+<meta name="description" content="Image follow is a DOM effect: a preview trails the cursor and swaps per row. One plain JavaScript file with no dependencies; add it with npx motion-library add image-follow.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/image-follow.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Image follow · Motion Library">
+<meta property="og:description" content="A preview trails the cursor and swaps per row">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/image-follow.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Image follow",
+  "description": "A preview trails the cursor and swaps per row",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/image-follow.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/image-follow.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Image follow",
+    "item": "https://ajeckblad.github.io/motion-library/fx/image-follow.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>Image follow</h1>
+<p class="tldr">Image follow is a DOM effect: a preview trails the cursor and swaps per row. One plain JavaScript file with no dependencies; add it with npx motion-library add image-follow.</p>
+<figure><img src="../posters/image-follow.webp" alt="Image follow: A preview trails the cursor and swaps per row" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/image-follow">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Image follow?</h2>
+<p>Hovering a project row shows its preview beside the cursor, trailing behind and leaning into the motion.</p>
+
+<h2>How does Image follow work?</h2>
+<p>The preview eases toward the cursor and tilts by its speed; images share one strip in a fixed frame, and changing rows slides the strip, so it never blinks out.</p>
+
+<h2>How do I add Image follow to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add image-follow</code>. It writes <code>animations/image-follow.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/image-follow.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add image-follow --lag 0.5</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Follow</td><td><code>--lag</code></td><td>0.12</td><td>0.03 to 0.5</td><td>0.01</td></tr>
+<tr><td>Lean</td><td><code>--tilt</code></td><td>0.5</td><td>0 to 1.5</td><td>0.05</td></tr>
+<tr><td>Swap (ms)</td><td><code>--swap</code></td><td>280</td><td>120 to 600</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>10.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Image follow on a project list: hovering a row brings up a preview of that project, which trails the cursor with a lag
+// and leans into the direction it is dragged. Moving to another row slides the next image into the same frame, so the
+// preview never blinks out between rows. It feels right because the image behaves like a card held loosely in your hand.
+const PARAMS = { lag: 0.12, tilt: 0.5, swap: 280 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const rows = [['Field notes app', 'Mobile app', '2024'], ['Harbour museum wayfinding', 'Signage', '2023'], ['Night train booking', 'Web', '2023'], ['Online shop for a ceramics studio', 'E-commerce', '2022'], ['Food bank annual report', 'Editorial', '2022']];
+  const art = [
+    `&lt;rect width=&quot;180&quot; height=&quot;124&quot; fill=&quot;#cfe3c8&quot;/&gt;&lt;rect x=&quot;66&quot; y=&quot;14&quot; width=&quot;48&quot; height=&quot;96&quot; rx=&quot;9&quot; fill=&quot;#15171a&quot;/&gt;&lt;rect x=&quot;70&quot; y=&quot;20&quot; width=&quot;40&quot; height=&quot;84&quot; rx=&quot;6&quot; fill=&quot;#f7f5ef&quot;/&gt;&lt;rect x=&quot;75&quot; y=&quot;28&quot; width=&quot;22&quot; height=&quot;4&quot; rx=&quot;2&quot; fill=&quot;#5c8a52&quot;/&gt;&lt;rect x=&quot;75&quot; y=&quot;38&quot; width=&quot;30&quot; height=&quot;3&quot; rx=&quot;1.5&quot; fill=&quot;#c9c4b8&quot;/&gt;&lt;rect x=&quot;75&quot; y=&quot;45&quot; width=&quot;26&quot; height=&quot;3&quot; rx=&quot;1.5&quot; fill=&quot;#c9c4b8&quot;/&gt;&lt;rect x=&quot;75&quot; y=&quot;56&quot; width=&quot;30&quot; height=&quot;20&quot; rx=&quot;3&quot; fill=&quot;#a7c79a&quot;/&gt;&lt;rect x=&quot;75&quot; y=&quot;82&quot; width=&quot;30&quot; height=&quot;3&quot; rx=&quot;1.5&quot; fill=&quot;#c9c4b8&quot;/&gt;`,
+    `&lt;rect width=&quot;180&quot; height=&quot;124&quot; fill=&quot;#f2c14e&quot;/&gt;&lt;rect x=&quot;30&quot; y=&quot;34&quot; width=&quot;120&quot; height=&quot;56&quot; rx=&quot;6&quot; fill=&quot;#15171a&quot;/&gt;&lt;path d=&quot;M50 62h52M88 50l14 12-14 12&quot; fill=&quot;none&quot; stroke=&quot;#f2c14e&quot; stroke-width=&quot;6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;rect x=&quot;112&quot; y=&quot;52&quot; width=&quot;26&quot; height=&quot;4&quot; rx=&quot;2&quot; fill=&quot;#fff&quot; opacity=&quot;.7&quot;/&gt;&lt;rect x=&quot;112&quot; y=&quot;62&quot; width=&quot;18&quot; height=&quot;4&quot; rx=&quot;2&quot; fill=&quot;#fff&quot; opacity=&quot;.4&quot;/&gt;`,
+    `&lt;rect width=&quot;180&quot; height=&quot;124&quot; fill=&quot;#1b2340&quot;/&gt;&lt;circle cx=&quot;138&quot; cy=&quot;34&quot; r=&quot;14&quot; fill=&quot;#f4e8c1&quot;/&gt;&lt;circle cx=&quot;144&quot; cy=&quot;30&quot; r=&quot;12&quot; fill=&quot;#1b2340&quot;/&gt;&lt;path d=&quot;M0 92h180&quot; stroke=&quot;#3a4570&quot; stroke-width=&quot;2&quot;/&gt;&lt;rect x=&quot;22&quot; y=&quot;72&quot; width=&quot;110&quot; height=&quot;18&quot; rx=&quot;5&quot; fill=&quot;#e8615a&quot;/&gt;&lt;g fill=&quot;#ffe8a3&quot;&gt;&lt;rect x=&quot;30&quot; y=&quot;77&quot; width=&quot;10&quot; height=&quot;6&quot; rx=&quot;1&quot;/&gt;&lt;rect x=&quot;46&quot; y=&quot;77&quot; width=&quot;10&quot; height=&quot;6&quot; rx=&quot;1&quot;/&gt;&lt;rect x=&quot;62&quot; y=&quot;77&quot; width=&quot;10&quot; height=&quot;6&quot; rx=&quot;1&quot;/&gt;&lt;rect x=&quot;78&quot; y=&quot;77&quot; width=&quot;10&quot; height=&quot;6&quot; rx=&quot;1&quot;/&gt;&lt;rect x=&quot;94&quot; y=&quot;77&quot; width=&quot;10&quot; height=&quot;6&quot; rx=&quot;1&quot;/&gt;&lt;/g&gt;&lt;g fill=&quot;#c9d1f0&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;22&quot; r=&quot;1.4&quot;/&gt;&lt;circle cx=&quot;70&quot; cy=&quot;40&quot; r=&quot;1.2&quot;/&gt;&lt;circle cx=&quot;100&quot; cy=&quot;18&quot; r=&quot;1.4&quot;/&gt;&lt;circle cx=&quot;20&quot; cy=&quot;50&quot; r=&quot;1&quot;/&gt;&lt;/g&gt;`,
+    `&lt;rect width=&quot;180&quot; height=&quot;124&quot; fill=&quot;#efe4d6&quot;/&gt;&lt;path d=&quot;M48 104c-14 0-16-24-10-40 4-10 4-18 0-24h20c-4 6-4 14 0 24 6 16 4 40-10 40z&quot; fill=&quot;#b5694b&quot;/&gt;&lt;path d=&quot;M100 104c-18 0-22-18-16-34 3-8 10-12 10-22h12c0 10 7 14 10 22 6 16 2 34-16 34z&quot; fill=&quot;#6f8f8a&quot;/&gt;&lt;ellipse cx=&quot;142&quot; cy=&quot;96&quot; rx=&quot;20&quot; ry=&quot;9&quot; fill=&quot;#d9b48f&quot;/&gt;&lt;path d=&quot;M122 96c0 6 9 9 20 9s20-3 20-9&quot; fill=&quot;#c09774&quot;/&gt;&lt;rect y=&quot;104&quot; width=&quot;180&quot; height=&quot;20&quot; fill=&quot;#e2d4c2&quot;/&gt;`,
+    `&lt;rect width=&quot;180&quot; height=&quot;124&quot; fill=&quot;#f08c4a&quot;/&gt;&lt;g fill=&quot;#fff4ea&quot;&gt;&lt;rect x=&quot;34&quot; y=&quot;70&quot; width=&quot;16&quot; height=&quot;34&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;58&quot; y=&quot;56&quot; width=&quot;16&quot; height=&quot;48&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;82&quot; y=&quot;44&quot; width=&quot;16&quot; height=&quot;60&quot; rx=&quot;2&quot;/&gt;&lt;rect x=&quot;106&quot; y=&quot;30&quot; width=&quot;16&quot; height=&quot;74&quot; rx=&quot;2&quot;/&gt;&lt;/g&gt;&lt;rect x=&quot;130&quot; y=&quot;20&quot; width=&quot;16&quot; height=&quot;84&quot; rx=&quot;2&quot; fill=&quot;#15171a&quot;/&gt;&lt;rect x=&quot;28&quot; y=&quot;104&quot; width=&quot;124&quot; height=&quot;2&quot; fill=&quot;#fff4ea&quot;/&gt;&lt;rect x=&quot;28&quot; y=&quot;16&quot; width=&quot;40&quot; height=&quot;5&quot; rx=&quot;2.5&quot; fill=&quot;#fff4ea&quot;/&gt;`,
+  ];
+  const root = document.createElement('div');
+  root.className = 'if-root';
+  root.innerHTML = `&lt;style&gt;
+    .if-root { position: absolute; inset: 0; overflow: hidden; background: #f7f6f2; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .if-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .if-head { position: absolute; left: 30px; right: 30px; top: 30px; display: flex; justify-content: space-between; align-items: baseline; }
+    .if-head h2 { margin: 0; font-size: 13px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+    .if-head span { font-size: 12px; color: #7a7f85; }
+    .if-list { position: absolute; left: 30px; right: 30px; top: 66px; border-top: 1px solid #dedbd3; }
+    .if-row { display: flex; align-items: baseline; height: 56px; border-bottom: 1px solid #dedbd3; transition: opacity .2s cubic-bezier(.23,1,.32,1); }
+    .if-list.on .if-row:not(.hot) { opacity: .4; }
+    .if-t { font-size: 20px; font-weight: 620; letter-spacing: -0.02em; line-height: 56px; transition: transform .2s cubic-bezier(.23,1,.32,1); }
+    .if-row.hot .if-t { transform: ${reduce ? 'none' : 'translateX(8px)'}; }
+    .if-m { margin-left: auto; font-size: 12px; color: #6b7076; } .if-y { width: 52px; text-align: right; font-size: 12px; color: #6b7076; font-variant-numeric: tabular-nums; }
+    .if-prev { position: absolute; left: 0; top: 0; width: 180px; height: 124px; margin: -62px 0 0 -90px; pointer-events: none; z-index: 5; will-change: transform; }
+    .if-frame { width: 100%; height: 100%; border-radius: 10px; overflow: hidden; box-shadow: 0 18px 40px -12px rgba(30,25,15,.4); opacity: 0; transform: ${reduce ? 'none' : 'scale(0.95)'}; transition: opacity .2s cubic-bezier(.23,1,.32,1), transform .2s cubic-bezier(.23,1,.32,1); }
+    .if-prev.on .if-frame { opacity: 1; transform: none; }
+    .if-strip { will-change: transform; } .if-strip svg { display: block; width: 180px; height: 124px; }
+    .if-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.3)); }
+  &lt;/style&gt;&lt;div class=&quot;if-scene&quot;&gt;
+    &lt;div class=&quot;if-head&quot;&gt;&lt;h2&gt;Selected work&lt;/h2&gt;&lt;span&gt;5 of 23 projects&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;if-list&quot;&gt;${rows.map(([t, m, y]) =&gt; `&lt;div class=&quot;if-row&quot;&gt;&lt;span class=&quot;if-t&quot;&gt;${t}&lt;/span&gt;&lt;span class=&quot;if-m&quot;&gt;${m}&lt;/span&gt;&lt;span class=&quot;if-y&quot;&gt;${y}&lt;/span&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;
+    &lt;div class=&quot;if-prev&quot;&gt;&lt;div class=&quot;if-frame&quot;&gt;&lt;div class=&quot;if-strip&quot;&gt;${art.map(a =&gt; `&lt;svg viewBox=&quot;0 0 180 124&quot;&gt;${a}&lt;/svg&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.if-scene'), list = root.querySelector('.if-list'), prev = root.querySelector('.if-prev'), strip = root.querySelector('.if-strip');
+  const rowEls = [...scene.querySelectorAll('.if-row')];
+  let s = 1;
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const box = el =&gt; { let x = 0, y = 0, e = el; while (e &amp;&amp; e !== scene) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; } return { x, y, w: el.offsetWidth, h: el.offsetHeight }; };
+  const at = (el, fx, fy) =&gt; () =&gt; { const b = box(el); return { x: b.x + b.w * fx, y: b.y + b.h * fy }; };
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+
+  // simulated cursor: slides down the list, pausing on each row; the real pointer takes over while it is on the stage
+  const steps = [
+    { to: pt(60, 372), move: 300, hold: 300 },
+    { to: at(rowEls[0], 0.42, 0.5), move: 800, hold: 900 },
+    { to: at(rowEls[1], 0.56, 0.55), move: 600, hold: 900 },
+    { to: at(rowEls[2], 0.44, 0.5), move: 600, hold: 900 },
+    { to: at(rowEls[3], 0.58, 0.45), move: 600, hold: 900 },
+    { to: at(rowEls[4], 0.5, 0.5), move: 600, hold: 900 },
+    { to: pt(300, 372), move: 800, hold: 700 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'if-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#15171a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.12;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  let px = c.x, py = c.y, rot = 0, active = -1, shown = -1, last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    active = -1;
+    rowEls.forEach((r, i) =&gt; { const b = box(r); if (c.x &gt; b.x &amp;&amp; c.x &lt; b.x + b.w &amp;&amp; c.y &gt;= b.y &amp;&amp; c.y &lt; b.y + b.h) active = i; });
+    rowEls.forEach((r, i) =&gt; r.classList.toggle('hot', i === active));
+    list.classList.toggle('on', active &gt;= 0);
+    prev.classList.toggle('on', active &gt;= 0);
+    if (active &gt;= 0 &amp;&amp; active !== shown) {
+      // first appearance jumps straight to the row's image; after that it slides between them
+      if (reduce &amp;&amp; shown &gt;= 0) strip.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+      strip.style.transition = shown &lt; 0 || reduce ? 'none' : `transform ${PARAMS.swap}ms cubic-bezier(0.77, 0, 0.175, 1)`;
+      strip.style.transform = `translateY(${-124 * active}px)`;
+      shown = active;
+    }
+    if (reduce) {
+      // reduced motion: the preview doesn't trail or lean; it sits beside the hovered row and cuts between images with a fade
+      if (active &gt;= 0) { const b = box(rowEls[active]); prev.style.transform = `translate(${b.x + b.w - 100}px, ${b.y + b.h / 2}px)`; }
+      raf = requestAnimationFrame(frame); return;
+    }
+    const a = 1 - Math.pow(1 - PARAMS.lag, dt * 60);              // the same lag at any frame rate
+    const tx = c.x + 106, ty = c.y;                              // sits just right of the cursor, so the title stays readable
+    const vx = (tx - px) * a;
+    px += vx; py += (ty - py) * a;
+    rot += (Math.max(-12, Math.min(12, vx * PARAMS.tilt * 1.6)) - rot) * Math.min(1, dt * 12);
+    prev.style.transform = `translate(${px}px, ${py}px) rotate(${rot}deg)`;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

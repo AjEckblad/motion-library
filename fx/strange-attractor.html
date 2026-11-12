@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strange attractor: Particles integrating the Aizawa attractor, with fading-canvas trails · Motion Library</title>
+<meta name="description" content="Strange attractor is a Canvas effect: particles integrating the Aizawa attractor, with fading-canvas trails. One plain JavaScript file with no dependencies; add it with npx motion-library add strange-attractor.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/strange-attractor.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Strange attractor · Motion Library">
+<meta property="og:description" content="Particles integrating the Aizawa attractor, with fading-canvas trails">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/strange-attractor.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Strange attractor",
+  "description": "Particles integrating the Aizawa attractor, with fading-canvas trails",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/strange-attractor.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/strange-attractor.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Strange attractor",
+    "item": "https://ajeckblad.github.io/motion-library/fx/strange-attractor.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Strange attractor</h1>
+<p class="tldr">Strange attractor is a Canvas effect: particles integrating the Aizawa attractor, with fading-canvas trails. One plain JavaScript file with no dependencies; add it with npx motion-library add strange-attractor.</p>
+<figure><img src="../posters/strange-attractor.webp" alt="Strange attractor: Particles integrating the Aizawa attractor, with fading-canvas trails" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/strange-attractor">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Strange attractor?</h2>
+<p>Thousands of glowing particles trace the Aizawa attractor, an apple-like shell with a spine, as the camera turns.</p>
+
+<h2>How does Strange attractor work?</h2>
+<p>Particles are integrated through the three Aizawa equations each frame and projected in 3D; fading the canvas slightly instead of clearing leaves the trails.</p>
+
+<h2>How do I add Strange attractor to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add strange-attractor</code>. It writes <code>animations/strange-attractor.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/strange-attractor.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add strange-attractor --particles 6000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Particles</td><td><code>--particles</code></td><td>2500</td><td>500 to 6000</td><td>100</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.2 to 3</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>3.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Strange attractor: thousands of particles follow the Aizawa equations, which never repeat and never escape.
+// Integrated in 3D, projected through a slowly turning camera, with trails from fading instead of clearing.
+const PARAMS = { particles: 2500, speed: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.fillStyle = '#050608'; ctx.fillRect(0, 0, W, H); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // Aizawa system
+  const a = 0.95, b = 0.7, c = 0.6, d = 3.5, e = 0.25, f = 0.1;
+  const deriv = (x, y, z) =&gt; [(z - b) * x - d * y, d * x + (z - b) * y, c + a * z - z * z * z / 3 - (x * x + y * y) * (1 + e * z) + f * z * x * x * x];
+  const n = Math.round(PARAMS.particles), P = new Float32Array(n * 3);
+  // start anywhere in the volume, then run each particle forward until it has settled onto the attractor
+  const settle = (i, steps) =&gt; { for (let k = 0; k &lt; steps; k++) { const [dx, dy, dz] = deriv(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]); P[i * 3] += dx * 0.01; P[i * 3 + 1] += dy * 0.01; P[i * 3 + 2] += dz * 0.01; } };
+  const seed = i =&gt; { P[i * 3] = (Math.random() - 0.5) * 2; P[i * 3 + 1] = (Math.random() - 0.5) * 2; P[i * 3 + 2] = Math.random() * 2 - 0.5; settle(i, 300 + Math.random() * 600); };
+  for (let i = 0; i &lt; n; i++) seed(i);
+  const prev = new Float32Array(n * 2).fill(NaN);
+  let raf;
+  function frame(now) {
+    const t = now / 1000, yaw = t * 0.25, pitch = 1.15 + Math.sin(t * 0.2) * 0.25;
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(5, 6, 8, 0.12)'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    const scale = Math.min(W, H) * 0.34, dt = 0.011 * PARAMS.speed;
+    ctx.lineWidth = 1;
+    for (let i = 0; i &lt; n; i++) {
+      let x = P[i * 3], y = P[i * 3 + 1], z = P[i * 3 + 2];
+      const [dx, dy, dz] = deriv(x, y, z);
+      x += dx * dt; y += dy * dt; z += dz * dt;
+      if (!isFinite(x) || Math.abs(x) &gt; 5) { seed(i); prev[i * 2] = NaN; continue; }
+      P[i * 3] = x; P[i * 3 + 1] = y; P[i * 3 + 2] = z;
+      // rotate: yaw around z (the attractor's axis), then tilt toward the camera
+      const rx = x * cy - y * sy, ry = x * sy + y * cy, rz = z - 0.6;
+      const py = ry * cp - rz * sp, pz = ry * sp + rz * cp + 3.2;
+      const X = W / 2 + (rx / pz) * scale * 3.2, Y = H / 2 + (py / pz) * scale * 3.2;
+      const speed = Math.hypot(dx, dy, dz);
+      const hue = 190 - Math.min(150, speed * 22);         // slow: cyan, fast: warm amber
+      if (prev[i * 2] === prev[i * 2]) {
+        ctx.strokeStyle = `hsla(${hue}, 90%, ${55 + 12 * (1 - pz / 4)}%, 0.55)`;
+        ctx.beginPath(); ctx.moveTo(prev[i * 2], prev[i * 2 + 1]); ctx.lineTo(X, Y); ctx.stroke();
+      }
+      prev[i * 2] = X; prev[i * 2 + 1] = Y;
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

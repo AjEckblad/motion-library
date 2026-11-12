@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Targeting HUD: Spring-damped reticle, edge rulers, and brackets that close to lock · Motion Library</title>
+<meta name="description" content="Targeting HUD is a Canvas effect: spring-damped reticle, edge rulers, and brackets that close to lock. One plain JavaScript file with no dependencies; add it with npx motion-library add crosshair-hud.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/crosshair-hud.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Targeting HUD · Motion Library">
+<meta property="og:description" content="Spring-damped reticle, edge rulers, and brackets that close to lock">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/crosshair-hud.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Targeting HUD",
+  "description": "Spring-damped reticle, edge rulers, and brackets that close to lock",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Retro & signal, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/crosshair-hud.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/crosshair-hud.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Retro & signal",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/retro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Targeting HUD",
+    "item": "https://ajeckblad.github.io/motion-library/fx/crosshair-hud.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/retro">Retro &amp; signal</a></header>
+<main class="s-page">
+<article>
+<h1>Targeting HUD</h1>
+<p class="tldr">Targeting HUD is a Canvas effect: spring-damped reticle, edge rulers, and brackets that close to lock. One plain JavaScript file with no dependencies; add it with npx motion-library add crosshair-hud.</p>
+<figure><img src="../posters/crosshair-hud.webp" alt="Targeting HUD: Spring-damped reticle, edge rulers, and brackets that close to lock" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/crosshair-hud">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Targeting HUD?</h2>
+<p>A targeting reticle follows the pointer with live readouts, and brackets close in to lock onto contacts.</p>
+
+<h2>How does Targeting HUD work?</h2>
+<p>The reticle chases the pointer on a critically damped spring, so it settles without overshoot; every hairline is snapped to the device pixel grid.</p>
+
+<h2>How do I add Targeting HUD to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add crosshair-hud</code>. It writes <code>animations/crosshair-hud.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/crosshair-hud.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add crosshair-hud --follow 20</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Follow</td><td><code>--follow</code></td><td>9</td><td>3 to 20</td><td>0.5</td></tr>
+<tr><td>Contacts</td><td><code>--contacts</code></td><td>5</td><td>1 to 9</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Retro &amp; signal</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.4 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Targeting HUD: the reticle chases the pointer on a critically damped spring, so it settles without overshoot.
+// Edge rulers carry markers for its x and y, a readout gives position, range and bearing from the centre, and
+// when it rests near a contact, four corner brackets close in on it over half a second and it locks. Every line
+// is snapped to the device pixel grid so it stays hairline-sharp. With no pointer, a ghost hunts the contacts.
+const PARAMS = { follow: 9, contacts: 5 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:none';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, D = 1;
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * D | 0; canvas.height = H * D | 0; };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const HUD = '#74ffb8', LOCK = '#ffb02e', FONT = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+  const n = Math.max(1, Math.min(9, Math.round(PARAMS.contacts)));
+  const C = Array.from({ length: n }, (_, i) =&gt; ({ u: 0.15 + Math.random() * 0.7, v: 0.18 + Math.random() * 0.64, a: Math.random() * 6.28, s: 0.004 + Math.random() * 0.008, lock: 0, id: `T-${String(i + 1).padStart(2, '0')}` }));
+  const R = { x: W / 2, y: H / 2, vx: 0, vy: 0 }, aim = { x: W / 2, y: H / 2 };
+  let pointer = false, lastMove = -1e9, ghostI = 0, ghostT = 0;
+  const onMove = e =&gt; { const r = canvas.getBoundingClientRect(); aim.x = e.clientX - r.left; aim.y = e.clientY - r.top; pointer = true; lastMove = performance.now(); };
+  const onLeave = () =&gt; { pointer = false; };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
+  const px = v =&gt; Math.round(v * D) / D + 0.5 / D;            // snap a 1-device-px line to the pixel grid
+
+  let raf, last = performance.now(), t = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+    // contacts drift slowly
+    if (!reduce) for (const c of C) { c.a += (Math.random() - 0.5) * dt; c.u += Math.cos(c.a) * c.s * dt; c.v += Math.sin(c.a) * c.s * dt; if (c.u &lt; 0.1 || c.u &gt; 0.9) c.a = Math.PI - c.a; if (c.v &lt; 0.14 || c.v &gt; 0.86) c.a = -c.a; }
+    // ghost: hop from contact to contact, dwelling long enough to lock
+    if (!pointer || now - lastMove &gt; 3000) {
+      if (reduce) { aim.x = C[0].u * W; aim.y = C[0].v * H; }
+      else { ghostT += dt; if (ghostT &gt; 2.6) { ghostT = 0; ghostI = (ghostI + 1 + (Math.random() * (n - 1) | 0)) % n; } aim.x = C[ghostI].u * W + 6; aim.y = C[ghostI].v * H - 4; }
+    }
+    // critically damped spring
+    const k = PARAMS.follow;
+    if (reduce) { R.x = aim.x; R.y = aim.y; }
+    else { const ax = k * k * (aim.x - R.x) - 2 * k * R.vx, ay = k * k * (aim.y - R.y) - 2 * k * R.vy; R.vx += ax * dt; R.vy += ay * dt; R.x += R.vx * dt; R.y += R.vy * dt; }
+
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.fillStyle = '#030907'; ctx.fillRect(0, 0, W, H);
+    // dot grid
+    ctx.fillStyle = 'rgba(116,255,184,0.08)';
+    for (let x = 40; x &lt; W; x += 40) for (let y = 40; y &lt; H; y += 40) ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+    ctx.lineWidth = 1;
+    // edge rulers
+    ctx.strokeStyle = 'rgba(116,255,184,0.45)'; ctx.beginPath();
+    for (let x = 0; x &lt; W; x += 10) { const L = x % 100 === 0 ? 12 : x % 50 === 0 ? 8 : 4; ctx.moveTo(px(x), 0); ctx.lineTo(px(x), L); }
+    for (let y = 0; y &lt; H; y += 10) { const L = y % 100 === 0 ? 12 : y % 50 === 0 ? 8 : 4; ctx.moveTo(0, px(y)); ctx.lineTo(L, px(y)); }
+    ctx.stroke();
+    ctx.font = `10px ${FONT}`; ctx.fillStyle = 'rgba(116,255,184,0.5)'; ctx.textBaseline = 'top';
+    for (let x = 100; x &lt; W - 20; x += 100) ctx.fillText(String(x), x + 3, 14);
+    for (let y = 100; y &lt; H - 10; y += 100) ctx.fillText(String(y), 16, y + 2);
+    // ruler markers for the reticle
+    ctx.fillStyle = HUD;
+    ctx.beginPath(); ctx.moveTo(R.x, 18); ctx.lineTo(R.x - 5, 26); ctx.lineTo(R.x + 5, 26); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(18, R.y); ctx.lineTo(26, R.y - 5); ctx.lineTo(26, R.y + 5); ctx.fill();
+    // long crosshair lines with a gap around the reticle
+    const gap = 46 * Math.max(1, Math.min(1.7, Math.min(W, H) / 420));
+    ctx.strokeStyle = 'rgba(116,255,184,0.22)'; ctx.setLineDash([2, 4]); ctx.beginPath();
+    ctx.moveTo(30, px(R.y)); ctx.lineTo(R.x - gap, px(R.y)); ctx.moveTo(R.x + gap, px(R.y)); ctx.lineTo(W, px(R.y));
+    ctx.moveTo(px(R.x), 30); ctx.lineTo(px(R.x), R.y - gap); ctx.moveTo(px(R.x), R.y + gap); ctx.lineTo(px(R.x), H);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // contacts, lock progress and brackets
+    let locked = null;
+    for (const c of C) {
+      const cx = c.u * W, cy = c.v * H, d = Math.hypot(cx - R.x, cy - R.y);
+      const want = d &lt; 44 ? 1 : 0;
+      c.lock += (want ? dt * 2 : -dt * 4); c.lock = Math.max(0, Math.min(1, c.lock));
+      const full = c.lock &gt;= 1;
+      if (full) locked = c;
+      ctx.strokeStyle = full ? LOCK : 'rgba(116,255,184,0.8)'; ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath(); ctx.moveTo(cx, cy - 5); ctx.lineTo(cx + 5, cy); ctx.lineTo(cx, cy + 5); ctx.lineTo(cx - 5, cy); ctx.closePath(); ctx.stroke();
+      ctx.font = `10px ${FONT}`; ctx.textBaseline = 'middle'; ctx.fillText(c.id, cx + 10, cy - 10);
+      if (c.lock &gt; 0) {
+        const e = 1 - Math.pow(1 - c.lock, 3), s = 70 - 50 * e, arm = 8;
+        ctx.globalAlpha = Math.min(1, c.lock * 3);
+        ctx.beginPath();
+        for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          const bx = cx + sx * s, by = cy + sy * s;
+          ctx.moveTo(bx, by - sy * arm); ctx.lineTo(bx, by); ctx.lineTo(bx - sx * arm, by);
+        }
+        ctx.lineWidth = full ? 2 : 1.25; ctx.stroke(); ctx.lineWidth = 1;
+        ctx.globalAlpha = 1;
+      }
+    }
+    // reticle: ring, inner ticks, slowly turning outer arcs, centre dot
+    const col = locked ? LOCK : HUD, Z = Math.max(1, Math.min(1.7, Math.min(W, H) / 420));
+    ctx.shadowColor = col; ctx.shadowBlur = 8 * D;
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.25;
+    ctx.beginPath(); ctx.arc(R.x, R.y, 26 * Z, 0, 6.2832); ctx.stroke();
+    ctx.beginPath();
+    for (let i = 0; i &lt; 4; i++) { const a = i * Math.PI / 2; ctx.moveTo(R.x + Math.cos(a) * 16 * Z, R.y + Math.sin(a) * 16 * Z); ctx.lineTo(R.x + Math.cos(a) * 34 * Z, R.y + Math.sin(a) * 34 * Z); }
+    ctx.stroke();
+    const spin = reduce ? 0 : t * (locked ? 2.2 : 0.6);
+    ctx.lineWidth = 2;
+    for (let i = 0; i &lt; 3; i++) { ctx.beginPath(); ctx.arc(R.x, R.y, 40 * Z, spin + i * 2.094, spin + i * 2.094 + 1.1); ctx.stroke(); }
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(R.x, R.y, 1.8, 0, 6.2832); ctx.fill();
+    ctx.shadowBlur = 0;
+    // readout
+    const dx = R.x - W / 2, dy = R.y - H / 2, rng = Math.hypot(dx, dy) / 100, brg = ((Math.atan2(dx, -dy) * 180 / Math.PI) + 360) % 360;
+    const lines = [`X ${String(Math.round(R.x)).padStart(4, '0')}  Y ${String(Math.round(R.y)).padStart(4, '0')}`, `RNG ${rng.toFixed(2)} km`, `BRG ${String(Math.round(brg)).padStart(3, '0')}°`];
+    if (locked) lines.push((reduce || (t * 3 % 1) &lt; 0.6) ? `LOCK ${locked.id}` : '');
+    const flipX = R.x &gt; W - 190, flipY = R.y &gt; H - 110;
+    const tx = R.x + (flipX ? -70 : 70), ty = R.y + (flipY ? -70 - lines.length * 15 : 58);
+    ctx.font = `11px ${FONT}`; ctx.textAlign = flipX ? 'right' : 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = 'rgba(3,9,7,0.7)'; ctx.fillRect(flipX ? tx - 132 : tx - 6, ty - 5, 138, lines.length * 15 + 8);
+    lines.forEach((l, i) =&gt; { ctx.fillStyle = i === 3 ? LOCK : i === 0 ? col : 'rgba(116,255,184,0.75)'; ctx.fillText(l, tx, ty + i * 15); });
+    ctx.textAlign = 'left';
+    // leader line from the reticle to the box
+    ctx.strokeStyle = 'rgba(116,255,184,0.4)'; ctx.beginPath(); ctx.moveTo(R.x + (flipX ? -30 : 30), R.y + (flipY ? -30 : 30)); ctx.lineTo(tx + (flipX ? 4 : -4), ty + (flipY ? lines.length * 15 : -2)); ctx.stroke();
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

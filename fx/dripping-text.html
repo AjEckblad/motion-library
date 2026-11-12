@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dripping text: Gooey blur-and-threshold filter: drips merge with letters, necks snap · Motion Library</title>
+<meta name="description" content="Dripping text is a Canvas effect: gooey blur-and-threshold filter: drips merge with letters, necks snap. One plain JavaScript file with no dependencies; add it with npx motion-library add dripping-text.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/dripping-text.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Dripping text · Motion Library">
+<meta property="og:description" content="Gooey blur-and-threshold filter: drips merge with letters, necks snap">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/dripping-text.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Dripping text",
+  "description": "Gooey blur-and-threshold filter: drips merge with letters, necks snap",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Fluid, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/dripping-text.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/dripping-text.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Fluid",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/fluid"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Dripping text",
+    "item": "https://ajeckblad.github.io/motion-library/fx/dripping-text.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/fluid">Fluid</a></header>
+<main class="s-page">
+<article>
+<h1>Dripping text</h1>
+<p class="tldr">Dripping text is a Canvas effect: gooey blur-and-threshold filter: drips merge with letters, necks snap. One plain JavaScript file with no dependencies; add it with npx motion-library add dripping-text.</p>
+<figure><img src="../posters/dripping-text.webp" alt="Dripping text: Gooey blur-and-threshold filter: drips merge with letters, necks snap" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/dripping-text">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Dripping text?</h2>
+<p>Drops swell under the letters, stretch, snap off and collect in a puddle.</p>
+
+<h2>How does Dripping text work?</h2>
+<p>Drops start at the text’s bottom edges; a blur followed by a hard alpha threshold fuses drop and letter into one liquid outline.</p>
+
+<h2>How do I add Dripping text to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add dripping-text</code>. It writes <code>animations/dripping-text.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/dripping-text.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add dripping-text --drips 30</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Drips</td><td><code>--drips</code></td><td>14</td><td>4 to 30</td><td>1</td></tr>
+<tr><td>Viscosity</td><td><code>--viscosity</code></td><td>1</td><td>0.4 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Fluid</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>3.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Dripping text: drops swell under the letters, stretch, pinch off and fall. A blur + alpha-threshold filter
+// (the gooey trick) melts drop and letter into one liquid shape, so the necks thin and snap like real paint.
+const PARAMS = { drips: 14, viscosity: 1 };
+
+export default function (stage) {
+  const id = 'drip-' + Math.random().toString(36).slice(2, 8);
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:absolute;inset:0;background:#0d0b0e';
+  wrap.innerHTML = `&lt;svg width=&quot;0&quot; height=&quot;0&quot; style=&quot;position:absolute&quot;&gt;&lt;filter id=&quot;${id}&quot;&gt;&lt;feGaussianBlur stdDeviation=&quot;5&quot;/&gt;&lt;feColorMatrix values=&quot;1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -11&quot;/&gt;&lt;/filter&gt;&lt;/svg&gt;`;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = `position:absolute;inset:0;width:100%;height:100%;display:block;filter:url(#${id})`;
+  wrap.append(canvas); stage.append(wrap);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, font = 0, baseY = 0, spots = [];
+  const resize = () =&gt; {
+    const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+    font = Math.min(W * 0.24, H * 0.42); baseY = H * 0.46;
+    // find where the letters' bottom edges are, so drops start under real ink
+    const off = document.createElement('canvas'); off.width = Math.ceil(W); off.height = Math.ceil(H); const o = off.getContext('2d');
+    o.font = `900 ${font}px &quot;Mona Sans&quot;, system-ui, sans-serif`; o.textAlign = 'center'; o.textBaseline = 'alphabetic'; o.fillText('DRIP', W / 2, baseY);
+    const data = o.getImageData(0, 0, off.width, off.height).data; spots = [];
+    for (let x = 2; x &lt; off.width - 2; x += 3) { for (let y = Math.min(off.height - 1, Math.ceil(baseY + 4)); y &gt; baseY - font; y--) if (data[(y * off.width + x) * 4 + 3] &gt; 200) { if (y &gt; baseY - font * 0.15) spots.push([x, y]); break; } }
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let drips = [], raf, last = performance.now();
+  const newDrip = () =&gt; { const [x, y] = spots[Math.floor(Math.random() * spots.length)] || [W / 2, baseY]; return { x, y0: y, len: 0, r: 2 + Math.random() * font * 0.025, grow: (8 + Math.random() * 18) / PARAMS.viscosity, falling: false, fy: 0, fv: 0 }; };
+  for (let i = 0; i &lt; PARAMS.drips; i++) { const d = newDrip(); d.len = Math.random() * font * 0.3; drips.push(d); }
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#ff2e4a';
+    ctx.font = `900 ${font}px &quot;Mona Sans&quot;, system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillText('DRIP', W / 2, baseY);
+    for (const d of drips) {
+      if (!d.falling) {
+        d.len += d.grow * dt * (1 + d.len / (font * 0.2));            // drips accelerate as they get heavier
+        d.r = Math.min(font * 0.06, d.r + dt * 2);
+        if (d.len &gt; font * (0.35 + Math.random() * 0.002)) { d.falling = true; d.fy = d.y0 + d.len; d.fv = 40; }
+        // neck: a column of shrinking circles down to the bulb
+        const steps = Math.max(2, d.len / 3);
+        for (let i = 0; i &lt;= steps; i++) { const k = i / steps, r = d.r * (0.35 + 0.25 * Math.sin(k * Math.PI)) * (k &gt; 0.85 ? 1.7 : 1); ctx.beginPath(); ctx.arc(d.x, d.y0 + d.len * k, r, 0, 7); ctx.fill(); }
+      } else {
+        d.fv += 1400 * dt; d.fy += d.fv * dt;
+        ctx.beginPath(); ctx.ellipse(d.x, d.fy, d.r * 1.5, d.r * 1.9, 0, 0, 7); ctx.fill();
+      }
+    }
+    // a puddle collects at the bottom
+    ctx.fillRect(0, H - H * 0.05, W, H * 0.05);
+    drips = drips.map(d =&gt; (d.falling &amp;&amp; d.fy &gt; H) ? newDrip() : d);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); wrap.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

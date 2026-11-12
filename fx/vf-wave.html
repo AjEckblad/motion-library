@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variable-font wave: A sine wave rolls through variable-font weight and width · Motion Library</title>
+<meta name="description" content="Variable-font wave is a DOM effect: a sine wave rolls through variable-font weight and width. One plain JavaScript file with no dependencies; add it with npx motion-library add vf-wave.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/vf-wave.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Variable-font wave · Motion Library">
+<meta property="og:description" content="A sine wave rolls through variable-font weight and width">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/vf-wave.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Variable-font wave",
+  "description": "A sine wave rolls through variable-font weight and width",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Text, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/vf-wave.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/vf-wave.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Text",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/text"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Variable-font wave",
+    "item": "https://ajeckblad.github.io/motion-library/fx/vf-wave.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/text">Text</a></header>
+<main class="s-page">
+<article>
+<h1>Variable-font wave</h1>
+<p class="tldr">Variable-font wave is a DOM effect: a sine wave rolls through variable-font weight and width. One plain JavaScript file with no dependencies; add it with npx motion-library add vf-wave.</p>
+<figure><img src="../posters/vf-wave.webp" alt="Variable-font wave: A sine wave rolls through variable-font weight and width" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/vf-wave">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Variable-font wave?</h2>
+<p>A wave of weight and width rolls through a word while axis sliders track the marked letter.</p>
+
+<h2>How does Variable-font wave work?</h2>
+<p>Each letter reads a sine offset by its index and sets font-variation-settings; the slider knobs and fills are transforms, so the read-outs never trigger layout.</p>
+
+<h2>How do I add Variable-font wave to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add vf-wave</code>. It writes <code>animations/vf-wave.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/vf-wave.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add vf-wave --amplitude 1</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Amplitude</td><td><code>--amplitude</code></td><td>1</td><td>0 to 1</td><td>0.05</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1.6</td><td>0.2 to 4</td><td>0.1</td></tr>
+<tr><td>Spread</td><td><code>--spread</code></td><td>0.5</td><td>0.1 to 1.5</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Text</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Variable-font wave, on a typeface specimen page: a sine wave travels through each letter's weight and width axes, and the axis sliders follow one marked letter.
+// A variable font is one file with continuous axes, so every letter can sit anywhere between thin-condensed and black-wide; offsetting the wave by letter makes the bulge roll along the word. Needs a variable font with wght and wdth axes (Mona Sans here).
+const PARAMS = { amplitude: 1, speed: 1.6, spread: 0.5 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400, WORD = 'Wavelength', PROBE = 4;
+  const root = document.createElement('div');
+  root.className = 'vw-root';
+  root.innerHTML = `&lt;style&gt;
+    .vw-root { position: absolute; inset: 0; overflow: hidden; background: #f5d547; color: #161616; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .vw-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .vw-top { position: absolute; left: 26px; right: 26px; top: 0; height: 48px; display: flex; align-items: center; gap: 16px; border-bottom: 1.5px solid #161616; font-size: 12px; font-weight: 560; }
+    .vw-top strong { margin-right: auto; font-size: 15px; font-weight: 760; font-stretch: 110%; letter-spacing: -0.01em; }
+    .vw-top span:nth-of-type(1) { padding: 5px 10px; border-radius: 999px; background: #161616; color: #f5d547; font-weight: 640; }
+    .vw-meta { position: absolute; left: 26px; right: 26px; top: 62px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+    .vw-word { position: absolute; left: 0; right: 0; top: 96px; display: flex; justify-content: center; line-height: 1; }
+    .vw-word span { position: relative; }
+    .vw-word span.probe::after { content: &quot;&quot;; position: absolute; left: 50%; bottom: -12px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #161616; }
+    .vw-axes { position: absolute; left: 26px; right: 26px; top: 206px; display: grid; gap: 14px; }
+    .vw-axis { display: grid; grid-template-columns: 58px 1fr 40px; align-items: center; gap: 12px; font-size: 11.5px; font-weight: 600; }
+    .vw-axis output { text-align: right; font-variant-numeric: tabular-nums; }
+    .vw-track { position: relative; height: 2px; background: rgba(22,22,22,.25); border-radius: 2px; }
+    .vw-fill { position: absolute; inset: 0; background: #161616; transform-origin: 0 50%; border-radius: 2px; }
+    .vw-knob { position: absolute; left: 0; top: -7px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #161616; box-shadow: 0 0 0 3px #f5d547; }
+    .vw-foot { position: absolute; left: 26px; right: 26px; bottom: 20px; display: flex; gap: 18px; align-items: baseline; font-size: 13px; border-top: 1.5px solid #161616; padding-top: 12px; }
+    .vw-foot b { margin-right: auto; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  &lt;/style&gt;
+  &lt;div class=&quot;vw-art&quot;&gt;
+    &lt;div class=&quot;vw-top&quot;&gt;&lt;strong&gt;Mona Sans&lt;/strong&gt;&lt;span&gt;Specimen&lt;/span&gt;&lt;span&gt;Glyphs&lt;/span&gt;&lt;span&gt;Download&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;vw-meta&quot;&gt;&lt;span&gt;Variable · 2 axes&lt;/span&gt;&lt;span&gt;Following the marked letter&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;vw-word&quot; aria-label=&quot;${WORD}&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;vw-axes&quot;&gt;
+      &lt;div class=&quot;vw-axis&quot;&gt;&lt;span&gt;Weight&lt;/span&gt;&lt;div class=&quot;vw-track&quot;&gt;&lt;i class=&quot;vw-fill&quot;&gt;&lt;/i&gt;&lt;i class=&quot;vw-knob&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;output&gt;400&lt;/output&gt;&lt;/div&gt;
+      &lt;div class=&quot;vw-axis&quot;&gt;&lt;span&gt;Width&lt;/span&gt;&lt;div class=&quot;vw-track&quot;&gt;&lt;i class=&quot;vw-fill&quot;&gt;&lt;/i&gt;&lt;i class=&quot;vw-knob&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;output&gt;100&lt;/output&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;vw-foot&quot;&gt;&lt;b&gt;Styles&lt;/b&gt;&lt;span style=&quot;font-weight:250&quot;&gt;Light&lt;/span&gt;&lt;span style=&quot;font-weight:400&quot;&gt;Regular&lt;/span&gt;&lt;span style=&quot;font-weight:700&quot;&gt;Bold&lt;/span&gt;&lt;span style=&quot;font-weight:900;font-stretch:120%&quot;&gt;Black Wide&lt;/span&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const art = root.querySelector('.vw-art'), word = root.querySelector('.vw-word');
+  const spans = [...WORD].map((ch, i) =&gt; { const s = document.createElement('span'); s.textContent = ch; if (i === PROBE) s.className = 'probe'; word.append(s); return s; });
+  const tracks = [...root.querySelectorAll('.vw-track')], outs = [...root.querySelectorAll('.vw-axis output')];
+  let trackW = 0;
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1, aw = W / s;
+    art.style.width = aw + 'px'; art.style.top = (H - AH * s) / 2 + 'px'; art.style.transform = `scale(${s})`;
+    word.style.fontSize = Math.min(84, (aw - 40) / 6.2).toFixed(1) + 'px';
+    trackW = tracks[0].clientWidth;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  let raf;
+  function frame(now) {
+    // Reduced motion: a slower wave in weight only; width stays put so the letters never shift sideways.
+    const t = now / 1000 * PARAMS.speed * (reduce ? 0.35 : 1);
+    spans.forEach((s, i) =&gt; {
+      const k = 0.5 + 0.5 * Math.sin(t * 2 - i * PARAMS.spread) * PARAMS.amplitude;
+      const wght = Math.round(200 + 700 * k), wdth = reduce ? 100 : 75 + 50 * k;
+      s.style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth.toFixed(1)}`;
+      if (i === PROBE) {
+        // the sliders are read-outs: knob position and fill are transforms, so they never cause layout
+        [[wght, (wght - 200) / 700], [Math.round(wdth), (wdth - 75) / 50]].forEach(([v, f], a) =&gt; {
+          outs[a].textContent = v;
+          tracks[a].children[0].style.transform = `scaleX(${f.toFixed(4)})`;
+          tracks[a].children[1].style.transform = `translateX(${(f * trackW).toFixed(1)}px)`;
+        });
+      }
+    });
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

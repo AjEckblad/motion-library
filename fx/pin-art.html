@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pin art: Instanced pins that only slide forward, so imprints persist · Motion Library</title>
+<meta name="description" content="Pin art is a WebGL effect: instanced pins that only slide forward, so imprints persist. One plain JavaScript file with no dependencies; add it with npx motion-library add pin-art.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/pin-art.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Pin art · Motion Library">
+<meta property="og:description" content="Instanced pins that only slide forward, so imprints persist">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/pin-art.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Pin art",
+  "description": "Instanced pins that only slide forward, so imprints persist",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/pin-art.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/pin-art.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Pin art",
+    "item": "https://ajeckblad.github.io/motion-library/fx/pin-art.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Pin art</h1>
+<p class="tldr">Pin art is a WebGL effect: instanced pins that only slide forward, so imprints persist. One plain JavaScript file with no dependencies; add it with npx motion-library add pin-art.</p>
+<figure><img src="../posters/pin-art.webp" alt="Pin art: Instanced pins that only slide forward, so imprints persist" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/pin-art">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Pin art?</h2>
+<p>A hand, a face and a ripple rise in relief through steel pins; press to push pins back.</p>
+
+<h2>How does Pin art work?</h2>
+<p>Instanced cylinders with domed heads move only forward, so imprints stay until a sweep resets them; a raking light lets taller pins shade lower ones.</p>
+
+<h2>How do I add Pin art to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add pin-art</code>. It writes <code>animations/pin-art.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/pin-art.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add pin-art --pins 110</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Pins across</td><td><code>--pins</code></td><td>72</td><td>32 to 110</td><td>2</td></tr>
+<tr><td>Relief depth</td><td><code>--depth</code></td><td>1.2</td><td>0.4 to 2</td><td>0.05</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.4 to 2</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>14.4 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Pin art: the pin-screen toy, in 3D. Three thousand steel pins slide through a frame. Something pushes up from
+// behind (a hand, then a face, then a ripple) and every pin it touches slides forward, so the shape appears in relief.
+// The pins only move one way: when the shape pulls back, its imprint stays. Then a sweep flattens the board for the
+// next one. Each pin is an instanced cylinder with a domed head, shaded like polished steel, and darkened where taller
+// neighbours shade it. Press with the pointer to push pins back in and draw into the relief.
+const PARAMS = { pins: 72, depth: 1.2, speed: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: true });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+  const NX = Math.max(16, Math.round(PARAMS.pins)), NY = Math.round(NX * 0.68), N = NX * NY, HMAX = 8 * PARAMS.depth;
+  const h = new Float32Array(N), occ = new Float32Array(N);
+
+  // the shapes that push from behind, as height fields over the board (x across −1..1, y up −0.68..0.68)
+  const cap = (px, py, ax, ay, bx, by, r) =&gt; { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))), qx = px - ax - dx * t, qy = py - ay - dy * t, d2 = qx * qx + qy * qy; return d2 &lt; r * r ? Math.sqrt(r * r - d2) / r : 0; };
+  const SHAPES = [
+    (x, y) =&gt; {                                                   // a hand, fingers spread
+      let v = cap(x, y, 0.02, -0.5, 0.02, -0.12, 0.27) * 0.9;
+      const F = [[-0.27, -0.12, -0.52, 0.12, 0.075], [-0.14, 0.04, -0.2, 0.5, 0.075], [0.02, 0.06, 0.03, 0.56, 0.08], [0.16, 0.04, 0.24, 0.48, 0.075], [0.27, -0.02, 0.42, 0.33, 0.065]];
+      for (const [ax, ay, bx, by, r] of F) v = Math.max(v, cap(x, y, ax, ay, bx, by, r) * 0.75);
+      return v;
+    },
+    (x, y) =&gt; {                                                   // a face, like a mask
+      const e = (x * x) / 0.16 + ((y + 0.02) ** 2) / 0.3; if (e &gt; 1) return 0;
+      let v = Math.sqrt(1 - e) * 0.7;
+      v += 0.28 * Math.exp(-((x * x) / 0.004 + ((y + 0.05) ** 2) / 0.03));                         // nose
+      v -= 0.16 * (Math.exp(-(((x - 0.15) ** 2) + ((y - 0.12) ** 2)) / 0.006) + Math.exp(-(((x + 0.15) ** 2) + ((y - 0.12) ** 2)) / 0.006));   // eye sockets
+      v += 0.08 * (Math.exp(-(((x - 0.15) ** 2) / 0.012 + ((y - 0.22) ** 2) / 0.0015)) + Math.exp(-(((x + 0.15) ** 2) / 0.012 + ((y - 0.22) ** 2) / 0.0015)));   // brows
+      v += 0.1 * Math.exp(-((x * x) / 0.014 + ((y + 0.3) ** 2) / 0.002)) - 0.05 * Math.exp(-((x * x) / 0.02 + ((y + 0.33) ** 2) / 0.0004));   // lips
+      return Math.max(0, v);
+    },
+    (x, y) =&gt; { const r = Math.hypot(x, y); return r &gt; 0.62 ? 0 : (0.5 + 0.5 * Math.cos(r * 26)) * (1 - r / 0.62) * 0.9; },   // a ripple
+  ];
+  const ptr = { x: 0, y: 0, down: false };
+  let shape = 0, phaseT = 0;
+
+  // GL
+  const sh = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = (vs, fs) =&gt; {
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i &lt; n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
+    return { p, u };
+  };
+  const ENV = `
+  // a studio: dark floor, soft grey walls, one big window up and to the left
+  vec3 env(vec3 r) {
+    vec3 c = mix(vec3(.012, .012, .015), vec3(.11, .115, .13), smoothstep(-.3, .6, r.y));
+    c += vec3(2.6, 2.45, 2.2) * smoothstep(.82, .93, dot(r, normalize(vec3(-.55, .65, .5))));   // the key: a big softbox up-left
+    c += vec3(.55, .42, .3) * smoothstep(.72, .95, dot(r, normalize(vec3(.85, .05, .5))));       // a warm kicker from the right
+    return c;
+  }`;
+  const pinVS = `#version 300 es
+  layout(location = 0) in vec3 P; layout(location = 1) in vec3 Nrm;    // unit pin: shaft along z 0..1, head beyond
+  layout(location = 2) in vec2 G; layout(location = 3) in float Hh; layout(location = 4) in float O;
+  uniform mat4 M; uniform float SP; out vec3 n; out vec3 w; out float oc; out float head;
+  void main() {
+    vec3 p = vec3(G * SP, 0) + vec3(P.xy, P.z &lt;= 1. ? P.z * (Hh + 1.) : Hh + 1. + (P.z - 1.));
+    n = Nrm; w = p; oc = O; head = step(1.001, P.z);
+    gl_Position = M * vec4(p, 1);
+  }`;
+  const pinFS = `#version 300 es
+  precision highp float; in vec3 n; in vec3 w; in float oc; in float head; out vec4 o; uniform vec3 E;
+  ${ENV}
+  void main() {
+    vec3 N = normalize(n), V = normalize(E - w), R = reflect(-V, N);
+    float fr = .55 + .45 * pow(1. - max(dot(N, V), 0.), 5.);
+    vec3 c = env(R) * vec3(.82, .84, .88) * fr;
+    c *= mix(1., .12, oc) * mix(.7, 1., head) * (.7 + .5 * clamp(w.z / 8., 0., 1.));   // shadowed by taller neighbours; the furthest-out pins catch the most light
+    o = vec4(pow(c / (1. + c * .3), vec3(1. / 2.2)), 1);
+  }`;
+  const boardFS = `#version 300 es
+  precision highp float; in vec2 v; out vec4 o; uniform vec2 R;
+  void main() { vec2 q = v; vec3 c = mix(vec3(.012, .012, .014), vec3(.003, .003, .004), length(q * vec2(.7, 1.))); o = vec4(pow(c, vec3(1. / 2.2)), 1); }`;
+  const plateP = prog(`#version 300 es
+  layout(location = 0) in vec3 P; uniform mat4 M; out vec2 g; void main() { g = P.xy; gl_Position = M * vec4(P, 1); }`, `#version 300 es
+  precision highp float; in vec2 g; out vec4 o; uniform vec2 S;
+  void main() { vec2 k = g / S; float edge = max(abs(k.x), abs(k.y)); vec3 c = vec3(.04, .04, .045) * (1. - .3 * length(k)) * (edge &gt; .97 ? 1.8 : 1.); o = vec4(pow(c, vec3(1. / 2.2)), 1); }`);
+  const pinP = prog(pinVS, pinFS), boardP = prog(`#version 300 es
+  in vec2 p; out vec2 v; void main() { v = p; gl_Position = vec4(p, .9999, 1); }`, boardFS);
+
+  // one pin: an 10-sided shaft and a rounded head, a little wider
+  const SEG = 10, R0 = 0.26, RH = 0.47, verts = [];
+  const ring = (z, r, nz) =&gt; Array.from({ length: SEG + 1 }, (_, i) =&gt; { const a = (i / SEG) * Math.PI * 2; return [Math.cos(a) * r, Math.sin(a) * r, z, Math.cos(a) * (1 - Math.abs(nz)), Math.sin(a) * (1 - Math.abs(nz)), nz]; });
+  const band = (A, B) =&gt; { for (let i = 0; i &lt; SEG; i++) verts.push(...A[i], ...B[i], ...A[i + 1], ...A[i + 1], ...B[i], ...B[i + 1]); };
+  band(ring(0, R0, 0), ring(1, R0, 0));                                   // shaft
+  band(ring(1.0001, R0, -0.6), ring(1.05, RH, -0.2)); band(ring(1.05, RH, 0), ring(1.3, RH, 0));                      // head: flare, side
+  const dome = [0.3, 0.6, 0.85, 1].map((k, j) =&gt; ring(1.3 + Math.sin(k * Math.PI / 2) * 0.22, RH * Math.cos(k * Math.PI / 2) + 0.001, Math.sin(k * Math.PI / 2)));
+  band(ring(1.3, RH, 0.05), dome[0]); band(dome[0], dome[1]); band(dome[1], dome[2]); band(dome[2], dome[3]);
+  const mesh = new Float32Array(verts), VCOUNT = mesh.length / 6;
+  const grid = new Float32Array(N * 2); for (let j = 0; j &lt; NY; j++) for (let i = 0; i &lt; NX; i++) grid.set([i - (NX - 1) / 2, j - (NY - 1) / 2], (j * NX + i) * 2);
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const buf = (data, loc, size, stride, off, div, usage = gl.STATIC_DRAW) =&gt; { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, usage); return b; };
+  const mb = buf(mesh); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
+  buf(grid); gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(2, 1);
+  const hb = buf(h.byteLength, 0, 0, 0, 0, 0, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(3, 1);
+  const ob = buf(occ.byteLength, 0, 0, 0, 0, 0, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(4); gl.vertexAttribPointer(4, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(4, 1);
+  gl.bindVertexArray(null);
+  const bx = NX / 2 + 1.2, by = NY / 2 + 1.2;
+  const pv = gl.createVertexArray(); gl.bindVertexArray(pv); buf(new Float32Array([-bx, -by, 0, bx, -by, 0, -bx, by, 0, bx, -by, 0, bx, by, 0, -bx, by, 0])); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+  const qv = gl.createVertexArray(); gl.bindVertexArray(qv); buf(new Float32Array([-1, -1, 3, -1, -1, 3])); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+
+  let W = 1, H = 1;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  // camera: in front of the board, a little left and above, so the relief reads
+  const SP = 1;
+  let EYE = [0, 0, 0];
+  const matrix = t =&gt; {
+    const az = -0.5 + 0.12 * Math.sin(t * 0.21), el = 0.32, dist = NX * 1.02;
+    EYE = [Math.sin(az) * Math.cos(el) * dist, Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist];
+    const T = [0, 0, HMAX * 0.25], f = EYE.map((v, i) =&gt; T[i] - v), fl = Math.hypot(...f); f.forEach((v, i) =&gt; f[i] = v / fl);
+    const rl0 = Math.hypot(f[2], f[0]), r = [-f[2] / rl0, 0, f[0] / rl0];   // right = forward × up
+    const u = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
+    const V = [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -(r[0] * EYE[0] + r[1] * EYE[1] + r[2] * EYE[2]), -(u[0] * EYE[0] + u[1] * EYE[1] + u[2] * EYE[2]), f[0] * EYE[0] + f[1] * EYE[1] + f[2] * EYE[2], 1];
+    const F = 1 / Math.tan(0.36), A = W / H, n = 1, fa = 600, nf = 1 / (n - fa);
+    const P = [F / A, 0, 0, 0, 0, F, 0, 0, 0, 0, (fa + n) * nf, -1, 0, 0, 2 * fa * n * nf, 0], out = new Float32Array(16);
+    for (let c = 0; c &lt; 4; c++) for (let rr = 0; rr &lt; 4; rr++) { let s = 0; for (let k = 0; k &lt; 4; k++) s += P[k * 4 + rr] * V[c * 4 + k]; out[c * 4 + rr] = s; }
+    return out;
+  };
+  // pointer: find the pin under it (on the board plane, at mid relief) and press nearby pins back
+  const move = e =&gt; {
+    const r = canvas.getBoundingClientRect(); ptr.sx = ((e.clientX - r.left) / r.width) * 2 - 1; ptr.sy = 1 - ((e.clientY - r.top) / r.height) * 2;
+  };
+  const down = e =&gt; { ptr.down = true; move(e); canvas.setPointerCapture(e.pointerId); };
+  const up = () =&gt; { ptr.down = false; };
+  canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+
+  let raf, last = performance.now(), t = 0, M = null;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000) * PARAMS.speed; last = now; t += dt; phaseT += dt;
+    // a cycle: push in (3 s), pull back leaving the imprint (hold 3 s), then sweep the board flat (1.5 s)
+    const f = SHAPES[shape], push = phaseT &lt; 3 ? phaseT / 3 : phaseT &lt; 4 ? 1 - (phaseT - 3) : 0;
+    const sweep = phaseT &gt; 6.2 ? (phaseT - 6.2) / 1.5 : -1;
+    if (phaseT &gt; 7.9) { phaseT = 0; shape = (shape + 1) % SHAPES.length; }
+    const pushE = push * push * (3 - 2 * push);
+    for (let j = 0; j &lt; NY; j++) for (let i = 0; i &lt; NX; i++) {
+      const k = j * NX + i, x = (i / (NX - 1)) * 2 - 1, y = ((j / (NY - 1)) * 2 - 1) * (NY / NX);
+      if (sweep &gt;= 0) { if ((x + 1) / 2 &lt; sweep * 1.15 - 0.08) h[k] += (0 - h[k]) * Math.min(1, dt * 14); continue; }   // a palm sweeps them flat, left to right
+      const target = f(x, y) * HMAX * (0.25 + 0.75 * pushE) * (push &gt; 0 ? 1 : 0);
+      if (target &gt; h[k]) h[k] += Math.min(target - h[k], dt * 26);   // pins only ever get pushed forward
+    }
+    if (ptr.down &amp;&amp; M) {                                           // press: pins near the pointer go back in
+      for (let k = 0; k &lt; N; k++) {
+        const gx = grid[k * 2], gy = grid[k * 2 + 1], z = h[k] + 1.5;
+        const cx = M[0] * gx + M[4] * gy + M[8] * z + M[12], cy = M[1] * gx + M[5] * gy + M[9] * z + M[13], cw = M[3] * gx + M[7] * gy + M[11] * z + M[15];
+        const d = Math.hypot(cx / cw - ptr.sx, (cy / cw - ptr.sy) * H / W);
+        if (d &lt; 0.05) h[k] = Math.max(0, h[k] - dt * 30 * (1 - d / 0.05));
+      }
+    }
+    // occlusion: a pin standing lower than its neighbours sits in their shade
+    for (let j = 0; j &lt; NY; j++) for (let i = 0; i &lt; NX; i++) {
+      const k = j * NX + i; let m = 0, c = 0;
+      for (let dj = -1; dj &lt;= 1; dj++) for (let di = -1; di &lt;= 1; di++) { const ii = i + di, jj = j + dj; if (ii &lt; 0 || jj &lt; 0 || ii &gt;= NX || jj &gt;= NY || (!di &amp;&amp; !dj)) continue; m += h[jj * NX + ii]; c++; }
+      // and a raking light from the upper left: a taller pin a step or three that way casts this one into shadow
+      let sh = 0; for (let st = 1; st &lt;= 4; st++) { const ii = i - st, jj = j + st; if (ii &lt; 0 || jj &gt;= NY) break; sh = Math.max(sh, (h[jj * NX + ii] - h[k] - st * 0.9) / 1.5); }
+      occ[k] = Math.min(1, Math.max(0, (m / c - h[k]) / 2.2, sh));
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    gl.clearColor(0.03, 0.03, 0.035, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); gl.enable(gl.DEPTH_TEST);
+    gl.useProgram(boardP.p); gl.bindVertexArray(qv); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    M = matrix(t);
+    gl.useProgram(plateP.p); gl.uniformMatrix4fv(plateP.u.M, false, M); gl.uniform2f(plateP.u.S, bx, by); gl.bindVertexArray(pv); gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.useProgram(pinP.p); gl.uniformMatrix4fv(pinP.u.M, false, M); gl.uniform1f(pinP.u.SP, SP); gl.uniform3f(pinP.u.E, ...EYE);
+    gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, hb); gl.bufferSubData(gl.ARRAY_BUFFER, 0, h);
+    gl.bindBuffer(gl.ARRAY_BUFFER, ob); gl.bufferSubData(gl.ARRAY_BUFFER, 0, occ);
+    gl.drawArraysInstanced(gl.TRIANGLES, 0, VCOUNT, N);
+    gl.bindVertexArray(null); gl.disable(gl.DEPTH_TEST);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; {
+    cancelAnimationFrame(raf); ro.disconnect();
+    canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move); canvas.removeEventListener('pointerup', up); canvas.removeEventListener('pointercancel', up);
+    gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
+  };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

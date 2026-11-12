@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plasma: Four sines summed, through a dark-light-dark ramp, not a rainbow · Motion Library</title>
+<meta name="description" content="Plasma is a WebGL effect: four sines summed, through a dark-light-dark ramp, not a rainbow. One plain JavaScript file with no dependencies; add it with npx motion-library add plasma.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/plasma.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Plasma · Motion Library">
+<meta property="og:description" content="Four sines summed, through a dark-light-dark ramp, not a rainbow">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/plasma.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Plasma",
+  "description": "Four sines summed, through a dark-light-dark ramp, not a rainbow",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Generative & math, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/plasma.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/plasma.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Generative & math",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/generative"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Plasma",
+    "item": "https://ajeckblad.github.io/motion-library/fx/plasma.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/generative">Generative &amp; math</a></header>
+<main class="s-page">
+<article>
+<h1>Plasma</h1>
+<p class="tldr">Plasma is a WebGL effect: four sines summed, through a dark-light-dark ramp, not a rainbow. One plain JavaScript file with no dependencies; add it with npx motion-library add plasma.</p>
+<figure><img src="../posters/plasma.webp" alt="Plasma: Four sines summed, through a dark-light-dark ramp, not a rainbow" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/plasma">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Plasma?</h2>
+<p>Neon lobes swell, merge and fold, warm coral on one side and ice blue on the other. The rings spread out from the pointer.</p>
+
+<h2>How does Plasma work?</h2>
+<p>The demoscene recipe: per pixel, sum sines along x, y, a diagonal and a circle; a cosine maps the sum into a dark-light-dark ramp, giving each lobe a lit rim.</p>
+
+<h2>How do I add Plasma to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add plasma</code>. It writes <code>animations/plasma.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/plasma.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add plasma --scale 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Scale</td><td><code>--scale</code></td><td>1.3</td><td>0.4 to 3</td><td>0.05</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+<tr><td>Sheen bands</td><td><code>--bands</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Generative &amp; math</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>6.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Plasma, the demoscene classic: four sine waves added per pixel, one along x, one along y, one diagonal and one
+// circular around a point that wanders, each drifting at its own speed. The sum swells and folds into soft lobes.
+// The old trick was to cycle a rainbow palette through it; here the value goes through a cosine into a four-stop
+// ramp that runs dark-light-dark, so the lobes get lit rims, and a slower mix of the same waves blends between a
+// warm ramp (plum, coral, peach) and a cool one (indigo, blue, ice) instead of every hue at once.
+// A second, finer copy of the field adds a faint sheen of tight contour bands on top.
+// The pointer (or, idle, the old wandering point) is the centre of the circular wave, so the rings spread from it.
+const PARAMS = { scale: 1.3, speed: 1, bands: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const vs = `#version 300 es
+  in vec2 p; void main() { gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform vec2 R, M; uniform float T, D, MA, u_scale, u_speed, u_bands;
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  vec2 hash2(vec2 p) { return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453); }
+  float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + 1.), f.x), f.y); }
+  float fbm(vec2 p) { float s = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i &lt; 5; i++) { s += a * noise(p); p = m * p; a *= .5; } return s; }
+  vec3 ramp(float x, vec3 b, vec3 c, vec3 d) {
+    vec3 a = vec3(.025, .02, .06);
+    return x &lt; .4 ? mix(a, b, x / .4) : x &lt; .75 ? mix(b, c, (x - .4) / .35) : mix(c, d, (x - .75) / .25);
+  }
+  void main() {
+    vec2 p = (gl_FragCoord.xy - .5 * R) / R.y * 6. * u_scale;
+    vec2 c = M * 6. * u_scale;                                    // the circular wave's centre: the pointer
+    float v = sin(p.x * 1.1 + T * .7)
+            + sin(p.y * 1.3 - T * .5)
+            + sin((p.x + p.y) * .8 + T * .37)
+            + (1. + .6 * MA) * sin(sqrt(dot(p - c, p - c) + .05) * 1.9 - T * .9);   // softened so the centre has no cusp
+    float x = pow(.5 + .5 * cos(v * 2.1), 1.5);                  // −4…4 → a smooth 0…1 that crests several times
+    x = x * x * (3. - 2. * x);
+    // two colour families, warm and cool, chosen by a second, slower combination of the same waves
+    float fam = smoothstep(-.8, .8, sin(p.x * .45 - T * .21) + sin(p.y * .55 + T * .17));
+    vec3 warm = ramp(x, vec3(.32, .07, .38), vec3(.95, .38, .32), vec3(1., .86, .66));
+    vec3 cool = ramp(x, vec3(.08, .1, .4), vec3(.2, .55, .9), vec3(.75, .95, 1.));
+    vec3 col = mix(cool, warm, fam);
+    float fine = .5 + .5 * cos(v * 9.);                           // tight bands riding the same field
+    col += vec3(1., .8, .7) * pow(fine, 12.) * .14 * u_bands * smoothstep(.3, .8, x);
+    col *= .85 + .15 * smoothstep(1.2, .0, length((gl_FragCoord.xy - .5 * R) / R.y));
+    o = vec4(col, 1);
+  }`;
+  const sh = (t, s) =&gt; { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ['R', 'M', 'T', 'D', 'MA', 'u_scale', 'u_speed', 'u_bands'].forEach(n =&gt; U[n] = gl.getUniformLocation(prog, n));
+  let dpr = 1;
+  const resize = () =&gt; { dpr = Math.min(devicePixelRatio, 2); canvas.width = (stage.clientWidth || 1) * dpr | 0; canvas.height = (stage.clientHeight || 1) * dpr | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  // the pointer, in shader space (units of stage height, origin at the centre, y up). When nobody is pointing, the
+  // ghost is the classic plasma's own wandering point, so the idle piece looks as it always did
+  const ghostX = tt =&gt; Math.sin(tt * 0.23) * 3 / (6 * PARAMS.scale), ghostY = tt =&gt; Math.cos(tt * 0.31) * 2 / (6 * PARAMS.scale);
+  let tx = ghostX(0), ty = ghostY(0), mx = tx, my = ty, ma = 0, lastMove = -1e9;
+  const toLocal = e =&gt; { const b = canvas.getBoundingClientRect(); return [(e.clientX - b.left - b.width / 2) / b.height, (b.height / 2 - (e.clientY - b.top)) / b.height]; };
+  const onMove = e =&gt; { [tx, ty] = toLocal(e); lastMove = performance.now(); };
+  const onLeave = () =&gt; { lastMove = -1e9; };
+  const onDown = e =&gt; { onMove(e); };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerleave', onLeave);
+  let raf, t = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    t += dt * PARAMS.speed * (reduce ? 0.05 : 1);
+    const live = now - lastMove &lt; 2500;
+    if (!live) { tx = ghostX(t); ty = ghostY(t); }
+    const k = 1 - Math.exp(-dt * (live ? 14 : 3));
+    mx += (tx - mx) * k; my += (ty - my) * k; ma += ((live ? 1 : 0) - ma) * (1 - Math.exp(-dt * 4));
+
+    gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform1f(U.T, t); gl.uniform1f(U.D, dpr);
+    gl.uniform2f(U.M, mx, my); gl.uniform1f(U.MA, ma);
+    gl.uniform1f(U.u_scale, PARAMS.scale);
+    gl.uniform1f(U.u_speed, PARAMS.speed);
+    gl.uniform1f(U.u_bands, PARAMS.bands);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerleave', onLeave); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

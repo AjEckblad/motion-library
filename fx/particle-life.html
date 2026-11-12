@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Particle life: Asymmetric attraction table between species; lifelike clusters emerge · Motion Library</title>
+<meta name="description" content="Particle life is a Canvas effect: asymmetric attraction table between species; lifelike clusters emerge. One plain JavaScript file with no dependencies; add it with npx motion-library add particle-life.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/particle-life.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Particle life · Motion Library">
+<meta property="og:description" content="Asymmetric attraction table between species; lifelike clusters emerge">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/particle-life.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Particle life",
+  "description": "Asymmetric attraction table between species; lifelike clusters emerge",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/particle-life.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/particle-life.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Particle life",
+    "item": "https://ajeckblad.github.io/motion-library/fx/particle-life.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Particle life</h1>
+<p class="tldr">Particle life is a Canvas effect: asymmetric attraction table between species; lifelike clusters emerge. One plain JavaScript file with no dependencies; add it with npx motion-library add particle-life.</p>
+<figure><img src="../posters/particle-life.webp" alt="Particle life: Asymmetric attraction table between species; lifelike clusters emerge" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/particle-life">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Particle life?</h2>
+<p>Coloured particles self-organise into cells, worms and hunting swarms that melt and re-form; drag to stir.</p>
+
+<h2>How does Particle life work?</h2>
+<p>Each species pair attracts or repels by an entry in a small asymmetric table, so red can chase green while green flees; neighbours come from a grid.</p>
+
+<h2>How do I add Particle life to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add particle-life</code>. It writes <code>animations/particle-life.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/particle-life.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add particle-life --particles 4000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Particles</td><td><code>--particles</code></td><td>2400</td><td>600 to 4000</td><td>100</td></tr>
+<tr><td>Species</td><td><code>--species</code></td><td>6</td><td>2 to 8</td><td>1</td></tr>
+<tr><td>Range</td><td><code>--range</code></td><td>0.105</td><td>0.05 to 0.16</td><td>0.005</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Particle life: six species of particles and one table that says how much each species likes or dislikes each
+// other one. Every pair pushes apart when very close, then attracts or repels by its table entry, fading out at
+// a fixed range. The rule is not symmetric (red may chase green while green flees red), and out of that come things
+// that look alive: cells with membranes, worms, spinners, swarms that hunt each other. Every half minute the table
+// slowly drifts to a new random one, and the creatures melt and different ones form. Drag to stir.
+const PARAMS = { particles: 2400, species: 6, range: 0.105 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;background:#05060a;touch-action:none';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 1, H = 1, A = 1;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; A = W / H; canvas.width = Math.max(1, (W * d) | 0); canvas.height = Math.max(1, (H * d) | 0); ctx.setTransform(d, 0, 0, d, 0, 0); ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const N = Math.max(300, Math.round(PARAMS.particles)), K = Math.max(2, Math.min(8, Math.round(PARAMS.species)));
+  const HUES = ['#ff4d6d', '#ffd166', '#06d6a0', '#4cc9f0', '#b388ff', '#ff9e5e', '#f2f2f2', '#7bdff2'];
+  const sprites = HUES.map(c =&gt; { const s = document.createElement('canvas'); s.width = s.height = 24; const g = s.getContext('2d'), r = g.createRadialGradient(12, 12, 0, 12, 12, 12); r.addColorStop(0, '#fff'); r.addColorStop(0.22, c); r.addColorStop(0.6, c + '44'); r.addColorStop(1, c + '00'); g.fillStyle = r; g.fillRect(0, 0, 24, 24); return s; });
+  // positions live in a wrapping box A wide and 1 tall
+  const x = new Float32Array(N), y = new Float32Array(N), vx = new Float32Array(N), vy = new Float32Array(N), sp = new Uint8Array(N);
+  for (let i = 0; i &lt; N; i++) { x[i] = Math.random() * A; y[i] = Math.random(); sp[i] = i % K; }
+  const rand = () =&gt; { const m = new Float32Array(K * K); for (let i = 0; i &lt; K * K; i++) m[i] = Math.random() * 2 - 1; return m; };
+  let from = rand(), to = rand(), M = new Float32Array(K * K), epoch = 0;
+  const ptr = { x: 0, y: 0, on: false };
+  const at = e =&gt; { const r = canvas.getBoundingClientRect(); ptr.x = ((e.clientX - r.left) / r.width) * A; ptr.y = (e.clientY - r.top) / r.height; };
+  const down = e =&gt; { ptr.on = true; at(e); canvas.setPointerCapture(e.pointerId); };
+  const move = e =&gt; { if (ptr.on) at(e); };
+  const up = () =&gt; { ptr.on = false; };
+  canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+
+  const BETA = 0.3, cell = new Int32Array(N), heads = new Map();
+  function step(dt) {
+    const R = PARAMS.range, gx = Math.max(1, Math.floor(A / R)), gy = Math.max(1, Math.floor(1 / R));
+    heads.clear();
+    for (let i = 0; i &lt; N; i++) { const k = (Math.floor((x[i] / A) * gx) % gx) * gy + (Math.floor(y[i] * gy) % gy); cell[i] = heads.get(k) ?? -1; heads.set(k, i); }   // linked lists per cell
+    const fr = Math.pow(0.5, dt / 0.04), F = 9 * R;
+    for (let i = 0; i &lt; N; i++) {
+      let ax = 0, ay = 0;
+      const cx = Math.floor((x[i] / A) * gx), cy = Math.floor(y[i] * gy), row = sp[i] * K;
+      for (let ox = -1; ox &lt;= 1; ox++) for (let oy = -1; oy &lt;= 1; oy++) {
+        let j = heads.get((((cx + ox) % gx + gx) % gx) * gy + (((cy + oy) % gy + gy) % gy)) ?? -1;
+        while (j &gt;= 0) {
+          if (j !== i) {
+            let dx = x[j] - x[i], dy = y[j] - y[i];
+            if (dx &gt; A / 2) dx -= A; else if (dx &lt; -A / 2) dx += A; if (dy &gt; 0.5) dy -= 1; else if (dy &lt; -0.5) dy += 1;   // the box wraps
+            const d = Math.sqrt(dx * dx + dy * dy) / R;
+            if (d &gt; 0 &amp;&amp; d &lt; 1) {
+              const f = d &lt; BETA ? d / BETA - 1 : M[row + sp[j]] * (1 - Math.abs(2 * d - 1 - BETA) / (1 - BETA));
+              ax += (dx / (d * R)) * f; ay += (dy / (d * R)) * f;
+            }
+          }
+          j = cell[j];
+        }
+      }
+      if (ptr.on) { const dx = x[i] - ptr.x, dy = y[i] - ptr.y, d2 = dx * dx + dy * dy; if (d2 &lt; 0.02) { ax += (dx / Math.sqrt(d2 + 1e-4)) * 8; ay += (dy / Math.sqrt(d2 + 1e-4)) * 8; } }
+      vx[i] = vx[i] * fr + ax * F * dt; vy[i] = vy[i] * fr + ay * F * dt;
+    }
+    for (let i = 0; i &lt; N; i++) { x[i] = (x[i] + vx[i] * dt + A) % A; y[i] = (y[i] + vy[i] * dt + 1) % 1; }
+  }
+
+  let raf, last = performance.now(), time = 0;
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now; time += dt;
+    // the table drifts to a new random one every 30 s (over 6 s)
+    if (time - epoch * 30 &gt; 30) { epoch++; from = M.slice(); to = rand(); }
+    const k = Math.min(1, (time - epoch * 30) / 6), e = k * k * (3 - 2 * k);
+    for (let i = 0; i &lt; K * K; i++) M[i] = from[i] + (to[i] - from[i]) * e;
+    step(dt);
+    // short trails: fade the last frame instead of clearing it
+    ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(5,6,10,.22)'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    const s = Math.max(6, H / 66);
+    for (let i = 0; i &lt; N; i++) ctx.drawImage(sprites[sp[i]], (x[i] / A) * W - s / 2, y[i] * H - s / 2, s, s);
+    ctx.globalCompositeOperation = 'source-over';
+    raf = requestAnimationFrame(frame);
+  }
+  // let the first creatures form before anyone looks
+  for (let i = 0; i &lt; K * K; i++) M[i] = from[i];
+  for (let i = 0; i &lt; 90; i++) step(1 / 60);
+  raf = requestAnimationFrame(frame);
+  return () =&gt; {
+    cancelAnimationFrame(raf); ro.disconnect();
+    canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move); canvas.removeEventListener('pointerup', up); canvas.removeEventListener('pointercancel', up);
+    canvas.remove();
+  };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

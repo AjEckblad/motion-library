@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button to menu: One surface, a rounded clip-path opening from the button corner · Motion Library</title>
+<meta name="description" content="Button to menu is a DOM effect: one surface, a rounded clip-path opening from the button corner. One plain JavaScript file with no dependencies; add it with npx motion-library add button-menu.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/button-menu.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Button to menu · Motion Library">
+<meta property="og:description" content="One surface, a rounded clip-path opening from the button corner">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/button-menu.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Button to menu",
+  "description": "One surface, a rounded clip-path opening from the button corner",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Morph & SVG, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/button-menu.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/button-menu.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Morph & SVG",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/morph"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Button to menu",
+    "item": "https://ajeckblad.github.io/motion-library/fx/button-menu.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/morph">Morph &amp; SVG</a></header>
+<main class="s-page">
+<article>
+<h1>Button to menu</h1>
+<p class="tldr">Button to menu is a DOM effect: one surface, a rounded clip-path opening from the button corner. One plain JavaScript file with no dependencies; add it with npx motion-library add button-menu.</p>
+<figure><img src="../posters/button-menu.webp" alt="Button to menu: One surface, a rounded clip-path opening from the button corner" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/button-menu">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Button to menu?</h2>
+<p>A Share button opens into its menu as one dark surface, then closes back into the button.</p>
+
+<h2>How does Button to menu work?</h2>
+<p>A clip-path inset with rounded corners shows only the button-sized corner, then opens to the full menu; items follow in a short stagger and leave first.</p>
+
+<h2>How do I add Button to menu to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add button-menu</code>. It writes <code>animations/button-menu.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/button-menu.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add button-menu --duration 600</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Morph (ms)</td><td><code>--duration</code></td><td>300</td><td>150 to 600</td><td>10</td></tr>
+<tr><td>Item stagger (ms)</td><td><code>--stagger</code></td><td>35</td><td>0 to 100</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Morph &amp; SVG</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Button to menu: the Share button and its menu are one surface. A clip-path with rounded corners shows only the button-sized corner, then opens to the full menu and back, so the menu grows out of the thing you pressed instead of a second box appearing beside it.
+const PARAMS = { duration: 300, stagger: 35 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.createElement('div');
+  root.className = 'bm-root';
+  const items = [['Copy link', 'M9 15l6-6M10.5 6.5l1.8-1.8a4 4 0 015.7 5.7l-1.8 1.8M13.5 17.5l-1.8 1.8a4 4 0 01-5.7-5.7l1.8-1.8'], ['Invite people', 'M15 19a5 5 0 00-10 0M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM18 8v6M15 11h6'], ['Export as PDF', 'M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14'], ['Publish to web', 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z']];
+  root.innerHTML = `&lt;style&gt;
+    .bm-root { position: absolute; inset: 0; overflow: hidden; background: #efeaee; font-family: system-ui, -apple-system, sans-serif; }
+    .bm-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
+    .bm-doc { position: absolute; left: 24px; top: 20px; width: 372px; height: 300px; border-radius: 16px 16px 0 0; background: #fff; box-shadow: 0 1px 2px rgba(42,15,38,.07), 0 16px 36px -18px rgba(42,15,38,.3); }
+    .bm-bar { position: absolute; left: 0; right: 0; top: 0; height: 54px; border-bottom: 1px solid #f1e8ef; display: flex; align-items: center; padding: 0 16px; gap: 10px; }
+    .bm-file { font-size: 13px; font-weight: 650; color: #1d0b1a; }
+    .bm-saved { font-size: 11px; color: #9a8996; }
+    .bm-av { margin-left: auto; margin-right: 100px; display: flex; }
+    .bm-av i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; margin-left: -6px; }
+    .bm-txt { position: absolute; left: 22px; right: 22px; top: 76px; }
+    .bm-txt h3 { margin: 0 0 10px; font-size: 18px; font-weight: 720; color: #1d0b1a; letter-spacing: -.01em; }
+    .bm-txt p { margin: 0 0 8px; font-size: 12px; line-height: 1.55; color: #5b4657; }
+    .bm-sf { position: absolute; right: 12px; top: 10px; width: 196px; height: 186px; border-radius: 14px; background: #2a0f26; color: #fff; box-shadow: 0 18px 40px -14px rgba(29,11,26,.55); cursor: pointer;
+      clip-path: inset(0 0 152px 108px round 17px); transition: clip-path var(--d) cubic-bezier(0.77, 0, 0.175, 1); }
+    .bm-sf.open { clip-path: inset(0 0 0 0 round 14px); cursor: default; }
+    .bm-lbl { position: absolute; right: 0; top: 0; width: 88px; height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 650; transition: opacity 150ms ease-out, transform 200ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .bm-sf.open .bm-lbl { opacity: 0; transform: translateY(-6px); }
+    .bm-hd { position: absolute; left: 14px; top: 12px; font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #d9a6c8; }
+    .bm-it { position: absolute; left: 6px; right: 6px; height: 34px; border-radius: 8px; display: flex; align-items: center; gap: 10px; padding: 0 9px; font-size: 13px; font-weight: 550; opacity: 0; transform: translateY(-6px); transition: opacity 180ms ease-out, transform 240ms cubic-bezier(0.23, 1, 0.32, 1), background-color 150ms; }
+    .bm-it svg { width: 17px; height: 17px; flex: none; }
+    .bm-it.hi { background: rgba(255,255,255,.1); }
+    .bm-hd { opacity: 0; transition: opacity 180ms ease-out; }
+    .bm-sf.open .bm-it, .bm-sf.open .bm-hd { opacity: 1; transform: none; }
+    .bm-cur { position: absolute; left: 0; top: 0; width: 22px; height: 22px; pointer-events: none; transition: transform 650ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .bm-cur svg { width: 100%; height: 100%; transition: transform 120ms; } .bm-cur.down svg { transform: scale(.86); }
+    ${reduce ? '.bm-sf { transition: none; } .bm-lbl, .bm-it, .bm-sf.open .bm-lbl { transform: none; }' : ''}
+  &lt;/style&gt;
+  &lt;div class=&quot;bm-b&quot;&gt;&lt;div class=&quot;bm-doc&quot;&gt;
+    &lt;div class=&quot;bm-bar&quot;&gt;&lt;span class=&quot;bm-file&quot;&gt;Survey notes&lt;/span&gt;&lt;span class=&quot;bm-saved&quot;&gt;Saved&lt;/span&gt;
+      &lt;span class=&quot;bm-av&quot;&gt;&lt;i style=&quot;background:#e9a8cf&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#9fc3e8&quot;&gt;&lt;/i&gt;&lt;i style=&quot;background:#f3c98b&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;bm-txt&quot;&gt;&lt;h3&gt;Planning the coastal survey&lt;/h3&gt;&lt;p&gt;We walk the north transect at low tide on the 14th and 15th, starting from the harbour steps at 7 am.&lt;/p&gt;&lt;p&gt;Bring the tide tables, two spare batteries for the GPS units and dry bags for the notebooks.&lt;/p&gt;&lt;/div&gt;
+    &lt;div class=&quot;bm-sf&quot; role=&quot;button&quot; aria-label=&quot;Share&quot; aria-expanded=&quot;false&quot;&gt;
+      &lt;div class=&quot;bm-lbl&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;15&quot; height=&quot;15&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M12 15V4M7.5 8.5L12 4l4.5 4.5M5 13v6h14v-6&quot;/&gt;&lt;/svg&gt;Share&lt;/div&gt;
+      &lt;div class=&quot;bm-hd&quot;&gt;Share draft&lt;/div&gt;
+      ${items.map(([t, d], i) =&gt; `&lt;div class=&quot;bm-it&quot; style=&quot;top:${32 + i * 37}px&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#e9a8cf&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;${d}&quot;/&gt;&lt;/svg&gt;${t}&lt;/div&gt;`).join('')}
+    &lt;/div&gt;
+  &lt;/div&gt;&lt;div class=&quot;bm-cur&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;M5 3l14 8-6.2 1.6L10 19z&quot; fill=&quot;#1d0b1a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.6&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.bm-b'), sf = root.querySelector('.bm-sf'), cur = root.querySelector('.bm-cur');
+  const its = [...root.querySelectorAll('.bm-it')];
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / 420, stage.clientHeight / 320); board.style.transform = `scale(${s}) translate(-50%, -50%)`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  sf.style.setProperty('--d', PARAMS.duration + 'ms');
+  let open = false, manual = -1e9;
+  const setOpen = o =&gt; {
+    open = o; sf.classList.toggle('open', o); sf.setAttribute('aria-expanded', o);
+    // reduced motion: the surface snaps between button and menu and fades in, instead of growing
+    if (reduce) sf.animate([{ opacity: 0 }, { opacity: 1 }], { duration: PARAMS.duration * 0.7, easing: 'ease-out' });
+    // Items follow the surface in on the way out; on the way back they leave together, before it closes over them.
+    its.forEach((el, i) =&gt; { el.style.transitionDelay = o ? PARAMS.duration * 0.45 + i * PARAMS.stagger + 'ms' : '0ms'; el.classList.remove('hi'); });
+  };
+  const onClick = e =&gt; { manual = performance.now(); if (!open) setOpen(true); else if (e.target.closest('.bm-it')) setOpen(false); };
+  const onDoc = e =&gt; { if (open &amp;&amp; !sf.contains(e.target)) { manual = performance.now(); setOpen(false); } };
+  sf.addEventListener('click', onClick); root.addEventListener('pointerdown', onDoc);
+
+  const T = new Set(), after = (ms, f) =&gt; { const id = setTimeout(() =&gt; { T.delete(id); f(); }, ms); T.add(id); };
+  const move = (x, y) =&gt; { cur.style.transform = `translate(${x}px, ${y}px)`; };
+  const auto = () =&gt; performance.now() - manual &gt; 4000;
+  const press = f =&gt; { cur.classList.add('down'); after(120, () =&gt; { cur.classList.remove('down'); if (auto()) f(); }); };
+  move(240, 250);
+  const cycle = () =&gt; {
+    move(338, 42); after(700, () =&gt; press(() =&gt; setOpen(true)));
+    after(1300, () =&gt; move(300, 92 + 37 * 2));
+    after(1900, () =&gt; { if (auto()) its[2].classList.add('hi'); });
+    after(2700, () =&gt; press(() =&gt; setOpen(false)));
+    after(3300, () =&gt; move(250, 250));
+    after(4600, cycle);
+  };
+  after(200, cycle);
+  return () =&gt; { T.forEach(clearTimeout); T.clear(); ro.disconnect(); sf.removeEventListener('click', onClick); root.removeEventListener('pointerdown', onDoc); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

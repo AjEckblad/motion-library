@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guilloche spirograph: A hypotrochoid, drawn as a seven-line ribbon · Motion Library</title>
+<meta name="description" content="Guilloche spirograph is a Canvas effect: a hypotrochoid, drawn as a seven-line ribbon. One plain JavaScript file with no dependencies; add it with npx motion-library add guilloche.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/guilloche.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Guilloche spirograph · Motion Library">
+<meta property="og:description" content="A hypotrochoid, drawn as a seven-line ribbon">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/guilloche.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Guilloche spirograph",
+  "description": "A hypotrochoid, drawn as a seven-line ribbon",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Shaders & glitch, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/guilloche.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/guilloche.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Shaders & glitch",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/shaders"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Guilloche spirograph",
+    "item": "https://ajeckblad.github.io/motion-library/fx/guilloche.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/shaders">Shaders &amp; glitch</a></header>
+<main class="s-page">
+<article>
+<h1>Guilloche spirograph</h1>
+<p class="tldr">Guilloche spirograph is a Canvas effect: a hypotrochoid, drawn as a seven-line ribbon. One plain JavaScript file with no dependencies; add it with npx motion-library add guilloche.</p>
+<figure><img src="../posters/guilloche.webp" alt="Guilloche spirograph: A hypotrochoid, drawn as a seven-line ribbon" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/guilloche">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Guilloche spirograph?</h2>
+<p>Engraved banknote-style rosettes of fine looping lines.</p>
+
+<h2>How does Guilloche spirograph work?</h2>
+<p>Hypotrochoids, a point on a small circle rolling inside a big one, closing for whole-number ratios; seven slightly offset copies give the engraved look.</p>
+
+<h2>How do I add Guilloche spirograph to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add guilloche</code>. It writes <code>animations/guilloche.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/guilloche.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add guilloche --R 12</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Big circle</td><td><code>--R</code></td><td>7</td><td>3 to 12</td><td>1</td></tr>
+<tr><td>Small circle</td><td><code>--r</code></td><td>4</td><td>1 to 9</td><td>1</td></tr>
+<tr><td>Pen offset</td><td><code>--d</code></td><td>5.2</td><td>1 to 9</td><td>0.1</td></tr>
+<tr><td>Lines</td><td><code>--lines</code></td><td>7</td><td>1 to 12</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Shaders &amp; glitch</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>2.4 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Guilloche spirograph: a hypotrochoid (a pen on a small circle rolling inside a big one), drawn as a ribbon
+// of slightly offset lines, like the engraving on a banknote. Whole-number R and r close the loop.
+const PARAMS = { R: 7, r: 4, d: 5.2, lines: 7 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const gcd = (a, b) =&gt; b ? gcd(b, a % b) : a;
+  const R = Math.round(PARAMS.R), r = Math.max(1, Math.min(R - 1, Math.round(PARAMS.r)));
+  const turns = r / gcd(R, r);                                   // full turns until the curve closes
+  const N = 2600, lines = Math.round(PARAMS.lines);
+  const point = (t, d) =&gt; [(R - r) * Math.cos(t) + d * Math.cos(((R - r) / r) * t), (R - r) * Math.sin(t) - d * Math.sin(((R - r) / r) * t)];
+  let raf; const t0 = performance.now(), CYCLE = 6500;
+  function frame(now) {
+    const ph = ((now - t0) % CYCLE) / CYCLE;
+    const draw = Math.min(1, ph / 0.7), fade = ph &gt; 0.85 ? 1 - (ph - 0.85) / 0.15 : 1;
+    const ease = 1 - Math.pow(1 - draw, 2.2);
+    ctx.fillStyle = '#0c0d0b'; ctx.fillRect(0, 0, W, H);
+    const scale = (Math.min(W, H) * 0.44) / (R - r + PARAMS.d + lines * 0.12);
+    ctx.save(); ctx.translate(W / 2, H / 2); ctx.rotate(now / 9000);
+    ctx.globalAlpha = fade; ctx.lineWidth = 1;
+    const upto = Math.floor(N * ease);
+    for (let l = 0; l &lt; lines; l++) {
+      const d = PARAMS.d + (l - (lines - 1) / 2) * 0.12;
+      ctx.strokeStyle = l % 2 ? '#eef79a' : '#b5d44a';
+      ctx.beginPath();
+      for (let i = 0; i &lt;= upto; i++) { const [x, y] = point((i / N) * Math.PI * 2 * turns, d); i ? ctx.lineTo(x * scale, y * scale) : ctx.moveTo(x * scale, y * scale); }
+      ctx.stroke();
+    }
+    if (draw &lt; 1) { const [x, y] = point((upto / N) * Math.PI * 2 * turns, PARAMS.d); ctx.fillStyle = '#ff7a3d'; ctx.beginPath(); ctx.arc(x * scale, y * scale, 4, 0, 7); ctx.fill(); }
+    ctx.restore();
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

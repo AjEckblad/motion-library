@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D card flip: rotateY on a spring, with the back face hidden · Motion Library</title>
+<meta name="description" content="3D card flip is a DOM effect: rotateY on a spring, with the back face hidden. One plain JavaScript file with no dependencies; add it with npx motion-library add card-flip.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/card-flip.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="3D card flip · Motion Library">
+<meta property="og:description" content="rotateY on a spring, with the back face hidden">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/card-flip.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "3D card flip",
+  "description": "rotateY on a spring, with the back face hidden",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Basics, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/card-flip.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/card-flip.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Basics",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/basics"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "3D card flip",
+    "item": "https://ajeckblad.github.io/motion-library/fx/card-flip.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/basics">Basics</a></header>
+<main class="s-page">
+<article>
+<h1>3D card flip</h1>
+<p class="tldr">3D card flip is a DOM effect: rotateY on a spring, with the back face hidden. One plain JavaScript file with no dependencies; add it with npx motion-library add card-flip.</p>
+<figure><img src="../posters/card-flip.webp" alt="3D card flip: rotateY on a spring, with the back face hidden" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/card-flip">Open it live, tune it and copy the code</a></p>
+
+<h2>What is 3D card flip?</h2>
+<p>At checkout the card preview turns over when the CVC field gets focus, and back afterwards.</p>
+
+<h2>How does 3D card flip work?</h2>
+<p>Two faces sit back to back with backface-visibility hidden and perspective on the parent; a spring drives the angle, so it overshoots slightly and settles.</p>
+
+<h2>How do I add 3D card flip to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add card-flip</code>. It writes <code>animations/card-flip.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/card-flip.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add card-flip --perspective 2000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Perspective (px)</td><td><code>--perspective</code></td><td>900</td><td>300 to 2000</td><td>10</td></tr>
+<tr><td>Stiffness</td><td><code>--stiffness</code></td><td>160</td><td>40 to 400</td><td>5</td></tr>
+<tr><td>Damping</td><td><code>--damping</code></td><td>13</td><td>4 to 40</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Basics</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// 3D card flip: at checkout, the card preview turns over on a spring when the CVC field takes focus, and turns back when you leave it.
+// Two faces are glued back to back with the far one hidden; perspective on the parent gives the turn depth, and the spring lets it overshoot a few degrees and settle like a real card.
+const PARAMS = { perspective: 900, stiffness: 160, damping: 13 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AW = 440, AH = 232;
+  const root = document.createElement('div');
+  root.className = 'cf-root';
+  root.innerHTML = `&lt;style&gt;
+    .cf-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .cf-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 18px; display: grid; grid-template-columns: 222px 1fr; gap: 18px; align-items: center; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
+    .cf-scene { position: relative; height: 140px; }
+    .cf-shadow { position: absolute; left: 12%; right: 12%; bottom: -10px; height: 18px; border-radius: 50%; background: rgba(20,30,80,.32); filter: blur(9px); }
+    .cf-card { position: absolute; inset: 0; transform-style: preserve-3d; }
+    .cf-face { position: absolute; inset: 0; border-radius: 12px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; color: #fff; }
+    .cf-front { background: radial-gradient(120% 90% at 85% 0%, rgba(255,255,255,.18), transparent 55%), linear-gradient(135deg, #3651c9, #1b2b70); padding: 14px 16px; box-sizing: border-box; }
+    .cf-chip { position: absolute; left: 16px; top: 38px; width: 30px; height: 23px; border-radius: 5px; background: linear-gradient(135deg, #f1d58c, #c9a24c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+    .cf-chip::before { content: &quot;&quot;; position: absolute; inset: 7px 0; border-top: 1px solid rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.18); }
+    .cf-bank { font-size: 11px; font-weight: 700; letter-spacing: .06em; opacity: .9; }
+    .cf-wave { position: absolute; right: 16px; top: 40px; width: 18px; height: 18px; }
+    .cf-num { position: absolute; left: 16px; top: 76px; font-size: 15px; font-weight: 560; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+    .cf-foot { position: absolute; left: 16px; right: 16px; bottom: 12px; display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; letter-spacing: .04em; }
+    .cf-foot small { display: block; font-size: 7.5px; font-weight: 600; opacity: .65; margin-bottom: 2px; letter-spacing: .08em; }
+    .cf-back { transform: rotateY(180deg); background: linear-gradient(135deg, #2c45b4, #1b2b70); }
+    .cf-stripe { position: absolute; left: 0; right: 0; top: 18px; height: 28px; background: #0d1230; }
+    .cf-sign { position: absolute; left: 16px; right: 58px; top: 62px; height: 26px; border-radius: 3px; background: repeating-linear-gradient(-45deg, #f3f1ea 0 5px, #e6e2d6 5px 7px); }
+    .cf-cvc { position: absolute; right: 16px; top: 62px; width: 38px; height: 26px; border-radius: 3px; background: #fff; color: #15171a; display: grid; place-items: center; font: italic 600 13px/1 ui-monospace, Menlo, monospace; }
+    .cf-cvc::after { content: &quot;&quot;; position: absolute; inset: -4px; border-radius: 6px; box-shadow: 0 0 0 2px #ffd43b; opacity: var(--hl, 0); }
+    .cf-note { position: absolute; left: 16px; right: 16px; bottom: 14px; font-size: 7.5px; line-height: 1.4; opacity: .6; }
+    .cf-form h3 { margin: 0 0 12px; font-size: 16px; font-weight: 700; letter-spacing: -0.015em; font-stretch: 106%; }
+    .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .cf-field label { display: block; font-size: 10.5px; font-weight: 600; color: #5b6066; margin-bottom: 4px; }
+    .cf-input { position: relative; height: 34px; border-radius: 9px; box-shadow: inset 0 0 0 1px #dce1ea; padding: 0 10px; display: flex; align-items: center; font-size: 13px; font-weight: 520; font-variant-numeric: tabular-nums; }
+    .cf-input::after { content: &quot;&quot;; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px #3b5bdb, 0 0 0 3px rgba(59,91,219,.16); opacity: 0; transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .cf-input.on::after { opacity: 1; }
+    .cf-caret { width: 1.5px; height: 15px; margin-left: 1px; background: #3b5bdb; display: none; animation: cf-blink 1s steps(1) infinite; }
+    .cf-input.on .cf-caret { display: block; }
+    .cf-ph { color: #9aa0a6; }
+    @keyframes cf-blink { 50% { opacity: 0; } }
+  &lt;/style&gt;
+  &lt;div class=&quot;cf-board&quot;&gt;
+    &lt;div class=&quot;cf-scene&quot;&gt;&lt;div class=&quot;cf-shadow&quot;&gt;&lt;/div&gt;&lt;div class=&quot;cf-card&quot;&gt;
+      &lt;div class=&quot;cf-face cf-front&quot;&gt;&lt;div class=&quot;cf-bank&quot;&gt;DEBIT&lt;/div&gt;&lt;div class=&quot;cf-chip&quot;&gt;&lt;/div&gt;
+        &lt;svg class=&quot;cf-wave&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; opacity=&quot;.85&quot;&gt;&lt;path d=&quot;M8 7a8 8 0 0 1 0 10M12 4.5a12 12 0 0 1 0 15M16 2a16 16 0 0 1 0 20&quot;/&gt;&lt;/svg&gt;
+        &lt;div class=&quot;cf-num&quot;&gt;•••• •••• •••• 3390&lt;/div&gt;
+        &lt;div class=&quot;cf-foot&quot;&gt;&lt;div&gt;&lt;small&gt;CARDHOLDER&lt;/small&gt;MAYA OKAFOR&lt;/div&gt;&lt;div&gt;&lt;small&gt;EXPIRES&lt;/small&gt;09/28&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;cf-face cf-back&quot;&gt;&lt;div class=&quot;cf-stripe&quot;&gt;&lt;/div&gt;&lt;div class=&quot;cf-sign&quot;&gt;&lt;/div&gt;&lt;div class=&quot;cf-cvc&quot;&gt;&lt;/div&gt;&lt;div class=&quot;cf-note&quot;&gt;The 3 digits next to the signature strip are your security code.&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;cf-form&quot;&gt;&lt;h3&gt;Pay with card&lt;/h3&gt;
+      &lt;div class=&quot;cf-field&quot;&gt;&lt;label&gt;Name on card&lt;/label&gt;&lt;div class=&quot;cf-input&quot; data-f=&quot;name&quot;&gt;Maya Okafor&lt;i class=&quot;cf-caret&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;cf-row&quot;&gt;&lt;div class=&quot;cf-field&quot;&gt;&lt;label&gt;Expiry&lt;/label&gt;&lt;div class=&quot;cf-input&quot; data-f=&quot;exp&quot;&gt;09 / 28&lt;i class=&quot;cf-caret&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;cf-field&quot;&gt;&lt;label&gt;CVC&lt;/label&gt;&lt;div class=&quot;cf-input&quot; data-f=&quot;cvc&quot;&gt;&lt;span class=&quot;cf-ph&quot;&gt;123&lt;/span&gt;&lt;i class=&quot;cf-caret&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.cf-board'), scene = root.querySelector('.cf-scene'), card = root.querySelector('.cf-card'), shadow = root.querySelector('.cf-shadow');
+  const backCvc = root.querySelector('.cf-cvc'), back = root.querySelector('.cf-back');
+  const inputs = Object.fromEntries([...root.querySelectorAll('.cf-input')].map(el =&gt; [el.dataset.f, el]));
+  scene.style.perspective = PARAMS.perspective + 'px';
+  // Reduced motion: no turn; the back face sits flat on top and cross-fades in and out.
+  if (reduce) { back.style.transform = 'none'; back.style.opacity = '0'; back.style.transition = 'opacity 220ms ease'; }
+
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / AW, stage.clientHeight / AH) * 0.92; board.style.transform = `translate(-50%, -50%) scale(${Math.min(s, 1.6)})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  let target = 0;
+  const focus = f =&gt; Object.entries(inputs).forEach(([k, el]) =&gt; el.classList.toggle('on', k === f));
+  const setCvc = v =&gt; {
+    inputs.cvc.firstChild.replaceWith(Object.assign(document.createElement('span'), { className: v ? '' : 'cf-ph', textContent: v || '123' }));
+    backCvc.textContent = v;
+  };
+  function cycle() {
+    focus('name'); target = 0; back.style.setProperty('--hl', 0);
+    later(() =&gt; focus('exp'), 1000);
+    later(() =&gt; { focus('cvc'); target = 180; }, 2000);
+    later(() =&gt; back.style.setProperty('--hl', 1), 2400);
+    ['4', '47', '472'].forEach((v, i) =&gt; later(() =&gt; setCvc(v), 2650 + i * 170));
+    later(() =&gt; { focus('name'); target = 0; }, 4300);
+    later(() =&gt; { setCvc(''); back.style.setProperty('--hl', 0); }, 5300);
+    later(cycle, 5600);
+  }
+  cycle();
+
+  let angle = 0, vel = 0, last = performance.now(), raf;
+  function frame(now) {
+    if (reduce) { back.style.opacity = target ? '1' : '0'; raf = requestAnimationFrame(frame); return; }
+    const dt = Math.min(0.032, (now - last) / 1000); last = now;
+    // semi-implicit Euler, 4 substeps for stability
+    for (let i = 0; i &lt; 4; i++) {
+      const h = dt / 4, acc = -PARAMS.stiffness * (angle - target) - PARAMS.damping * vel;
+      vel += acc * h; angle += vel * h;
+    }
+    const side = Math.abs(Math.sin(angle * Math.PI / 180));
+    card.style.transform = `rotateY(${angle.toFixed(2)}deg) scale(${(1 + 0.06 * side).toFixed(4)})`;
+    shadow.style.opacity = (1 - 0.55 * side).toFixed(3);
+    shadow.style.transform = `scaleX(${(1 - 0.3 * side).toFixed(3)})`;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { timers.forEach(clearTimeout); cancelAnimationFrame(raf); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

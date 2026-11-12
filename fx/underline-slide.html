@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sliding underline: One underline travels between links and stretches · Motion Library</title>
+<meta name="description" content="Sliding underline is a DOM effect: one underline travels between links and stretches. One plain JavaScript file with no dependencies; add it with npx motion-library add underline-slide.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/underline-slide.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Sliding underline · Motion Library">
+<meta property="og:description" content="One underline travels between links and stretches">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/underline-slide.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Sliding underline",
+  "description": "One underline travels between links and stretches",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/underline-slide.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/underline-slide.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Sliding underline",
+    "item": "https://ajeckblad.github.io/motion-library/fx/underline-slide.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>Sliding underline</h1>
+<p class="tldr">Sliding underline is a DOM effect: one underline travels between links and stretches. One plain JavaScript file with no dependencies; add it with npx motion-library add underline-slide.</p>
+<figure><img src="../posters/underline-slide.webp" alt="Sliding underline: One underline travels between links and stretches" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/underline-slide">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Sliding underline?</h2>
+<p>One nav underline slides to the hovered link and returns to the current page when the cursor leaves.</p>
+
+<h2>How does Sliding underline work?</h2>
+<p>Its two ends ride separate springs, the leading end quicker, so it stretches toward the target; drawn with translateX and scaleX only.</p>
+
+<h2>How do I add Sliding underline to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add underline-slide</code>. It writes <code>animations/underline-slide.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/underline-slide.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add underline-slide --stiffness 800</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Stiffness</td><td><code>--stiffness</code></td><td>260</td><td>60 to 800</td><td>10</td></tr>
+<tr><td>Stretch</td><td><code>--stretch</code></td><td>0.45</td><td>0 to 0.85</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Sliding underline in a site nav: one underline travels to whichever link is hovered and goes home to the current page
+// when the cursor leaves the nav. Its two ends ride separate springs, the leading end quicker than the trailing one, so the
+// bar stretches as it travels and gathers up when it lands. It feels right because one object moving is easier to follow than links blinking on and off.
+const PARAMS = { stiffness: 260, stretch: 0.45 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const links = ['Work', 'Services', 'Studio', 'Journal', 'Contact'], current = 3;
+  const root = document.createElement('div');
+  root.className = 'us-root';
+  root.innerHTML = `&lt;style&gt;
+    .us-root { position: absolute; inset: 0; overflow: hidden; background: #fff; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .us-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .us-bar { position: absolute; left: 0; right: 0; top: 0; height: 68px; display: flex; align-items: center; padding: 0 28px; border-bottom: 1px solid #eceef0; }
+    .us-mark { width: 24px; height: 24px; border-radius: 7px; background: #b07a00; margin-right: 22px; position: relative; flex: none; } .us-mark::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: #fff; }
+    .us-nav { position: relative; display: flex; gap: 4px; height: 100%; align-items: center; }
+    .us-link { padding: 0 11px; height: 100%; display: flex; align-items: center; font-size: 14px; font-weight: 560; color: #6b7076; transition: color .15s ease; }
+    .us-link.hot, .us-link.cur { color: #15171a; }
+    .us-line { position: absolute; left: 0; bottom: -1px; width: 100px; height: 2.5px; border-radius: 2px; background: #15171a; transform-origin: 0 50%; will-change: transform; }
+    .us-cta { margin-left: auto; height: 34px; padding: 0 14px; border-radius: 999px; background: #15171a; color: #fff; font-size: 12.5px; font-weight: 620; display: flex; align-items: center; white-space: nowrap; }
+    .us-body { position: absolute; left: 28px; right: 28px; top: 100px; }
+    .us-body h1 { margin: 0; font-size: 40px; font-weight: 740; letter-spacing: -0.04em; }
+    .us-body p { margin: 6px 0 22px; font-size: 13.5px; color: #5b6066; }
+    .us-post { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid #eceef0; }
+    .us-thumb { width: 64px; height: 44px; border-radius: 8px; flex: none; }
+    .us-post b { display: block; font-size: 14.5px; font-weight: 650; letter-spacing: -0.01em; } .us-post span { font-size: 12px; color: #7a7f85; }
+    .us-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.3)); }
+  &lt;/style&gt;&lt;div class=&quot;us-scene&quot;&gt;
+    &lt;div class=&quot;us-bar&quot;&gt;&lt;div class=&quot;us-mark&quot;&gt;&lt;/div&gt;&lt;nav class=&quot;us-nav&quot;&gt;${links.map((l, i) =&gt; `&lt;span class=&quot;us-link${i === current ? ' cur' : ''}&quot;&gt;${l}&lt;/span&gt;`).join('')}&lt;i class=&quot;us-line&quot;&gt;&lt;/i&gt;&lt;/nav&gt;&lt;span class=&quot;us-cta&quot;&gt;Get in touch&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;us-body&quot;&gt;&lt;h1&gt;Journal&lt;/h1&gt;&lt;p&gt;Notes on building small, careful products.&lt;/p&gt;
+      &lt;div class=&quot;us-post&quot;&gt;&lt;i class=&quot;us-thumb&quot; style=&quot;background:linear-gradient(135deg,#ffd8a8,#f08c4a)&quot;&gt;&lt;/i&gt;&lt;div&gt;&lt;b&gt;How we price fixed-scope projects&lt;/b&gt;&lt;span&gt;Business · 4 min read&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;us-post&quot;&gt;&lt;i class=&quot;us-thumb&quot; style=&quot;background:linear-gradient(135deg,#c5f6fa,#3bc9db)&quot;&gt;&lt;/i&gt;&lt;div&gt;&lt;b&gt;Designing empty states people actually read&lt;/b&gt;&lt;span&gt;Design · 7 min read&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.us-scene'), nav = root.querySelector('.us-nav'), line = root.querySelector('.us-line');
+  const L = [...scene.querySelectorAll('.us-link')];
+  let s = 1;
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const box = el =&gt; { let x = 0, y = 0, e = el; while (e &amp;&amp; e !== scene) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; } return { x, y, w: el.offsetWidth, h: el.offsetHeight }; };
+  const at = (el, fx, fy) =&gt; () =&gt; { const b = box(el); return { x: b.x + b.w * fx, y: b.y + b.h * fy }; };
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+
+  // simulated cursor: browses the nav link by link, then drops into the page; the real pointer takes over while it is on the stage
+  const steps = [
+    { to: pt(120, 250), move: 300, hold: 500 },
+    { to: at(L[0], 0.5, 0.62), move: 800, hold: 800 },
+    { to: at(L[1], 0.5, 0.6), move: 380, hold: 700 },
+    { to: at(L[2], 0.5, 0.64), move: 380, hold: 700 },
+    { to: at(L[4], 0.45, 0.6), move: 600, hold: 900 },
+    { to: at(L[1], 0.55, 0.6), move: 700, hold: 800 },
+    { to: pt(330, 230), move: 800, hold: 1000 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'us-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#15171a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.08;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  // the underline's two ends, in nav coordinates; each rides a critically damped spring
+  const nb = () =&gt; box(nav);
+  const span = i =&gt; ({ l: L[i].offsetLeft + 11, r: L[i].offsetLeft + L[i].offsetWidth - 11 });
+  const home = span(current);
+  const left = { x: home.l, v: 0 }, right = { x: home.r, v: 0 };
+  const spring = (p, t, k, dt) =&gt; { p.v += (-k * (p.x - t) - 2 * Math.sqrt(k) * p.v) * dt; p.x += p.v * dt; };
+  let last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.032, (now - last) / 1000); last = now;
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    const n = nb(); let hot = -1;
+    L.forEach((el, i) =&gt; { const x = n.x + el.offsetLeft; if (c.y &gt; n.y &amp;&amp; c.y &lt; n.y + n.h &amp;&amp; c.x &gt;= x &amp;&amp; c.x &lt; x + el.offsetWidth) hot = i; });
+    L.forEach((el, i) =&gt; el.classList.toggle('hot', i === hot));
+    const t = span(hot &gt;= 0 ? hot : current);
+    const goingRight = t.l &gt; left.x;
+    const fast = PARAMS.stiffness, slow = PARAMS.stiffness * (1 - PARAMS.stretch);
+    // reduced motion: the underline doesn't slide or stretch; it cuts to the new link and fades in there
+    if (reduce) { if (t.l !== left.x) line.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 }); left.x = t.l; right.x = t.r; }
+    else for (let i = 0; i &lt; 2; i++) { spring(left, t.l, goingRight ? slow : fast, dt / 2); spring(right, t.r, goingRight ? fast : slow, dt / 2); }
+    line.style.transform = `translateX(${left.x}px) scaleX(${Math.max(0.02, (right.x - left.x) / 100)})`;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,155 @@
+// Galton board: glass beads pour through a triangle of brass pegs. At every peg a bead goes left or right, more or
+// less a coin toss, so where it lands is the sum of a dozen coin tosses, and sums of coin tosses pile up as a bell
+// curve: the binomial distribution, which tends to the normal one. The beads are real little bodies: they bounce
+// off pegs, knock into each other and stack in the bins. Their colour shifts as the run goes on, so each bin shows its
+// history in layers. The chalk line is what theory expects for this many beads. Then the floor opens and it starts again.
+const PARAMS = { beads: 400, rows: 12, rate: 26 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 1, H = 1, u = 1, ox = 0, oy = 0;
+  const R = Math.max(4, Math.min(16, Math.round(PARAMS.rows))), NB = Math.max(50, Math.round(PARAMS.beads));
+  const resize = () => {
+    const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    canvas.width = Math.max(1, (W * d) | 0); canvas.height = Math.max(1, (H * d) | 0); ctx.setTransform(d, 0, 0, d, 0, 0);
+    u = Math.min(W * 0.92, (H * 0.96) / 1.04); ox = (W - u) / 2; oy = (H - u * 1.04) / 2;
+    sprites = makeSprites(); restart();
+  };
+  // geometry in board units (the board is 1 wide)
+  const dx = 0.78 / (R + 1), dy = dx * 0.86, rb = Math.min(0.0058, dx * 0.085), rp = rb * 1.3;
+  const top = 0.15, rowY = i => top + i * dy, binTop = rowY(R - 1) + dy * 0.7, floor = 1.0;
+  // a full lattice of pegs between the side walls: rows alternate by half a step, and the top row has one dead centre
+  const pegs = []; for (let i = 0; i < R; i++) for (let k = -R; k <= R; k++) { const x = 0.5 + (k + (i % 2) * 0.5) * dx; if (Math.abs(x - 0.5) < (R + 1) / 2 * dx - dx * 0.35) pegs.push([x, rowY(i)]); }
+  const dividers = []; for (let k = 0; k <= R + 1; k++) dividers.push(0.5 + (k - (R + 1) / 2) * dx);
+  const funnel = [[0.28, 0.0, 0.475, 0.085], [0.72, 0.0, 0.525, 0.085]];
+  const walls = funnel;
+
+  // a shaded glass bead per hue, drawn once
+  let sprites = [];
+  const makeSprites = () => Array.from({ length: 16 }, (_, k) => {
+    const c = document.createElement('canvas'), s = 24; c.width = c.height = s; const g = c.getContext('2d');
+    const hue = 195 - k * 11, gr = g.createRadialGradient(s * 0.38, s * 0.34, 0, s / 2, s / 2, s / 2);
+    gr.addColorStop(0, `hsl(${hue} 90% 88%)`); gr.addColorStop(0.35, `hsl(${hue} 75% 58%)`); gr.addColorStop(0.85, `hsl(${hue} 70% 28%)`); gr.addColorStop(1, `hsla(${hue} 70% 18% / 0)`);
+    g.fillStyle = gr; g.beginPath(); g.arc(s / 2, s / 2, s / 2, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.arc(s * 0.36, s * 0.32, s * 0.09, 0, 7); g.fill();
+    return c;
+  });
+
+  let bx, by, vx, vy, hue, bin, live, made, phase, phaseT;
+  function restart() { bx = new Float32Array(NB); by = new Float32Array(NB); vx = new Float32Array(NB); vy = new Float32Array(NB); hue = new Uint8Array(NB); bin = new Int8Array(NB).fill(-1); live = 0; made = 0; phase = 'pour'; phaseT = 0; }
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const G = 2.4, E = 0.2, WALL = 0.0015;
+  const hashCell = rb * 2.2, grid = new Map();
+  function step(h, open) {
+    for (let i = 0; i < live; i++) { vy[i] = Math.min(0.95, vy[i] + G * h); vx[i] *= 1 - 1.5 * h; bx[i] += vx[i] * h; by[i] += vy[i] * h; }   // a speed cap, so nothing tunnels through a peg
+    for (let i = 0; i < live; i++) {
+      // pegs: push out, bounce, and a hair of noise (real boards are chaotic: tiny differences decide left or right)
+      if (by[i] > top - 0.03 && by[i] < binTop) for (const [px, py] of pegs) {
+        const ex = bx[i] - px, ey = by[i] - py, d2 = ex * ex + ey * ey, m = rb + rp;
+        if (d2 < m * m && d2 > 1e-12) {
+          const d = Math.sqrt(d2), nx = ex / d, ny = ey / d; bx[i] = px + nx * m; by[i] = py + ny * m;
+          const vn = vx[i] * nx + vy[i] * ny;
+          if (vn < 0) {
+            vx[i] -= (1 + E) * vn * nx; vy[i] -= (1 + E) * vn * ny;
+            vx[i] = Math.max(-0.21, Math.min(0.21, vx[i] * 0.6 + (Math.random() - 0.5) * 0.05)); vy[i] *= 0.5;   // pegs soak up energy: about half a step sideways per row
+          }
+        }
+      }
+      // the funnel's two slopes
+      for (const [x1, y1, x2, y2] of walls) {
+        const sx = x2 - x1, sy = y2 - y1, t = Math.max(0, Math.min(1, ((bx[i] - x1) * sx + (by[i] - y1) * sy) / (sx * sx + sy * sy)));
+        const qx = x1 + sx * t, qy = y1 + sy * t, ex = bx[i] - qx, ey = by[i] - qy, d = Math.hypot(ex, ey);
+        if (d < rb && d > 1e-9) { const nx = ex / d, ny = ey / d; bx[i] = qx + nx * rb; by[i] = qy + ny * rb; const vn = vx[i] * nx + vy[i] * ny; if (vn < 0) { vx[i] -= 1.3 * vn * nx; vy[i] -= 1.3 * vn * ny; } }
+      }
+      // bin walls and the floor
+      if (bin[i] < 0 && by[i] > binTop) bin[i] = Math.max(0, Math.min(R, Math.floor((bx[i] - dividers[0]) / dx)));   // once in a bin, it stays there
+      if (bx[i] < dividers[0] + rb) { bx[i] = dividers[0] + rb; vx[i] = Math.abs(vx[i]) * 0.3; }
+      if (bx[i] > dividers[R + 1] - rb) { bx[i] = dividers[R + 1] - rb; vx[i] = -Math.abs(vx[i]) * 0.3; }
+      if (!open && by[i] > floor - rb) { by[i] = floor - rb; if (vy[i] > 0) vy[i] *= -0.15; vx[i] *= 0.6; }
+    }
+    // beads against beads: a spatial hash, then push overlapping pairs apart and kill their closing speed
+    for (let pass = 0; pass < 2; pass++) {                      // two relaxation passes keep the stacks from sagging
+    grid.clear();
+    for (let i = 0; i < live; i++) { const k = ((bx[i] / hashCell) | 0) * 4096 + ((by[i] / hashCell) | 0); let a = grid.get(k); if (!a) grid.set(k, a = []); a.push(i); }
+    for (let i = 0; i < live; i++) {
+      const cx = (bx[i] / hashCell) | 0, cy = (by[i] / hashCell) | 0;
+      for (let gx = cx - 1; gx <= cx + 1; gx++) for (let gy = cy - 1; gy <= cy + 1; gy++) {
+        const a = grid.get(gx * 4096 + gy); if (!a) continue;
+        for (const j of a) {
+          if (j <= i) continue;
+          const ex = bx[j] - bx[i], ey = by[j] - by[i], d2 = ex * ex + ey * ey, m = rb * 2;
+          if (d2 < m * m && d2 > 1e-12) {
+            const d = Math.sqrt(d2), nx = ex / d, ny = ey / d, push = (m - d) * 0.5;
+            bx[i] -= nx * push; by[i] -= ny * push; bx[j] += nx * push; by[j] += ny * push;
+            const rel = (vx[j] - vx[i]) * nx + (vy[j] - vy[i]) * ny;
+            if (rel < 0) { const imp = rel * 0.55; vx[i] += imp * nx; vy[i] += imp * ny; vx[j] -= imp * nx; vy[j] -= imp * ny; }
+          }
+        }
+      }
+    }
+    }
+    for (let i = 0; i < live; i++) {
+      const b = bin[i]; if (b < 0) continue;
+      const lo = dividers[b] + rb + WALL, hi = dividers[b + 1] - rb - WALL;
+      if (bx[i] < lo) { bx[i] = lo; vx[i] = Math.abs(vx[i]) * 0.3; } else if (bx[i] > hi) { bx[i] = hi; vx[i] = -Math.abs(vx[i]) * 0.3; }
+      vx[i] *= 0.97; if (Math.abs(vy[i]) < 0.03) vy[i] *= 0.85;   // settle the stacks
+      if (!open && by[i] > floor - rb) by[i] = floor - rb;
+    }
+  }
+
+  // the bell curve: expected beads per bin for this many beads, as a stack height
+  const choose = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i; return r; };
+  const perRow = dx / (rb * 2), rowH = rb * 1.62;                // how tightly the beads actually pack
+
+  let raf, last = performance.now(), spawnAcc = 0;
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now; phaseT += dt;
+    if (phase === 'pour') {
+      spawnAcc += dt * PARAMS.rate;
+      while (spawnAcc > 1 && made < NB) { spawnAcc--; const i = live++; bx[i] = 0.47 + Math.random() * 0.06; by[i] = -0.02 - Math.random() * 0.03; vx[i] = (Math.random() - 0.5) * 0.05; vy[i] = 0.2; hue[i] = Math.min(15, Math.floor((made / NB) * 16)); made++; }
+      if (made >= NB && phaseT > NB / PARAMS.rate + 4) { phase = 'drain'; phaseT = 0; }
+    } else if (phase === 'drain' && phaseT > 3.2) restart();
+    const sub = 6, h = dt / sub;
+    for (let s = 0; s < sub; s++) step(h, phase === 'drain' && phaseT > 0.9);
+
+    // draw the board
+    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1a1d24'); g.addColorStop(1, '#101217');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const X = x => ox + x * u, Y = y => oy + y * u;
+    ctx.fillStyle = 'rgba(255,255,255,.035)'; ctx.fillRect(X(dividers[0]) - 6, Y(0.11), (dividers[R + 1] - dividers[0]) * u + 12, (floor - 0.11) * u + 6);   // the glass panel
+    ctx.strokeStyle = '#8b6a3a'; ctx.lineWidth = Math.max(1.5, u * 0.006); ctx.lineCap = 'round';
+    ctx.beginPath(); for (const [x1, y1, x2, y2] of funnel) { ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); } ctx.stroke();
+    ctx.strokeStyle = 'rgba(210,220,235,.32)'; ctx.lineWidth = Math.max(1, u * 0.0028);
+    ctx.beginPath(); for (const x of dividers) { ctx.moveTo(X(x), Y(binTop)); ctx.lineTo(X(x), Y(floor)); } ctx.stroke();
+    const open = phase === 'drain' && phaseT > 0.9;
+    ctx.strokeStyle = open ? 'rgba(210,220,235,.12)' : 'rgba(210,220,235,.5)'; ctx.lineWidth = Math.max(1.5, u * 0.004);
+    ctx.beginPath(); ctx.moveTo(X(dividers[0]), Y(floor)); ctx.lineTo(X(dividers[R + 1]), Y(floor)); ctx.stroke();
+    for (const [px, py] of pegs) {                              // brass pegs
+      const r = rp * u, pg = ctx.createRadialGradient(X(px) - r * 0.35, Y(py) - r * 0.35, 0, X(px), Y(py), r);
+      pg.addColorStop(0, '#fff1c4'); pg.addColorStop(0.4, '#d4a64a'); pg.addColorStop(1, '#6b4c18');
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(X(px), Y(py), r, 0, 7); ctx.fill();
+    }
+    // the curve theory predicts for the beads poured so far
+    if (made > 20) {
+      ctx.strokeStyle = 'rgba(255,248,230,.55)'; ctx.lineWidth = 1.4; ctx.setLineDash([4, 4]); ctx.beginPath();
+      const mean = R / 2, sd = Math.sqrt(R) / 2;
+      for (let k = 0; k <= 80; k++) {
+        const b = (k / 80) * (R + 1) - 0.5, x = 0.5 + (b - mean) * dx, expect = (made / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-((b - mean) ** 2) / (2 * sd * sd));
+        const y = floor - (expect / perRow) * rowH; k ? ctx.lineTo(X(x), Y(Math.max(binTop - 0.02, y))) : ctx.moveTo(X(x), Y(Math.max(binTop - 0.02, y)));
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    // beads
+    const br = rb * u * 1.12;
+    for (let i = 0; i < live; i++) { if (by[i] > 1.2) continue; ctx.drawImage(sprites[hue[i]], X(bx[i]) - br, Y(by[i]) - br, br * 2, br * 2); }
+    ctx.fillStyle = 'rgba(230,236,245,.5)'; ctx.font = `500 ${Math.max(10, Math.round(u * 0.022))}px ui-monospace, Menlo, monospace`; ctx.textAlign = 'left';
+    ctx.fillText(`${made} beads · ${R} rows · p = ½`, X(dividers[0]), Y(0.035));
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}

@@ -1,0 +1,153 @@
+// Paint swirl: colour bands carried around several vortices. Each frame the paint is advected: every pixel
+// looks back along the velocity field (the sum of the vortices) and takes the colour that was there. Two pour
+// spouts push fresh paint outward in rings, and the pointer stirs a vortex of its own. Sampling is clamped
+// Catmull-Rom, and each pixel is nudged toward the nearest paint colour, so the bands stay crisp instead of mud.
+const PARAMS = { vortices: 4, strength: 1, pour: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const advect = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform sampler2D S; uniform vec2 A; uniform float DT, INIT; uniform int N;
+  uniform vec4 V[8];      // vortex: x, y, strength, core radius
+  uniform vec4 P[2];      // pour: x, y, radius, flow
+  uniform vec3 PC[2];     // pour colours
+  vec3 pal(float k) {
+    k = mod(k, 6.);
+    return k < 1. ? vec3(.07, .15, .25) : k < 2. ? vec3(.12, .48, .55) : k < 3. ? vec3(.96, .93, .85) : k < 4. ? vec3(.89, .34, .18) : k < 5. ? vec3(.95, .65, .25) : vec3(.91, .7, .65);
+  }
+  // the canvas is a seamless torus: each vortex and spout also acts through its 8 neighbouring copies, so there are no walls
+  vec2 vel(vec2 p) {
+    vec2 v = vec2(0);
+    for (int iy = -1; iy <= 1; iy++) for (int ix = -1; ix <= 1; ix++) {
+      vec2 sh = vec2(float(ix) * A.x, float(iy));
+      for (int i = 0; i < 8; i++) {
+        if (i >= N) break;
+        vec2 d = p - V[i].xy + sh; float r2 = dot(d, d) + 1e-6, c = V[i].w;
+        v += V[i].z * vec2(-d.y, d.x) / r2 * (1. - exp(-r2 / (c * c)));     // Lamb–Oseen vortex: solid core, 1/r outside
+      }
+      for (int i = 0; i < 2; i++) { vec2 d = p - P[i].xy + sh; float r2 = dot(d, d) + 1e-6; v += P[i].w * d / r2 * (1. - exp(-r2 / (P[i].z * P[i].z))); }   // spouts push paint outward
+    }
+    return v;
+  }
+  vec3 cr(vec2 q) {                                                       // clamped Catmull-Rom: sharp, no ringing
+    vec2 sz = vec2(textureSize(S, 0)), p = q * sz - .5, f = fract(p); ivec2 b = ivec2(floor(p));
+    vec4 wx = vec4(f.x * (-.5 + f.x * (1. - .5 * f.x)), 1. + f.x * f.x * (-2.5 + 1.5 * f.x), f.x * (.5 + f.x * (2. - 1.5 * f.x)), f.x * f.x * (-.5 + .5 * f.x));
+    vec4 wy = vec4(f.y * (-.5 + f.y * (1. - .5 * f.y)), 1. + f.y * f.y * (-2.5 + 1.5 * f.y), f.y * (.5 + f.y * (2. - 1.5 * f.y)), f.y * f.y * (-.5 + .5 * f.y));
+    vec3 c = vec3(0), mn = vec3(9), mx = vec3(-9); ivec2 n = ivec2(sz);
+    for (int y = 0; y < 4; y++) for (int x = 0; x < 4; x++) {
+      vec3 s = texelFetch(S, ((b + ivec2(x - 1, y - 1)) % n + n) % n, 0).rgb;
+      c += s * wx[x] * wy[y];
+      if (x > 0 && x < 3 && y > 0 && y < 3) { mn = min(mn, s); mx = max(mx, s); }
+    }
+    return clamp(c, mn, mx);
+  }
+  void main() {
+    vec2 p = uv * A;
+    if (INIT > .5) { float k = p.y * 9. + sin(uv.x * 6.2832 * 2.) * .35 + sin(uv.x * 6.2832 * 5. + 2.) * .08; o = vec4(pal(floor(k)), 1); return; }
+    vec2 v1 = vel(p), v2 = vel(p - v1 * DT * .5);                          // midpoint back-trace
+    vec3 c = cr(fract((p - v2 * DT) / A));
+    // acrylic paints do not mix: nudge every pixel toward the nearest palette colour, which re-sharpens the bands
+    vec3 near = pal(0.); float best = 9.;
+    for (int k = 0; k < 6; k++) { vec3 q = pal(float(k) + .5); float d = dot(c - q, c - q); if (d < best) { best = d; near = q; } }
+    c = mix(c, near, .05);
+    for (int i = 0; i < 2; i++) { vec2 dd = p - P[i].xy; dd -= A * round(dd / A); float d = length(dd); c = mix(c, PC[i], smoothstep(P[i].z * .8, P[i].z * .5, d) * step(.0001, P[i].w)); }
+    o = vec4(c, 1);
+  }`;
+  const show = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D S; uniform vec2 R;
+  void main() {
+    vec2 e = 1.5 / R;
+    vec3 c = texture(S, uv).rgb;
+    float l = dot(c, vec3(.3, .55, .15));
+    float lx = dot(texture(S, uv + vec2(e.x, 0)).rgb - texture(S, uv - vec2(e.x, 0)).rgb, vec3(.3, .55, .15));
+    float ly = dot(texture(S, uv + vec2(0, e.y)).rgb - texture(S, uv - vec2(0, e.y)).rgb, vec3(.3, .55, .15));
+    vec3 n = normalize(vec3(-lx * 2.2, -ly * 2.2, 1.));                  // the colour edges read as a slight paint ridge
+    vec3 L = normalize(vec3(-.5, .6, .8));
+    float spec = pow(max(0., dot(reflect(-L, n), vec3(0, 0, 1))), 36.) * .35;
+    c = c * (.9 + .1 * dot(n, L)) + spec;
+    c *= 1. - .18 * pow(length(uv - .5) * 1.3, 2.);
+    o = vec4(c, 1);
+  }`;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const program = src => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, src)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p); return p; };
+  const pA = program(advect), pS = program(show);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const ua = n => gl.getUniformLocation(pA, n), uS = { S: ua('S'), A: ua('A'), DT: ua('DT'), INIT: ua('INIT'), N: ua('N'), V: ua('V'), P: ua('P'), PC: ua('PC') };
+  const uShowR = gl.getUniformLocation(pS, 'R'), uShowS = gl.getUniformLocation(pS, 'S');
+
+  let sw = 0, shh = 0, tex = [], fbo = [], cur = 0, needInit = true;
+  function makeTargets() {
+    tex.forEach(t => gl.deleteTexture(t)); fbo.forEach(f => gl.deleteFramebuffer(f));
+    tex = []; fbo = [];
+    for (let i = 0; i < 2; i++) {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, sw, shh, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      tex.push(t); fbo.push(f);
+    }
+    needInit = true;
+  }
+  const resize = () => {
+    const d = Math.min(devicePixelRatio, 1.5), w = stage.clientWidth, h = stage.clientHeight;
+    canvas.width = w * d | 0; canvas.height = h * d | 0;
+    const k = Math.min(1, 900 / Math.max(w, 1));                         // the paint lives at CSS-pixel resolution (max 900 wide)
+    const nw = Math.max(2, w * k | 0), nh = Math.max(2, h * k | 0);
+    if (nw !== sw || nh !== shh) { sw = nw; shh = nh; makeTargets(); }
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // the pointer stirs: a vortex that follows it, turning the way the pointer is circling
+  let mx = 0, my = 0, mvx = 0, mvy = 0, spin = 0, stir = 0, lastMove = -1e9;
+  const onMove = e => {
+    const b = canvas.getBoundingClientRect(), a = b.width / b.height, x = (e.clientX - b.left) / b.width * a, y = 1 - (e.clientY - b.top) / b.height;
+    const vx = x - mx, vy = y - my, cross = mvx * vy - mvy * vx;
+    spin = spin * 0.85 + Math.sign(cross || 1) * 0.15; mvx = vx; mvy = vy; mx = x; my = y;
+    stir = Math.min(1, stir + Math.hypot(vx, vy) * 6); lastMove = performance.now();
+  };
+  canvas.addEventListener('pointermove', onMove);
+  const PALETTE = [[.07, .15, .25], [.12, .48, .55], [.96, .93, .85], [.89, .34, .18], [.95, .65, .25], [.91, .7, .65]];
+  const Vf = new Float32Array(32), Pf = new Float32Array(8), PCf = new Float32Array(6);
+  const t0 = performance.now();
+  let raf, last = t0;
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now; const t = (now - t0) / 1000;
+    const a = sw / shh;
+    // base vortices drift on slow orbits with alternating spin; every ~25 s they reverse and the bands partly unwind
+    const n = Math.max(1, Math.min(6, Math.round(PARAMS.vortices)));
+    for (let i = 0; i < n; i++) {
+      const cx = a * (0.5 + 0.32 * Math.cos(i * 2.399 + 0.6)), cy = 0.5 + 0.28 * Math.sin(i * 2.399 + 0.6);
+      Vf.set([cx + 0.08 * Math.cos(t * 0.21 + i), cy + 0.08 * Math.sin(t * 0.17 + i * 2), (i % 2 ? -1 : 1) * 0.024 * PARAMS.strength * Math.cos(t * 0.125) * (0.8 + 0.2 * Math.sin(t * 0.4 + i)), 0.06 + 0.02 * (i % 3)], i * 4);
+    }
+    let N = n;
+    if (now - lastMove > 120) stir *= Math.exp(-dt * 2.5);
+    if (stir > 0.01) { Vf.set([mx, my, 0.03 * stir * Math.sign(spin || 1), 0.05], N * 4); N++; }
+    // two pour spouts, each pouring for a while, then resting; the colour steps every half second, making rings
+    for (let i = 0; i < 2; i++) {
+      const cyc = (t + i * 2.6) % 5.2, on = cyc < 3 ? 1 : 0;
+      Pf.set([a * (0.3 + 0.4 * i) + 0.1 * Math.sin(t * 0.3 + i * 3), 0.5 + 0.18 * Math.cos(t * 0.23 + i * 2), 0.035, on * 0.005 * PARAMS.pour], i * 4);
+      PCf.set(PALETTE[(Math.floor((t + i * 1.3) / 0.5) * (i ? 5 : 1)) % 6], i * 3);
+    }
+    gl.useProgram(pA); gl.viewport(0, 0, sw, shh);
+    gl.uniform2f(uS.A, a, 1); gl.uniform1f(uS.DT, dt); gl.uniform1f(uS.INIT, needInit ? 1 : 0); gl.uniform1i(uS.N, N);
+    gl.uniform4fv(uS.V, Vf); gl.uniform4fv(uS.P, Pf); gl.uniform3fv(uS.PC, PCf); gl.uniform1i(uS.S, 0);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[cur]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[1 - cur]); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    cur = 1 - cur; needInit = false;
+    gl.useProgram(pS); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(uShowR, sw, shh); gl.uniform1i(uShowS, 0); gl.bindTexture(gl.TEXTURE_2D, tex[cur]);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}

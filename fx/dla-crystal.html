@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crystal growth (DLA): Diffusion-limited aggregation: random walkers stick on contact · Motion Library</title>
+<meta name="description" content="Crystal growth (DLA) is a Canvas effect: diffusion-limited aggregation: random walkers stick on contact. One plain JavaScript file with no dependencies; add it with npx motion-library add dla-crystal.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/dla-crystal.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Crystal growth (DLA) · Motion Library">
+<meta property="og:description" content="Diffusion-limited aggregation: random walkers stick on contact">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/dla-crystal.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Crystal growth (DLA)",
+  "description": "Diffusion-limited aggregation: random walkers stick on contact",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/dla-crystal.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/dla-crystal.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Crystal growth (DLA)",
+    "item": "https://ajeckblad.github.io/motion-library/fx/dla-crystal.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Crystal growth (DLA)</h1>
+<p class="tldr">Crystal growth (DLA) is a Canvas effect: diffusion-limited aggregation: random walkers stick on contact. One plain JavaScript file with no dependencies; add it with npx motion-library add dla-crystal.</p>
+<figure><img src="../posters/dla-crystal.webp" alt="Crystal growth (DLA): Diffusion-limited aggregation: random walkers stick on contact" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/dla-crystal">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Crystal growth (DLA)?</h2>
+<p>A coral-like crystal branches outward from a seed until it fills the view.</p>
+
+<h2>How does Crystal growth (DLA) work?</h2>
+<p>Diffusion-limited aggregation: random walkers stick on first contact, and tips catch more walkers than hollows; walkers start on a circle just outside the crystal.</p>
+
+<h2>How do I add Crystal growth (DLA) to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add dla-crystal</code>. It writes <code>animations/dla-crystal.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/dla-crystal.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add dla-crystal --speed 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Growth speed</td><td><code>--speed</code></td><td>1</td><td>0.2 to 3</td><td>0.1</td></tr>
+<tr><td>Stickiness</td><td><code>--stickiness</code></td><td>1</td><td>0.1 to 1</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>3.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Diffusion-limited aggregation: particles wander at random until they touch the crystal, then stick where they hit.
+// Tips stick out further into the wandering particles than the hollows between them, so they catch more and grow
+// faster: that feedback is what grows the branching, coral-like fractal. Walkers start on a circle just outside the
+// crystal and are dropped if they stray too far. Colour follows the order things stuck, so you can read its growth.
+const PARAMS = { speed: 1, stickiness: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:auto';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, GW = 0, GH = 0, grid, img, ictx, idata, cx, cy, rmax, count;
+  const CELL = 2;
+  const reset = () =&gt; {
+    GW = Math.max(16, Math.ceil(W / CELL)); GH = Math.max(16, Math.ceil(H / CELL));
+    grid = new Uint8Array(GW * GH); img = document.createElement('canvas'); img.width = GW; img.height = GH;
+    ictx = img.getContext('2d'); idata = ictx.createImageData(GW, GH);
+    for (let i = 0; i &lt; GW * GH; i++) { idata.data[i * 4] = 8; idata.data[i * 4 + 1] = 10; idata.data[i * 4 + 2] = 20; idata.data[i * 4 + 3] = 255; }
+    cx = GW &gt;&gt; 1; cy = GH &gt;&gt; 1; rmax = 2; count = 0; stick(cx, cy);
+  };
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); reset(); };
+  // colour along the growth: deep blue at the seed through cyan to a pale ice at the tips
+  const hue = k =&gt; { const s = Math.min(1, k); return [40 + 160 * s ** 1.5, 90 + 150 * s, 200 + 55 * s]; };
+  function stick(x, y) {
+    grid[y * GW + x] = 1; count++;
+    const r = Math.hypot(x - cx, y - cy); rmax = Math.max(rmax, r);
+    const [R, G, B] = hue(r / (Math.min(GW, GH) * 0.48)), k = (y * GW + x) * 4;
+    idata.data[k] = R; idata.data[k + 1] = G; idata.data[k + 2] = B;
+  }
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  const touching = (x, y) =&gt; grid[y * GW + x - 1] | grid[y * GW + x + 1] | grid[(y - 1) * GW + x] | grid[(y + 1) * GW + x];
+  let raf, done = 0;
+  function frame() {
+    if (done &gt; 0) { done--; if (!done) reset(); }
+    else {
+      const limit = Math.min(GW, GH) / 2 - 3;
+      // a budget of random-walk steps per frame; each walker is released near the crystal so few steps are wasted
+      let budget = 160000 * PARAMS.speed, x = 0, y = 0, alive = false;
+      while (budget &gt; 0) {
+        if (!alive) { const a = Math.random() * 6.28, r = rmax + 6; x = Math.round(cx + Math.cos(a) * r); y = Math.round(cy + Math.sin(a) * r); alive = true; }
+        const s = Math.random() * 4 | 0; x += s === 0 ? 1 : s === 1 ? -1 : 0; y += s === 2 ? 1 : s === 3 ? -1 : 0; budget--;
+        const d = Math.hypot(x - cx, y - cy);
+        if (d &gt; rmax + 18 || x &lt; 1 || y &lt; 1 || x &gt;= GW - 1 || y &gt;= GH - 1) { alive = false; continue; }   // strayed: drop it
+        if (touching(x, y) &amp;&amp; Math.random() &lt; 0.35 + 0.65 * Math.min(1, PARAMS.stickiness)) { stick(x, y); alive = false; if (rmax &gt; limit) { done = 120; break; } }
+      }
+      ictx.putImageData(idata, 0, 0);
+    }
+    ctx.fillStyle = '#080a14'; ctx.fillRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = false; ctx.drawImage(img, 0, 0, GW * CELL, GH * CELL);
+    // a soft bloom: the same image, blurred and added
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; ctx.filter = 'blur(4px)'; ctx.drawImage(img, 0, 0, GW * CELL, GH * CELL);
+    ctx.filter = 'none'; ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

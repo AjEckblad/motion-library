@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spectrum analyser: Synthesised spectrum, fast-attack bars, peak caps falling under gravity · Motion Library</title>
+<meta name="description" content="Spectrum analyser is a Canvas effect: synthesised spectrum, fast-attack bars, peak caps falling under gravity. One plain JavaScript file with no dependencies; add it with npx motion-library add audio-bars.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/audio-bars.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Spectrum analyser · Motion Library">
+<meta property="og:description" content="Synthesised spectrum, fast-attack bars, peak caps falling under gravity">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/audio-bars.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Spectrum analyser",
+  "description": "Synthesised spectrum, fast-attack bars, peak caps falling under gravity",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Retro & signal, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/audio-bars.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/audio-bars.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Retro & signal",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/retro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Spectrum analyser",
+    "item": "https://ajeckblad.github.io/motion-library/fx/audio-bars.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/retro">Retro &amp; signal</a></header>
+<main class="s-page">
+<article>
+<h1>Spectrum analyser</h1>
+<p class="tldr">Spectrum analyser is a Canvas effect: synthesised spectrum, fast-attack bars, peak caps falling under gravity. One plain JavaScript file with no dependencies; add it with npx motion-library add audio-bars.</p>
+<figure><img src="../posters/audio-bars.webp" alt="Spectrum analyser: Synthesised spectrum, fast-attack bars, peak caps falling under gravity" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/audio-bars">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Spectrum analyser?</h2>
+<p>Segmented green-to-red bars dance to a beat, each topped by a peak cap that hangs, then falls.</p>
+
+<h2>How does Spectrum analyser work?</h2>
+<p>A synthetic spectrum (pink-noise slope plus kick, snare, hi-hats and notes) drives bars that rise fast and fall slowly; caps hold a third of a second, then drop under gravity.</p>
+
+<h2>How do I add Spectrum analyser to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add audio-bars</code>. It writes <code>animations/audio-bars.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/audio-bars.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add audio-bars --bars 64</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Bands</td><td><code>--bars</code></td><td>32</td><td>8 to 64</td><td>1</td></tr>
+<tr><td>Tempo</td><td><code>--bpm</code></td><td>124</td><td>60 to 180</td><td>1</td></tr>
+<tr><td>Cap gravity</td><td><code>--gravity</code></td><td>1</td><td>0.2 to 3</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Retro &amp; signal</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.4 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Spectrum analyser with peak hold, no microphone: the spectrum is synthesised. A pink-noise slope, a kick that
+// thumps the low bins on every beat, a snare on two and four, hi-hats on the eighths, and a bass and a lead note
+// that hop between bands. Bars rise fast and fall slowly like a real meter; each peak cap waits a moment, then drops
+// under gravity until a bar pushes it back up.
+const PARAMS = { bars: 32, bpm: 124, gravity: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, D = 1;
+  const resize = () =&gt; { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * D | 0; canvas.height = H * D | 0; };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const n = Math.max(8, Math.min(64, Math.round(PARAMS.bars)));
+  const level = new Float32Array(n), peak = new Float32Array(n), vel = new Float32Array(n), hold = new Float32Array(n), jit = new Float32Array(n);
+  const gauss = (x, m, s) =&gt; Math.exp(-((x - m) * (x - m)) / (2 * s * s));
+  const BASS = [0.1, 0.1, 0.16, 0.13], LEAD = [0.48, 0.56, 0.62, 0.52, 0.7, 0.6, 0.56, 0.44];
+  function spectrum(t, out) {
+    const beat = t * PARAMS.bpm / 60, fb = beat % 1, bar = Math.floor(beat);
+    const kick = Math.exp(-fb * 7), snare = (bar % 2 === 1) ? Math.exp(-fb * 6) : 0;
+    const e8 = (beat * 2) % 1, hat = Math.exp(-e8 * 16) * (Math.floor(beat * 2) % 2 ? 1 : 0.55);
+    const bassF = BASS[Math.floor(beat / 2) % 4], leadF = LEAD[Math.floor(beat) % 8], leadE = 0.55 + 0.45 * Math.exp(-fb * 3);
+    for (let i = 0; i &lt; n; i++) {
+      const f = i / (n - 1);
+      jit[i] += ((Math.random() - 0.5) * 0.5 - jit[i]) * 0.25;            // per-band noise, smoothed in time
+      let v = 0.5 * Math.pow(1 - f, 0.9) + 0.06;
+      v += 0.75 * kick * gauss(f, 0.02, 0.07);
+      v += 0.45 * gauss(f, bassF, 0.035) * (0.6 + 0.4 * kick);
+      v += 0.5 * snare * (gauss(f, 0.42, 0.16) * 0.9 + 0.25 * f);
+      v += 0.42 * hat * Math.max(0, (f - 0.62) / 0.38);
+      v += 0.42 * leadE * gauss(f, leadF, 0.025) + 0.2 * leadE * gauss(f, leadF * 1.5, 0.02);
+      out[i] = Math.max(0, Math.min(1, v * 1.22 * (0.85 + jit[i] * 0.4)));
+    }
+  }
+  const target = new Float32Array(n);
+  let raf, last = performance.now(), t = 0, fresh = true;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!reduce || fresh) {
+      t += reduce ? 2.3 : dt;
+      spectrum(t, target);
+      for (let i = 0; i &lt; n; i++) {
+        const tg = target[i];
+        level[i] = tg &gt; level[i] ? level[i] + (tg - level[i]) * (1 - Math.exp(-dt * 40)) : level[i] * Math.exp(-dt * 4.5);
+        if (reduce) level[i] = tg;
+        if (level[i] &gt;= peak[i]) { peak[i] = level[i]; vel[i] = 0; hold[i] = 0.35; }
+        else if ((hold[i] -= dt) &lt; 0) { vel[i] += 2.2 * PARAMS.gravity * dt; peak[i] = Math.max(level[i], peak[i] - vel[i] * dt); }
+      }
+      fresh = false;
+    }
+
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.fillStyle = '#04050a'; ctx.fillRect(0, 0, W, H);
+    const left = W * 0.07, right = W * 0.93, baseY = H * 0.7, topY = H * 0.1;
+    const slot = (right - left) / n, bw = Math.max(2, Math.floor(slot * 0.72)), segH = Math.max(3, Math.round((baseY - topY) / 34)), gap = Math.max(1, Math.round(segH * 0.3));
+    const segs = Math.floor((baseY - topY) / segH);
+    const colorAt = k =&gt; { const f = k / (segs - 1); return f &lt; 0.6 ? `hsl(${150 - f * 80},100%,${52 + f * 6}%)` : f &lt; 0.85 ? `hsl(${102 - (f - 0.6) / 0.25 * 62},100%,55%)` : `hsl(${40 - (f - 0.85) / 0.15 * 38},100%,56%)`; };
+    // segments row by row (one colour per row keeps state changes low): lit, unlit ghost, and a dim reflection
+    for (let k = 0; k &lt; segs; k++) {
+      const y = Math.round(baseY - (k + 1) * segH), c = colorAt(k), thr = (k + 0.5) / segs;
+      ctx.fillStyle = c;
+      for (let pass = 0; pass &lt; 3; pass++) {
+        ctx.globalAlpha = pass === 0 ? 1 : pass === 1 ? 0.07 : 0.16 * (1 - k / segs);
+        ctx.beginPath();
+        for (let i = 0; i &lt; n; i++) {
+          const on = level[i] &gt;= thr;
+          if (pass === 0 &amp;&amp; !on || pass === 1 &amp;&amp; on || pass === 2 &amp;&amp; !on) continue;
+          const x = Math.round(left + i * slot + (slot - bw) / 2);
+          if (pass === 2) ctx.rect(x, Math.round(baseY + gap * 2 + k * segH * 0.4), bw, Math.max(1, (segH - gap) * 0.4));   // squashed reflection
+          else ctx.rect(x, y, bw, segH - gap);
+        }
+        ctx.fill();
+      }
+    }
+    // peak caps with a soft glow
+    ctx.globalAlpha = 1; ctx.shadowBlur = 10 * D;
+    for (let i = 0; i &lt; n; i++) {
+      const k = Math.min(segs - 1, Math.max(0, Math.round(peak[i] * segs) - 0)), x = Math.round(left + i * slot + (slot - bw) / 2);
+      const y = Math.round(baseY - (k + 1) * segH - segH * 0.15);
+      if (peak[i] &lt; 0.02) continue;
+      ctx.fillStyle = '#f4fbff'; ctx.shadowColor = colorAt(k);
+      ctx.fillRect(x, y, bw, Math.max(2, Math.round((segH - gap) * 0.55)));
+    }
+    ctx.shadowBlur = 0;
+    // baseline
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(left, Math.round(baseY + gap / 2), right - left, 1);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

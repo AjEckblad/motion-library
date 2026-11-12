@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D paper confetti: Squash by cos(spin) to fake a 3D tumble, two-sided colour · Motion Library</title>
+<meta name="description" content="3D paper confetti is a Canvas effect: squash by cos(spin) to fake a 3D tumble, two-sided colour. One plain JavaScript file with no dependencies; add it with npx motion-library add confetti.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/confetti.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="3D paper confetti · Motion Library">
+<meta property="og:description" content="Squash by cos(spin) to fake a 3D tumble, two-sided colour">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/confetti.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "3D paper confetti",
+  "description": "Squash by cos(spin) to fake a 3D tumble, two-sided colour",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/confetti.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/confetti.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "3D paper confetti",
+    "item": "https://ajeckblad.github.io/motion-library/fx/confetti.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>3D paper confetti</h1>
+<p class="tldr">3D paper confetti is a Canvas effect: squash by cos(spin) to fake a 3D tumble, two-sided colour. One plain JavaScript file with no dependencies; add it with npx motion-library add confetti.</p>
+<figure><img src="../posters/confetti.webp" alt="3D paper confetti: Squash by cos(spin) to fake a 3D tumble, two-sided colour" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/confetti">Open it live, tune it and copy the code</a></p>
+
+<h2>What is 3D paper confetti?</h2>
+<p>Paper confetti bursts from two cannons, tumbles and flutters down.</p>
+
+<h2>How does 3D paper confetti work?</h2>
+<p>Scaling each piece’s height by the cosine of its spin angle fakes the 3D tumble, and the sign picks front or back colour; heavy drag and flutter bring it down.</p>
+
+<h2>How do I add 3D paper confetti to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add confetti</code>. It writes <code>animations/confetti.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/confetti.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add confetti --pieces 400</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Pieces</td><td><code>--pieces</code></td><td>160</td><td>40 to 400</td><td>10</td></tr>
+<tr><td>Gravity</td><td><code>--gravity</code></td><td>1</td><td>0.2 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>2.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// 3D paper confetti: each piece tumbles around its own axis (drawn as a squash of its width by cos(angle)),
+// so pieces flash their front and back colours. Drag slows the fall; a sideways flutter keeps them drifting.
+const PARAMS = { pieces: 160, gravity: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  const colours = [['#ff4d6d', '#c9184a'], ['#ffd43b', '#f08c00'], ['#4dabf7', '#1864ab'], ['#69db7c', '#2b8a3e'], ['#ffffff', '#ced4da'], ['#ff922b', '#d9480f']];
+  let pieces = [];
+  function burst(x, y, n) {
+    const S = Math.min(W, H);
+    for (let i = 0; i &lt; n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 1.6, sp = S * (1.4 + Math.random() * 1.6);
+      const c = colours[Math.floor(Math.random() * colours.length)];
+      pieces.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, w: 5 + Math.random() * 6, h: 8 + Math.random() * 8, spin: Math.random() * 6.28, vs: 8 + Math.random() * 14, tilt: Math.random() * 6.28, vt: (Math.random() - 0.5) * 6, front: c[0], back: c[1], wob: Math.random() * 6.28, round: Math.random() &lt; 0.25 });
+    }
+  }
+  let next = 0, last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    if (now &gt; next) { const n = Math.round(PARAMS.pieces / 2); burst(W * 0.25, H, n); burst(W * 0.75, H, n); next = now + 2600; }
+    const g = Math.min(W, H) * 1.6 * PARAMS.gravity;
+    ctx.fillStyle = '#1b1530'; ctx.fillRect(0, 0, W, H);
+    for (const p of pieces) {
+      p.vy += g * dt;
+      p.vx *= Math.exp(-2.2 * dt); p.vy *= Math.exp(-2.2 * dt);             // paper is mostly drag
+      p.wob += dt * 5; p.x += (p.vx + Math.sin(p.wob) * 40) * dt; p.y += p.vy * dt;
+      p.spin += p.vs * dt; p.tilt += p.vt * dt;
+      const c = Math.cos(p.spin);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.tilt); ctx.scale(1, Math.abs(c) &lt; 0.08 ? 0.08 : c);
+      ctx.fillStyle = c &gt; 0 ? p.front : p.back;
+      if (p.round) { ctx.beginPath(); ctx.arc(0, 0, p.w * 0.6, 0, 7); ctx.fill(); }
+      else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    pieces = pieces.filter(p =&gt; p.y &lt; H + 30);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

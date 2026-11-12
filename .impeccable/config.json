@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "mona sans",
+        "createdAt": "2026-11-08T13:40:11.726Z",
+        "reason": "Claude's direction decision: Mona Sans picked for its wdth axis, which drives the dial fisheye and the variable-font wave demo; self-hosted, not a default fallback"
+      }
+    ]
+  }
+}

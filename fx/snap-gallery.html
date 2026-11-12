@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snap gallery: Scroll snapping; the centre card scales up, neighbours dim · Motion Library</title>
+<meta name="description" content="Snap gallery is a DOM effect: scroll snapping; the centre card scales up, neighbours dim. One plain JavaScript file with no dependencies; add it with npx motion-library add snap-gallery.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/snap-gallery.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Snap gallery · Motion Library">
+<meta property="og:description" content="Scroll snapping; the centre card scales up, neighbours dim">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/snap-gallery.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Snap gallery",
+  "description": "Scroll snapping; the centre card scales up, neighbours dim",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Scroll, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/snap-gallery.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/snap-gallery.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Scroll",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/scroll"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Snap gallery",
+    "item": "https://ajeckblad.github.io/motion-library/fx/snap-gallery.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/scroll">Scroll</a></header>
+<main class="s-page">
+<article>
+<h1>Snap gallery</h1>
+<p class="tldr">Snap gallery is a DOM effect: scroll snapping; the centre card scales up, neighbours dim. One plain JavaScript file with no dependencies; add it with npx motion-library add snap-gallery.</p>
+<figure><img src="../posters/snap-gallery.webp" alt="Snap gallery: Scroll snapping; the centre card scales up, neighbours dim" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/snap-gallery">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Snap gallery?</h2>
+<p>A row of night photographs snaps card by card, the centre card scaling up while neighbours dim.</p>
+
+<h2>How does Snap gallery work?</h2>
+<p>Scale and dim come from each card’s distance to the centre every frame, so they track the scroll mid-swipe; CSS scroll snapping settles a real swipe.</p>
+
+<h2>How do I add Snap gallery to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add snap-gallery</code>. It writes <code>animations/snap-gallery.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/snap-gallery.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add snap-gallery --shrink 0.25</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Side card shrink</td><td><code>--shrink</code></td><td>0.1</td><td>0 to 0.25</td><td>0.01</td></tr>
+<tr><td>Snap (ms)</td><td><code>--travel</code></td><td>700</td><td>250 to 1500</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Scroll</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it follows scrolling</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Snap gallery, on a photographer's portfolio: a horizontal row of night photographs snaps one card at a time, and the card in the centre scales up while its neighbours step back and dim.
+// The scale and dim are read from each card's distance to the centre on every frame, so they follow the scroll exactly, mid-swipe included. Each move uses a strong ease-in-out and then holds, like a deliberate swipe; with a trackpad or finger, CSS scroll snapping does the settling.
+const PARAMS = { shrink: 0.1, travel: 700 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400;
+  const shots = [
+    ['Last crossing', 'Helsingør · 2023', ['#0d1b3a', '#1f3a6b', '#ffcf6b']],
+    ['Car deck, 23:40', 'Rostock · 2023', ['#1a1030', '#3b2b5c', '#ff9b6b']],
+    ['Fog at the pier', 'Stavanger · 2024', ['#18282d', '#3f5a5e', '#e8f1d0']],
+    ['Night bus to the boat', 'Puttgarden · 2024', ['#0e1424', '#26324f', '#ffb347']],
+    ['Lighthouse keeper', 'Skagen · 2024', ['#111a2c', '#2b3d63', '#fff1b8']],
+    ['Arriving early', 'Kiel · 2025', ['#241a2e', '#6b3f5a', '#ffc98a']],
+  ];
+  let seed = 3; const rnd = () =&gt; (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const photo = ([sky, sea, light], i) =&gt; {
+    const hz = 120 + rnd() * 30, fx = 30 + rnd() * 110, win = Array.from({ length: 9 }, (_, k) =&gt; `&lt;rect x=&quot;${fx + 12 + k * 9}&quot; y=&quot;${hz - 22}&quot; width=&quot;4&quot; height=&quot;3&quot; fill=&quot;${light}&quot;/&gt;`).join('');
+    const refl = Array.from({ length: 9 }, (_, k) =&gt; `&lt;rect x=&quot;${fx + 12 + k * 9}&quot; y=&quot;${hz + 6 + rnd() * 6}&quot; width=&quot;3&quot; height=&quot;${18 + rnd() * 40}&quot; fill=&quot;${light}&quot; opacity=&quot;${(0.18 + rnd() * 0.25).toFixed(2)}&quot;/&gt;`).join('');
+    const sky2 = Array.from({ length: 14 }, () =&gt; `&lt;circle cx=&quot;${(rnd() * 240).toFixed(1)}&quot; cy=&quot;${(rnd() * (hz - 50)).toFixed(1)}&quot; r=&quot;${(0.5 + rnd()).toFixed(1)}&quot; fill=&quot;#fff&quot; opacity=&quot;${(0.3 + rnd() * 0.5).toFixed(2)}&quot;/&gt;`).join('') + (i % 2 ? '' : `&lt;circle cx=&quot;${170 + rnd() * 40}&quot; cy=&quot;${40 + rnd() * 30}&quot; r=&quot;11&quot; fill=&quot;${light}&quot; opacity=&quot;.9&quot;/&gt;`);
+    const extra = sky2 + (i === 4 ? `&lt;rect x=&quot;190&quot; y=&quot;${hz - 70}&quot; width=&quot;10&quot; height=&quot;70&quot; fill=&quot;#d9d4c8&quot;/&gt;&lt;path d=&quot;M186 ${hz - 70}h18l-4-10h-10z&quot; fill=&quot;${light}&quot;/&gt;&lt;path d=&quot;M195 ${hz - 76} L 60 ${hz - 110} L 60 ${hz - 96}z&quot; fill=&quot;${light}&quot; opacity=&quot;.18&quot;/&gt;` : i === 2 ? `&lt;rect width=&quot;240&quot; height=&quot;300&quot; fill=&quot;#d9e3df&quot; opacity=&quot;.18&quot;/&gt;` : '');
+    return `&lt;svg viewBox=&quot;0 0 240 300&quot; preserveAspectRatio=&quot;xMidYMid slice&quot; aria-hidden=&quot;true&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;sg${i}&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;${sky}&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;${sea}&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect width=&quot;240&quot; height=&quot;300&quot; fill=&quot;url(#sg${i})&quot;/&gt;&lt;rect y=&quot;${hz}&quot; width=&quot;240&quot; height=&quot;${300 - hz}&quot; fill=&quot;${sky}&quot; opacity=&quot;.7&quot;/&gt;&lt;path d=&quot;M0 ${hz}h240&quot; stroke=&quot;${light}&quot; stroke-opacity=&quot;.25&quot;/&gt;${extra}&lt;path d=&quot;M${fx} ${hz}l8 -12h96l10 12z&quot; fill=&quot;#05070d&quot;/&gt;&lt;rect x=&quot;${fx + 8}&quot; y=&quot;${hz - 26}&quot; width=&quot;92&quot; height=&quot;14&quot; rx=&quot;2&quot; fill=&quot;#05070d&quot;/&gt;&lt;rect x=&quot;${fx + 60}&quot; y=&quot;${hz - 40}&quot; width=&quot;10&quot; height=&quot;14&quot; fill=&quot;#05070d&quot;/&gt;${win}${refl}&lt;circle cx=&quot;${fx + 64}&quot; cy=&quot;${hz - 42}&quot; r=&quot;2&quot; fill=&quot;#ff5f56&quot;/&gt;&lt;/svg&gt;`;
+  };
+  const root = document.createElement('div');
+  root.className = 'sg-root';
+  root.innerHTML = `&lt;style&gt;
+    .sg-root { position: absolute; inset: 0; overflow: hidden; background: #111214; color: #ecebe8; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .sg-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .sg-nav { height: 40px; display: flex; align-items: center; gap: 16px; padding: 0 22px; font-size: 11.5px; font-weight: 560; color: #9a9893; }
+    .sg-nav strong { margin-right: auto; color: #ecebe8; font: italic 600 15px/1 ui-serif, Georgia, serif; }
+    .sg-head { display: flex; align-items: flex-end; gap: 10px; padding: 6px 22px 0; }
+    .sg-head h1 { margin: 0 auto 0 0; font: 600 22px/1 ui-serif, &quot;Iowan Old Style&quot;, Georgia, serif; letter-spacing: -0.01em; }
+    .sg-head h1 small { display: block; margin-bottom: 5px; font: 650 10px/1 &quot;Mona Sans&quot;, system-ui, sans-serif; letter-spacing: .12em; color: #9a9893; }
+    .sg-count { font-size: 11px; font-weight: 600; color: #9a9893; font-variant-numeric: tabular-nums; margin-right: 6px; }
+    .sg-btn { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1px #3a3b3f; font-size: 13px; transition: transform .16s cubic-bezier(0.23, 1, 0.32, 1); }
+    .sg-btn.press { transform: ${reduce ? 'none' : 'scale(0.94)'}; background: #2a2b2f; }
+    .sg-row { display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 12px 0 0; margin-top: 0; }
+    .sg-row::-webkit-scrollbar { display: none; }
+    .sg-card { flex: none; width: 170px; scroll-snap-align: center; transform-origin: 50% 50%; will-change: transform, opacity; }
+    .sg-card svg { display: block; width: 170px; height: 186px; border-radius: 6px; }
+    .sg-card b { display: block; margin-top: 9px; font-size: 12.5px; font-weight: 640; }
+    .sg-card span { font-size: 10.5px; color: #9a9893; }
+    .sg-pad { flex: none; width: 1px; }
+  &lt;/style&gt;
+  &lt;div class=&quot;sg-art&quot;&gt;
+    &lt;div class=&quot;sg-nav&quot;&gt;&lt;strong&gt;Ines Moreau&lt;/strong&gt;&lt;span&gt;Series&lt;/span&gt;&lt;span&gt;Prints&lt;/span&gt;&lt;span&gt;About&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;sg-head&quot;&gt;&lt;h1&gt;&lt;small&gt;SERIES · 2023 – 2025&lt;/small&gt;Night Ferries&lt;/h1&gt;&lt;span class=&quot;sg-count&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sg-btn&quot;&gt;‹&lt;/span&gt;&lt;span class=&quot;sg-btn sg-next&quot;&gt;›&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;sg-row&quot;&gt;&lt;div class=&quot;sg-pad&quot;&gt;&lt;/div&gt;${shots.map((s, i) =&gt; `&lt;figure class=&quot;sg-card&quot; style=&quot;margin:0&quot;&gt;${photo(s[2], i)}&lt;b&gt;${s[0]}&lt;/b&gt;&lt;span&gt;${s[1]}&lt;/span&gt;&lt;/figure&gt;`).join('')}&lt;div class=&quot;sg-pad&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const box = root.querySelector('.sg-art'), row = root.querySelector('.sg-row'), cards = [...root.querySelectorAll('.sg-card')];
+  const pads = [...root.querySelectorAll('.sg-pad')], count = root.querySelector('.sg-count'), next = root.querySelector('.sg-next');
+  let centres = [];
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1, aw = W / s;
+    box.style.width = aw + 'px'; box.style.top = (H - AH * s) / 2 + 'px'; box.style.transform = `scale(${s})`;
+    // padding on both ends lets the first and last card reach the centre
+    pads.forEach(p =&gt; { p.style.width = Math.max(1, (aw - 170) / 2 - 14) + 'px'; });
+    centres = cards.map(c =&gt; c.offsetLeft + c.offsetWidth / 2 - row.clientWidth / 2);
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // Simulated visitor: one card at a time, a pause on each, then a quicker run back to the first.
+  const easeIO = t =&gt; { // cubic-bezier(0.77, 0, 0.175, 1), solved for x
+    let lo = 0, hi = 1, u = t;
+    for (let i = 0; i &lt; 18; i++) { u = (lo + hi) / 2; const x = 3 * u * (1 - u) ** 2 * 0.77 + 3 * u * u * (1 - u) * 0.175 + u ** 3; if (x &lt; t) lo = u; else hi = u; }
+    return 3 * u * u * (1 - u) + u ** 3;
+  };
+  let seg = null, idx = 0, userUntil = 0, raf, pressT, holdUntil = performance.now() + 1200;
+  const take = () =&gt; { userUntil = performance.now() + 3000; seg = null; row.style.scrollSnapType = ''; };
+  ['wheel', 'touchstart', 'pointerdown'].forEach(e =&gt; row.addEventListener(e, take, { passive: true }));
+  function drive(now) {
+    if (now &lt; userUntil) return;
+    if (!seg) {
+      if (now &lt; holdUntil) return;
+      const back = idx === cards.length - 1; idx = back ? 0 : idx + 1;
+      // snapping would fight a scripted scroll, so it is switched off while the page drives itself
+      row.style.scrollSnapType = 'none';
+      seg = { from: row.scrollLeft, to: centres[idx], t0: now, dur: back ? PARAMS.travel * 1.8 : PARAMS.travel };
+      // reduced motion: no glide along the row; it cuts to the next card with a short fade
+      if (reduce) { seg.dur = 1; row.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 }); }
+      next.classList.add('press'); clearTimeout(pressT); pressT = setTimeout(() =&gt; next.classList.remove('press'), 160);
+    }
+    const k = Math.min(1, (now - seg.t0) / seg.dur);
+    row.scrollLeft = seg.from + (seg.to - seg.from) * easeIO(k);
+    if (k &gt;= 1) { seg = null; holdUntil = now + 1500; }
+  }
+  let shown = -1;
+  function frame(now) {
+    drive(now);
+    const x = row.scrollLeft, gap = 184;
+    let best = 0, bd = 1e9;
+    cards.forEach((c, i) =&gt; {
+      const d = Math.min(1, Math.abs(centres[i] - x) / gap);
+      if (Math.abs(centres[i] - x) &lt; bd) { bd = Math.abs(centres[i] - x); best = i; }
+      if (!reduce) c.style.transform = `scale(${(1 + PARAMS.shrink * 0.4 - PARAMS.shrink * d).toFixed(4)})`;
+      c.style.opacity = (1 - 0.55 * d).toFixed(3);
+    });
+    if (best !== shown) { shown = best; count.textContent = `${String(best + 1).padStart(2, '0')} / ${String(cards.length).padStart(2, '0')}`; }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); clearTimeout(pressT); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

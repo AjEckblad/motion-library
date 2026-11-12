@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stage</title>
+<style>
+  @font-face { font-family: "Mona Sans"; src: url(fonts/mona-sans-latin.woff2) format("woff2"); font-weight: 200 900; font-stretch: 75% 125%; font-display: block; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+  body { font-family: "Mona Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+  /* embed mode: a small way back to the library, and a play button when it starts paused */
+  .ml-badge { position: absolute; z-index: 3; right: 10px; bottom: 10px; padding: 5px 10px; border-radius: 999px; background: rgba(21,23,26,.72); color: #fff; font: 600 11.5px/1 "Mona Sans", system-ui, sans-serif; letter-spacing: .01em; text-decoration: none; opacity: .8; transition: opacity .15s ease, background-color .15s ease; }
+  .ml-badge:focus-visible { outline: 2px solid #fff; outline-offset: 2px; opacity: 1; }
+  @media (hover: hover) and (pointer: fine) { .ml-badge:hover { opacity: 1; background: rgba(21,23,26,.88); } }
+  .ml-play { position: absolute; z-index: 3; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border: 0; border-radius: 50%; background: rgba(21,23,26,.72); box-shadow: 0 0 0 1px rgba(255,255,255,.22), 0 8px 24px rgba(0,0,0,.22); display: grid; place-items: center; cursor: pointer; transition: opacity .16s cubic-bezier(0.23, 1, 0.32, 1), transform .16s cubic-bezier(0.23, 1, 0.32, 1); }
+  .ml-play svg { width: 22px; height: 22px; fill: #fff; margin-left: 3px; }
+  .ml-play:active { transform: scale(.97); }
+  .ml-play[hidden] { display: none; }
+  #err { position: absolute; inset: auto 12px 12px 12px; font: 13px/1.4 system-ui; color: #b4232f; background: #fff; padding: 8px 10px; border-radius: 6px; display: none; }
+</style>
+<script>
+/* Virtual clock. Every animation here reads time through these wrappers, so the parent can
+   slow it down, pause it and step it one frame at a time without the snippet knowing. */
+(() => {
+  const realRAF = window.requestAnimationFrame.bind(window);
+  const realNow = performance.now.bind(performance);
+  const realDateNow = Date.now.bind(Date);
+  const realSetTimeout = window.setTimeout.bind(window);
+  const FRAME = 1000 / 60;
+  // ?paused=1 starts the clock stopped, so nothing moves before the viewer presses play
+  let rate = 1, paused = new URLSearchParams(location.search).get('paused') === '1', vNow = realNow(), lastReal = realNow();
+  const dateOffset = realDateNow() - vNow;
+  let cbs = new Map(), nextId = 1;
+  const timers = new Map(); let nextTimer = 1;
+  const pausedAnims = new WeakSet();
+
+  const advance = () => { const r = realNow(); if (!paused) vNow += (r - lastReal) * rate; lastReal = r; };
+  performance.now = () => { advance(); return vNow; };
+  Date.now = () => { advance(); return Math.round(dateOffset + vNow); };
+
+  window.requestAnimationFrame = cb => { const id = nextId++; cbs.set(id, cb); return id; };
+  window.cancelAnimationFrame = id => { cbs.delete(id); };
+
+  window.setTimeout = (fn, ms = 0, ...args) => { const id = nextTimer++; timers.set(id, { fn, due: vNow + Math.max(0, ms), args }); return id; };
+  window.setInterval = (fn, ms = 0, ...args) => { const id = nextTimer++; timers.set(id, { fn, due: vNow + Math.max(4, ms), every: Math.max(4, ms), args }); return id; };
+  window.clearTimeout = window.clearInterval = id => { timers.delete(id); };
+
+  function runTimers() {
+    for (const [id, t] of timers) {
+      if (t.due > vNow) continue;
+      if (t.every) t.due += t.every; else timers.delete(id);
+      try { typeof t.fn === 'function' ? t.fn(...t.args) : null; } catch (e) { report(e); }
+    }
+  }
+  function flushFrame() {
+    const list = cbs; cbs = new Map();
+    list.forEach(cb => { try { cb(vNow); } catch (e) { report(e); } });
+  }
+  function syncCSS() {
+    for (const a of document.getAnimations()) {
+      if (a.playbackRate !== rate) a.playbackRate = rate;
+      if (paused && a.playState === 'running') { a.pause(); pausedAnims.add(a); }
+      else if (!paused && a.playState === 'paused' && pausedAnims.has(a)) { pausedAnims.delete(a); a.play(); }
+    }
+  }
+  function loop() {
+    advance();
+    if (!paused) { runTimers(); flushFrame(); }
+    syncCSS();
+    realRAF(loop);
+  }
+  realRAF(loop);
+
+  window.__clock = {
+    setRate(r) { advance(); rate = r; syncCSS(); },
+    pause() { advance(); paused = true; syncCSS(); },
+    play() { advance(); paused = false; lastReal = realNow(); syncCSS(); },
+    step() {
+      if (!paused) this.pause();
+      vNow += FRAME; runTimers(); flushFrame();
+      for (const a of document.getAnimations()) { if (a.playState === 'paused' && a.currentTime != null) a.currentTime += FRAME; }
+    },
+    get paused() { return paused; }, get rate() { return rate; },
+    realSetTimeout, realNow, realRAF
+  };
+
+  function report(e) {
+    console.error(e);
+    const el = document.getElementById('err');
+    if (el) { el.textContent = String(e && e.message || e); el.style.display = 'block'; }
+    parent.postMessage({ type: 'stage-error', message: String(e && e.message || e) }, '*');
+  }
+  window.__report = report;
+  window.addEventListener('error', e => report(e.error || e.message));
+  window.addEventListener('unhandledrejection', e => report(e.reason));
+})();
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<div id="err" role="alert"></div>
+<script type="module">
+const q = new URLSearchParams(location.search);
+const mode = q.get('mode') || 'detail';
+const stageEl = document.getElementById('stage');
+let cleanup = null, mountFn = null, scrollLoop = 0, mountGen = 0;
+
+// only the library's own animation files load here: a crafted ?src= must not run someone else's script on this origin
+const SRC = /^anims\/[a-z]+\/[a-z0-9-]+\.js$/;
+
+async function load(code) {
+  let mod;
+  if (code != null) {
+    const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+    try { mod = await import(url); } finally { URL.revokeObjectURL(url); }
+  } else {
+    if (!SRC.test(q.get('src') || '')) throw new Error('Unknown animation');
+    mod = await import(new URL(q.get('src'), new URL('./', location.href)).href);
+  }
+  mountFn = mod.default;
+}
+
+function unmount() {
+  cancelAnimationFrame(scrollLoop);
+  if (typeof cleanup === 'function') { try { cleanup(); } catch (e) { window.__report(e); } }
+  cleanup = null;
+  stageEl.replaceChildren();
+  stageEl.removeAttribute('style');
+}
+
+function mount() {
+  unmount();
+  try { cleanup = mountFn(stageEl); } catch (e) { window.__report(e); }
+  // A stopped stage still draws one frame, so it never sits blank (and new settings show while paused).
+  // Wait two real frames first: the snippet's ResizeObserver fires once after mount and resizing a canvas wipes it.
+  const gen = ++mountGen, c = window.__clock;
+  if (c.paused) c.realRAF(() => c.realRAF(() => { if (gen === mountGen && c.paused) c.step(); }));
+  if (mode === 'preview' || mode === 'poster') autoScroll();
+}
+
+/* Scroll demos: in a hover preview nobody scrolls, so ease the container up and down. */
+function autoScroll() {
+  const sc = stageEl.querySelector('[data-scroll]');
+  if (!sc) return;
+  const t0 = performance.now(), period = 7000;
+  const tick = () => {
+    const max = sc.scrollHeight - sc.clientHeight;
+    const p = ((performance.now() - t0) % period) / period;
+    const e = p < 0.5 ? p * 2 : 2 - p * 2;
+    sc.scrollTop = max * (0.5 - 0.5 * Math.cos(Math.PI * e));
+    scrollLoop = requestAnimationFrame(tick);
+  };
+  scrollLoop = requestAnimationFrame(tick);
+}
+
+window.addEventListener('message', async e => {
+  // only the page that framed this stage, on this origin, may drive it: "run" executes code
+  if (e.source !== parent || e.origin !== location.origin) return;
+  const m = e.data || {};
+  if (m.type === 'rate') window.__clock.setRate(m.value);
+  else if (m.type === 'pause') window.__clock.pause();
+  else if (m.type === 'play') window.__clock.play();
+  else if (m.type === 'step') window.__clock.step();
+  else if (m.type === 'replay') { const wasPaused = window.__clock.paused; window.__clock.play(); mount(); if (wasPaused) window.__clock.pause(); }
+  else if (m.type === 'run') {
+    try { await load(m.code); mount(); parent.postMessage({ type: 'stage-ran' }, '*'); }
+    catch (err) { window.__report(err); }
+  }
+});
+
+/* In a card preview, a click (not a drag) anywhere opens the detail view in the parent. */
+if (mode === 'preview') {
+  let down = null;
+  addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; }, true);
+  addEventListener('pointerup', e => {
+    if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 6) parent.postMessage({ type: 'stage-click' }, '*');
+    down = null;
+  }, true);
+}
+
+await document.fonts.load('400 16px "Mona Sans"').catch(() => {});
+// ?p=pieces%3D300 (a share link or an embed): tuned values go into the source before the first mount. They pass the
+// same gate as the detail view (slider keys only, numbers only, clamped and snapped), so only numbers reach the code.
+let anim = null, tuned = '';
+if (q.get('p') != null || mode === 'embed') {
+  const [{ ANIMS, srcOf }, { parseParams, writeParams }] = await Promise.all([import('./anims/registry.js'), import('./js/code.js')]);
+  anim = ANIMS.find(a => srcOf(a) === q.get('src')) || null;
+  if (anim) {
+    window.__params = parseParams(q.get('p'), anim.params);
+    tuned = Object.entries(window.__params).map(([k, v]) => `${k}=${v}`).join('&');
+  }
+}
+if (mode === 'embed') setupEmbed();
+if (q.get('src')) {
+  try {
+    if (anim && tuned) {
+      const r = await fetch(q.get('src'));
+      const { writeParams } = await import('./js/code.js');
+      await load(writeParams(await r.text(), window.__params, anim.params));
+    } else await load(null);
+    mount();
+  } catch (err) { window.__report(err); }
+}
+
+/* Embed mode: a badge back to the tuned animation in the library; pauses while scrolled out of view; under reduced
+   motion it starts paused on its first frame with a play button. */
+function setupEmbed() {
+  const clock = window.__clock, reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let wants = !reduced, inView = true;
+  if (anim) {
+    const a = document.createElement('a');
+    a.className = 'ml-badge'; a.textContent = 'Motion Library'; a.target = '_blank'; a.rel = 'noopener';
+    a.href = new URL(`index.html#/a/${anim.id}${tuned ? '?' + tuned : ''}`, location.href).href;
+    a.setAttribute('aria-label', `${anim.title} in Motion Library (opens in a new tab)`);
+    document.body.append(a);
+  }
+  const play = document.createElement('button');
+  play.className = 'ml-play'; play.type = 'button'; play.setAttribute('aria-label', 'Play');
+  play.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4a.6.6 0 00.9.5l8.2-5.2a.6.6 0 000-1L5.4 2.3a.6.6 0 00-.9.5z"/></svg>';
+  play.hidden = wants;
+  play.addEventListener('click', () => { wants = true; play.hidden = true; sync(); });
+  document.body.append(play);
+  const sync = () => { if (wants && inView) clock.play(); else clock.pause(); };
+  if (!wants) clock.pause();
+  new IntersectionObserver(([en]) => { inView = en.isIntersecting; sync(); }).observe(stageEl);
+}
+window.__ready = true;
+parent.postMessage({ type: 'stage-ready' }, '*');
+</script>
+</body>
+</html>

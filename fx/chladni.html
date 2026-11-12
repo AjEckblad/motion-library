@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chladni plate: GPU grains hop by local vibration and settle on nodal lines · Motion Library</title>
+<meta name="description" content="Chladni plate is a WebGL effect: GPU grains hop by local vibration and settle on nodal lines. One plain JavaScript file with no dependencies; add it with npx motion-library add chladni.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/chladni.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Chladni plate · Motion Library">
+<meta property="og:description" content="GPU grains hop by local vibration and settle on nodal lines">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/chladni.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Chladni plate",
+  "description": "GPU grains hop by local vibration and settle on nodal lines",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/chladni.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/chladni.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Chladni plate",
+    "item": "https://ajeckblad.github.io/motion-library/fx/chladni.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Chladni plate</h1>
+<p class="tldr">Chladni plate is a WebGL effect: GPU grains hop by local vibration and settle on nodal lines. One plain JavaScript file with no dependencies; add it with npx motion-library add chladni.</p>
+<figure><img src="../posters/chladni.webp" alt="Chladni plate: GPU grains hop by local vibration and settle on nodal lines" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/chladni">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Chladni plate?</h2>
+<p>Sand on a vibrating brass plate gathers into figures that shift as the tone rises.</p>
+
+<h2>How does Chladni plate work?</h2>
+<p>Each grain hops by how hard its spot shakes and slides toward the standing wave’s nodal lines; 65,000 grains live in a float texture on the GPU.</p>
+
+<h2>How do I add Chladni plate to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add chladni</code>. It writes <code>animations/chladni.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/chladni.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add chladni --grains 512</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Grid (grains = grid²)</td><td><code>--grains</code></td><td>256</td><td>128 to 512</td><td>32</td></tr>
+<tr><td>Sweep speed</td><td><code>--sweep</code></td><td>1</td><td>0.3 to 3</td><td>0.1</td></tr>
+<tr><td>Shake</td><td><code>--shake</code></td><td>1</td><td>0.3 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>10.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Chladni plate: a square brass plate bolted at its centre to a speaker, with sixty-five thousand grains of sand on
+// it. The tone sweeps slowly upward. Near each of the plate's resonant frequencies one standing wave dominates; the
+// plate buzzes everywhere except along its nodal lines, so the sand is bounced off the moving parts and comes to rest
+// on the still ones, drawing the figure Ernst Chladni showed in 1787. Between resonances two modes mix and the sand
+// drifts from one figure toward the next. The grains live on the GPU: each frame every one hops by however hard its
+// spot is shaking, and slides a little downhill toward stillness.
+const PARAMS = { grains: 256, sweep: 1, shake: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  const label = document.createElement('div');
+  label.style.cssText = 'position:absolute;left:14px;bottom:12px;font:500 12px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(235,225,205,.6);letter-spacing:.04em;pointer-events:none';
+  stage.append(canvas, label);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl || !gl.getExtension('EXT_color_buffer_float')) { stage.textContent = 'This needs WebGL2 with float render targets.'; return () =&gt; canvas.remove(); }
+  const G = Math.max(64, Math.round(PARAMS.grains)), COUNT = G * G;
+  // the plate's modes: (n, m, sign), in rising frequency; frequency grows with n² + m²
+  const MODES = [[1, 2, -1], [2, 2, 1], [1, 3, 1], [2, 3, -1], [1, 4, -1], [3, 3, 1], [2, 4, 1], [3, 4, -1], [1, 5, 1], [2, 5, -1], [4, 4, 1], [3, 5, 1], [4, 5, -1], [2, 6, 1], [5, 5, 1], [4, 6, -1], [3, 7, 1], [5, 6, -1], [6, 6, 1], [5, 7, 1]];
+  const FREQ = MODES.map(([n, m]) =&gt; 62 * (n * n + m * m));
+  const K = MODES.length;
+  const WAVE = `
+  uniform vec3 MD[${K}]; uniform float WT[${K}];
+  // the plate's shape right now: each mode's standing wave, weighted by how close the tone is to its resonance
+  float wave(vec2 p) {                                           // p in −1..1
+    float s = 0.;
+    for (int k = 0; k &lt; ${K}; k++) {
+      if (WT[k] &lt; .003) continue;
+      vec2 a = MD[k].xy * 1.5707963;
+      s += WT[k] * (cos(a.x * p.x) * cos(a.y * p.y) + MD[k].z * cos(a.y * p.x) * cos(a.x * p.y));
+    }
+    return s;
+  }`;
+  const QUAD = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  // the sand: hop by the shaking, slide toward stillness, stay on the plate
+  const sandFS = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D S; uniform float F, SH;
+  ${WAVE}
+  vec2 h2(vec2 p) { vec3 q = fract(vec3(p.xyx) * vec3(.1031, .103, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xx + q.yz) * q.zy); }
+  void main() {
+    vec2 p = texture(S, uv).xy;
+    float a = abs(wave(p)), e = .004;
+    vec2 g = vec2(abs(wave(p + vec2(e, 0))) - abs(wave(p - vec2(e, 0))), abs(wave(p + vec2(0, e))) - abs(wave(p - vec2(0, e)))) / (2. * e);
+    vec2 r = h2(gl_FragCoord.xy + F * 13.7) - .5;
+    p += r * (min(a, 1.4) * .02 + .0035) * SH - g * .0007 * SH;   // a floor of jitter: real grains have size, so lines have width
+    p = clamp(p, -.985, .985);
+    o = vec4(p, 0, 1);
+  }`;
+  // the plate: brushed brass under a soft studio light, with a bevelled edge and the bolt at its heart
+  const plateFS = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform vec2 R; uniform float PS, T;
+  ${WAVE}
+  float h(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float n2(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + 1.), f.x), f.y); }
+  void main() {
+    vec2 q = (uv * R - R * .5) / (PS * .5);                        // plate units: −1..1 across the plate
+    vec3 bg = vec3(.07, .068, .066) * (1. - .45 * length(uv - .5));
+    vec2 sd = abs(q - vec2(.035, -.05)) - 1.; float shadow = smoothstep(.12, -.02, max(sd.x, sd.y));
+    bg *= 1. - .6 * shadow;
+    float edge = max(abs(q.x), abs(q.y));
+    vec3 col = bg;
+    if (edge &lt; 1.) {
+      float brushed = n2(vec2(q.x * 3., q.y * 260.)) * .5 + n2(vec2(q.x * 9., q.y * 900.)) * .5;
+      vec3 brass = vec3(.74, .55, .27) * (.82 + .25 * brushed);
+      float light = .55 + .45 * smoothstep(1.6, -.6, length(q - vec2(-.5, .55)));   // a big soft light from the upper left
+      float sheen = exp(-pow((q.x + q.y * .6 - .35) * 1.8, 2.)) * .35;              // and its long reflection
+      col = brass * light + vec3(1., .86, .6) * sheen;
+      col *= 1. + .05 * abs(wave(q)) * sin(T * 90.);              // the buzz, barely visible
+      float bevel = smoothstep(.975, 1., edge);
+      col = mix(col, col * .55, bevel) + vec3(1., .9, .7) * .25 * smoothstep(.96, .975, edge) * (1. - bevel);
+      float bolt = length(q);
+      col = mix(col, vec3(.2, .19, .18), smoothstep(.055, .045, bolt));
+      col += vec3(.7) * smoothstep(.045, .03, length(q - vec2(-.012, .014))) * smoothstep(.0, .03, bolt) * .4;
+    }
+    o = vec4(pow(col, vec3(.95)), 1);
+  }`;
+  // each grain: a little sand-coloured disc with its shadow drawn first, so the pattern has relief
+  const grainVS = `#version 300 es
+  uniform sampler2D S; uniform int G; uniform vec2 R; uniform float PS, SZ, SHADOW;
+  out float k;
+  void main() {
+    int i = gl_VertexID; vec2 p = texelFetch(S, ivec2(i % G, i / G), 0).xy;
+    vec2 px = p * PS * .5 + SHADOW * vec2(.9, -1.1);
+    gl_Position = vec4(px / (R * .5), 0, 1); gl_PointSize = SZ; k = fract(sin(float(i) * 12.9898) * 43758.5453);
+  }`;
+  const grainFS = `#version 300 es
+  precision highp float; in float k; out vec4 o; uniform float SHADOW;
+  void main() { vec2 q = gl_PointCoord * 2. - 1.; if (dot(q, q) &gt; 1.) discard;
+    o = SHADOW &gt; 0. ? vec4(0, 0, 0, .18) : vec4(mix(vec3(.86, .8, .66), vec3(.98, .95, .86), k) * (1. - .25 * q.y * -1.), 1); }`;
+
+  const sh = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = (vs, fs) =&gt; {
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i &lt; n; i++) { const nm = gl.getActiveUniform(p, i).name.replace('[0]', ''); u[nm] = gl.getUniformLocation(p, nm); }
+    return { p, u };
+  };
+  const sandP = prog(QUAD, sandFS), plateP = prog(QUAD, plateFS), grainP = prog(grainVS, grainFS);
+  const quad = gl.createVertexArray(); gl.bindVertexArray(quad);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const empty = gl.createVertexArray();
+  const init = new Float32Array(COUNT * 4); for (let i = 0; i &lt; COUNT; i++) init.set([Math.random() * 1.96 - 0.98, Math.random() * 1.96 - 0.98, 0, 1], i * 4);   // sprinkled evenly
+  const tgt = () =&gt; {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, G, G, 0, gl.RGBA, gl.FLOAT, init);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); return { t, fb };
+  };
+  let A = tgt(), B = tgt();
+  let W = 1, H = 1;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const md = new Float32Array(K * 3); MODES.forEach((m, i) =&gt; md.set(m, i * 3));
+  const wt = new Float32Array(K);
+  let raf, last = performance.now(), t = 0, frameNo = 0, shown = '';
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt; frameNo++;
+    // the tone: a slow upward sweep that lingers near each resonance, then starts over
+    const span = FREQ.length, pos = (t * 0.11 * PARAMS.sweep + 7) % span,   // start partway up, where the figures get intricate
+      k0 = Math.floor(pos), frac = pos - k0;
+    const linger = frac &lt; 0.62 ? 0 : (frac - 0.62) / 0.38, ease = linger * linger * (3 - 2 * linger);
+    const f = FREQ[k0] * Math.pow(FREQ[(k0 + 1) % span] / FREQ[k0], k0 + 1 &lt; span ? ease : 0);
+    let sum = 0; for (let k = 0; k &lt; K; k++) { const x = (f - FREQ[k]) / (FREQ[k] * 0.06); wt[k] = 1 / (1 + x * x); sum += wt[k]; }
+    for (let k = 0; k &lt; K; k++) wt[k] /= Math.max(1, sum * 0.85);
+    const top = wt.indexOf(Math.max(...wt));
+    const txt = `${Math.round(f).toLocaleString('en-US')} Hz   mode ${MODES[top][0]},${MODES[top][1]}`;
+    if (txt !== shown) { label.textContent = txt; shown = txt; }
+    const PS = Math.min(W, H) * 0.86;
+    const setWave = P =&gt; { gl.uniform3fv(P.u.MD, md); gl.uniform1fv(P.u.WT, wt); };
+    gl.disable(gl.BLEND); gl.bindVertexArray(quad);
+    for (let s = 0; s &lt; 2; s++) {
+      gl.useProgram(sandP.p); gl.bindFramebuffer(gl.FRAMEBUFFER, B.fb); gl.viewport(0, 0, G, G);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t); gl.uniform1i(sandP.u.S, 0); gl.uniform1f(sandP.u.F, (frameNo * 2 + s) % 997); gl.uniform1f(sandP.u.SH, PARAMS.shake); setWave(sandP);
+      gl.drawArrays(gl.TRIANGLES, 0, 3); [A, B] = [B, A];
+    }
+    gl.useProgram(plateP.p); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    gl.uniform2f(plateP.u.R, W, H); gl.uniform1f(plateP.u.PS, PS); gl.uniform1f(plateP.u.T, t); setWave(plateP);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(grainP.p); gl.bindVertexArray(empty); gl.bindTexture(gl.TEXTURE_2D, A.t);
+    gl.uniform1i(grainP.u.S, 0); gl.uniform1i(grainP.u.G, G); gl.uniform2f(grainP.u.R, W, H); gl.uniform1f(grainP.u.PS, PS);
+    const sz = Math.max(1.3, PS / 300);
+    gl.uniform1f(grainP.u.SZ, sz * 1.15); gl.uniform1f(grainP.u.SHADOW, sz); gl.drawArrays(gl.POINTS, 0, COUNT);   // shadows
+    gl.uniform1f(grainP.u.SZ, sz); gl.uniform1f(grainP.u.SHADOW, 0); gl.drawArrays(gl.POINTS, 0, COUNT);
+    gl.disable(gl.BLEND);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); label.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

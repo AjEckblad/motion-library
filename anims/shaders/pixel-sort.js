@@ -1,0 +1,177 @@
+// Pixel sorting, done as a real sort on the GPU. A sunset over the sea is painted in code. Then, in every column, the
+// runs of pixels brighter than a threshold are sorted by brightness, darkest at the top, brightest falling to the
+// bottom. The sort is odd-even transposition: every pass compares each pixel with its neighbour above or below
+// (alternating pairs) and swaps them if they are out of order, so a few passes per frame move the pixels visibly, like
+// a waterfall. Pixels outside the runs snap back to the picture, and a few fresh ones are dropped into the runs every
+// frame so the flow never settles. The threshold sweeps across and back, so the glitch pours in and drains away.
+const PARAMS = { threshold: 0.42, passes: 10, speed: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const common = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + 1.), f.x), f.y); }
+  float fbm(vec2 p) { float s = 0., a = .5; for (int i = 0; i < 5; i++) { s += a * noise(p); p = p * 2.03 + 7.1; a *= .5; } return s; }
+  float luma(vec3 c) { return dot(c, vec3(.299, .587, .114)); }
+  `;
+  // 1. the picture: a stormy sunset. Domain-warped clouds lit from the sun's side, jagged ridges with a rim of light,
+  // and a sea that mirrors it all, broken up by ripples and glitter. Lots of texture gives the sort something to do
+  const paintFs = common + `
+  uniform vec2 G; uniform float T;
+  float ridge(float x, float s) {                             // sharp-crested noise: mountain profiles
+    float h = 0., a = .5;
+    for (int i = 0; i < 6; i++) { h += a * (1. - abs(noise(vec2(x, s)) * 2. - 1.)); x = x * 2.1 + 3.7; a *= .47; }
+    return h;
+  }
+  float cloud(vec2 q) { vec2 w = vec2(fbm(q * 1.6), fbm(q * 1.6 + 4.3)); return fbm(q * 2.4 + w * 1.8); }
+  vec3 sky(vec2 p, vec2 sun, float hz) {
+    float y = p.y - hz;
+    vec3 c = mix(vec3(1., .82, .45), vec3(.98, .47, .2), smoothstep(.0, .12, y));
+    c = mix(c, vec3(.78, .2, .34), smoothstep(.1, .32, y));
+    c = mix(c, vec3(.3, .1, .34), smoothstep(.3, .55, y));
+    c = mix(c, vec3(.07, .05, .18), smoothstep(.55, .8, y));
+    float d = length(p - sun);
+    c += vec3(1., .55, .25) * (exp(-d * 6.) * .5 + exp(-d * 22.) * .5);
+    // clouds: density from warped noise, shadowed by sampling again a little toward the sun
+    vec2 q = vec2(p.x * 1.2 + T * .02, y * 3.4);
+    float f = cloud(q), dens = smoothstep(.4, .68, f) * smoothstep(.03, .14, y);
+    vec2 ts = normalize(sun - p) * vec2(1.2, 3.4) * .06;
+    float occ = smoothstep(.4, .75, cloud(q + ts));
+    float glow = exp(-d * 2.6);
+    vec3 lit = mix(vec3(1., .62, .34), vec3(1., .35, .42), smoothstep(.05, .45, y)) * (.55 + 1.1 * glow);
+    vec3 dark = mix(vec3(.42, .14, .3), vec3(.1, .05, .18), smoothstep(.05, .55, y));
+    vec3 cc = mix(lit, dark, occ * .85);
+    cc += vec3(1., .8, .5) * smoothstep(.75, .4, occ) * smoothstep(.4, .5, f) * smoothstep(.62, .45, f) * glow * 1.3;   // silver lining
+    c = mix(c, cc, dens);
+    c = mix(c, vec3(1., .96, .8), smoothstep(.052, .048, d) * (1. - dens * .8));   // the sun, through thin cloud
+    // two ridges; the near one is dark rock with a lit crest
+    float h1 = .02 + .2 * pow(ridge(p.x * 2. + 2., 1.), 2.);
+    c = mix(c, mix(vec3(.62, .3, .42), c, .35), step(y, h1));
+    float h2 = -.03 + .26 * pow(ridge(p.x * 1.5 + 9., 5.), 2.2);
+    if (y < h2) {
+      float rock = fbm(p * vec2(30., 14.));
+      c = mix(vec3(.1, .05, .1), vec3(.22, .1, .16), rock);
+      c += vec3(1., .5, .25) * smoothstep(.012, .0, h2 - y) * (.5 + .5 * exp(-abs(p.x - sun.x) * 2.)) * .8;
+    }
+    return c;
+  }
+  void main() {
+    float a = G.x / G.y;
+    vec2 p = vec2(uv.x * a, uv.y);
+    float hz = .3;
+    vec2 sun = vec2(.57 * a, hz + .2);
+    vec3 c;
+    if (p.y > hz) c = sky(p, sun, hz);
+    else {
+      // the sea: the sky mirrored, pushed about by ripples that get finer toward the horizon, with a path of glitter
+      float dpt = hz - p.y;
+      float rip = noise(vec2(p.x * 26. / (dpt * 5. + .2), p.y * 180. / (dpt * 1.6 + .3) + T * 1.4));
+      vec2 q = vec2(p.x + (rip - .5) * .05 * (dpt * 6. + .1), hz + dpt * 1.1 + .02);
+      c = sky(q, sun, hz) * vec3(.6, .55, .75);
+      float path = exp(-pow((p.x - sun.x) / (.04 + dpt * .6), 2.));
+      c += vec3(1., .72, .42) * path * smoothstep(.55, .92, rip) * 1.3;
+      c *= .55 + .45 * smoothstep(.3, .0, dpt);
+    }
+    o = vec4(clamp(c, 0., 1.), 1);
+  }`;
+  // 2. decide which pixels are in a run (alpha = 1), reset the rest, and drop a few fresh pixels into the runs
+  const injectFs = common + `
+  uniform sampler2D S, A; uniform vec2 G; uniform float T, F, TH, SW, RATE;
+  void main() {
+    vec4 src = texture(S, uv), st = texture(A, uv);
+    float col = floor(uv.x * G.x);
+    // the sweep: a jagged front that runs across the image and back; each column gets its own small offset
+    float x = uv.x + (hash(vec2(col, 3.)) - .5) * .06 + (noise(vec2(col * .05, T * .7)) - .5) * .08;
+    float on = (1. - smoothstep(SW - .02, SW + .02, x)) * step(.001, SW);   // sorting is on left of the front
+    // columns come in bundles of 1 to 6 with their own threshold, and each column is cut into runs of its own
+    // length, so the streaks start and stop at ragged heights like real sorted footage
+    float bundle = floor(col / (1. + floor(hash(vec2(floor(col / 6.), 1.)) * 6.)));
+    float th = mix(1.5, TH + .32 * (hash(vec2(bundle, 7.)) - .5), on);
+    float row = floor(uv.y * G.y), len = 30. + 160. * hash(vec2(bundle, 9.));
+    float cut = step(1., mod(row + hash(vec2(col, 2.)) * len, len));
+    float run = step(th, luma(src.rgb)) * cut;
+    vec3 c = run > .5 && hash(gl_FragCoord.xy + F * vec2(.37, .71)) > RATE ? st.rgb : src.rgb;
+    o = vec4(c, run);
+  }`;
+  // 3. one odd-even transposition pass along each column
+  const sortFs = common + `
+  uniform sampler2D A; uniform vec2 G; uniform float PH;
+  void main() {
+    vec2 px = 1. / G;
+    float row = floor(uv.y * G.y);
+    float dir = mod(row + PH, 2.) < .5 ? 1. : -1.;            // pair with the pixel above or below, alternating each pass
+    vec4 a = texture(A, uv), b = texture(A, uv + vec2(0, dir * px.y));
+    float other = row + dir;
+    if (a.a < .5 || b.a < .5 || other < 0. || other >= G.y) { o = a; return; }
+    // brighter pixels sink: the lower one of the pair keeps the brighter colour
+    bool aBright = luma(a.rgb) >= luma(b.rgb);
+    o = dir > 0. ? (aBright ? a : b) : (aBright ? b : a);
+  }`;
+  // 4. show it, with a little grain
+  const showFs = common + `
+  uniform sampler2D A; uniform vec2 R; uniform float F;
+  void main() {
+    vec3 c = texture(A, uv).rgb;
+    c += (hash(gl_FragCoord.xy + F) - .5) * .025;
+    o = vec4(c, 1);
+  }`;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const mk = fs => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); const u = {}; return { p, u: n => u[n] ??= gl.getUniformLocation(p, n) }; };
+  const paint = mk(paintFs), inject = mk(injectFs), sort = mk(sortFs), show = mk(showFs);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  let GW = 0, GH = 0, SRC = null, ST = [], cur = 0, fresh = true;
+  const target = () => {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, GW, GH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    return { t, fb };
+  };
+  const free = () => { for (const x of [SRC, ...ST]) if (x) { gl.deleteTexture(x.t); gl.deleteFramebuffer(x.fb); } };
+  const resize = () => {
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2);
+    canvas.width = w * d | 0; canvas.height = h * d | 0;
+    // the sort grid: about 1.5 CSS pixels per pixel, so single pixels stay readable
+    const gh = Math.max(60, Math.round(h / 1.5)), gw = Math.max(60, Math.round(gh * w / h));
+    if (gw !== GW || gh !== GH) { free(); GW = gw; GH = gh; SRC = target(); ST = [target(), target()]; fresh = true; }
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const bind = (prog, name, tex, unit) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(prog.u(name), unit); };
+  let raf, t = 0, frameNo = 0, phase = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt * PARAMS.speed; frameNo++;
+    gl.viewport(0, 0, GW, GH);
+    gl.useProgram(paint.p); gl.bindFramebuffer(gl.FRAMEBUFFER, SRC.fb);
+    gl.uniform2f(paint.u('G'), GW, GH); gl.uniform1f(paint.u('T'), t); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // the sweep: in over 3 s, hold, out over 3 s, rest; 13 s a cycle
+    const c = t % 13, e = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+    const sw = c < 1 ? 0 : c < 4 ? e((c - 1) / 3) * 1.05 : c < 8.5 ? 1.05 : c < 11.5 ? 1.05 * (1 - e((c - 8.5) / 3)) : 0;
+    gl.useProgram(inject.p); gl.bindFramebuffer(gl.FRAMEBUFFER, ST[1 - cur].fb);
+    bind(inject, 'S', SRC.t, 0); bind(inject, 'A', ST[cur].t, 1);
+    gl.uniform2f(inject.u('G'), GW, GH); gl.uniform1f(inject.u('T'), t); gl.uniform1f(inject.u('F'), frameNo % 1000);
+    gl.uniform1f(inject.u('TH'), PARAMS.threshold); gl.uniform1f(inject.u('SW'), sw); gl.uniform1f(inject.u('RATE'), fresh ? 1 : 0.006);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); cur = 1 - cur; fresh = false;
+    gl.useProgram(sort.p); gl.uniform2f(sort.u('G'), GW, GH);
+    for (let i = 0; i < Math.round(PARAMS.passes); i++) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, ST[1 - cur].fb); bind(sort, 'A', ST[cur].t, 0);
+      gl.uniform1f(sort.u('PH'), phase); phase = 1 - phase;
+      gl.drawArrays(gl.TRIANGLES, 0, 3); cur = 1 - cur;
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.useProgram(show.p); bind(show, 'A', ST[cur].t, 0); gl.uniform2f(show.u('R'), canvas.width, canvas.height); gl.uniform1f(show.u('F'), frameNo % 1000);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}

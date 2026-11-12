@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Langton’s ant: Turn right on empty, left on filled, flip, step: then a highway · Motion Library</title>
+<meta name="description" content="Langton’s ant is a Canvas effect: turn right on empty, left on filled, flip, step: then a highway. One plain JavaScript file with no dependencies; add it with npx motion-library add langtons-ant.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/langtons-ant.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Langton’s ant · Motion Library">
+<meta property="og:description" content="Turn right on empty, left on filled, flip, step: then a highway">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/langtons-ant.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Langton’s ant",
+  "description": "Turn right on empty, left on filled, flip, step: then a highway",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Simulation, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/langtons-ant.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/langtons-ant.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Simulation",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/simulation"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Langton’s ant",
+    "item": "https://ajeckblad.github.io/motion-library/fx/langtons-ant.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/simulation">Simulation</a></header>
+<main class="s-page">
+<article>
+<h1>Langton’s ant</h1>
+<p class="tldr">Langton’s ant is a Canvas effect: turn right on empty, left on filled, flip, step: then a highway. One plain JavaScript file with no dependencies; add it with npx motion-library add langtons-ant.</p>
+<figure><img src="../posters/langtons-ant.webp" alt="Langton’s ant: Turn right on empty, left on filled, flip, step: then a highway" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/langtons-ant">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Langton’s ant?</h2>
+<p>One ant scribbles chaos for about ten thousand steps, then builds a straight diagonal highway.</p>
+
+<h2>How does Langton’s ant work?</h2>
+<p>Turn right on an empty cell, left on a filled one, flip it, step forward; the chaos always falls into a 104-step cycle. Cells are coloured by when last touched.</p>
+
+<h2>How do I add Langton’s ant to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add langtons-ant</code>. It writes <code>animations/langtons-ant.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/langtons-ant.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add langtons-ant --speed 1000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Steps / frame</td><td><code>--speed</code></td><td>120</td><td>1 to 1000</td><td>1</td></tr>
+<tr><td>Cell size</td><td><code>--cell</code></td><td>5</td><td>2 to 10</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Simulation</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Langton’s ant: one ant on a grid of two-colour cells. On an empty cell it turns right, on a filled cell left; it
+// flips the cell it leaves and steps forward. Nothing else. For about ten thousand steps it builds a symmetric then
+// chaotic blob, and then, always, it locks into a 104-step cycle that drives a diagonal &quot;highway&quot; off forever. Filled
+// cells are coloured by when the ant last touched them, so the newest work glows and the old blob cools. The grid
+// wraps, so the highway eventually crashes back into the blob and the chaos restarts.
+const PARAMS = { speed: 120, cell: 5 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const off = document.createElement('canvas'), octx = off.getContext('2d');
+  let W = 0, H = 0, D = 1, C = 0, R = 0, cell, touched, img, grid, ax, ay, dir, steps;
+  const cp = () =&gt; Math.max(2, Math.round(PARAMS.cell));
+  // age ramp for filled cells: 0 = just flipped (white-hot) .. 1 = old (deep violet)
+  const stops = [[0, [255, 250, 225]], [0.04, [255, 196, 90]], [0.2, [240, 100, 60]], [0.5, [170, 45, 110]], [1, [62, 30, 96]]];
+  const LUT = new Uint32Array(256);
+  for (let i = 0; i &lt; 256; i++) {
+    const t = i / 255; let k = 0; while (k &lt; stops.length - 2 &amp;&amp; t &gt; stops[k + 1][0]) k++;
+    const [t0, a] = stops[k], [t1, b] = stops[k + 1], u = (t - t0) / (t1 - t0);
+    const c = a.map((v, j) =&gt; Math.round(v + (b[j] - v) * u));
+    LUT[i] = 0xff000000 | (c[2] &lt;&lt; 16) | (c[1] &lt;&lt; 8) | c[0];
+  }
+  const BG = 0xff000000 | (14 &lt;&lt; 16) | (9 &lt;&lt; 8) | 8, VISITED = 0xff000000 | (30 &lt;&lt; 16) | (18 &lt;&lt; 8) | 17;
+  const reset = () =&gt; {
+    cell = new Uint8Array(C * R); touched = new Float64Array(C * R).fill(-1);
+    ax = C &gt;&gt; 1; ay = R &gt;&gt; 1; dir = 0; steps = 0;
+  };
+  const resize = () =&gt; {
+    D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    canvas.width = Math.round(W * D); canvas.height = Math.round(H * D);
+    const c = Math.ceil(W / cp()), r = Math.ceil(H / cp());
+    if (c === C &amp;&amp; r === R) return;
+    C = c; R = r;
+    off.width = C; off.height = R; img = octx.createImageData(C, R); reset();
+    const s = Math.round(cp() * D), g = document.createElement('canvas'); g.width = g.height = s;
+    const gc = g.getContext('2d'), w = Math.max(1, Math.round(D * 0.75));
+    gc.fillStyle = '#080506'; gc.fillRect(0, 0, s, w); gc.fillRect(0, 0, w, s);
+    grid = ctx.createPattern(g, 'repeat');
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
+  const advance = n =&gt; {
+    for (let k = 0; k &lt; n; k++) {
+      const i = ay * C + ax, s = cell[i];
+      dir = (dir + (s ? 3 : 1)) &amp; 3;          // empty: turn right, filled: turn left
+      cell[i] = s ^ 1; touched[i] = steps++;
+      ax = (ax + DX[dir] + C) % C; ay = (ay + DY[dir] + R) % R;
+    }
+  };
+
+  const draw = () =&gt; {
+    const px = new Uint32Array(img.data.buffer), span = Math.max(4000, steps * 0.6);
+    for (let i = 0; i &lt; C * R; i++) {
+      const t = touched[i];
+      if (t &lt; 0) px[i] = BG;
+      else if (!cell[i]) px[i] = VISITED;
+      else px[i] = LUT[Math.min(255, ((steps - t) / span) * 255) | 0];
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    const s = cp() * D;
+    ctx.fillStyle = '#0e0908'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(off, 0, 0, C * s, R * s);
+    ctx.fillStyle = grid; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // the ant: a bright cell with a soft halo
+    const x = (ax + 0.5) * s, y = (ay + 0.5) * s;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, s * 5);
+    g.addColorStop(0, 'rgba(120,255,230,0.55)'); g.addColorStop(1, 'rgba(120,255,230,0)');
+    ctx.fillStyle = g; ctx.fillRect(x - s * 5, y - s * 5, s * 10, s * 10);
+    ctx.fillStyle = '#c8fff2'; ctx.fillRect(ax * s, ay * s, s, s);
+  };
+
+  let raf, hold = 0;
+  function frame() {
+    if (hold &gt; 0) { hold--; if (!hold) reset(); }
+    else {
+      if (reduce &amp;&amp; steps === 0) advance(12000);                 // reduced motion: start where the highway leaves
+      advance(Math.max(1, Math.round(PARAMS.speed * (reduce ? 0.05 : 1))));
+      // after the highway has wrapped around a few times the board gets busy: pause on it, then start over
+      if (steps &gt; C * R * 9) hold = 90;
+    }
+    draw();
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

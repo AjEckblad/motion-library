@@ -1,0 +1,275 @@
+# Motion Library
+
+> 214 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+
+## Install
+
+- `npx motion-library list` lists every effect.
+- `npx motion-library add <id> [--setting value ...]` writes `animations/<id>.js` into the current project (Node 18+).
+- Each file's default export takes a sized container element, draws into it and returns a cleanup function.
+- `npx motion-library prompt <id>` prints a prompt for an AI coding assistant with the notes, settings and code.
+
+## Flow & particles
+
+- [Curl-noise flow field](https://ajeckblad.github.io/motion-library/fx/curl-flow.html): Divergence-free curl noise; particles never clump. `npx motion-library add curl-flow`
+- [Drone light show](https://ajeckblad.github.io/motion-library/fx/drone-show.html): Formation changes solved as an assignment problem: sort, then swap. `npx motion-library add drone-show`
+- [Particle life](https://ajeckblad.github.io/motion-library/fx/particle-life.html): Asymmetric attraction table between species; lifelike clusters emerge. `npx motion-library add particle-life`
+- [Cloud chamber](https://ajeckblad.github.io/motion-library/fx/cloud-chamber.html): Particle tracks drawn as droplet trails that swell, drift and fade. `npx motion-library add cloud-chamber`
+- [Spiral galaxy](https://ajeckblad.github.io/motion-library/fx/galaxy.html): Stars on log-spiral arms with differential rotation and additive light. `npx motion-library add galaxy`
+- [Strange attractor](https://ajeckblad.github.io/motion-library/fx/strange-attractor.html): Particles integrating the Aizawa attractor, with fading-canvas trails. `npx motion-library add strange-attractor`
+- [Slime mould maps Tokyo](https://ajeckblad.github.io/motion-library/fx/physarum.html): Sense, turn, step, deposit: agents carve self-reinforcing trail networks. `npx motion-library add physarum`
+- [Lightning arcs](https://ajeckblad.github.io/motion-library/fx/lightning.html): Midpoint displacement, recursive branches, glow and afterimage. `npx motion-library add lightning`
+- [Iron filings](https://ajeckblad.github.io/motion-library/fx/iron-filings.html): Segments align to the field and hop onto flux contours. `npx motion-library add iron-filings`
+- [Galton board](https://ajeckblad.github.io/motion-library/fx/galton-board.html): Per-bead coin tosses stack into a binomial bell curve. `npx motion-library add galton-board`
+- [Pin art](https://ajeckblad.github.io/motion-library/fx/pin-art.html): Instanced pins that only slide forward, so imprints persist. `npx motion-library add pin-art`
+- [3D paper confetti](https://ajeckblad.github.io/motion-library/fx/confetti.html): Squash by cos(spin) to fake a 3D tumble, two-sided colour. `npx motion-library add confetti`
+- [Firefly sync](https://ajeckblad.github.io/motion-library/fx/firefly-sync.html): Pulse-coupled oscillators: every flash nudges neighbours forward. `npx motion-library add firefly-sync`
+- [GPU particles (262k)](https://ajeckblad.github.io/motion-library/fx/gpu-particles.html): Positions live in a float texture; a shader moves them all. `npx motion-library add gpu-particles`
+- [Hydrogen orbitals](https://ajeckblad.github.io/motion-library/fx/orbitals.html): Metropolis sampling of an exact wavefunction, coloured by phase. `npx motion-library add orbitals`
+- [Roche limit](https://ajeckblad.github.io/motion-library/fx/roche-limit.html): Tidal stretching past the Roche limit shears rubble into a ring. `npx motion-library add roche-limit`
+- [Starling murmuration](https://ajeckblad.github.io/motion-library/fx/murmuration.html): 3D flocking where each bird tracks only seven nearest neighbours. `npx motion-library add murmuration`
+- [States of matter](https://ajeckblad.github.io/motion-library/fx/states-of-matter.html): Lennard-Jones atoms plus a thermostat: gas, liquid, crystal. `npx motion-library add states-of-matter`
+- [Bonfire embers](https://ajeckblad.github.io/motion-library/fx/embers.html): Temperature-squared buoyancy swirled by a divergence-free curl field. `npx motion-library add embers`
+- [Calligraphy brush](https://ajeckblad.github.io/motion-library/fx/calligraphy.html): Bristle-by-bristle brush with per-bristle ink and dry-brush streaks. `npx motion-library add calligraphy`
+- [Harmonograph](https://ajeckblad.github.io/motion-library/fx/harmonograph.html): Summed decaying sines near a simple ratio, slightly detuned. `npx motion-library add harmonograph`
+- [Chladni plate](https://ajeckblad.github.io/motion-library/fx/chladni.html): GPU grains hop by local vibration and settle on nodal lines. `npx motion-library add chladni`
+- [Crystal growth (DLA)](https://ajeckblad.github.io/motion-library/fx/dla-crystal.html): Diffusion-limited aggregation: random walkers stick on contact. `npx motion-library add dla-crystal`
+- [Wind tunnel](https://ajeckblad.github.io/motion-library/fx/wind-tunnel.html): GPU lattice Boltzmann solver shedding a Kármán vortex street. `npx motion-library add wind-tunnel`
+- [Fireworks](https://ajeckblad.github.io/motion-library/fx/fireworks.html): Rocket bursts with gravity, drag and six shell types. `npx motion-library add fireworks`
+- [Bokeh](https://ajeckblad.github.io/motion-library/fx/bokeh.html): Circle of confusion: discs grow with distance from the focal plane. `npx motion-library add bokeh`
+- [Nebula](https://ajeckblad.github.io/motion-library/fx/nebula.html): Domain-warped fbm gas, lit toward a star, with dust lanes. `npx motion-library add nebula`
+
+## Fluid
+
+- [Ink fluid](https://ajeckblad.github.io/motion-library/fx/ink-fluid.html): Stable fluids: advect, curl, project, repeat. `npx motion-library add ink-fluid`
+- [Liquid image distortion](https://ajeckblad.github.io/motion-library/fx/liquid-distort.html): Offset texture lookups by flowing noise. `npx motion-library add liquid-distort`
+- [Lava lamp](https://ajeckblad.github.io/motion-library/fx/lava-lamp.html): Metaballs: sum the fields, threshold the sum. `npx motion-library add lava-lamp`
+- [Fire & smoke](https://ajeckblad.github.io/motion-library/fx/fire-smoke.html): Fluid solver with buoyant heat that cools into smoke. `npx motion-library add fire-smoke`
+- [Lava flow](https://ajeckblad.github.io/motion-library/fx/lava-flow.html): Temperature-dependent viscous flow; crust drawn on advected coordinates. `npx motion-library add lava-flow`
+- [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Distance-field blob with cosine spikes that reach for the magnet. `npx motion-library add ferrofluid`
+- [Paper marbling](https://ajeckblad.github.io/motion-library/fx/marbling.html): Backward lookup through comb and swirl warps; paint never smears. `npx motion-library add marbling`
+- [Rain on glass](https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html): Each drop is a lens showing a sharp, flipped background. `npx motion-library add raindrops-glass`
+- [Ink drop in water](https://ajeckblad.github.io/motion-library/fx/ink-drop.html): Particles orbiting a sinking, widening vortex ring. `npx motion-library add ink-drop`
+- [Dripping text](https://ajeckblad.github.io/motion-library/fx/dripping-text.html): Gooey blur-and-threshold filter: drips merge with letters, necks snap. `npx motion-library add dripping-text`
+- [Liquid mercury](https://ajeckblad.github.io/motion-library/fx/mercury.html): Metaball beads that merge, split and mirror an environment. `npx motion-library add mercury`
+- [Kelvin–Helmholtz clouds](https://ajeckblad.github.io/motion-library/fx/billow-clouds.html): Shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself. `npx motion-library add billow-clouds`
+- [Paint swirl](https://ajeckblad.github.io/motion-library/fx/paint-swirl.html): Colour advected around vortices; palette snapping keeps bands crisp. `npx motion-library add paint-swirl`
+- [SPH water tank](https://ajeckblad.github.io/motion-library/fx/sph-water.html): SPH: particles measure their own crowding and push back. `npx motion-library add sph-water`
+
+## Chrome & 3D
+
+- [Portal](https://ajeckblad.github.io/motion-library/fx/portal.html): Rays crossing the ring finish tracing in a second world. `npx motion-library add portal`
+- [Geode](https://ajeckblad.github.io/motion-library/fx/geode.html): Voronoi over directions grows faceted crystals inward. `npx motion-library add geode`
+- [Glass lens refraction](https://ajeckblad.github.io/motion-library/fx/glass-lens.html): Bend the lookup by the lens normal, per colour. `npx motion-library add glass-lens`
+- [Dust to the wind](https://ajeckblad.github.io/motion-library/fx/dust-bust.html): SDF surface sampled by random rays, dissolved point by point. `npx motion-library add dust-bust`
+- [Cloth reveal](https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html): Verlet cloth with cone collisions: snags, tents, then whips off. `npx motion-library add cloth-reveal`
+- [Liquid metal](https://ajeckblad.github.io/motion-library/fx/liquid-metal.html): Smooth-minimum blob pinches off a height-field pool; double reflections. `npx motion-library add liquid-metal`
+- [Mandelbulb fractal](https://ajeckblad.github.io/motion-library/fx/mandelbulb.html): Power-8 orbits in spherical coordinates, raymarched by distance estimate. `npx motion-library add mandelbulb`
+- [Infinite tunnel](https://ajeckblad.github.io/motion-library/fx/infinite-tunnel.html): Distance-field tube on a winding path, panels from angle and depth. `npx motion-library add infinite-tunnel`
+- [Glass prism](https://ajeckblad.github.io/motion-library/fx/glass-prism.html): Per-channel refraction with total internal reflection for dispersion. `npx motion-library add glass-prism`
+- [Dot globe with arcs](https://ajeckblad.github.io/motion-library/fx/point-globe.html): Fibonacci sphere of dots, noise continents, great-circle arcs. `npx motion-library add point-globe`
+- [Extruded 3D type](https://ajeckblad.github.io/motion-library/fx/extruded-type.html): Text mask stacked back to front through one 3D rotation. `npx motion-library add extruded-type`
+- [Holographic card](https://ajeckblad.github.io/motion-library/fx/holo-card.html): Spring-driven CSS 3D tilt, color-dodge foil, glare tracking the light. `npx motion-library add holo-card`
+- [Iridescent torus knot](https://ajeckblad.github.io/motion-library/fx/torus-knot.html): Tube swept along a (p, q) knot with parallel-transport frames. `npx motion-library add torus-knot`
+- [Jelly cube](https://ajeckblad.github.io/motion-library/fx/jelly-cube.html): Mass-spring lattice drives free-form deformation; thickness-based light absorption. `npx motion-library add jelly-cube`
+- [Neon geodesic sphere](https://ajeckblad.github.io/motion-library/fx/neon-geodesic.html): Icosphere wireframe stroked as neon, glow from cheap downscaled copies. `npx motion-library add neon-geodesic`
+- [Spheres on a knot](https://ajeckblad.github.io/motion-library/fx/path-spheres.html): Analytically ray-traced spheres with soft shadows and interreflections. `npx motion-library add path-spheres`
+- [SDF shape morph](https://ajeckblad.github.io/motion-library/fx/sdf-morph.html): Five distance functions blended in turn, twisting at each midpoint. `npx motion-library add sdf-morph`
+- [Paper fold](https://ajeckblad.github.io/motion-library/fx/paper-fold.html): Nested CSS 3D hinges, shaded from their true normals. `npx motion-library add paper-fold`
+- [Menger sponge](https://ajeckblad.github.io/motion-library/fx/menger-sponge.html): Box minus a cross, repeated by folding space each level. `npx motion-library add menger-sponge`
+- [Gyroid fly-through](https://ajeckblad.github.io/motion-library/fx/gyroid.html): Thickened gyroid sheet with a tube carved along the camera path. `npx motion-library add gyroid`
+- [Black hole](https://ajeckblad.github.io/motion-library/fx/black-hole.html): Rays bent toward the hole each step; Doppler-beamed accretion disk. `npx motion-library add black-hole`
+- [Tesseract](https://ajeckblad.github.io/motion-library/fx/tesseract.html): Rigid 4D rotation projected to 3D turns the cube inside out. `npx motion-library add tesseract`
+- [Soap bubble](https://ajeckblad.github.io/motion-library/fx/soap-bubble.html): Thin-film interference from a draining, swirling film thickness. `npx motion-library add soap-bubble`
+- [Terrain flyover](https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html): Slope-damped noise layers carve erosion-like ridges. `npx motion-library add terrain-flyover`
+- [Volumetric clouds](https://ajeckblad.github.io/motion-library/fx/volumetric-clouds.html): March a noise density, with a second march toward the sun. `npx motion-library add volumetric-clouds`
+- [Brilliant-cut diamond](https://ajeckblad.github.io/motion-library/fx/gem.html): Facet-plane intersection, total internal reflection, per-channel dispersion. `npx motion-library add gem`
+- [Klein bottle](https://ajeckblad.github.io/motion-library/fx/klein-bottle.html): Parametric mesh as an additive hologram, see-through self-intersection. `npx motion-library add klein-bottle`
+- [Inflated type](https://ajeckblad.github.io/motion-library/fx/inflated-type.html): Pressure membrane solved inside glyphs gives a balloon profile. `npx motion-library add inflated-type`
+- [Melting chrome logo](https://ajeckblad.github.io/motion-library/fx/melting-logo.html): Distance-field text melted by sampling the field from above. `npx motion-library add melting-logo`
+- [DNA double helix](https://ajeckblad.github.io/motion-library/fx/dna-helix.html): Pre-shaded sphere sprites sorted back to front, no 3D engine. `npx motion-library add dna-helix`
+- [3D fractal tree](https://ajeckblad.github.io/motion-library/fx/fractal-tree.html): Three-way recursive branching around the golden angle, grown level by level. `npx motion-library add fractal-tree`
+- [Shatter & rewind](https://ajeckblad.github.io/motion-library/fx/shatter.html): Voronoi shards on ballistic paths; time slows, stops, reverses. `npx motion-library add shatter`
+
+## Shaders & glitch
+
+- [CRT monitor](https://ajeckblad.github.io/motion-library/fx/crt-monitor.html): Simulated electron beam, phosphor decay and aperture-grille stripes. `npx motion-library add crt-monitor`
+- [CMYK halftone](https://ajeckblad.github.io/motion-library/fx/cmyk-halftone.html): Rotated dot screens (C15° M75° Y0° K45°) printed in light. `npx motion-library add cmyk-halftone`
+- [Reaction–diffusion](https://ajeckblad.github.io/motion-library/fx/reaction-diffusion.html): Gray–Scott: two chemicals, feed and kill. `npx motion-library add reaction-diffusion`
+- [Guilloche spirograph](https://ajeckblad.github.io/motion-library/fx/guilloche.html): A hypotrochoid, drawn as a seven-line ribbon. `npx motion-library add guilloche`
+- [RGB-split glitch](https://ajeckblad.github.io/motion-library/fx/rgb-glitch.html): Shift the colour channels, displace slices. `npx motion-library add rgb-glitch`
+- [Domain-warped marble](https://ajeckblad.github.io/motion-library/fx/domain-warp.html): Noise sampled at noise-warped coordinates: f(p + g(p + h(p))). `npx motion-library add domain-warp`
+- [Truchet flow](https://ajeckblad.github.io/motion-library/fx/truchet.html): Random quarter-arc tiles that always connect, checkerboard flow. `npx motion-library add truchet`
+- [Kaleidoscope](https://ajeckblad.github.io/motion-library/fx/kaleidoscope.html): Polar angle wrapped into one mirrored wedge. `npx motion-library add kaleidoscope`
+- [Ordered dither](https://ajeckblad.github.io/motion-library/fx/dither.html): Ordered dithering against an 8×8 Bayer threshold matrix. `npx motion-library add dither`
+- [Pen sketch](https://ajeckblad.github.io/motion-library/fx/pen-sketch.html): Hatching layered by lighting; outlines from depth and normal jumps. `npx motion-library add pen-sketch`
+- [ASCII render](https://ajeckblad.github.io/motion-library/fx/ascii-render.html): Brightness picks a glyph, edges pick - / |  by direction. `npx motion-library add ascii-render`
+- [Pixel sort](https://ajeckblad.github.io/motion-library/fx/pixel-sort.html): GPU odd-even transposition sort within bright runs per column. `npx motion-library add pixel-sort`
+- [Hyperbolic tiling](https://ajeckblad.github.io/motion-library/fx/hyperbolic-tiling.html): Fold pixels into one triangle by reflections; glide by Möbius map. `npx motion-library add hyperbolic-tiling`
+
+## Generative & math
+
+- [Op-art moiré](https://ajeckblad.github.io/motion-library/fx/op-art-moire.html): Two fine ring gratings beat into broad, fast-moving moiré fringes. `npx motion-library add op-art-moire`
+- [Bauhaus composition](https://ajeckblad.github.io/motion-library/fx/bauhaus.html): Primary tiles that re-compose themselves through staggered, eased tweens. `npx motion-library add bauhaus`
+- [Memphis pattern](https://ajeckblad.github.io/motion-library/fx/memphis.html): Jittered-grid confetti of Memphis shapes, wrapping seamlessly in three parallax layers. `npx motion-library add memphis`
+- [Phyllotaxis](https://ajeckblad.github.io/motion-library/fx/phyllotaxis.html): Seeds at the golden angle, radius ∝ √age: why 137.5° packs perfectly. `npx motion-library add phyllotaxis`
+- [Rose curve](https://ajeckblad.github.io/motion-library/fx/rose-curve.html): r = cos(kθ) traced by a comet pen, k gliding between fractions. `npx motion-library add rose-curve`
+- [Superformula](https://ajeckblad.github.io/motion-library/fx/superformula.html): Gielis superformula outlines blended radius by radius, echoed into ribbons. `npx motion-library add superformula`
+- [Hex wave](https://ajeckblad.github.io/motion-library/fx/hex-wave.html): Honeycomb prisms lifted by summed travelling rings and a swell. `npx motion-library add hex-wave`
+- [Wave lines](https://ajeckblad.github.io/motion-library/fx/wave-lines.html): Harmonics phase-shifted line to line; hidden-line ridges drift diagonally. `npx motion-library add wave-lines`
+- [Starburst](https://ajeckblad.github.io/motion-library/fx/starburst.html): Counter-rotating ray fans and zooming rings, combined with a difference blend. `npx motion-library add starburst`
+- [Log spiral](https://ajeckblad.github.io/motion-library/fx/spiral.html): Rotating log spirals look like an endless zoom inward. `npx motion-library add spiral`
+- [Woven tartan](https://ajeckblad.github.io/motion-library/fx/tartan.html): Real 2/2 twill per pixel: a mirrored sett on warp and weft. `npx motion-library add tartan`
+- [Clifford attractor](https://ajeckblad.github.io/motion-library/fx/clifford-attractor.html): A million GPU orbits a frame into a log-tone-mapped density buffer. `npx motion-library add clifford-attractor`
+- [Barnsley fern](https://ajeckblad.github.io/motion-library/fx/barnsley-fern.html): Chaos game with four affine maps, shaded by hit count. `npx motion-library add barnsley-fern`
+- [Chaos game](https://ajeckblad.github.io/motion-library/fx/sierpinski.html): Random jumps toward corners converge on the Sierpinski triangle. `npx motion-library add sierpinski`
+- [Dragon curve](https://ajeckblad.github.io/motion-library/fx/dragon-curve.html): Each fold copies the curve and swings it open by 90°. `npx motion-library add dragon-curve`
+- [Dot-matrix wave](https://ajeckblad.github.io/motion-library/fx/dot-matrix-wave.html): One disc per cell, sized and coloured by rolling waves. `npx motion-library add dot-matrix-wave`
+- [Metaballs](https://ajeckblad.github.io/motion-library/fx/metaballs.html): Summed inverse-square fields, thresholded into one surface. `npx motion-library add metaballs`
+- [Aurora curtains](https://ajeckblad.github.io/motion-library/fx/aurora-ribbons.html): Folded light curtains: bright hems, stretched-noise rays, altitude colour. `npx motion-library add aurora-ribbons`
+- [Ripple grid](https://ajeckblad.github.io/motion-library/fx/ripple-grid.html): Damped ring waves displace the coordinates a grid is drawn in. `npx motion-library add ripple-grid`
+- [Voronoi cells](https://ajeckblad.github.io/motion-library/fx/voronoi-cells.html): Nearest and second-nearest seed distances; walls where F2 − F1 ≈ 0. `npx motion-library add voronoi-cells`
+- [Quasicrystal](https://ajeckblad.github.io/motion-library/fx/quasicrystal.html): N rotated plane waves summed: ordered, symmetric, never repeating. `npx motion-library add quasicrystal`
+- [Topographic contours](https://ajeckblad.github.io/motion-library/fx/topographic.html): Isolines of morphing noise terrain, made pixel-exact with fwidth. `npx motion-library add topographic`
+- [Wave interference](https://ajeckblad.github.io/motion-library/fx/interference.html): Point sources summed as complex waves; fixed fringes, travelling crests. `npx motion-library add interference`
+- [Plasma](https://ajeckblad.github.io/motion-library/fx/plasma.html): Four sines summed, through a dark-light-dark ramp, not a rainbow. `npx motion-library add plasma`
+- [Heatmap](https://ajeckblad.github.io/motion-library/fx/heatmap.html): A drifting field, sampled per cell, through a perceptual heat palette. `npx motion-library add heatmap`
+- [Julia set](https://ajeckblad.github.io/motion-library/fx/julia-set.html): z → z² + c, with c gliding along the Mandelbrot edge. `npx motion-library add julia-set`
+
+## Simulation
+
+- [Brian’s Brain](https://ajeckblad.github.io/motion-library/fx/brians-brain.html): Three-state cellular automaton: fire, refractory, off; gliders everywhere. `npx motion-library add brians-brain`
+- [Langton’s ant](https://ajeckblad.github.io/motion-library/fx/langtons-ant.html): Turn right on empty, left on filled, flip, step: then a highway. `npx motion-library add langtons-ant`
+- [Falling sand](https://ajeckblad.github.io/motion-library/fx/falling-sand.html): Cellular automaton: grains fall, slide diagonally, water spreads sideways. `npx motion-library add falling-sand`
+- [Doom fire](https://ajeckblad.github.io/motion-library/fx/doom-fire.html): The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly. `npx motion-library add doom-fire`
+- [Water ripples](https://ajeckblad.github.io/motion-library/fx/water-ripple.html): Height-field wave equation on the GPU, refracting a grid beneath. `npx motion-library add water-ripple`
+- [Double pendulums](https://ajeckblad.github.io/motion-library/fx/double-pendulum.html): Chaos: pendulums a fraction of a milliradian apart diverge completely. `npx motion-library add double-pendulum`
+- [N-body orbits](https://ajeckblad.github.io/motion-library/fx/orbits.html): Every body pulls every other; leapfrog integration keeps orbits closed. `npx motion-library add orbits`
+- [Vortex drain](https://ajeckblad.github.io/motion-library/fx/vortex.html): Lamb–Oseen vortex plus inflow; differential rotation winds colour into arms. `npx motion-library add vortex`
+- [Plexus](https://ajeckblad.github.io/motion-library/fx/plexus.html): Drifting points linked by distance-faded lines, found through a grid. `npx motion-library add plexus`
+
+## Retro & signal
+
+- [Digital rain](https://ajeckblad.github.io/motion-library/fx/matrix-rain.html): Falling glyph heads with fading tails, stamped from a cached atlas. `npx motion-library add matrix-rain`
+- [Warp starfield](https://ajeckblad.github.io/motion-library/fx/starfield-warp.html): Perspective-projected stars whose streak length grows with speed. `npx motion-library add starfield-warp`
+- [Oscilloscope](https://ajeckblad.github.io/motion-library/fx/oscilloscope.html): X-Y Lissajous beam with speed-dependent brightness and phosphor afterglow. `npx motion-library add oscilloscope`
+- [Copper bars](https://ajeckblad.github.io/motion-library/fx/copper-bars.html): Per-scanline colour ramps on a rolling drum, in 12-bit colour. `npx motion-library add copper-bars`
+- [Checker tunnel](https://ajeckblad.github.io/motion-library/fx/checker-tunnel.html): Angle and inverse radius as texture coordinates; a flat checker becomes a tube. `npx motion-library add checker-tunnel`
+- [Rotozoom](https://ajeckblad.github.io/motion-library/fx/rotozoom.html): One texture lookup through a rotating, breathing scale matrix. `npx motion-library add rotozoom`
+- [Seven-segment clock](https://ajeckblad.github.io/motion-library/fx/seven-segment.html): Bevelled hexagon segments with lit glow and unlit ghosts. `npx motion-library add seven-segment`
+- [LED dot-matrix sign](https://ajeckblad.github.io/motion-library/fx/led-matrix.html): 5×7 bitmap text stepped one LED column at a time, bloomed per LED. `npx motion-library add led-matrix`
+- [Radar sweep](https://ajeckblad.github.io/motion-library/fx/radar-sweep.html): Phosphor decay as exp(−angle since the beam passed). `npx motion-library add radar-sweep`
+- [Heart monitor](https://ajeckblad.github.io/motion-library/fx/ekg.html): Gaussian PQRST beats written in place behind an erase bar. `npx motion-library add ekg`
+- [Spectrum analyser](https://ajeckblad.github.io/motion-library/fx/audio-bars.html): Synthesised spectrum, fast-attack bars, peak caps falling under gravity. `npx motion-library add audio-bars`
+- [Neon tubes](https://ajeckblad.github.io/motion-library/fx/neon-pipes.html): Hot core, coloured glass, and a mip-pyramid bloom. `npx motion-library add neon-pipes`
+- [Targeting HUD](https://ajeckblad.github.io/motion-library/fx/crosshair-hud.html): Spring-damped reticle, edge rulers, and brackets that close to lock. `npx motion-library add crosshair-hud`
+
+## Basics
+
+- [Fade & scale in](https://ajeckblad.github.io/motion-library/fx/fade-scale.html): Cards rise from 94% scale, never from zero. `npx motion-library add fade-scale`
+- [Stagger grid](https://ajeckblad.github.io/motion-library/fx/stagger-grid.html): Delay grows with distance from the tap. `npx motion-library add stagger-grid`
+- [Easing curves race](https://ajeckblad.github.io/motion-library/fx/easing-race.html): Same distance, same time, four easing curves. `npx motion-library add easing-race`
+- [3D card flip](https://ajeckblad.github.io/motion-library/fx/card-flip.html): rotateY on a spring, with the back face hidden. `npx motion-library add card-flip`
+- [Anticipation & follow-through](https://ajeckblad.github.io/motion-library/fx/anticipation.html): Crouch before the hop, wobble after the landing. `npx motion-library add anticipation`
+- [List reorder (FLIP)](https://ajeckblad.github.io/motion-library/fx/list-reorder.html): FLIP reorder; rising rows pass above falling ones. `npx motion-library add list-reorder`
+- [Add & remove](https://ajeckblad.github.io/motion-library/fx/add-remove.html): The gap closes after the item leaves, and opens before it returns. `npx motion-library add add-remove`
+- [Number ticker](https://ajeckblad.github.io/motion-library/fx/number-ticker.html): Each digit is a 0–9 strip that rolls to its value. `npx motion-library add number-ticker`
+- [Accordion FAQ](https://ajeckblad.github.io/motion-library/fx/accordion-faq.html): Height to a measured value, text a beat later. `npx motion-library add accordion-faq`
+- [Tab swap](https://ajeckblad.github.io/motion-library/fx/tab-swap.html): A clipped copy of the tabs; the leading edge moves first. `npx motion-library add tab-swap`
+
+## Page transitions
+
+- [Push slide](https://ajeckblad.github.io/motion-library/fx/push-slide.html): The new screen pushes; the old one drifts slower. `npx motion-library add push-slide`
+- [Circle reveal](https://ajeckblad.github.io/motion-library/fx/circle-reveal.html): A clip-path circle grows from the tap point. `npx motion-library add circle-reveal`
+- [Staircase wipe](https://ajeckblad.github.io/motion-library/fx/staircase-wipe.html): Bars cover in a stagger, the page swaps unseen. `npx motion-library add staircase-wipe`
+- [Shared-element expand](https://ajeckblad.github.io/motion-library/fx/shared-expand.html): FLIP with a uniform scale and a clip. `npx motion-library add shared-expand`
+- [View Transitions morph](https://ajeckblad.github.io/motion-library/fx/view-transition.html): The browser morphs matching view-transition-names. `npx motion-library add view-transition`
+- [iOS sheet](https://ajeckblad.github.io/motion-library/fx/ios-sheet.html): The page steps back as the sheet comes up. `npx motion-library add ios-sheet`
+- [Lightbox zoom](https://ajeckblad.github.io/motion-library/fx/lightbox-zoom.html): The square crop opens out to the full photo. `npx motion-library add lightbox-zoom`
+- [Directional tabs](https://ajeckblad.github.io/motion-library/fx/directional-tabs.html): Content enters from the side of the tab you picked. `npx motion-library add directional-tabs`
+- [Blur crossfade](https://ajeckblad.github.io/motion-library/fx/blur-crossfade.html): A short blur hides the double image. `npx motion-library add blur-crossfade`
+- [Card stack swipe](https://ajeckblad.github.io/motion-library/fx/card-stack-swipe.html): Drag, stamp, throw; the stack springs up. `npx motion-library add card-stack-swipe`
+
+## Text
+
+- [Letter rise stagger](https://ajeckblad.github.io/motion-library/fx/letter-rise.html): Letters spring up from a clipped line, 40 ms apart. `npx motion-library add letter-rise`
+- [Scramble decode](https://ajeckblad.github.io/motion-library/fx/scramble.html): Characters churn through random glyphs, then lock left to right. `npx motion-library add scramble`
+- [Variable-font wave](https://ajeckblad.github.io/motion-library/fx/vf-wave.html): A sine wave rolls through variable-font weight and width. `npx motion-library add vf-wave`
+- [Typewriter](https://ajeckblad.github.io/motion-library/fx/typewriter.html): Typing with randomised keystroke delays and pauses at punctuation. `npx motion-library add typewriter`
+- [Line mask reveal](https://ajeckblad.github.io/motion-library/fx/line-mask.html): Lines slide up one by one from behind a clipping edge. `npx motion-library add line-mask`
+- [Split-flap board](https://ajeckblad.github.io/motion-library/fx/split-flap.html): Each character flips through the alphabet, one fold at a time. `npx motion-library add split-flap`
+- [Odometer counter](https://ajeckblad.github.io/motion-library/fx/odometer.html): Digit wheels roll and carries ripple left, like a mileage counter. `npx motion-library add odometer`
+- [Rotating word](https://ajeckblad.github.io/motion-library/fx/rotating-word.html): One word cycles through a clipped slot with a slight blur. `npx motion-library add rotating-word`
+- [Marker highlight](https://ajeckblad.github.io/motion-library/fx/highlighter.html): An uneven marker stroke sweeps behind key phrases. `npx motion-library add highlighter`
+- [Text on a circle](https://ajeckblad.github.io/motion-library/fx/text-circle.html): Text on an SVG circle turns, easing toward a target speed. `npx motion-library add text-circle`
+
+## Scroll
+
+- [Parallax layers](https://ajeckblad.github.io/motion-library/fx/parallax.html): Layers move at speeds that fall with depth. `npx motion-library add parallax`
+- [Scrub reveal](https://ajeckblad.github.io/motion-library/fx/scrub-reveal.html): Words light up one by one, scrubbed by scroll. `npx motion-library add scrub-reveal`
+- [Pinned horizontal track](https://ajeckblad.github.io/motion-library/fx/pinned-track.html): Vertical scroll slides a sticky row sideways. `npx motion-library add pinned-track`
+- [Zoom-through](https://ajeckblad.github.io/motion-library/fx/zoom-through.html): Exponential scale flies the view through a letter’s counter. `npx motion-library add zoom-through`
+- [Velocity-skew marquee](https://ajeckblad.github.io/motion-library/fx/velocity-skew.html): Scroll velocity speeds up the marquee and skews it. `npx motion-library add velocity-skew`
+- [Reading progress](https://ajeckblad.github.io/motion-library/fx/reading-progress.html): An eased scaleX progress bar plus minutes left to read. `npx motion-library add reading-progress`
+- [Sticky card stack](https://ajeckblad.github.io/motion-library/fx/sticky-stack.html): Sticky cards stack; each steps back as the next arrives. `npx motion-library add sticky-stack`
+- [Timeline draw](https://ajeckblad.github.io/motion-library/fx/timeline-draw.html): A scroll-scrubbed line draws down; milestones trigger as it passes. `npx motion-library add timeline-draw`
+- [Image-sequence scrub](https://ajeckblad.github.io/motion-library/fx/sequence-scrub.html): Scroll position picks the frame of an image sequence. `npx motion-library add sequence-scrub`
+- [Snap gallery](https://ajeckblad.github.io/motion-library/fx/snap-gallery.html): Scroll snapping; the centre card scales up, neighbours dim. `npx motion-library add snap-gallery`
+
+## Hover & cursor
+
+- [Magnetic button](https://ajeckblad.github.io/motion-library/fx/magnetic.html): Pulled toward the cursor, label pulled further. `npx motion-library add magnetic`
+- [Click ripple](https://ajeckblad.github.io/motion-library/fx/ripple.html): A circle expands from the exact press point. `npx motion-library add ripple`
+- [3D tilt card](https://ajeckblad.github.io/motion-library/fx/tilt.html): The card turns toward the pointer, glare follows. `npx motion-library add tilt`
+- [Cursor trail](https://ajeckblad.github.io/motion-library/fx/cursor-trail.html): Each point chases the one before it. `npx motion-library add cursor-trail`
+- [Spotlight reveal](https://ajeckblad.github.io/motion-library/fx/spotlight.html): A soft mask follows the cursor over a dark layer. `npx motion-library add spotlight`
+- [Image follow](https://ajeckblad.github.io/motion-library/fx/image-follow.html): A preview trails the cursor and swaps per row. `npx motion-library add image-follow`
+- [Directional fill](https://ajeckblad.github.io/motion-library/fx/directional-fill.html): The fill enters and leaves the way the cursor did. `npx motion-library add directional-fill`
+- [Sliding underline](https://ajeckblad.github.io/motion-library/fx/underline-slide.html): One underline travels between links and stretches. `npx motion-library add underline-slide`
+- [Lit border](https://ajeckblad.github.io/motion-library/fx/lit-border.html): Card edges catch a light that follows the cursor. `npx motion-library add lit-border`
+- [Dock magnify](https://ajeckblad.github.io/motion-library/fx/dock-magnify.html): Icons swell around the cursor and push apart. `npx motion-library add dock-magnify`
+
+## Micro & loading
+
+- [Toggle spring](https://ajeckblad.github.io/motion-library/fx/toggle.html): The knob stretches while it travels. `npx motion-library add toggle`
+- [Like burst](https://ajeckblad.github.io/motion-library/fx/like-burst.html): Squash, pop, ring and sparks on one beat. `npx motion-library add like-burst`
+- [Submit to success](https://ajeckblad.github.io/motion-library/fx/submit-success.html): The button becomes the spinner becomes the tick. `npx motion-library add submit-success`
+- [Arc spinner](https://ajeckblad.github.io/motion-library/fx/arc-spinner.html): The arc grows and shrinks while it turns. `npx motion-library add arc-spinner`
+- [Skeleton shimmer](https://ajeckblad.github.io/motion-library/fx/skeleton.html): A light sweep says loading, then content fades in. `npx motion-library add skeleton`
+- [Copy to tick](https://ajeckblad.github.io/motion-library/fx/copy-tick.html): The copy icon turns into a tick, with a Copied tag. `npx motion-library add copy-tick`
+- [Password strength](https://ajeckblad.github.io/motion-library/fx/password-strength.html): Meter and checklist update on every keystroke. `npx motion-library add password-strength`
+- [Hold to delete](https://ajeckblad.github.io/motion-library/fx/hold-delete.html): Slow fill while held, fast snap back on release. `npx motion-library add hold-delete`
+- [Bell and badge](https://ajeckblad.github.io/motion-library/fx/bell-badge.html): The bell rings, the count rolls up. `npx motion-library add bell-badge`
+- [Toast stack](https://ajeckblad.github.io/motion-library/fx/toast-stack.html): New toasts in front, older ones step back. `npx motion-library add toast-stack`
+
+## Springs & physics
+
+- [Squash & stretch bounce](https://ajeckblad.github.io/motion-library/fx/squash-bounce.html): Stretch with speed, squash on impact. `npx motion-library add squash-bounce`
+- [Rubber-band drag](https://ajeckblad.github.io/motion-library/fx/rubber-band.html): Resistance grows past the edge, release springs back. `npx motion-library add rubber-band`
+- [Pendulum wave](https://ajeckblad.github.io/motion-library/fx/pendulum-wave.html): Lengths tuned so the row drifts in and out of sync. `npx motion-library add pendulum-wave`
+- [Verlet rope](https://ajeckblad.github.io/motion-library/fx/verlet-rope.html): Points remember where they were; lengths are enforced. `npx motion-library add verlet-rope`
+- [Ball collisions](https://ajeckblad.github.io/motion-library/fx/ball-collisions.html): Elastic impulses along the line between centres. `npx motion-library add ball-collisions`
+- [Snap-point bottom sheet](https://ajeckblad.github.io/motion-library/fx/bottom-sheet.html): Aim with the throw, then spring to the nearest snap point. `npx motion-library add bottom-sheet`
+- [Swipe to dismiss](https://ajeckblad.github.io/motion-library/fx/swipe-dismiss.html): Fly off with the throw, rubber-band the wrong way. `npx motion-library add swipe-dismiss`
+- [Chat heads](https://ajeckblad.github.io/motion-library/fx/chat-heads.html): Each bubble chases the one in front on its own spring. `npx motion-library add chat-heads`
+- [Jelly app icon](https://ajeckblad.github.io/motion-library/fx/icon-jelly.html): A second spring turns speed into stretch. `npx motion-library add icon-jelly`
+- [Pull to refresh](https://ajeckblad.github.io/motion-library/fx/pull-refresh.html): Rubber-band pull, hold on a shelf, spring home. `npx motion-library add pull-refresh`
+
+## Morph & SVG
+
+- [Shape morph](https://ajeckblad.github.io/motion-library/fx/shape-morph.html): Every shape is the same 160 polar radii. `npx motion-library add shape-morph`
+- [Icon morph](https://ajeckblad.github.io/motion-library/fx/icon-morph.html): Two icons drawn with the same points, interpolated. `npx motion-library add icon-morph`
+- [Gooey blobs](https://ajeckblad.github.io/motion-library/fx/gooey.html): Blur, then a hard alpha threshold. `npx motion-library add gooey`
+- [Line draw-on](https://ajeckblad.github.io/motion-library/fx/line-draw.html): stroke-dasharray equals the path length. `npx motion-library add line-draw`
+- [Liquid button](https://ajeckblad.github.io/motion-library/fx/liquid-button.html): Edge points on springs, pushed by the pointer. `npx motion-library add liquid-button`
+- [Play to pause](https://ajeckblad.github.io/motion-library/fx/play-pause.html): Two four-point halves of a triangle slide into two bars. `npx motion-library add play-pause`
+- [Menu to close](https://ajeckblad.github.io/motion-library/fx/menu-close.html): Three two-point lines, the middle one shrinks to a dot. `npx motion-library add menu-close`
+- [Chart morph](https://ajeckblad.github.io/motion-library/fx/chart-morph.html): Every dataset resampled to the same 48 points. `npx motion-library add chart-morph`
+- [Logo draw](https://ajeckblad.github.io/motion-library/fx/logo-draw.html): Dash length = path length, then slide the offset to zero. `npx motion-library add logo-draw`
+- [Button to menu](https://ajeckblad.github.io/motion-library/fx/button-menu.html): One surface, a rounded clip-path opening from the button corner. `npx motion-library add button-menu`
+
+## Optional
+
+- [llms-full.txt](https://ajeckblad.github.io/motion-library/llms-full.txt): every effect's notes and settings in one file
+- [fx-index.json](https://ajeckblad.github.io/motion-library/fx-index.json): the catalogue as JSON
+- [compare.html](https://ajeckblad.github.io/motion-library/compare.html): how Motion Library compares with Magic UI, Aceternity UI, React Bits, Animata and fx-lab

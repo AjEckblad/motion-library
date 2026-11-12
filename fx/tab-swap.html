@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tab swap: A clipped copy of the tabs; the leading edge moves first · Motion Library</title>
+<meta name="description" content="Tab swap is a DOM effect: a clipped copy of the tabs; the leading edge moves first. One plain JavaScript file with no dependencies; add it with npx motion-library add tab-swap.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/tab-swap.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Tab swap · Motion Library">
+<meta property="og:description" content="A clipped copy of the tabs; the leading edge moves first">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/tab-swap.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Tab swap",
+  "description": "A clipped copy of the tabs; the leading edge moves first",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Basics, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/tab-swap.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/tab-swap.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Basics",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/basics"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Tab swap",
+    "item": "https://ajeckblad.github.io/motion-library/fx/tab-swap.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/basics">Basics</a></header>
+<main class="s-page">
+<article>
+<h1>Tab swap</h1>
+<p class="tldr">Tab swap is a DOM effect: a clipped copy of the tabs; the leading edge moves first. One plain JavaScript file with no dependencies; add it with npx motion-library add tab-swap.</p>
+<figure><img src="../posters/tab-swap.webp" alt="Tab swap: A clipped copy of the tabs; the leading edge moves first" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/tab-swap">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Tab swap?</h2>
+<p>A dark pill slides to the picked product tab and the content below cross-fades.</p>
+
+<h2>How does Tab swap work?</h2>
+<p>The pill is a dark copy of the tab row clipped to the active tab, so animating the clip moves background and label colour together; the leading edge leads.</p>
+
+<h2>How do I add Tab swap to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add tab-swap</code>. It writes <code>animations/tab-swap.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/tab-swap.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add tab-swap --duration 800</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Duration (ms)</td><td><code>--duration</code></td><td>300</td><td>150 to 800</td><td>10</td></tr>
+<tr><td>Trailing lag (ms)</td><td><code>--lag</code></td><td>70</td><td>0 to 200</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Basics</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>9.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Tab swap: on a product page, the dark tab pill slides to the tab you pick, its leading edge first and its trailing edge a beat later, while the content below cross-fades.
+// The pill is a clipped copy of the whole tab row, so its colour and the white label inside change in perfect sync. Letting the two edges move at different times stretches the pill toward its target, which reads as quick and soft at once.
+const PARAMS = { duration: 300, lag: 70 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AW = 440, AH = 318, TW = 400, PAD = 3;
+  const tabs = ['Details', 'Size &amp; fit', 'Care', 'Reviews'];
+  const check = '&lt;svg viewBox=&quot;0 0 16 16&quot; width=&quot;14&quot; height=&quot;14&quot;&gt;&lt;path d=&quot;M3.5 8.5l3 3 6-7&quot; fill=&quot;none&quot; stroke=&quot;#3b5bdb&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  const panes = [
+    `&lt;p&gt;Washed linen in a relaxed cut, with a long neck strap and two deep pockets. Soft from day one.&lt;/p&gt;
+     &lt;ul&gt;&lt;li&gt;${check}100% washed European flax&lt;/li&gt;&lt;li&gt;${check}Two front pockets, 18 × 16 cm&lt;/li&gt;&lt;li&gt;${check}Adjustable cotton neck strap&lt;/li&gt;&lt;/ul&gt;`,
+    `&lt;div class=&quot;ts-specs&quot;&gt;&lt;div&gt;&lt;small&gt;Length&lt;/small&gt;86 cm&lt;/div&gt;&lt;div&gt;&lt;small&gt;Width&lt;/small&gt;70 cm&lt;/div&gt;&lt;div&gt;&lt;small&gt;Strap&lt;/small&gt;60–74 cm&lt;/div&gt;&lt;div&gt;&lt;small&gt;Weight&lt;/small&gt;210 g&lt;/div&gt;&lt;/div&gt;
+     &lt;p class=&quot;ts-note&quot;&gt;One size fits most. Our model is 178 cm and wears it at the longest strap setting.&lt;/p&gt;`,
+    `&lt;ul class=&quot;ts-care&quot;&gt;&lt;li&gt;&lt;i&gt;40°&lt;/i&gt;Machine wash at 40 °C with similar colours&lt;/li&gt;&lt;li&gt;&lt;i&gt;◯&lt;/i&gt;Tumble dry low, or line dry in the shade&lt;/li&gt;&lt;li&gt;&lt;i&gt;≈&lt;/i&gt;Iron while slightly damp for a crisp finish&lt;/li&gt;&lt;/ul&gt;`,
+    `&lt;div class=&quot;ts-score&quot;&gt;&lt;b&gt;4.8&lt;/b&gt;&lt;span&gt;&lt;em&gt;★★★★★&lt;/em&gt;126 reviews&lt;/span&gt;&lt;/div&gt;
+     &lt;blockquote&gt;“Soft from the first wash, and the pockets fit a phone and a notebook.”&lt;cite&gt;Hanna, Malmö · verified buyer&lt;/cite&gt;&lt;/blockquote&gt;`,
+  ];
+  const root = document.createElement('div');
+  root.className = 'ts-root';
+  root.innerHTML = `&lt;style&gt;
+    .ts-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .ts-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 18px 20px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
+    .ts-prod { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .ts-thumb { width: 48px; height: 48px; border-radius: 10px; background: #efe6da; display: grid; place-items: center; }
+    .ts-thumb svg { width: 42px; height: 42px; }
+    .ts-prod h3 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.015em; font-stretch: 106%; }
+    .ts-prod p { margin: 3px 0 0; font-size: 12px; color: #5b6066; }
+    .ts-tabs { position: relative; width: ${TW}px; height: 38px; border-radius: 11px; background: #f1f3f6; }
+    .ts-row { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 ${PAD}px; }
+    .ts-row span { display: grid; place-items: center; font-size: 12.5px; font-weight: 620; color: #5b6066; }
+    .ts-row.ts-on { background: #15171a; border-radius: 11px; will-change: clip-path; }
+    .ts-row.ts-on span { color: #fff; }
+    .ts-body { position: relative; height: 150px; margin-top: 14px; }
+    .ts-pane { position: absolute; inset: 0; opacity: 0; font-size: 12.5px; line-height: 1.5; color: #33373c; }
+    .ts-pane p { margin: 0 0 10px; }
+    .ts-pane ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+    .ts-pane li { display: flex; align-items: center; gap: 8px; }
+    .ts-specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .ts-specs div { padding: 10px; border-radius: 10px; background: #f6f7f9; font-size: 14px; font-weight: 650; }
+    .ts-specs small { display: block; font-size: 10.5px; font-weight: 600; color: #5b6066; margin-bottom: 3px; }
+    .ts-note { color: #5b6066; }
+    .ts-care li { gap: 12px; }
+    .ts-care i { width: 32px; height: 32px; border-radius: 9px; background: #f6f7f9; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700; color: #3b5bdb; }
+    .ts-score { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .ts-score b { font-size: 30px; font-weight: 720; letter-spacing: -0.02em; }
+    .ts-score span { display: grid; font-size: 11.5px; color: #5b6066; }
+    .ts-score em { font-style: normal; color: #f59f00; letter-spacing: 2px; font-size: 13px; }
+    .ts-pane blockquote { margin: 0; padding: 12px 14px; border-radius: 12px; background: #f6f7f9; font-size: 13px; color: #15171a; }
+    .ts-pane cite { display: block; margin-top: 6px; font-style: normal; font-size: 11.5px; color: #5b6066; }
+  &lt;/style&gt;
+  &lt;div class=&quot;ts-board&quot;&gt;
+    &lt;div class=&quot;ts-prod&quot;&gt;&lt;span class=&quot;ts-thumb&quot;&gt;&lt;svg viewBox=&quot;0 0 100 100&quot;&gt;&lt;ellipse cx=&quot;50&quot; cy=&quot;84&quot; rx=&quot;24&quot; ry=&quot;3.6&quot; fill=&quot;#000&quot; opacity=&quot;.09&quot;/&gt;&lt;path d=&quot;M41 26c0-9 18-9 18 0&quot; fill=&quot;none&quot; stroke=&quot;#33373c&quot; stroke-width=&quot;1.6&quot;/&gt;&lt;path d=&quot;M38 24h24v13l9 5v36a4 4 0 0 1-4 4H33a4 4 0 0 1-4-4V42l9-5z&quot; fill=&quot;#556b7d&quot;/&gt;&lt;rect x=&quot;37&quot; y=&quot;54&quot; width=&quot;26&quot; height=&quot;14&quot; rx=&quot;2&quot; fill=&quot;#000&quot; opacity=&quot;.1&quot;/&gt;&lt;path d=&quot;M29 46h-9M71 46h9&quot; stroke=&quot;#33373c&quot; stroke-width=&quot;1.4&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;
+      &lt;div&gt;&lt;h3&gt;Linen apron&lt;/h3&gt;&lt;p&gt;Slate blue · €42 · free returns&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;ts-tabs&quot;&gt;&lt;div class=&quot;ts-row&quot;&gt;${tabs.map(t =&gt; `&lt;span&gt;${t}&lt;/span&gt;`).join('')}&lt;/div&gt;&lt;div class=&quot;ts-row ts-on&quot;&gt;${tabs.map(t =&gt; `&lt;span&gt;${t}&lt;/span&gt;`).join('')}&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;ts-body&quot;&gt;${panes.map(p =&gt; `&lt;div class=&quot;ts-pane&quot;&gt;${p}&lt;/div&gt;`).join('')}&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.ts-board'), on = root.querySelector('.ts-on');
+  const paneEls = [...root.querySelectorAll('.ts-pane')], tabEls = [...root.querySelectorAll('.ts-row:not(.ts-on) span')];
+
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / AW, stage.clientHeight / AH) * 0.92; board.style.transform = `translate(-50%, -50%) scale(${Math.min(s, 1.6)})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // Edge positions of each tab inside the row (px from the left).
+  const w = (TW - PAD * 2) / tabs.length;
+  const L = i =&gt; PAD + i * w, R = i =&gt; PAD + (i + 1) * w;
+  let left = L(0), right = R(0);
+  const clip = () =&gt; { on.style.clipPath = `inset(${PAD}px ${(TW - right).toFixed(2)}px ${PAD}px ${left.toFixed(2)}px round 8px)`; };
+  clip();
+  paneEls[0].style.opacity = 1;
+
+  const ease = bezier(0.77, 0, 0.175, 1), easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  let raf = 0, cur = 0;
+  function go(to) {
+    const from = cur, l0 = left, r0 = right, l1 = L(to), r1 = R(to), forward = to &gt; from, t0 = performance.now();
+    cur = to;
+    // The edge on the side you're heading leads; the other follows `lag` ms later.
+    const tick = now =&gt; {
+      const t = reduce ? 1e9 : now - t0; // reduced motion: the pill jumps straight to its tab
+      const lead = ease(Math.min(1, Math.max(0, t / PARAMS.duration))), trail = ease(Math.min(1, Math.max(0, (t - PARAMS.lag) / PARAMS.duration)));
+      left = l0 + (l1 - l0) * (forward ? trail : lead);
+      right = r0 + (r1 - r0) * (forward ? lead : trail);
+      clip();
+      if (t &lt; PARAMS.duration + PARAMS.lag) raf = requestAnimationFrame(tick);
+    };
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+    tabEls[to].animate([{ transform: 'scale(1)' }, { transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: reduce ? 0 : 200, easing: easeOut });
+    // The content follows the pill: it swaps once the pill is visibly on its way.
+    const d = Math.round(PARAMS.duration * 0.3);
+    paneEls[from].animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: reduce ? 'none' : 'translateY(-4px)' }], { duration: 120, delay: d, easing: easeOut, fill: 'forwards' });
+    paneEls[to].animate([{ opacity: 0, transform: reduce ? 'none' : 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: d + 90, easing: easeOut, fill: 'both' });
+  }
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  const order = [1, 3, 2, 0];
+  let n = 0;
+  const step = () =&gt; { go(order[n++ % order.length]); later(step, 2000); };
+  later(step, 900);
+
+  return () =&gt; { timers.forEach(clearTimeout); cancelAnimationFrame(raf); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+
+// cubic-bezier(x1, y1, x2, y2) as a function of progress, solved with Newton's method.
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = t =&gt; ((ax * t + bx) * t + cx) * t, Y = t =&gt; ((ay * t + by) * t + cy) * t, dX = t =&gt; (3 * ax * t + 2 * bx) * t + cx;
+  return x =&gt; { let t = x; for (let i = 0; i &lt; 8; i++) { const d = dX(t); if (Math.abs(d) &lt; 1e-6) break; t -= (X(t) - x) / d; } return Y(Math.min(1, Math.max(0, t))); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

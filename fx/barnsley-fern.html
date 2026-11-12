@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barnsley fern: Chaos game with four affine maps, shaded by hit count · Motion Library</title>
+<meta name="description" content="Barnsley fern is a Canvas effect: chaos game with four affine maps, shaded by hit count. One plain JavaScript file with no dependencies; add it with npx motion-library add barnsley-fern.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/barnsley-fern.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Barnsley fern · Motion Library">
+<meta property="og:description" content="Chaos game with four affine maps, shaded by hit count">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/barnsley-fern.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Barnsley fern",
+  "description": "Chaos game with four affine maps, shaded by hit count",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Generative & math, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/barnsley-fern.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/barnsley-fern.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Generative & math",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/generative"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Barnsley fern",
+    "item": "https://ajeckblad.github.io/motion-library/fx/barnsley-fern.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/generative">Generative &amp; math</a></header>
+<main class="s-page">
+<article>
+<h1>Barnsley fern</h1>
+<p class="tldr">Barnsley fern is a Canvas effect: chaos game with four affine maps, shaded by hit count. One plain JavaScript file with no dependencies; add it with npx motion-library add barnsley-fern.</p>
+<figure><img src="../posters/barnsley-fern.webp" alt="Barnsley fern: Chaos game with four affine maps, shaded by hit count" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/barnsley-fern">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Barnsley fern?</h2>
+<p>A fern assembles from scattered dots, outline first, then leaflets and veins. The pointer is wind: the fern leans and curls toward it.</p>
+
+<h2>How does Barnsley fern work?</h2>
+<p>The chaos game with four weighted affine maps plotted into a per-pixel hit counter that indexes a colour ramp; points per frame grow exponentially.</p>
+
+<h2>How do I add Barnsley fern to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add barnsley-fern</code>. It writes <code>animations/barnsley-fern.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/barnsley-fern.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add barnsley-fern --rate 5</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Build rate</td><td><code>--rate</code></td><td>1</td><td>0.2 to 5</td><td>0.1</td></tr>
+<tr><td>Hold (s)</td><td><code>--hold</code></td><td>4</td><td>0.5 to 10</td><td>0.5</td></tr>
+<tr><td>Glow</td><td><code>--glow</code></td><td>1</td><td>0.3 to 3</td><td>0.1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Generative &amp; math</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Barnsley fern: the chaos game with four affine maps. One squeezes everything to the stem, one copies the whole
+// fern slightly smaller and higher (the next frond up), and two copy it shrunk and flipped into the first left and
+// right leaflets. Pick a map at random (weighted 1/85/7/7), apply it, plot the point, repeat: the fern emerges
+// from noise, coarse leaflets first, then finer and finer detail. Each pixel counts its hits, and the count is the shade.
+// The pointer is wind: left or right turns the frond-copy map, so the fern leans that way and curls up.
+const PARAMS = { rate: 1, hold: 4, glow: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // [a, b, c, d, e, f, p]: x′ = a·x + b·y + e, y′ = c·x + d·y + f
+  const FERNS = [
+    [[0, 0, 0, .16, 0, 0, .01], [.85, .04, -.04, .85, 0, 1.6, .85], [.2, -.26, .23, .22, 0, 1.6, .07], [-.15, .28, .26, .24, 0, .44, .07]],
+    [[0, 0, 0, .25, 0, -.4, .02], [.95, .005, -.005, .93, -.002, .5, .84], [.035, -.2, .16, .04, -.09, .02, .07], [-.04, .2, .16, .04, .083, .12, .07]],
+  ];
+  let W = 0, H = 0, w = 0, h = 0, img = null, cnt = null, px = null, touched = null, nt = 0;
+  // shade by hit count: deep moss → leaf green → pale lime → near white at the densest ribs
+  const LUT = new Uint32Array(256);
+  const stops = [[0, 10, 12, 16], [3, 16, 70, 40], [14, 46, 160, 82], [50, 150, 230, 120], [140, 228, 255, 196], [255, 250, 255, 236]];
+  for (let n = 0; n &lt; 256; n++) {
+    let i = 0; while (i &lt; stops.length - 2 &amp;&amp; n &gt; stops[i + 1][0]) i++;
+    const A = stops[i], B = stops[i + 1], f = (n - A[0]) / (B[0] - A[0]);
+    const r = A[1] + (B[1] - A[1]) * f, g = A[2] + (B[2] - A[2]) * f, b = A[3] + (B[3] - A[3]) * f;
+    LUT[n] = (255 &lt;&lt; 24) | (b &lt;&lt; 16) | (g &lt;&lt; 8) | r;
+  }
+  // the maps in play: a copy of the species' maps, with the frond map (index 1) turned by the wind
+  const maps = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]];
+  let fern = 0, cum, fit, x = 0, y = 0, born = 0, phase = 'grow', phaseT = 0, done = 0, wind = 0;
+  function setWind(a) {
+    const m = FERNS[fern][1], c = Math.cos(a), s = Math.sin(a), o = maps[1];
+    o[0] = c * m[0] - s * m[2]; o[1] = c * m[1] - s * m[3]; o[2] = s * m[0] + c * m[2]; o[3] = s * m[1] + c * m[3];
+    o[4] = c * m[4] - s * m[5]; o[5] = s * m[4] + c * m[5]; wind = a;
+  }
+  function start(k) {
+    fern = k % FERNS.length; FERNS[fern].forEach((m, i) =&gt; { for (let j = 0; j &lt; 7; j++) maps[i][j] = m[j]; }); setWind(0);
+    cum = []; let s = 0; for (const m of maps) cum.push(s += m[6]);
+    // bounds from a quick dry run
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, a = 0, b = 0;
+    for (let i = 0; i &lt; 40000; i++) { [a, b] = step(a, b); if (i &gt; 20) { x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b); } }
+    const sc = Math.min(w * .8 / (x1 - x0), h * .9 / (y1 - y0));
+    fit = { sc, ox: w / 2 - (x0 + x1) / 2 * sc, oy: h / 2 + (y0 + y1) / 2 * sc };
+    clear(true); x = 0; y = 0;
+  }
+  function clear(all) {
+    if (all || nt &gt; w * h / 4) { cnt.fill(0); px.fill(LUT[0]); }
+    else for (let i = 0; i &lt; nt; i++) { const j = touched[i]; cnt[j] = 0; px[j] = LUT[0]; }
+    nt = 0; done = 0;
+  }
+  function step(a, b) {
+    const r = Math.random(); let k = 0; while (k &lt; 3 &amp;&amp; r &gt; cum[k]) k++;
+    const m = maps[k]; return [m[0] * a + m[1] * b + m[4], m[2] * a + m[3] * b + m[5]];
+  }
+  const resize = () =&gt; {
+    const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    w = canvas.width = W * d | 0; h = canvas.height = H * d | 0;
+    img = ctx.createImageData(w, h); px = new Uint32Array(img.data.buffer); cnt = new Uint8Array(w * h); touched = new Int32Array(w * h);
+    start(fern); phase = 'grow'; phaseT = 0;
+    if (reduce) plot(Math.round(w * h * 1.6));   // reduced motion: the finished fern, still
+  };
+  function plot(n, inc = Math.ceil(Math.max(.3, PARAMS.glow) * 2)) {
+    const { sc, ox, oy } = fit;
+    for (let i = 0; i &lt; n; i++) {
+      const r = Math.random(); let k = 0; while (k &lt; 3 &amp;&amp; r &gt; cum[k]) k++;
+      const m = maps[k], nx = m[0] * x + m[1] * y + m[4]; y = m[2] * x + m[3] * y + m[5]; x = nx;
+      const X = ox + x * sc | 0, Y = oy - y * sc | 0;
+      if (X &lt; 0 || Y &lt; 0 || X &gt;= w || Y &gt;= h) continue;
+      const j = Y * w + X; let c = cnt[j];
+      if (c === 0) touched[nt++] = j;
+      if (c &lt; 255) { c = Math.min(255, c + inc); cnt[j] = c; px[j] = LUT[c]; }
+    }
+    done += n;
+  }
+  // the pointer, as wind: none in the middle, more turn per frond copy toward the edges (a lean that curls up). The
+  // fern already curls right, so it takes less wind that way; a species with more, smaller copies takes less again
+  let tx = .5, mx = .5, ma = 0, lastMove = -1e9;
+  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); tx = (e.clientX - b.left) / b.width; lastMove = performance.now(); };
+  const onLeave = () =&gt; { lastMove = -1e9; };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const live = now - lastMove &lt; 2500;
+    if (live &amp;&amp; ma &lt; .01) mx = tx;
+    mx += (tx - mx) * (1 - Math.exp(-dt * 14)); ma += ((live ? 1 : 0) - ma) * (1 - Math.exp(-dt * (live ? 8 : 2.5))); if (!live &amp;&amp; ma &lt; 1e-3) ma = 0;
+    const budget = Math.max(60000, Math.min(260000, w * h * .3)) | 0, g = Math.ceil(Math.max(.3, PARAMS.glow) * 2);
+    // a fresh frame has far fewer points than the finished fern, so each counts for more
+    const incL = Math.min(255, Math.ceil(g * w * h * 1.6 / budget / 1.7));
+    if (ma &gt; 0 || phase === 'live') {
+      const u = Math.max(-.5, Math.min(.5, mx - .5)), e = ma * ma * (3 - 2 * ma), m = FERNS[fern][1];
+      const give = (1 - Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2]))) / .15, a = -u * 2 * (u &gt; 0 ? .15 : .23) * give * e;
+      const moved = Math.abs(a - wind) &gt; 1e-4; setWind(a);
+      if (phase !== 'live') { phase = 'live'; phaseT = 0; }
+      // wind changing: wipe and re-plot the fern every frame; still: keep adding until it is dense again
+      if (moved) { clear(false); x = 0; y = 0; plot(20); clear(false); plot(budget, incL); }
+      else if (done * incL &lt; w * h * 1.6 * g) plot(budget, incL);
+      else if (ma === 0) { phase = 'hold'; phaseT = 0; }   // calm and dense again: the idle cycle carries on
+    } else if (!reduce) {
+      phaseT += dt;
+      if (phase === 'grow') {
+        // accelerate: a few hundred points first so the structure visibly appears, then floods of them for detail
+        const target = w * h * 1.6, n = Math.min(target - done, Math.round((120 + done * .012) * PARAMS.rate));
+        if (n &gt; 0) plot(n); else { phase = 'hold'; phaseT = 0; }
+      } else if (phase === 'hold' &amp;&amp; phaseT &gt; PARAMS.hold) { phase = 'fade'; phaseT = 0; }
+      else if (phase === 'fade' &amp;&amp; phaseT &gt; 1) { start(fern + 1); phase = 'grow'; phaseT = 0; }
+    }
+    ctx.globalAlpha = 1; ctx.putImageData(img, 0, 0);
+    if (phase === 'fade') { ctx.fillStyle = `rgba(10,12,16,${Math.min(1, phaseT)})`; ctx.fillRect(0, 0, w, h); }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accordion FAQ: Height to a measured value, text a beat later · Motion Library</title>
+<meta name="description" content="Accordion FAQ is a DOM effect: height to a measured value, text a beat later. One plain JavaScript file with no dependencies; add it with npx motion-library add accordion-faq.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/accordion-faq.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Accordion FAQ · Motion Library">
+<meta property="og:description" content="Height to a measured value, text a beat later">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/accordion-faq.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Accordion FAQ",
+  "description": "Height to a measured value, text a beat later",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Basics, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/accordion-faq.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/accordion-faq.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Basics",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/basics"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Accordion FAQ",
+    "item": "https://ajeckblad.github.io/motion-library/fx/accordion-faq.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/basics">Basics</a></header>
+<main class="s-page">
+<article>
+<h1>Accordion FAQ</h1>
+<p class="tldr">Accordion FAQ is a DOM effect: height to a measured value, text a beat later. One plain JavaScript file with no dependencies; add it with npx motion-library add accordion-faq.</p>
+<figure><img src="../posters/accordion-faq.webp" alt="Accordion FAQ: Height to a measured value, text a beat later" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/accordion-faq">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Accordion FAQ?</h2>
+<p>Delivery questions open one at a time: the answer panel grows, the previous closes, the chevron turns.</p>
+
+<h2>How does Accordion FAQ work?</h2>
+<p>The panel animates height to the answer’s measured height, never to auto; the text fades in a beat after the panel starts and out first on close.</p>
+
+<h2>How do I add Accordion FAQ to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add accordion-faq</code>. It writes <code>animations/accordion-faq.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/accordion-faq.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add accordion-faq --duration 600</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Duration (ms)</td><td><code>--duration</code></td><td>280</td><td>150 to 600</td><td>10</td></tr>
+<tr><td>Text delay (ms)</td><td><code>--textDelay</code></td><td>60</td><td>0 to 200</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Basics</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Accordion FAQ: a shop's delivery questions open one at a time; the answer's panel grows to its measured height while the one before it closes.
+// Height is the one layout property worth animating here, so it stays short and eases out. The answer text arrives a beat after the panel starts opening, and leaves first when it closes, so you never see words squeezed by the edge.
+const PARAMS = { duration: 280, textDelay: 60 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AW = 440, AH = 352;
+  const faq = [
+    ['How long does delivery take?', 'Orders placed before 2 pm leave the same day. Most arrive within 2–4 working days anywhere in the EU, and you get a tracking link by email.'],
+    ['Can I return something?', 'Yes, within 30 days. Print the prepaid label from your order page and drop the parcel at any pickup point. Refunds land 3–5 days after it reaches us.'],
+    ['Do you ship outside the EU?', 'We ship to the UK, Norway and Switzerland. Duties are included in the price you see at checkout, so there is nothing extra to pay on the doorstep.'],
+    ['How do I care for linen?', 'Wash at 40 °C with similar colours and hang it to dry. It gets a little softer with every wash, so skip the fabric softener.'],
+  ];
+  const root = document.createElement('div');
+  root.className = 'af-root';
+  root.innerHTML = `&lt;style&gt;
+    .af-root { position: absolute; inset: 0; background: #e9edf7; overflow: hidden; color: #15171a; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .af-board { position: absolute; left: 50%; top: 50%; width: ${AW}px; height: ${AH}px; box-sizing: border-box; padding: 18px 20px; background: #fff; border-radius: 18px; box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 18px 40px -24px rgba(20,30,60,.35); }
+    .af-board h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; font-stretch: 106%; }
+    .af-board &gt; p { margin: 3px 0 10px; font-size: 12px; color: #5b6066; }
+    .af-board &gt; p b { color: #3b5bdb; font-weight: 600; }
+    .af-item { border-top: 1px solid #e9ecef; }
+    .af-q { position: relative; height: 44px; display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; font-weight: 620; }
+    .af-hl { position: absolute; inset: 3px -8px; border-radius: 8px; background: #f1f3f6; opacity: 0; }
+    .af-q span, .af-q svg { position: relative; }
+    .af-q svg { width: 16px; height: 16px; flex: none; }
+    .af-panel { height: 0; overflow: hidden; }
+    .af-panel p { margin: 0; padding: 0 28px 14px 0; font-size: 12.5px; line-height: 1.5; color: #5b6066; opacity: 0; }
+  &lt;/style&gt;
+  &lt;div class=&quot;af-board&quot;&gt;&lt;h3&gt;Delivery &amp;amp; returns&lt;/h3&gt;&lt;p&gt;Still stuck? &lt;b&gt;Chat with us&lt;/b&gt;, we reply within the hour.&lt;/p&gt;
+    ${faq.map(([q, a]) =&gt; `&lt;div class=&quot;af-item&quot;&gt;&lt;div class=&quot;af-q&quot;&gt;&lt;i class=&quot;af-hl&quot;&gt;&lt;/i&gt;&lt;span&gt;${q}&lt;/span&gt;&lt;svg viewBox=&quot;0 0 16 16&quot;&gt;&lt;path d=&quot;M4 6l4 4 4-4&quot; fill=&quot;none&quot; stroke=&quot;#5b6066&quot; stroke-width=&quot;1.7&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div class=&quot;af-panel&quot;&gt;&lt;p&gt;${a}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;`).join('')}
+  &lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.af-board');
+  const items = [...root.querySelectorAll('.af-item')].map(el =&gt; ({ q: el.querySelector('.af-q'), hl: el.querySelector('.af-hl'), icon: el.querySelector('svg'), panel: el.querySelector('.af-panel'), text: el.querySelector('p'), open: false }));
+
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / AW, stage.clientHeight / AH) * 0.92; board.style.transform = `translate(-50%, -50%) scale(${Math.min(s, 1.6)})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  function open(it) {
+    const h = it.text.offsetHeight; // measured, never animated to 'auto'
+    it.panel.animate([{ height: '0px' }, { height: h + 'px' }], { duration: reduce ? 0 : PARAMS.duration, easing: easeOut, fill: 'forwards' });
+    it.text.animate([{ opacity: 0, transform: reduce ? 'none' : 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: PARAMS.textDelay, easing: easeOut, fill: 'both' });
+    it.icon.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }], { duration: reduce ? 0 : PARAMS.duration, easing: easeOut, fill: 'forwards' });
+    it.open = true;
+  }
+  function close(it) {
+    const h = it.text.offsetHeight;
+    it.text.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: easeOut, fill: 'forwards' });
+    it.panel.animate([{ height: h + 'px' }, { height: '0px' }], { duration: reduce ? 0 : Math.round(PARAMS.duration * 0.85), delay: reduce ? 120 : 0, easing: easeOut, fill: 'forwards' });
+    it.icon.animate([{ transform: 'rotate(180deg)' }, { transform: 'rotate(0deg)' }], { duration: reduce ? 0 : PARAMS.duration, easing: easeOut, fill: 'forwards' });
+    it.open = false;
+  }
+  const press = it =&gt; it.hl.animate([{ opacity: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0 }], { duration: 420, easing: 'ease' });
+
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  // Open each question in turn (closing the previous one), then close the last and start over.
+  let i = 0;
+  function step() {
+    if (i &lt; items.length) {
+      const it = items[i++];
+      press(it);
+      items.forEach(o =&gt; o.open &amp;&amp; close(o));
+      open(it);
+      later(step, PARAMS.duration + 2100);
+    } else {
+      const it = items[items.length - 1];
+      press(it); close(it); i = 0;
+      later(step, PARAMS.duration + 1100);
+    }
+  }
+  later(step, 600);
+
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

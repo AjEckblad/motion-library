@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rain on glass: Each drop is a lens showing a sharp, flipped background · Motion Library</title>
+<meta name="description" content="Rain on glass is a Canvas effect: each drop is a lens showing a sharp, flipped background. One plain JavaScript file with no dependencies; add it with npx motion-library add raindrops-glass.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Rain on glass · Motion Library">
+<meta property="og:description" content="Each drop is a lens showing a sharp, flipped background">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/raindrops-glass.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Rain on glass",
+  "description": "Each drop is a lens showing a sharp, flipped background",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Fluid, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/raindrops-glass.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Fluid",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/fluid"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Rain on glass",
+    "item": "https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/fluid">Fluid</a></header>
+<main class="s-page">
+<article>
+<h1>Rain on glass</h1>
+<p class="tldr">Rain on glass is a Canvas effect: each drop is a lens showing a sharp, flipped background. One plain JavaScript file with no dependencies; add it with npx motion-library add raindrops-glass.</p>
+<figure><img src="../posters/raindrops-glass.webp" alt="Rain on glass: Each drop is a lens showing a sharp, flipped background" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/raindrops-glass">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Rain on glass?</h2>
+<p>Raindrops bead and slide down a window over a blurred city, each showing a sharp flipped copy.</p>
+
+<h2>How does Rain on glass work?</h2>
+<p>Each drop samples the sharp scene flipped and shrunk, as a tiny lens; heavy drops slide in fits, swallow small beads and leave trails.</p>
+
+<h2>How do I add Rain on glass to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add raindrops-glass</code>. It writes <code>animations/raindrops-glass.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/raindrops-glass.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add raindrops-glass --rain 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Rain</td><td><code>--rain</code></td><td>1</td><td>0.2 to 3</td><td>0.1</td></tr>
+<tr><td>Drop size</td><td><code>--size</code></td><td>1</td><td>0.5 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Fluid</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Rain on glass: the city behind the window is blurred, but every drop is a tiny lens that shows it sharp,
+// upside down and magnified. Heavy drops slide, wobble and leave a trail of small droplets behind them.
+const PARAMS = { rain: 1, size: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, sharp, blurred;
+  function paintCity() {
+    sharp = document.createElement('canvas'); sharp.width = W; sharp.height = H;
+    const g = sharp.getContext('2d');
+    const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#1b2238'); sky.addColorStop(1, '#3a2a3a'); g.fillStyle = sky; g.fillRect(0, 0, W, H);
+    for (let i = 0; i &lt; 26; i++) { const x = Math.random() * W, w = 20 + Math.random() * 60, h = H * (0.25 + Math.random() * 0.5); g.fillStyle = '#121626'; g.fillRect(x, H - h, w, h);
+      for (let y = H - h + 8; y &lt; H - 6; y += 10) for (let xx = x + 5; xx &lt; x + w - 5; xx += 9) if (Math.random() &lt; 0.35) { g.fillStyle = ['#ffd27a', '#ffb35c', '#9fd3ff', '#ff8aa0'][Math.random() * 4 | 0]; g.fillRect(xx, y, 4, 5); } }
+    for (let i = 0; i &lt; 18; i++) { const x = Math.random() * W, y = H * (0.7 + Math.random() * 0.3), c = ['#ff5c5c', '#ffd27a', '#ffffff'][Math.random() * 3 | 0]; const rg = g.createRadialGradient(x, y, 0, x, y, 30); rg.addColorStop(0, c); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = rg; g.fillRect(x - 30, y - 30, 60, 60); }
+    blurred = document.createElement('canvas'); blurred.width = W; blurred.height = H;
+    const b = blurred.getContext('2d'); b.filter = 'blur(10px) brightness(.85)'; b.drawImage(sharp, -20, -20, W + 40, H + 40);
+  }
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth; H = stage.clientHeight; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); paintCity(); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  const S = () =&gt; Math.min(W, H) * 0.012 * PARAMS.size;
+  let drops = [], beads = [];
+  const newDrop = (y = Math.random() * H) =&gt; ({ x: Math.random() * W, y, r: S() * (0.6 + Math.random() * 1.8), vy: 0, wob: Math.random() * 6.28, lastTrail: 0 });
+  for (let i = 0; i &lt; 40; i++) drops.push(newDrop());
+  for (let i = 0; i &lt; 260; i++) beads.push({ x: Math.random() * W, y: Math.random() * H, r: S() * (0.2 + Math.random() * 0.5) });
+  function lens(x, y, r) {
+    // a drop flips and magnifies what is behind it: draw the sharp city through a clipped, inverted window
+    ctx.save(); ctx.beginPath(); ctx.ellipse(x, y, r, r * 1.08, 0, 0, Math.PI * 2); ctx.clip();
+    ctx.translate(x, y); ctx.scale(-0.35, -0.35); ctx.translate(-x, -y);
+    ctx.drawImage(sharp, x - W / 2 + (x - W / 2) * 0.3, y - H / 2 + (y - H / 2) * 0.3, W, H);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = Math.max(1, r * 0.12); ctx.beginPath(); ctx.ellipse(x, y + r * 0.04, r, r * 1.08, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - r * 0.3, y - r * 0.38, r * 0.22, r * 0.14, -0.6, 0, Math.PI * 2); ctx.fill();
+  }
+  let last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    if (Math.random() &lt; dt * 14 * PARAMS.rain) beads.push({ x: Math.random() * W, y: Math.random() * H, r: S() * (0.2 + Math.random() * 0.5) });
+    if (Math.random() &lt; dt * 3 * PARAMS.rain) drops.push(newDrop(-10));
+    if (beads.length &gt; 420) beads.splice(0, beads.length - 420);
+    ctx.drawImage(blurred, 0, 0, W, H);
+    for (const b of beads) lens(b.x, b.y, b.r);
+    for (const d of drops) {
+      // big drops overcome surface tension and slide, in fits and starts
+      const heavy = d.r &gt; S() * 1.4;
+      if (heavy) { d.vy += (Math.random() &lt; 0.05 ? 0 : 900 * dt) * (d.r / S()) * 0.4; d.vy *= 0.92; d.y += d.vy * dt; d.wob += dt * 6; d.x += Math.sin(d.wob) * 0.3; }
+      if (heavy &amp;&amp; d.y - d.lastTrail &gt; d.r * 1.2) { beads.push({ x: d.x + (Math.random() - 0.5) * d.r * 0.4, y: d.y - d.r, r: d.r * (0.2 + Math.random() * 0.25) }); d.lastTrail = d.y; d.r *= 0.985; }
+      // absorb beads in the path
+      for (let i = beads.length - 1; i &gt;= 0; i--) { const b = beads[i]; if (Math.abs(b.x - d.x) &lt; d.r &amp;&amp; b.y &gt; d.y - d.r &amp;&amp; b.y &lt; d.y + d.r) { d.r = Math.min(S() * 3.5, Math.hypot(d.r, b.r)); beads.splice(i, 1); } }
+      lens(d.x, d.y, d.r);
+    }
+    drops = drops.filter(d =&gt; d.y &lt; H + 30);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

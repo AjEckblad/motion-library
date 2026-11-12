@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading progress: An eased scaleX progress bar plus minutes left to read · Motion Library</title>
+<meta name="description" content="Reading progress is a DOM effect: an eased scaleX progress bar plus minutes left to read. One plain JavaScript file with no dependencies; add it with npx motion-library add reading-progress.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/reading-progress.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Reading progress · Motion Library">
+<meta property="og:description" content="An eased scaleX progress bar plus minutes left to read">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/reading-progress.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Reading progress",
+  "description": "An eased scaleX progress bar plus minutes left to read",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Scroll, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/reading-progress.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/reading-progress.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Scroll",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/scroll"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Reading progress",
+    "item": "https://ajeckblad.github.io/motion-library/fx/reading-progress.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/scroll">Scroll</a></header>
+<main class="s-page">
+<article>
+<h1>Reading progress</h1>
+<p class="tldr">Reading progress is a DOM effect: an eased scaleX progress bar plus minutes left to read. One plain JavaScript file with no dependencies; add it with npx motion-library add reading-progress.</p>
+<figure><img src="../posters/reading-progress.webp" alt="Reading progress: An eased scaleX progress bar plus minutes left to read" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/reading-progress">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Reading progress?</h2>
+<p>A thin bar fills as you read, and the minutes left count down, sliding in your scroll direction.</p>
+
+<h2>How does Reading progress work?</h2>
+<p>The bar is one element scaled on x and eased toward the true position, so scroll jitter never shows; minutes come from the words still below the fold.</p>
+
+<h2>How do I add Reading progress to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add reading-progress</code>. It writes <code>animations/reading-progress.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/reading-progress.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add reading-progress --follow 1</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Bar follow</td><td><code>--follow</code></td><td>0.18</td><td>0.02 to 1</td><td>0.01</td></tr>
+<tr><td>Number swap (ms)</td><td><code>--swap</code></td><td>220</td><td>80 to 600</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Scroll</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it follows scrolling</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Reading progress, on a long explainer article: a thin bar under the header fills as you read, and an estimate of the minutes left counts down, swapping each number with a short slide.
+// The bar is one element scaled on the x axis (never resized), eased toward the true position so small scroll jitters don't make it twitch. Minutes left are counted from the words still below the fold, which is more honest than a percentage. The page scrolls itself at a reading pace; a real wheel or swipe takes over.
+const PARAMS = { follow: 0.18, swap: 220 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AH = 340, MINW = 400, WPM = 230;
+  const sections = [
+    ['', 'A heat pump does not make heat. It moves heat that is already there, from the cold air outside into a warm room, the way a fridge moves heat out of its box and into your kitchen.'],
+    ['', 'That sounds impossible on a frosty morning, but air at minus five still holds plenty of warmth compared with the coldest thing in the machine: a liquid called the refrigerant, which boils at around minus forty.'],
+    ['The loop', 'Outside, the refrigerant soaks up warmth from the air and boils into a gas. A compressor then squeezes that gas, and squeezing a gas makes it hot, hot enough to warm water for your radiators.'],
+    ['', 'Inside, the hot gas gives its heat to the water and condenses back into a liquid. It passes through a valve that drops its pressure, it turns very cold again, and the loop starts over.'],
+    ['Why it is cheap to run', 'The electricity only drives the compressor and the fans. For every unit of power it uses, a good heat pump delivers three to four units of heat, because most of that heat came from outside for free.'],
+    ['', 'That ratio falls as the weather gets colder, which is why installers size the pump for the coldest week of the year, not the average one.'],
+    ['What to ask an installer', 'Ask for a heat-loss survey of every room, the expected running cost at your local electricity price, and how loud the outdoor unit is at one metre. A good installer will answer all three without being pushed.'],
+  ];
+  const words = sections.reduce((n, [h, p]) =&gt; n + (h + ' ' + p).split(/\s+/).length, 0) + 600;
+  const root = document.createElement('div');
+  root.className = 'rp-root';
+  root.innerHTML = `&lt;style&gt;
+    .rp-root { position: absolute; inset: 0; overflow: hidden; background: #fff; color: #1a1d21; font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; }
+    .rp-art { position: absolute; left: 0; top: 0; height: ${AH}px; transform-origin: 0 0; }
+    .rp-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+    .rp-scroll::-webkit-scrollbar { display: none; }
+    .rp-bar { position: sticky; top: 0; z-index: 2; height: 40px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: #fff; font-size: 11.5px; font-weight: 600; }
+    .rp-bar strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 650; }
+    .rp-left { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px; border-radius: 999px; background: #eef3f1; color: #1f6f5c; overflow: hidden; font-variant-numeric: tabular-nums; }
+    .rp-left span { display: inline-block; }
+    .rp-track { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: #eceff1; }
+    .rp-fill { position: absolute; inset: 0; background: #1f8a6e; transform-origin: 0 50%; transform: scaleX(0); }
+    .rp-body { max-width: 500px; margin: 0 auto; padding: 22px 24px 60px; font: 400 14px/1.62 ui-serif, &quot;Iowan Old Style&quot;, Georgia, serif; }
+    .rp-body small { font: 700 10.5px/1 &quot;Mona Sans&quot;, system-ui, sans-serif; letter-spacing: .12em; color: #1f8a6e; }
+    .rp-body h1 { margin: 8px 0 8px; font: 700 30px/1.05 &quot;Mona Sans&quot;, system-ui, sans-serif; letter-spacing: -0.03em; }
+    .rp-by { margin: 0 0 18px; font: 500 11.5px/1.4 &quot;Mona Sans&quot;, system-ui, sans-serif; color: #6a7178; }
+    .rp-body h2 { margin: 22px 0 6px; font: 680 16px/1.2 &quot;Mona Sans&quot;, system-ui, sans-serif; letter-spacing: -0.01em; }
+    .rp-body p { margin: 0 0 12px; }
+    .rp-fig { margin: 16px 0; padding: 12px; border-radius: 10px; background: #f3f6f5; }
+    .rp-fig svg { display: block; width: 100%; height: 110px; }
+    .rp-fig figcaption { margin-top: 6px; font: 500 11px/1.4 &quot;Mona Sans&quot;, system-ui, sans-serif; color: #6a7178; }
+  &lt;/style&gt;
+  &lt;div class=&quot;rp-art&quot;&gt;&lt;div class=&quot;rp-scroll&quot;&gt;
+    &lt;div class=&quot;rp-bar&quot;&gt;&lt;strong&gt;How a heat pump moves warmth uphill&lt;/strong&gt;&lt;span class=&quot;rp-left&quot;&gt;&lt;svg width=&quot;11&quot; height=&quot;11&quot; viewBox=&quot;0 0 12 12&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;6&quot; cy=&quot;6&quot; r=&quot;4.8&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;path d=&quot;M6 3.4V6l1.8 1.2&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;rp-n&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;div class=&quot;rp-track&quot;&gt;&lt;i class=&quot;rp-fill&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;article class=&quot;rp-body&quot;&gt;
+      &lt;small&gt;EXPLAINER · HOME ENERGY&lt;/small&gt;
+      &lt;h1&gt;How a heat pump moves warmth uphill&lt;/h1&gt;
+      &lt;p class=&quot;rp-by&quot;&gt;By Jonas Weber · Updated 2 February&lt;/p&gt;
+      ${sections.map(([h, p], i) =&gt; `${h ? `&lt;h2&gt;${h}&lt;/h2&gt;` : ''}&lt;p&gt;${p}&lt;/p&gt;${i === 2 ? `&lt;figure class=&quot;rp-fig&quot;&gt;&lt;svg viewBox=&quot;0 0 300 110&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;10&quot; y=&quot;20&quot; width=&quot;70&quot; height=&quot;70&quot; rx=&quot;10&quot; fill=&quot;#dbe8f4&quot;/&gt;&lt;rect x=&quot;220&quot; y=&quot;20&quot; width=&quot;70&quot; height=&quot;70&quot; rx=&quot;10&quot; fill=&quot;#f6e0d2&quot;/&gt;&lt;path d=&quot;M80 40h140&quot; stroke=&quot;#d9534f&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;path d=&quot;M220 70H80&quot; stroke=&quot;#3b82c4&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;circle cx=&quot;150&quot; cy=&quot;40&quot; r=&quot;14&quot; fill=&quot;#1a1d21&quot;/&gt;&lt;path d=&quot;M144 40h12M152 35l5 5-5 5&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M150 62l-7 8h14z&quot; fill=&quot;#1a1d21&quot;/&gt;&lt;text x=&quot;45&quot; y=&quot;102&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot; fill=&quot;#6a7178&quot; font-family=&quot;system-ui&quot;&gt;outside&lt;/text&gt;&lt;text x=&quot;255&quot; y=&quot;102&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot; fill=&quot;#6a7178&quot; font-family=&quot;system-ui&quot;&gt;inside&lt;/text&gt;&lt;/svg&gt;&lt;figcaption&gt;Warmth is picked up outside, squeezed hotter by the compressor, and handed over inside.&lt;/figcaption&gt;&lt;/figure&gt;` : ''}`).join('')}
+    &lt;/article&gt;
+  &lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const box = root.querySelector('.rp-art'), sc = root.querySelector('.rp-scroll'), fill = root.querySelector('.rp-fill'), num = root.querySelector('.rp-n');
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(H / AH, W / MINW) || 1;
+    box.style.width = W / s + 'px'; box.style.top = (H - AH * s) / 2 + 'px'; box.style.transform = `scale(${s})`;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  // Simulated reader: read a screen, scroll a little, read again; at the end, back to the top.
+  const stops = [[0, 0, 1100]];
+  for (let i = 1; i &lt;= 6; i++) stops.push([i / 6, 650, i === 6 ? 1600 : 650]);
+  stops.push([0, 1500, 500]);
+  const ease = t =&gt; t &lt; 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let seg = null, si = 0, userUntil = 0, raf;
+  const take = () =&gt; { userUntil = performance.now() + 3000; seg = null; };
+  ['wheel', 'touchstart', 'pointerdown'].forEach(e =&gt; sc.addEventListener(e, take, { passive: true }));
+  function drive(now) {
+    if (now &lt; userUntil) return;
+    if (!seg) { const [at, dur, hold] = stops[si++ % stops.length]; seg = { from: sc.scrollTop, to: at * (sc.scrollHeight - sc.clientHeight), t0: now, dur, hold }; }
+    const k = seg.dur ? Math.min(1, (now - seg.t0) / seg.dur) : 1;
+    sc.scrollTop = seg.from + (seg.to - seg.from) * ease(k);
+    if (now - seg.t0 &gt;= seg.dur + seg.hold) seg = null;
+  }
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  let shown = null, bar = 0;
+  const label = p =&gt; p &gt; 0.985 ? 'Done' : `${Math.max(1, Math.ceil(words * (1 - p) / WPM))} min left`;
+  function swap(text, down) {
+    // the old label slides out the way the reader is going, the new one follows it in
+    if (shown === null) { num.textContent = text; shown = text; return; }
+    const d = reduce ? 0 : down ? 1 : -1; shown = text;   // reduced motion: a crossfade, no slide
+    num.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${-8 * d}px)`, opacity: 0 }], { duration: PARAMS.swap * 0.6, easing: easeOut }).onfinish = () =&gt; {
+      num.textContent = text;
+      num.animate([{ transform: `translateY(${8 * d}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: PARAMS.swap, easing: easeOut });
+    };
+  }
+  let lastP = 0;
+  function frame(now) {
+    drive(now);
+    const max = sc.scrollHeight - sc.clientHeight, p = max &gt; 0 ? sc.scrollTop / max : 0;
+    bar += (p - bar) * PARAMS.follow;
+    fill.style.transform = `scaleX(${bar.toFixed(4)})`;
+    const t = label(p);
+    if (t !== shown) swap(t, p &gt;= lastP);
+    lastP = p;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.getAnimations({ subtree: true }).forEach(a =&gt; a.cancel()); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

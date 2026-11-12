@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper marbling: Backward lookup through comb and swirl warps; paint never smears · Motion Library</title>
+<meta name="description" content="Paper marbling is a WebGL effect: backward lookup through comb and swirl warps; paint never smears. One plain JavaScript file with no dependencies; add it with npx motion-library add marbling.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/marbling.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Paper marbling · Motion Library">
+<meta property="og:description" content="Backward lookup through comb and swirl warps; paint never smears">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/marbling.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Paper marbling",
+  "description": "Backward lookup through comb and swirl warps; paint never smears",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Fluid, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/marbling.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/marbling.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Fluid",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/fluid"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Paper marbling",
+    "item": "https://ajeckblad.github.io/motion-library/fx/marbling.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/fluid">Fluid</a></header>
+<main class="s-page">
+<article>
+<h1>Paper marbling</h1>
+<p class="tldr">Paper marbling is a WebGL effect: backward lookup through comb and swirl warps; paint never smears. One plain JavaScript file with no dependencies; add it with npx motion-library add marbling.</p>
+<figure><img src="../posters/marbling.webp" alt="Paper marbling: Backward lookup through comb and swirl warps; paint never smears" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/marbling">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Paper marbling?</h2>
+<p>Bands of paint are combed and swirled like marbled paper; the pointer drags the stylus.</p>
+
+<h2>How does Paper marbling work?</h2>
+<p>Each pixel traces backward through the comb waves and stylus swirl to find its paint band, so the backward lookup never smears.</p>
+
+<h2>How do I add Paper marbling to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add marbling</code>. It writes <code>animations/marbling.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/marbling.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add marbling --comb 2</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Comb</td><td><code>--comb</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+<tr><td>Swirl</td><td><code>--swirl</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Fluid</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>3.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Paper marbling: bands of floating paint, combed and swirled. Each pixel traces backward through a comb pass
+// (sideways waves), a swirl around the stylus and a slow drift, then reads its colour from the original stripes.
+const PARAMS = { comb: 1, swirl: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+  const vs = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform vec2 R, M; uniform float T, C, S;
+  vec3 paint(float v) {
+    vec3 cols[5] = vec3[5](vec3(.95, .9, .8), vec3(.62, .16, .14), vec3(.06, .33, .4), vec3(.86, .6, .2), vec3(.12, .1, .1));
+    float f = fract(v) * 5.; int i = int(f); float k = smoothstep(.82, 1., fract(f));
+    return mix(cols[i], cols[(i + 1) % 5], k);
+  }
+  void main() {
+    vec2 a = vec2(R.x / R.y, 1.), q = uv * a;
+    // undo the stylus swirl: rotate around the pointer, more strongly close to it
+    vec2 d = q - M * a; float r = length(d), ang = S * 2.6 * exp(-r * r * 9.) * sin(T * .5);
+    q = M * a + mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * d;
+    // undo the comb: alternating sideways waves
+    q.x += C * .06 * sin(q.y * 18. + T * .4) + C * .03 * sin(q.y * 41. - T * .3);
+    q.y += C * .05 * sin(q.x * 9. + T * .25);
+    // the original floated bands, with a little drift
+    float v = q.x * 2.2 + .25 * sin(q.y * 3. + T * .1) + T * .015;
+    vec3 c = paint(v);
+    float grain = fract(sin(dot(uv * R, vec2(12.9, 78.2))) * 43758.5);
+    o = vec4(c * (.96 + .04 * grain), 1);
+  }`;
+  const sh = (t, s) =&gt; { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const u = n =&gt; gl.getUniformLocation(prog, n), uR = u('R'), uM = u('M'), uT = u('T'), uC = u('C'), uS = u('S');
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 1.5); canvas.width = stage.clientWidth * d | 0; canvas.height = stage.clientHeight * d | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let mx = 0.5, my = 0.5, tx = mx, ty = my, lastMove = -1e9, raf;
+  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); tx = (e.clientX - b.left) / b.width; ty = 1 - (e.clientY - b.top) / b.height; lastMove = performance.now(); };
+  canvas.addEventListener('pointermove', onMove);
+  function frame(now) {
+    const t = now / 1000;
+    if (now - lastMove &gt; 1500) { tx = 0.5 + Math.cos(t * 0.35) * 0.25; ty = 0.5 + Math.sin(t * 0.5) * 0.25; }
+    mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
+    gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform2f(uM, mx, my); gl.uniform1f(uT, t); gl.uniform1f(uC, PARAMS.comb); gl.uniform1f(uS, PARAMS.swirl);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+// Seven-segment clock: each digit is seven bevelled hexagon bars (pointed ends so they meet at mitred corners),
+// lit from a bitmask per numeral. Unlit segments stay faintly visible, like the ghost of a real LED display;
+// lit ones glow and switch with a short fade instead of a hard cut. The colon blinks with the seconds.
+const PARAMS = { hue: 6, slant: 8, glow: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, D = 1;
+  const resize = () => { D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * D | 0; canvas.height = H * D | 0; };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // segments a b c d e f g → bits 0..6
+  const MASK = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f];
+  const DIGITS = 8;                                    // HH MM SS cc
+  const level = new Float32Array(DIGITS * 7);          // eased brightness of every segment
+  // one segment as a hexagon from (x0,y0) to (x1,y1), thickness t, with a gap g at each end
+  function seg(x0, y0, x1, y1, t, g) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = -uy * t / 2, ny = ux * t / 2;
+    const ax = x0 + ux * g, ay = y0 + uy * g, bx = x1 - ux * g, by = y1 - uy * g, h = t / 2;
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(ax + ux * h + nx, ay + uy * h + ny); ctx.lineTo(bx - ux * h + nx, by - uy * h + ny);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(bx - ux * h - nx, by - uy * h - ny); ctx.lineTo(ax + ux * h - nx, ay + uy * h - ny);
+    ctx.closePath();
+  }
+  function digitPath(x, y, w, h, t, which, filter) {
+    const g = t * 0.12, m = y + h / 2;
+    const S = [[x, y, x + w, y], [x + w, y, x + w, m], [x + w, m, x + w, y + h], [x, y + h, x + w, y + h], [x, m, x, y + h], [x, y, x, m], [x, m, x + w, m]];
+    for (let s = 0; s < 7; s++) if (filter(which + s)) seg(...S[s], t, g);
+  }
+
+  let raf, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const d = new Date(Date.now());
+    const cs = reduce ? 0 : Math.floor(d.getMilliseconds() / 10);
+    const vals = [d.getHours() / 10 | 0, d.getHours() % 10, d.getMinutes() / 10 | 0, d.getMinutes() % 10, d.getSeconds() / 10 | 0, d.getSeconds() % 10, cs / 10 | 0, cs % 10];
+    const k = 1 - Math.exp(-dt * (reduce ? 60 : 28));
+    for (let i = 0; i < DIGITS; i++) for (let s = 0; s < 7; s++) { const tg = (MASK[vals[i]] >> s) & 1; level[i * 7 + s] += (tg - level[i * 7 + s]) * (tg ? Math.min(1, k * 2) : k); }
+
+    const hue = PARAMS.hue, lit = `hsl(${hue},100%,50%)`, core = `hsl(${hue},100%,82%)`;
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.fillStyle = `hsl(${hue},45%,3.5%)`; ctx.fillRect(0, 0, W, H);
+    // layout in digit-widths: 6 big digits, 2 colons, a small pair for hundredths
+    const big = 1, sp = 0.36, col = 0.5, small = 0.5;
+    const units = 6 * big + 4.9 * sp + 2 * col + 0.35 + 2 * small + sp * small;
+    const dw = Math.min(W * 0.84 / units, H * 0.42 / 1.8), dh = dw * 1.8, th = dw * 0.2;
+    const sk = Math.tan(PARAMS.slant * Math.PI / 180);
+    const totalW = units * dw, x0 = (W - totalW) / 2 + dh * sk * 0.5, y0 = (H - dh) / 2;
+    ctx.setTransform(D, 0, -sk * D, D, sk * (y0 + dh) * D, 0);   // italic slant around the baseline
+    const place = [], colons = []; let x = x0;
+    for (let i = 0; i < 6; i++) {
+      place.push([x, y0, dw, dh, th]); x += dw;
+      if (i === 1 || i === 3) { x += sp * dw * 0.6; colons.push(x + col * dw / 2); x += col * dw + sp * dw * 0.6; } else x += sp * dw;
+    }
+    x += 0.35 * dw - sp * dw * 0.5;
+    const sh = dh * small, sw = dw * small;
+    for (let i = 0; i < 2; i++) { place.push([x, y0 + dh - sh, sw, sh, th * small * 1.2]); x += sw + sp * sw; }
+    const boxes = place;
+    // ghosts: all segments, very dim
+    ctx.beginPath(); boxes.forEach((b, i) => digitPath(b[0], b[1], b[2], b[3], b[4], i * 7, () => true));
+    ctx.fillStyle = `hsla(${hue},100%,50%,0.07)`; ctx.fill();
+    // lit segments in a few brightness buckets: glow pass then hot core
+    for (let q = 1; q <= 4; q++) {
+      const lo = (q - 1) / 4, hi = q / 4, f = j => level[j] > lo + 0.01 && level[j] <= hi + 0.001;
+      ctx.beginPath(); boxes.forEach((b, i) => digitPath(b[0], b[1], b[2], b[3], b[4], i * 7, f));
+      ctx.globalAlpha = hi;
+      ctx.shadowColor = lit; ctx.shadowBlur = dw * 0.28 * PARAMS.glow * D; ctx.fillStyle = lit; ctx.fill();
+      ctx.shadowBlur = 0; ctx.globalAlpha = hi * hi * 0.3; ctx.fillStyle = core; ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    // colons: two square dots each, on for the first half of every second
+    const on = reduce ? 1 : Math.max(0, Math.min(1, (0.55 - d.getMilliseconds() / 1000) * 12));
+    const r = th * 0.62;
+    for (const cx of colons) for (const cy of [y0 + dh * 0.3, y0 + dh * 0.7]) {
+      ctx.beginPath(); ctx.rect(cx - r, cy - r, r * 2, r * 2);
+      ctx.fillStyle = `hsla(${hue},100%,50%,0.07)`; ctx.fill();
+      if (on > 0) { ctx.globalAlpha = on; ctx.shadowColor = lit; ctx.shadowBlur = dw * 0.28 * PARAMS.glow * D; ctx.fillStyle = lit; ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = on * 0.3; ctx.fillStyle = core; ctx.fill(); ctx.globalAlpha = 1; }
+    }
+    // dim unit labels under each pair, printed upright
+    ctx.setTransform(D, 0, 0, D, 0, 0);
+    ctx.font = `600 ${Math.max(9, dw * 0.17)}px ui-monospace, SFMono-Regular, Menlo, monospace`; ctx.textAlign = 'center';
+    ctx.fillStyle = `hsla(${hue},90%,60%,0.35)`;
+    const ly = y0 + dh + dw * 0.55;
+    ['HRS', 'MIN', 'SEC'].forEach((l, i) => ctx.fillText(l, place[i * 2][0] + dw + sp * dw / 2 - sk * (ly - y0 - dh), ly));
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>View Transitions morph: The browser morphs matching view-transition-names · Motion Library</title>
+<meta name="description" content="View Transitions morph is a DOM effect: the browser morphs matching view-transition-names. One plain JavaScript file with no dependencies; add it with npx motion-library add view-transition.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/view-transition.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="View Transitions morph · Motion Library">
+<meta property="og:description" content="The browser morphs matching view-transition-names">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/view-transition.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "View Transitions morph",
+  "description": "The browser morphs matching view-transition-names",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Page transitions, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/view-transition.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/view-transition.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Page transitions",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/transitions"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "View Transitions morph",
+    "item": "https://ajeckblad.github.io/motion-library/fx/view-transition.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/transitions">Page transitions</a></header>
+<main class="s-page">
+<article>
+<h1>View Transitions morph</h1>
+<p class="tldr">View Transitions morph is a DOM effect: the browser morphs matching view-transition-names. One plain JavaScript file with no dependencies; add it with npx motion-library add view-transition.</p>
+<figure><img src="../posters/view-transition.webp" alt="View Transitions morph: The browser morphs matching view-transition-names" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/view-transition">Open it live, tune it and copy the code</a></p>
+
+<h2>What is View Transitions morph?</h2>
+<p>An album’s cover and name grow into the header of the opened album, and shrink back on return.</p>
+
+<h2>How does View Transitions morph work?</h2>
+<p>document.startViewTransition() snapshots the screen, runs the DOM change and morphs every element sharing a view-transition-name between boxes; the rest cross-fades, with no animation code.</p>
+
+<h2>How do I add View Transitions morph to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add view-transition</code>. It writes <code>animations/view-transition.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/view-transition.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add view-transition --duration 1500</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Duration (ms)</td><td><code>--duration</code></td><td>500</td><td>150 to 1500</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Page transitions</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>10.5 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// View Transitions morph: in a photo app, an album's cover and name in the list morph into the big header and title of the album you open, and back again.
+// document.startViewTransition() snapshots the screen, runs the DOM change, then animates every element that shares a view-transition-name from its old box to its new one; everything else cross-fades. Browsers without it simply swap.
+const PARAMS = { duration: 500 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let uid = 0;
+  const tag = Math.random().toString(36).slice(2, 7);
+  // A landscape photo drawn in SVG: a sky gradient, an optional sun, layered ridges and optional water.
+  const photo = p =&gt; {
+    const id = `vt${tag}${uid++}`, W = 120, H = 90;
+    let s = `&lt;svg viewBox=&quot;0 0 ${W} ${H}&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;${id}&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;${p.sky[0]}&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;${p.sky[1]}&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect width=&quot;${W}&quot; height=&quot;${H}&quot; fill=&quot;url(#${id})&quot;/&gt;`;
+    if (p.sun) s += `&lt;circle cx=&quot;${p.sun[0]}&quot; cy=&quot;${p.sun[1]}&quot; r=&quot;${p.sun[2]}&quot; fill=&quot;${p.sun[3]}&quot;/&gt;`;
+    p.ridges.forEach((c, i) =&gt; {
+      const base = H * (p.y0 + i * p.dy), amp = p.amp * (1 - i * 0.22);
+      let d = `M0 ${H}`;
+      for (let x = 0; x &lt;= W; x += 3) d += ` L${x} ${(base - amp * (Math.sin(x * 0.045 + p.seed + i * 1.7) * 0.6 + Math.sin(x * 0.11 + p.seed * 2 + i) * 0.3 + Math.sin(x * 0.23 + i * 3) * 0.1)).toFixed(1)}`;
+      s += `&lt;path d=&quot;${d} L${W} ${H}Z&quot; fill=&quot;${c}&quot;/&gt;`;
+    });
+    if (p.water) s += `&lt;rect y=&quot;${H * p.water[0]}&quot; width=&quot;${W}&quot; height=&quot;${H}&quot; fill=&quot;${p.water[1]}&quot;/&gt;&lt;path d=&quot;M20 ${H * p.water[0] + 6}h22M66 ${H * p.water[0] + 10}h30M34 ${H * p.water[0] + 16}h18&quot; stroke=&quot;#fff&quot; stroke-opacity=&quot;.25&quot; stroke-width=&quot;1.2&quot;/&gt;`;
+    return s + '&lt;/svg&gt;';
+  };
+  const P = {
+    dawn: { sky: ['#f4b39a', '#fde4cc'], sun: [86, 42, 9, '#fff3df'], ridges: ['#c48f95', '#8f6a83', '#4d3f5e'], y0: 0.55, dy: 0.11, amp: 16, seed: 1 },
+    fjord: { sky: ['#8fc3dc', '#e4f1f4'], ridges: ['#8db1bf', '#557f8e', '#2d4f5b'], water: [0.8, '#5b8796'], y0: 0.42, dy: 0.12, amp: 22, seed: 2 },
+    dunes: { sky: ['#f0a35e', '#f9dcb0'], sun: [30, 34, 10, '#fff1d0'], ridges: ['#e49a5f', '#cc7443', '#9c4f2e'], y0: 0.6, dy: 0.12, amp: 8, seed: 3 },
+    mist: { sky: ['#cbd8cd', '#eef2ea'], ridges: ['#a9bfaa', '#7a977d', '#46634e'], y0: 0.42, dy: 0.15, amp: 14, seed: 4 },
+    dusk: { sky: ['#2f3a68', '#e08a6a'], sun: [62, 60, 8, '#ffd59a'], ridges: ['#28305a'], water: [0.66, '#34416f'], y0: 0.64, dy: 0, amp: 5, seed: 5 },
+    alps: { sky: ['#5d9de4', '#d8eafb'], ridges: ['#eef3f8', '#93a7bd', '#4f6378'], y0: 0.4, dy: 0.15, amp: 24, seed: 6 },
+    meadow: { sky: ['#b9dcef', '#f2f8ef'], ridges: ['#b7d48c', '#88b462', '#5f8c43'], y0: 0.55, dy: 0.12, amp: 10, seed: 8 },
+    lilac: { sky: ['#bfb0e3', '#f2e7f5'], sun: [40, 38, 8, '#fffaf4'], ridges: ['#a08bcb', '#7460a6', '#4a3d78'], y0: 0.52, dy: 0.12, amp: 14, seed: 9 },
+  };
+  const albums = [
+    { name: 'Lofoten', meta: 'August 2026 · 248 photos', cover: 'dawn', grid: ['fjord', 'alps', 'dawn', 'mist', 'fjord', 'dusk'] },
+    { name: 'Kyoto in spring', meta: 'April 2026 · 312 photos', cover: 'lilac', grid: ['lilac', 'meadow', 'mist', 'dawn', 'lilac', 'meadow'] },
+    { name: 'Summer at the lake', meta: 'July 2026 · 86 photos', cover: 'fjord', grid: ['meadow', 'fjord', 'dusk', 'mist', 'alps', 'fjord'] },
+    { name: 'Road trip south', meta: 'May 2026 · 141 photos', cover: 'dunes', grid: ['dunes', 'dusk', 'dunes', 'alps', 'dawn', 'dunes'] },
+  ];
+  const sb = '&lt;div class=&quot;vt-sb&quot;&gt;&lt;span&gt;9:41&lt;/span&gt;&lt;svg width=&quot;58&quot; height=&quot;12&quot; viewBox=&quot;0 0 58 12&quot;&gt;&lt;g fill=&quot;#15171a&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;8&quot; width=&quot;3&quot; height=&quot;4&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;4.5&quot; y=&quot;6&quot; width=&quot;3&quot; height=&quot;6&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;9&quot; y=&quot;3.5&quot; width=&quot;3&quot; height=&quot;8.5&quot; rx=&quot;.8&quot;/&gt;&lt;rect x=&quot;13.5&quot; y=&quot;1&quot; width=&quot;3&quot; height=&quot;11&quot; rx=&quot;.8&quot;/&gt;&lt;path d=&quot;M26 3.6a8.5 8.5 0 0 1 11 0l-1.3 1.4a6.6 6.6 0 0 0-8.4 0zM28.4 6.3a5 5 0 0 1 6.2 0l-1.3 1.4a3 3 0 0 0-3.6 0zM31.5 11.5l-1.6-1.8a2.4 2.4 0 0 1 3.2 0z&quot;/&gt;&lt;rect x=&quot;40.5&quot; y=&quot;.8&quot; width=&quot;15&quot; height=&quot;10.4&quot; rx=&quot;3&quot; fill=&quot;none&quot; stroke=&quot;#15171a&quot; stroke-opacity=&quot;.45&quot;/&gt;&lt;rect x=&quot;42&quot; y=&quot;2.3&quot; width=&quot;10&quot; height=&quot;7.4&quot; rx=&quot;1.6&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;&lt;/div&gt;';
+
+  const root = document.createElement('div');
+  root.className = 'vt-root';
+  root.innerHTML = `&lt;style&gt;
+    .vt-root { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(120% 100% at 50% 0%, #eef6f5, #d5e8e5); font-family: &quot;Mona Sans&quot;, system-ui, -apple-system, sans-serif; color: #15171a; }
+    .vt-phone { position: absolute; left: 50%; top: 0; width: 280px; height: 580px; border-radius: 46px; background: #0f1113; box-shadow: inset 0 0 0 1.5px #2b2f34, 0 40px 80px -30px rgba(8,45,42,.45), 0 12px 30px -12px rgba(8,45,42,.3); transform-origin: 50% 0; }
+    .vt-screen { position: absolute; inset: 7px; border-radius: 39px; overflow: hidden; background: #fff; }
+    .vt-island { position: absolute; left: 50%; top: 17px; width: 76px; height: 22px; margin-left: -38px; border-radius: 12px; background: #000; z-index: 9; }
+    .vt-sb { height: 44px; padding: 0 24px 0 32px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 650; }
+    .vt-view { position: absolute; inset: 0; }
+    .vt-cov svg, .vt-head svg, .vt-grid svg { display: block; width: 100%; height: 100%; }
+    .vt-big { margin: 6px 16px 4px; font-size: 27px; font-weight: 750; letter-spacing: -0.02em; }
+    .vt-sub { margin: 0 16px 12px; font-size: 12.5px; color: #8a8a8f; }
+    .vt-row { position: relative; display: flex; align-items: center; gap: 12px; padding: 8px 16px; }
+    .vt-row + .vt-row::before { content: &quot;&quot;; position: absolute; left: 92px; right: 0; top: 0; height: 1px; background: #ececf0; }
+    .vt-cov { width: 64px; height: 64px; border-radius: 10px; overflow: hidden; flex: none; }
+    .vt-name { font-size: 14.5px; font-weight: 640; width: fit-content; }
+    .vt-meta { margin-top: 3px; font-size: 12px; color: #8a8a8f; }
+    .vt-nav { height: 36px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 8px; color: #007aff; font-size: 14px; }
+    .vt-nav span { display: flex; align-items: center; gap: 3px; }
+    .vt-head { height: 176px; margin: 2px 12px 0; border-radius: 16px; overflow: hidden; }
+    .vt-title { margin: 14px 16px 0; font-size: 24px; font-weight: 750; letter-spacing: -0.02em; width: fit-content; }
+    .vt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin: 12px 12px 0; }
+    .vt-grid div { aspect-ratio: 1; overflow: hidden; }
+    .vt-grid div:first-child { border-top-left-radius: 8px; } .vt-grid div:nth-child(3) { border-top-right-radius: 8px; }
+    .vt-tap { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: rgba(60,60,67,.28); box-shadow: 0 0 0 1.5px rgba(255,255,255,.75); opacity: 0; z-index: 10; pointer-events: none; }
+  &lt;/style&gt;&lt;style class=&quot;vt-dur&quot;&gt;&lt;/style&gt;
+  &lt;div class=&quot;vt-phone&quot;&gt;&lt;div class=&quot;vt-screen&quot;&gt;&lt;div class=&quot;vt-view&quot;&gt;&lt;/div&gt;&lt;div class=&quot;vt-tap&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;vt-island&quot;&gt;&lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const phone = root.querySelector('.vt-phone'), screen = root.querySelector('.vt-screen'), view = root.querySelector('.vt-view'), tapEl = root.querySelector('.vt-tap');
+  root.querySelector('.vt-dur').textContent = `::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: ${PARAMS.duration}ms; animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }`
+    // Reduced motion: shared elements snap to their new box (no morph); the old and new views only cross-fade.
+    + (reduce ? ' ::view-transition-group(*) { animation-duration: 0s; }' : '');
+  const covers = albums.map(a =&gt; photo(P[a.cover]));
+
+  const fit = () =&gt; {
+    const W = stage.clientWidth, H = stage.clientHeight, f = Math.min(1, Math.max(0.66, 0.66 + (H - 260) / 240 * 0.34));
+    const s = Math.min(H * 0.92 / (580 * f), W * 0.86 / 280), top = f &gt;= 1 ? (H - 580 * s) / 2 : H * 0.05;
+    phone.style.transform = `translate(-50%, ${top}px) scale(${s})`;
+  };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+
+  let k = 0, detail = false;
+  const named = (on, n) =&gt; on ? `view-transition-name:${n}${tag}` : '';
+  function render() {
+    if (detail) {
+      const a = albums[k];
+      view.innerHTML = `${sb}&lt;div class=&quot;vt-nav&quot;&gt;&lt;span&gt;&lt;svg width=&quot;10&quot; height=&quot;17&quot; viewBox=&quot;0 0 10 17&quot;&gt;&lt;path d=&quot;M8.5 1.5L2 8.5l6.5 7&quot; fill=&quot;none&quot; stroke=&quot;#007aff&quot; stroke-width=&quot;2.2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;Albums&lt;/span&gt;&lt;span&gt;Select&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;vt-head&quot; style=&quot;${named(true, 'cov')}&quot;&gt;${covers[k]}&lt;/div&gt;&lt;div class=&quot;vt-title&quot; style=&quot;${named(true, 'ttl')}&quot;&gt;${a.name}&lt;/div&gt;&lt;div class=&quot;vt-sub&quot; style=&quot;margin-top:3px&quot;&gt;${a.meta}&lt;/div&gt;
+        &lt;div class=&quot;vt-grid&quot;&gt;${a.grid.map(g =&gt; `&lt;div&gt;${photo(P[g])}&lt;/div&gt;`).join('')}&lt;/div&gt;`;
+    } else {
+      view.innerHTML = `${sb}&lt;div class=&quot;vt-big&quot;&gt;Albums&lt;/div&gt;&lt;div class=&quot;vt-sub&quot;&gt;My albums · ${albums.length}&lt;/div&gt;
+        ${albums.map((a, i) =&gt; `&lt;div class=&quot;vt-row&quot;&gt;&lt;div class=&quot;vt-cov&quot; style=&quot;${named(i === k, 'cov')}&quot;&gt;${covers[i]}&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;vt-name&quot; style=&quot;${named(i === k, 'ttl')}&quot;&gt;${a.name}&lt;/div&gt;&lt;div class=&quot;vt-meta&quot;&gt;${a.meta}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`).join('')}`;
+    }
+  }
+  render();
+
+  const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  const tapAt = el =&gt; {
+    const sr = screen.getBoundingClientRect(), r = el.getBoundingClientRect(), s = sr.width / 266;
+    tapEl.style.left = (r.left - sr.left + r.width / 2) / s + 'px'; tapEl.style.top = (r.top - sr.top + r.height / 2) / s + 'px';
+    tapEl.animate([{ opacity: 0, transform: reduce ? 'none' : 'scale(0.8)' }, { opacity: 1, transform: 'scale(1)', offset: 0.3 }, { opacity: 0, transform: reduce ? 'none' : 'scale(1.2)' }], { duration: 460, easing: easeOut });
+  };
+  const change = () =&gt; { detail = !detail; render(); };
+  const timers = new Set();
+  const later = (fn, ms) =&gt; { const id = setTimeout(() =&gt; { timers.delete(id); fn(); }, ms); timers.add(id); };
+  let opens = 0;
+  function step() {
+    // Before opening the next album, move the names onto its row (no visible change) so the morph starts there.
+    if (!detail &amp;&amp; opens++) { k = (k + 1) % albums.length; render(); }
+    tapAt(detail ? view.querySelector('.vt-nav span') : view.querySelectorAll('.vt-row')[k]);
+    later(() =&gt; {
+      if (document.startViewTransition) document.startViewTransition(change);
+      else change(); // no support: swap instantly
+    }, 120);
+    later(step, PARAMS.duration + (detail ? 1100 : 1900));
+  }
+  later(step, 700);
+
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

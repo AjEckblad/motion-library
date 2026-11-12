@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toast stack: New toasts in front, older ones step back · Motion Library</title>
+<meta name="description" content="Toast stack is a DOM effect: new toasts in front, older ones step back. One plain JavaScript file with no dependencies; add it with npx motion-library add toast-stack.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/toast-stack.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Toast stack · Motion Library">
+<meta property="og:description" content="New toasts in front, older ones step back">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/toast-stack.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Toast stack",
+  "description": "New toasts in front, older ones step back",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Micro & loading, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/toast-stack.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/toast-stack.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Micro & loading",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/micro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Toast stack",
+    "item": "https://ajeckblad.github.io/motion-library/fx/toast-stack.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/micro">Micro &amp; loading</a></header>
+<main class="s-page">
+<article>
+<h1>Toast stack</h1>
+<p class="tldr">Toast stack is a DOM effect: new toasts in front, older ones step back. One plain JavaScript file with no dependencies; add it with npx motion-library add toast-stack.</p>
+<figure><img src="../posters/toast-stack.webp" alt="Toast stack: New toasts in front, older ones step back" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/toast-stack">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Toast stack?</h2>
+<p>Toasts rise at the bottom right while older ones step back, smaller and higher, until the oldest fades.</p>
+
+<h2>How does Toast stack work?</h2>
+<p>Each toast’s transform comes from its stack index; dismissing the front one slides it off sideways and the rest step forward, all with transform and opacity transitions.</p>
+
+<h2>How do I add Toast stack to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add toast-stack</code>. It writes <code>animations/toast-stack.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/toast-stack.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add toast-stack --gap 24</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Step (px)</td><td><code>--gap</code></td><td>12</td><td>4 to 24</td><td>1</td></tr>
+<tr><td>Shrink per toast</td><td><code>--scaleStep</code></td><td>0.05</td><td>0 to 0.12</td><td>0.01</td></tr>
+<tr><td>Move (ms)</td><td><code>--enterMs</code></td><td>280</td><td>120 to 500</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Micro &amp; loading</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Stacked toasts in a file-sharing app: each new toast rises in at the bottom right, and the older ones step back behind
+// it, a little higher and a little smaller each, until the oldest fades away. Dismissing the front one slides it off to the
+// side and the rest step forward. It feels right because the stack keeps the newest message in front without hiding the history.
+const PARAMS = { gap: 12, scaleStep: 0.05, enterMs: 280 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const ico = (bg, d) =&gt; `&lt;i style=&quot;background:${bg}&quot;&gt;&lt;svg viewBox=&quot;0 0 16 16&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;${d}&lt;/svg&gt;&lt;/i&gt;`;
+  const msgs = [
+    [ico('#2f9e44', '&lt;path d=&quot;M4 8.5l2.5 2.5L12 5.5&quot;/&gt;'), 'Upload complete', 'Q3 report.pdf · 2.4 MB'],
+    [ico('#1c7ed6', '&lt;path d=&quot;M3 8h10M9 4l4 4-4 4&quot;/&gt;'), 'Invite sent', 'sam@example.com can edit'],
+    [ico('#15171a', '&lt;rect x=&quot;5&quot; y=&quot;5&quot; width=&quot;7&quot; height=&quot;7&quot; rx=&quot;1.5&quot;/&gt;&lt;path d=&quot;M3.5 10V4.5a1 1 0 0 1 1-1H10&quot;/&gt;'), 'Link copied', 'Anyone with the link can view'],
+    [ico('#d63c74', '&lt;path d=&quot;M8 3.5v5M8 11.5v.5&quot;/&gt;'), 'Storage almost full', '9.2 of 10 GB used'],
+  ];
+  const files = [['Q3 report.pdf', '2.4 MB', 'Today'], ['Brand photos', '48 items', 'Yesterday'], ['Contract draft.docx', '86 KB', 'Mon'], ['Interview notes', '12 items', '4 Nov']];
+  const root = document.createElement('div');
+  root.className = 'ts-root';
+  root.innerHTML = `&lt;style&gt;
+    .ts-root { position: absolute; inset: 0; overflow: hidden; background: #f4f1f3; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .ts-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .ts-app { position: absolute; inset: 16px; border-radius: 14px; background: #fff; box-shadow: 0 0 0 1px rgba(20,24,30,.06); padding: 18px 20px; box-sizing: border-box; }
+    .ts-app h2 { margin: 0 0 12px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+    .ts-file { display: grid; grid-template-columns: 1fr 80px 70px; align-items: center; height: 38px; border-top: 1px solid #f0f1f3; font-size: 12.5px; color: #6b7076; } .ts-file b { font-weight: 550; color: #15171a; }
+    .ts-stack { position: absolute; right: 32px; bottom: 32px; width: 270px; height: 62px; }
+    .ts-t { position: absolute; left: 0; right: 0; bottom: 0; height: 62px; box-sizing: border-box; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1px rgba(20,24,30,.08), 0 10px 26px -10px rgba(30,20,40,.3); display: flex; align-items: center; gap: 11px; padding: 0 14px; transform-origin: 50% 0;
+      transition: ${reduce ? 'opacity' : 'transform'} ${PARAMS.enterMs}ms cubic-bezier(0.23, 1, 0.32, 1), opacity ${PARAMS.enterMs}ms cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; }
+    .ts-t &gt; i { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; } .ts-t svg { width: 14px; height: 14px; }
+    .ts-t b { display: block; font-size: 13px; font-weight: 650; } .ts-t span { display: block; margin-top: 2px; font-size: 11.5px; color: #7a7f85; }
+    .ts-t em { margin-left: auto; font-style: normal; font-size: 11.5px; color: #8a8f94; }
+  &lt;/style&gt;&lt;div class=&quot;ts-scene&quot;&gt;&lt;div class=&quot;ts-app&quot;&gt;&lt;h2&gt;Shared files&lt;/h2&gt;${files.map(([n, s, d]) =&gt; `&lt;div class=&quot;ts-file&quot;&gt;&lt;b&gt;${n}&lt;/b&gt;&lt;span&gt;${s}&lt;/span&gt;&lt;span&gt;${d}&lt;/span&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;&lt;div class=&quot;ts-stack&quot;&gt;&lt;/div&gt;&lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.ts-scene'), stack = root.querySelector('.ts-stack');
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight, s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  let live = [];        // newest first
+  const layout = () =&gt; live.forEach((el, i) =&gt; {
+    // older toasts step up and shrink; anything past the third fades out behind the stack
+    el.style.transform = `translateY(${-PARAMS.gap * i}px) scale(${1 - PARAMS.scaleStep * i})`;
+    el.style.opacity = i &gt; 2 ? 0 : 1; el.style.zIndex = 10 - i;
+  });
+  function add(m) {
+    const el = document.createElement('div'); el.className = 'ts-t';
+    el.innerHTML = `${m[0]}&lt;div&gt;&lt;b&gt;${m[1]}&lt;/b&gt;&lt;span&gt;${m[2]}&lt;/span&gt;&lt;/div&gt;&lt;em&gt;Undo&lt;/em&gt;`;
+    el.style.transition = 'none'; el.style.transform = reduce ? 'none' : 'translateY(100%) scale(0.95)'; el.style.opacity = 0;   // reduced motion: toasts fade in place and the stack re-sorts without sliding
+    stack.append(el); el.offsetWidth; el.style.transition = '';
+    live.unshift(el); layout();
+  }
+  function dismiss() {
+    const el = live.shift(); if (!el) return;
+    if (!reduce) el.style.transform = 'translateX(110%)'; el.style.opacity = 0;
+    timers.push(setTimeout(() =&gt; el.remove(), PARAMS.enterMs + 40));
+    layout();
+  }
+  let timers = [];
+  function cycle() {
+    timers = []; live.forEach(el =&gt; el.remove()); live = [];
+    const t = (ms, fn) =&gt; timers.push(setTimeout(fn, ms));
+    msgs.forEach((m, i) =&gt; t(400 + i * 1100, () =&gt; add(m)));
+    t(5600, dismiss); t(6400, dismiss); t(7200, dismiss); t(8000, dismiss);
+    timers.push(setTimeout(cycle, 8800));
+  }
+  cycle();
+  return () =&gt; { timers.forEach(clearTimeout); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D tilt card: The card turns toward the pointer, glare follows · Motion Library</title>
+<meta name="description" content="3D tilt card is a DOM effect: the card turns toward the pointer, glare follows. One plain JavaScript file with no dependencies; add it with npx motion-library add tilt.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/tilt.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="3D tilt card · Motion Library">
+<meta property="og:description" content="The card turns toward the pointer, glare follows">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/tilt.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "3D tilt card",
+  "description": "The card turns toward the pointer, glare follows",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Hover & cursor, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/tilt.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/tilt.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Hover & cursor",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/hover"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "3D tilt card",
+    "item": "https://ajeckblad.github.io/motion-library/fx/tilt.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/hover">Hover &amp; cursor</a></header>
+<main class="s-page">
+<article>
+<h1>3D tilt card</h1>
+<p class="tldr">3D tilt card is a DOM effect: the card turns toward the pointer, glare follows. One plain JavaScript file with no dependencies; add it with npx motion-library add tilt.</p>
+<figure><img src="../posters/tilt.webp" alt="3D tilt card: The card turns toward the pointer, glare follows" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/tilt">Open it live, tune it and copy the code</a></p>
+
+<h2>What is 3D tilt card?</h2>
+<p>A hovered article card turns toward the cursor, lifts slightly and a soft glare slides across it.</p>
+
+<h2>How does 3D tilt card work?</h2>
+<p>Cursor position across the card maps to rotateX and rotateY through springs, with shadow and glare following the same values; it settles flat on leave.</p>
+
+<h2>How do I add 3D tilt card to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add tilt</code>. It writes <code>animations/tilt.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/tilt.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add tilt --maxTilt 30</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Max tilt (deg)</td><td><code>--maxTilt</code></td><td>14</td><td>2 to 30</td><td>1</td></tr>
+<tr><td>Stiffness</td><td><code>--stiffness</code></td><td>120</td><td>30 to 400</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Hover &amp; cursor</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>8.8 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// 3D tilt on article cards: where the cursor sits on a card becomes rotateX and rotateY, smoothed by a spring, and a
+// soft glare slides across the surface with it. The card also lifts a little while it is hovered and settles flat when left.
+// It feels right because the card turns toward you like a physical print, and the spring gives it weight instead of twitch.
+const PARAMS = { maxTilt: 14, stiffness: 120 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const covers = [
+    `&lt;svg viewBox=&quot;0 0 160 110&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;&gt;&lt;rect width=&quot;160&quot; height=&quot;110&quot; fill=&quot;#f4dcc4&quot;/&gt;&lt;rect x=&quot;22&quot; y=&quot;22&quot; width=&quot;78&quot; height=&quot;56&quot; rx=&quot;6&quot; fill=&quot;#e86b3a&quot;/&gt;&lt;rect x=&quot;58&quot; y=&quot;38&quot; width=&quot;80&quot; height=&quot;54&quot; rx=&quot;6&quot; fill=&quot;#fff&quot; opacity=&quot;.92&quot;/&gt;&lt;rect x=&quot;68&quot; y=&quot;50&quot; width=&quot;40&quot; height=&quot;5&quot; rx=&quot;2.5&quot; fill=&quot;#e3c7ad&quot;/&gt;&lt;rect x=&quot;68&quot; y=&quot;61&quot; width=&quot;58&quot; height=&quot;5&quot; rx=&quot;2.5&quot; fill=&quot;#e3c7ad&quot;/&gt;&lt;rect x=&quot;68&quot; y=&quot;74&quot; width=&quot;22&quot; height=&quot;9&quot; rx=&quot;4.5&quot; fill=&quot;#15171a&quot;/&gt;&lt;/svg&gt;`,
+    `&lt;svg viewBox=&quot;0 0 160 110&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;&gt;&lt;rect width=&quot;160&quot; height=&quot;110&quot; fill=&quot;#1d2b4a&quot;/&gt;&lt;g stroke=&quot;#2e416b&quot; stroke-width=&quot;1&quot;&gt;&lt;path d=&quot;M20 0v110M50 0v110M80 0v110M110 0v110M140 0v110M0 25h160M0 55h160M0 85h160&quot;/&gt;&lt;/g&gt;&lt;path d=&quot;M18 92C70 92 62 20 142 18&quot; fill=&quot;none&quot; stroke=&quot;#8fd3ff&quot; stroke-width=&quot;4&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;circle cx=&quot;18&quot; cy=&quot;92&quot; r=&quot;5&quot; fill=&quot;#fff&quot;/&gt;&lt;circle cx=&quot;142&quot; cy=&quot;18&quot; r=&quot;5&quot; fill=&quot;#fff&quot;/&gt;&lt;/svg&gt;`,
+    `&lt;svg viewBox=&quot;0 0 160 110&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;&gt;&lt;rect width=&quot;160&quot; height=&quot;110&quot; fill=&quot;#dfe9d8&quot;/&gt;&lt;circle cx=&quot;56&quot; cy=&quot;58&quot; r=&quot;30&quot; fill=&quot;#5c8a52&quot;/&gt;&lt;circle cx=&quot;96&quot; cy=&quot;50&quot; r=&quot;22&quot; fill=&quot;#a7c79a&quot;/&gt;&lt;circle cx=&quot;112&quot; cy=&quot;78&quot; r=&quot;13&quot; fill=&quot;#2f5229&quot;/&gt;&lt;circle cx=&quot;38&quot; cy=&quot;30&quot; r=&quot;6&quot; fill=&quot;#2f5229&quot;/&gt;&lt;/svg&gt;`,
+  ];
+  const posts = [['Product', 'Why we stopped using modals for settings', '6 min read'], ['Motion', 'A field guide to easing curves', '9 min read'], ['Research', 'What a week of user interviews taught us', '5 min read']];
+  const root = document.createElement('div');
+  root.className = 'tl-root';
+  root.innerHTML = `&lt;style&gt;
+    .tl-root { position: absolute; inset: 0; overflow: hidden; background: #fbfaf8; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .tl-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .tl-head { position: absolute; left: 28px; right: 28px; top: 28px; display: flex; align-items: baseline; justify-content: space-between; }
+    .tl-head h2 { margin: 0; font-size: 22px; font-weight: 720; letter-spacing: -0.02em; }
+    .tl-head a { font-size: 12.5px; color: #5b6066; text-decoration: none; }
+    .tl-grid { position: absolute; left: 28px; right: 28px; top: 82px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .tl-card { position: relative; border-radius: 14px; background: #fff; overflow: hidden; box-shadow: 0 0 0 1px rgba(20,24,30,.07), 0 1px 2px rgba(20,24,30,.05); will-change: transform; }
+    .tl-shadow { position: absolute; inset: 8px 6px -2px; border-radius: 14px; box-shadow: 0 22px 34px -14px rgba(30,24,10,.28); opacity: 0; will-change: opacity, transform; }
+    .tl-cover { display: block; height: 116px; } .tl-cover svg { display: block; width: 100%; height: 100%; }
+    .tl-body { padding: 12px 13px 14px; }
+    .tl-tag { font-size: 10.5px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; color: #9a6a10; }
+    .tl-title { margin-top: 6px; font-size: 14.5px; line-height: 1.25; font-weight: 650; letter-spacing: -0.01em; min-height: 54px; }
+    .tl-meta { margin-top: 10px; font-size: 11.5px; color: #7a7f85; }
+    .tl-glare { position: absolute; left: -100%; top: -100%; width: 200%; height: 200%; background: radial-gradient(circle at center, rgba(255,255,255,.55), rgba(255,255,255,0) 32%); pointer-events: none; mix-blend-mode: soft-light; opacity: 0; }
+    .tl-cur { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; transition: opacity .2s; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.3)); }
+  &lt;/style&gt;&lt;div class=&quot;tl-scene&quot;&gt;
+    &lt;div class=&quot;tl-head&quot;&gt;&lt;h2&gt;From the journal&lt;/h2&gt;&lt;a&gt;View all posts →&lt;/a&gt;&lt;/div&gt;
+    &lt;div class=&quot;tl-grid&quot;&gt;${posts.map(([tag, t, m], i) =&gt; `&lt;div style=&quot;position:relative&quot;&gt;&lt;div class=&quot;tl-shadow&quot;&gt;&lt;/div&gt;&lt;article class=&quot;tl-card&quot;&gt;&lt;div class=&quot;tl-cover&quot;&gt;${covers[i]}&lt;/div&gt;&lt;div class=&quot;tl-body&quot;&gt;&lt;div class=&quot;tl-tag&quot;&gt;${tag}&lt;/div&gt;&lt;div class=&quot;tl-title&quot;&gt;${t}&lt;/div&gt;&lt;div class=&quot;tl-meta&quot;&gt;${m}&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;tl-glare&quot;&gt;&lt;/div&gt;&lt;/article&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.tl-scene');
+  let s = 1;
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight; s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const box = el =&gt; { let x = 0, y = 0, e = el; while (e &amp;&amp; e !== scene) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; } return { x, y, w: el.offsetWidth, h: el.offsetHeight }; };
+  const at = (el, fx, fy) =&gt; () =&gt; { const b = box(el); return { x: b.x + b.w * fx, y: b.y + b.h * fy }; };
+  const pt = (x, y) =&gt; () =&gt; ({ x, y });
+  const cards = [...scene.querySelectorAll('.tl-card')].map(el =&gt; ({ el, glare: el.querySelector('.tl-glare'), shadow: el.previousElementSibling, rx: { x: 0, v: 0 }, ry: { x: 0, v: 0 }, lift: { x: 0, v: 0 } }));
+
+  // simulated cursor: drifts slowly across each card in turn; the real pointer takes over while it is on the stage
+  const C = cards.map(c =&gt; c.el);
+  const steps = [
+    { to: pt(110, 360), move: 300, hold: 200 },
+    { to: at(C[0], 0.2, 0.2), move: 700, hold: 150 },
+    { to: at(C[0], 0.85, 0.8), move: 1300, hold: 350 },
+    { to: at(C[1], 0.8, 0.25), move: 700, hold: 150 },
+    { to: at(C[1], 0.2, 0.75), move: 1300, hold: 350 },
+    { to: at(C[2], 0.3, 0.85), move: 700, hold: 150 },
+    { to: at(C[2], 0.75, 0.2), move: 1300, hold: 350 },
+    { to: pt(470, 360), move: 800, hold: 700 },
+  ];
+  const ghost = document.createElement('div'); ghost.className = 'tl-cur';
+  ghost.innerHTML = '&lt;svg width=&quot;17&quot; height=&quot;24&quot; viewBox=&quot;-1 -1 17 24&quot;&gt;&lt;path d=&quot;M0 0v17.6l4.3-4.1 2.9 6.6 2.9-1.2-2.8-6.5h6.1z&quot; fill=&quot;#15171a&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.3&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;';
+  scene.append(ghost);
+  const inOut = t =&gt; t &lt; 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+  let si = 0, t0 = performance.now(), from = steps[0].to(), real = null;
+  const c = { x: from.x, y: from.y };
+  function sim(now) {
+    let st = steps[si];
+    while (now - t0 &gt; st.move + st.hold) { t0 += st.move + st.hold; from = st.to(); si = (si + 1) % steps.length; st = steps[si]; }
+    const k = inOut(Math.min(1, (now - t0) / st.move)), to = st.to(), dx = to.x - from.x, dy = to.y - from.y, bow = Math.sin(Math.PI * k) * 0.1;
+    c.x = from.x + dx * k - dy * bow; c.y = from.y + dy * k + dx * bow;
+  }
+  const toScene = e =&gt; { const r = scene.getBoundingClientRect(); return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+  const onMove = e =&gt; { real = toScene(e); };
+  const onLeave = () =&gt; { if (real) { from = { ...real }; t0 = performance.now(); } real = null; };
+  root.addEventListener('pointermove', onMove); root.addEventListener('pointerleave', onLeave);
+
+  const spring = (p, t, k, dt) =&gt; { const d = 2 * Math.sqrt(k) * 0.7; p.v += (-k * (p.x - t) - d * p.v) * dt; p.x += p.v * dt; };
+  let last = performance.now(), raf;
+  function frame(now) {
+    const dt = Math.min(0.032, (now - last) / 1000); last = now;
+    if (real) { c.x = real.x; c.y = real.y; } else sim(now);
+    ghost.style.transform = `translate(${c.x - 1}px, ${c.y - 1}px)`;
+    ghost.style.opacity = real ? 0 : 1;
+    for (const k of cards) {
+      const b = box(k.el), nx = (c.x - b.x) / b.w * 2 - 1, ny = (c.y - b.y) / b.h * 2 - 1;
+      const on = Math.abs(nx) &lt;= 1 &amp;&amp; Math.abs(ny) &lt;= 1;
+      // reduced motion: no tilt or lift; the shadow and glare still fade in on hover
+      const tilt = reduce ? 0 : PARAMS.maxTilt;
+      spring(k.rx, on ? -ny * tilt : 0, PARAMS.stiffness, dt);
+      spring(k.ry, on ? nx * tilt : 0, PARAMS.stiffness, dt);
+      spring(k.lift, on ? 1 : 0, 200, dt);
+      if (!reduce) k.el.style.transform = `perspective(700px) translateY(${-6 * k.lift.x}px) rotateX(${k.rx.x}deg) rotateY(${k.ry.x}deg) scale(${1 + 0.02 * k.lift.x})`;
+      k.shadow.style.opacity = Math.max(0, Math.min(1, k.lift.x));
+      k.shadow.style.transform = `translate(${-k.ry.x * 0.6}px, ${k.rx.x * 0.6 + 4}px)`;
+      k.glare.style.opacity = Math.max(0, Math.min(1, k.lift.x));
+      k.glare.style.transform = `translate(${(nx * 0.5 + 0.5) * 50}%, ${(ny * 0.5 + 0.5) * 50}%)`;
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); root.removeEventListener('pointermove', onMove); root.removeEventListener('pointerleave', onLeave); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

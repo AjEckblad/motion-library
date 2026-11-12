@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melting chrome logo: Distance-field text melted by sampling the field from above · Motion Library</title>
+<meta name="description" content="Melting chrome logo is a WebGL effect: distance-field text melted by sampling the field from above. One plain JavaScript file with no dependencies; add it with npx motion-library add melting-logo.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/melting-logo.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Melting chrome logo · Motion Library">
+<meta property="og:description" content="Distance-field text melted by sampling the field from above">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/melting-logo.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Melting chrome logo",
+  "description": "Distance-field text melted by sampling the field from above",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/melting-logo.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/melting-logo.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Melting chrome logo",
+    "item": "https://ajeckblad.github.io/motion-library/fx/melting-logo.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Melting chrome logo</h1>
+<p class="tldr">Melting chrome logo is a WebGL effect: distance-field text melted by sampling the field from above. One plain JavaScript file with no dependencies; add it with npx motion-library add melting-logo.</p>
+<figure><img src="../posters/melting-logo.webp" alt="Melting chrome logo: Distance-field text melted by sampling the field from above" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/melting-logo">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Melting chrome logo?</h2>
+<p>Chrome letters slump into a puddle, then pull back into the word with an overshoot.</p>
+
+<h2>How does Melting chrome logo work?</h2>
+<p>A 2D distance field of the word is extruded and raymarched; melting reads the field from higher up and blends to a blurred copy, with drips under overhangs.</p>
+
+<h2>How do I add Melting chrome logo to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add melting-logo</code>. It writes <code>animations/melting-logo.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/melting-logo.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add melting-logo --drips 2</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Drips</td><td><code>--drips</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.4 to 2</td><td>0.1</td></tr>
+<tr><td>Gloss</td><td><code>--gloss</code></td><td>1</td><td>0.5 to 1.5</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>18.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Melting chrome logo: solid chrome letters soften, slump and run down into a mirror puddle, then the puddle pulls
+// itself back up into the word, like liquid metal with a memory. The word is drawn once to a canvas and turned into
+// a 2D distance field by an exact distance transform, plus a blurred copy: the rounded-off shape of soft metal. In 3D
+// the field is extruded with rounded edges. Melting reads the field from higher up, so the letters squash and sink
+// into the pool, and it swells them at the base. Drips hang from every overhang, found by scanning the glyphs for ink
+// with open air under it, and rivulets run down the faces. The floor and the puddle are mirrors: what they reflect is
+// traced through the scene a second time, so the letters stand in their own reflection.
+const PARAMS = { drips: 1, speed: 1, gloss: 1 };
+const WORD = 'MELT';
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+
+  // 1. the word, fitted into the texture with a margin, its ink standing on the floor
+  const TW = 512, TH = 224, PAD = 20, WW = 4.4;                   // WW: the word's width in the scene
+  const cv = document.createElement('canvas'); cv.width = TW; cv.height = TH;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  const font = s =&gt; `900 ${s}px &quot;Arial Black&quot;, &quot;Helvetica Neue&quot;, Arial, system-ui, sans-serif`;
+  // letter by letter, with a little extra tracking so neighbours never touch (an L's foot would run under a T)
+  const TRACK = 0.13, chars = [...WORD];
+  const measure = size =&gt; {
+    g.font = font(size); let x = 0, l = Infinity, r = -Infinity, a = 0, d = 0; const xs = [], mids = [];
+    for (const ch of chars) { const m = g.measureText(ch); xs.push(x); mids.push(x + (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2); l = Math.min(l, x - m.actualBoundingBoxLeft); r = Math.max(r, x + m.actualBoundingBoxRight); a = Math.max(a, m.actualBoundingBoxAscent); d = Math.max(d, m.actualBoundingBoxDescent); x += m.width + TRACK * size; }
+    return { xs, mids, l, r, a, d };
+  };
+  let mm = measure(100);
+  mm = measure(100 * Math.min((TW - 2 * PAD) / (mm.r - mm.l), (TH - 2 * PAD) / (mm.a + mm.d)));
+  const iw = mm.r - mm.l, ih = mm.a + mm.d, left = (TW - iw) / 2, top = (TH - ih) / 2, bottom = top + ih;
+  g.fillStyle = '#fff'; chars.forEach((ch, i) =&gt; g.fillText(ch, left - mm.l + mm.xs[i], top + mm.a));
+  const px = g.getImageData(0, 0, TW, TH).data;
+  const ink = (x, y) =&gt; x &gt;= 0 &amp;&amp; y &gt;= 0 &amp;&amp; x &lt; TW &amp;&amp; y &lt; TH &amp;&amp; px[(y * TW + x) * 4 + 3] &gt; 127;
+  const S = WW / iw, WH = ih * S;                                  // scene units per pixel, and the word's height
+  const lobes = mm.mids.filter((_, i) =&gt; chars[i].trim()).slice(0, 8).map((c, i) =&gt; ({ x: (left - mm.l + c - TW / 2) * S, k: (i * 0.618 + 0.2) % 1 }));
+
+  // 2. its signed distance (negative inside), exact, by two 1D passes of the Felzenszwalb transform
+  const INF = 1e10;
+  const edt = inside =&gt; {
+    const f = new Float64Array(TW * TH); for (let i = 0; i &lt; TW * TH; i++) f[i] = (px[i * 4 + 3] &gt; 127) === inside ? 0 : INF;
+    const n = Math.max(TW, TH), v = new Int32Array(n), z = new Float64Array(n + 1), tmp = new Float64Array(n);
+    const pass = (get, set, len) =&gt; {
+      for (let q = 0; q &lt; len; q++) tmp[q] = get(q);
+      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+      for (let q = 1; q &lt; len; q++) { let s; while ((s = ((tmp[q] + q * q) - (tmp[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k])) &lt;= z[k]) k--; k++; v[k] = q; z[k] = s; z[k + 1] = INF; }
+      k = 0; for (let q = 0; q &lt; len; q++) { while (z[k + 1] &lt; q) k++; set(q, (q - v[k]) ** 2 + tmp[v[k]]); }
+    };
+    for (let x = 0; x &lt; TW; x++) pass(y =&gt; f[y * TW + x], (y, val) =&gt; { f[y * TW + x] = val; }, TH);
+    for (let y = 0; y &lt; TH; y++) pass(x =&gt; f[y * TW + x], (x, val) =&gt; { f[y * TW + x] = val; }, TW);
+    return f;
+  };
+  const away = edt(true), depth = edt(false), exact = new Float32Array(TW * TH);
+  for (let i = 0; i &lt; TW * TH; i++) exact[i] = (Math.sqrt(away[i]) - Math.sqrt(depth[i]) - 0.5) * S;
+  // a blurred copy (two box passes, close to a Gaussian): corners round off the way soft metal does
+  const blur = (src, r) =&gt; {
+    const a = Float32Array.from(src), b = new Float32Array(src.length), cl = (v, hi) =&gt; v &lt; 0 ? 0 : v &gt; hi ? hi : v;
+    for (let it = 0; it &lt; 2; it++) {
+      for (let y = 0; y &lt; TH; y++) { let s = 0; for (let x = -r; x &lt;= r; x++) s += a[y * TW + cl(x, TW - 1)]; for (let x = 0; x &lt; TW; x++) { b[y * TW + x] = s / (2 * r + 1); s += a[y * TW + cl(x + r + 1, TW - 1)] - a[y * TW + cl(x - r, TW - 1)]; } }
+      for (let x = 0; x &lt; TW; x++) { let s = 0; for (let y = -r; y &lt;= r; y++) s += b[cl(y, TH - 1) * TW + x]; for (let y = 0; y &lt; TH; y++) { a[y * TW + x] = s / (2 * r + 1); s += b[cl(y + r + 1, TH - 1) * TW + x] - b[cl(y - r, TH - 1) * TW + x]; } }
+    }
+    return a;
+  };
+  // the sharp channel is smoothed by a pixel too: a diagonal edge in the mask is a staircase, and chrome shows every step
+  const sharp = blur(exact, 1), soft = blur(exact, 9), field = new Float32Array(TW * TH * 2);
+  for (let y = 0; y &lt; TH; y++) for (let x = 0; x &lt; TW; x++) { const i = y * TW + x, j = ((TH - 1 - y) * TW + x) * 2; field[j] = sharp[i]; field[j + 1] = soft[i]; }
+
+  // 3. where drips hang: overhangs, ink with open air under it well above the floor (the E's arms, the T's bar, the
+  // M's V). Each underside edge is followed across the columns; a sloping one drips at its low point, where the metal
+  // runs to, and a flat one at both ends.
+  const runs = [], open = [];
+  for (let x = 2; x &lt; TW - 2; x += 2) {
+    const pts = [];
+    for (let y = Math.floor(top); y &lt; top + ih * 0.82; y++) if (ink(x, y) &amp;&amp; !ink(x, y + 1)) {
+      let gap = 1; while (y + gap &lt; bottom &amp;&amp; !ink(x, y + gap)) gap++;
+      if (gap &gt; ih * 0.18) pts.push({ x, y: y + 1 });
+    }
+    const next = [];
+    for (const p of pts) { const r = open.find(r =&gt; !next.includes(r) &amp;&amp; Math.abs(r[r.length - 1].y - p.y) &lt;= 6); if (r) { r.push(p); next.push(r); } else next.push([p]); }
+    for (const r of open) if (!next.includes(r)) runs.push(r);
+    open.splice(0, open.length, ...next);
+  }
+  runs.push(...open);
+  const hang = [];
+  for (const r of runs) {
+    if (r.length &lt; 3) continue;
+    const ys = r.map(p =&gt; p.y), lo = Math.max(...ys);
+    if (lo - Math.min(...ys) &lt; 4) hang.push(r[1], r[r.length - 2]); else hang.push(r.find(p =&gt; p.y === lo));
+  }
+  hang.sort((a, b) =&gt; a.x - b.x);
+  const drips = [];
+  for (const p of hang) if (drips.length &lt; 8 &amp;&amp; (!drips.length || p.x - drips[drips.length - 1].px &gt; 14)) drips.push({ px: p.x, x: (p.x - TW / 2) * S, y: (bottom - p.y) * S, k: (drips.length * 0.618 + 0.15) % 1 });
+  // and where rivulets run down the front: inside each upright stroke, starting from the letter's top edge
+  const rivs = [], yr = Math.round(top + ih * 0.3);
+  for (let x = 0, run = -1; x &lt;= TW &amp;&amp; rivs.length &lt; 6; x++) {
+    const on = x &lt; TW &amp;&amp; ink(x, yr);
+    if (on &amp;&amp; run &lt; 0) run = x;
+    if (!on &amp;&amp; run &gt;= 0) {
+      const w = x - run;
+      if (w &gt; ih * 0.08 &amp;&amp; w &lt; ih * 0.7) { const cx = Math.round(run + w * (0.3 + 0.4 * ((rivs.length * 0.382) % 1))); let yt = Math.floor(top); while (yt &lt; bottom &amp;&amp; !ink(cx, yt)) yt++; rivs.push({ x: (cx - TW / 2) * S, y: (bottom - yt) * S, k: (rivs.length * 0.618 + 0.4) % 1 }); }
+      run = -1;
+    }
+  }
+
+  const FS = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform sampler2D F; uniform vec2 R; uniform float T, M, OV, GL, FOC, YAW; uniform vec4 DR[8], RV[6], LB[8]; uniform int ND, NR, NL;
+  const float WW = ${WW.toFixed(4)}, WH = ${WH.toFixed(4)}, TWS = ${(TW * S).toFixed(4)}, THS = ${(TH * S).toFixed(4)}, V0 = ${((TH - bottom) / TH).toFixed(5)}, PADS = ${(PAD * S * 0.8).toFixed(4)};
+  mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+  float h1(float x) { return fract(sin(x * 127.1) * 43758.5453); }
+  float n1(float x) { float i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(h1(i), h1(i + 1.), f); }
+  float smin(float a, float b, float k) { float h = clamp(.5 + .5 * (b - a) / k, 0., 1.); return mix(b, a, h) - k * h * (1. - h); }
+  // how far along the melt is at this x: a slow wave along the word (gentle, so the field isn't sheared into steps),
+  // the same as the script's, so the drips stay on their edges
+  float melt(float x) { return clamp(M * 1.45 - .45 * (.5 + .5 * sin(x * 1.15 + 2.1)), 0., 1.); }
+  // the word's 2D distance, sharp (r) and softened (g); outside the texture, the distance to its edge plus the margin
+  vec2 word(vec2 p) {
+    vec2 q = vec2(.5 + p.x / TWS, V0 + p.y / THS), e = max(abs(q - .5) - .5, 0.) * vec2(TWS, THS);
+    if (e.x + e.y &gt; 0.) return vec2(length(e) + PADS);
+    return texture(F, q).rg;
+  }
+  float map(vec3 p) {
+    p.xz *= rot(YAW);
+    vec3 bb = abs(p - vec3(0, WH * .5, 0)) - vec3(WW * .5 + 1.4, WH * .5 + .5, 1.6);   // far away, the bounding box will do
+    float bd = length(max(bb, 0.)); if (bd &gt; .3) return bd;
+    // the letters: squashed toward the floor and sunk into the pool as they melt, softened, swollen at the base
+    float mx = melt(p.x), s = (1. - .45 * mx) * OV, sink = WH * .4 * smoothstep(.2, 1., mx), sf = smoothstep(0., .55, mx);
+    vec2 w = word(vec2(p.x, (p.y + sink) / s));
+    float base = exp(-max(p.y, 0.) * 3.2) * mx;
+    float d2 = (mix(w.x, w.y, sf) - .03 * sf) * s - .15 * base;   // times s: the squash shrinks distances, keep steps safe
+    float th = .25 + .2 * base, r = min(.035 + .17 * sf, th - .01);
+    vec2 e = vec2(d2 + r, abs(p.z) - th + r);
+    float d = max(min(max(e.x, e.y), 0.) + length(max(e, 0.)) - r, -p.y);
+    // drips under the overhangs (x, top, length and z come from the script)
+    for (int i = 0; i &lt; 8; i++) {
+      if (i &gt;= ND) break;
+      vec4 a = DR[i]; if (a.z &lt; .004) continue;
+      vec3 pa = p - vec3(a.x, a.y, a.w); float k = clamp(-pa.y / a.z, 0., 1.);
+      // a thin neck swelling into a drop a little taller than it is wide: a teardrop, not a pin
+      float thread = length(pa + vec3(0, a.z * k, 0)) - mix(.03, .018, k), drop = length((pa + vec3(0, a.z - .04, 0)) * vec3(1, .85, 1)) - .05;
+      d = smin(d, smin(thread, drop, .05), .07);
+    }
+    // rivulets down the front faces
+    for (int i = 0; i &lt; 6; i++) {
+      if (i &gt;= NR) break;
+      vec4 a = RV[i]; if (a.z &lt; .004) continue;
+      vec3 pa = p - vec3(a.x, a.y, .25); float k = clamp(-pa.y / a.z, 0., 1.);
+      d = smin(d, min(length(pa + vec3(0, a.z * k, 0)) - .03, length(pa + vec3(0, a.z, -.012)) - .046), .05);
+    }
+    // the puddle: one lobe under each letter, as big as that letter has melted, run together into one pool with a
+    // scalloped, uneven rim; its surface is never quite still
+    if (M &gt; .01) {
+      float dp = 1e3;
+      for (int i = 0; i &lt; 8; i++) { if (i &gt;= NL) break; vec4 b = LB[i]; dp = smin(dp, length(vec2((p.x - b.x) * .8, p.z)) - b.y, .45); }
+      dp += M * (.12 * (n1(p.x * 2.1 + 7.) - .5) + .1 * (n1(p.z * 3.3 + p.x * 1.3 - 3.) - .5));
+      float pt = .02 + .07 * M;
+      float wy = p.y - .012 * M * sin(p.x * 3.1 + T * 1.7) * sin(p.z * 2.7 - T * 1.3);
+      d = smin(d, length(vec2(max(dp + pt, 0.), wy)) - pt, .16);
+    }
+    return d * .7;
+  }
+  vec3 nrm(vec3 p) { const vec2 k = vec2(1, -1); const float h = .002;
+    return normalize(k.xyy * map(p + k.xyy * h) + k.yyx * map(p + k.yyx * h) + k.yxy * map(p + k.yxy * h) + k.xxx * map(p + k.xxx * h)); }
+  // the studio the chrome reflects: a softbox overhead, a warm and a cool strip, a ring light, a bright wall behind us
+  vec3 env(vec3 d) {
+    vec3 c = mix(vec3(.015, .016, .02), vec3(.09, .095, .11), smoothstep(-.2, .8, d.y));
+    vec2 q = d.xz / max(d.y, .05);
+    c += vec3(2.4) * smoothstep(.05, 0., abs(q.x) - .9) * smoothstep(.05, 0., abs(q.y + .3) - .35) * step(0., d.y);
+    float az = atan(d.x, d.z), band = smoothstep(-.05, .2, d.y) * smoothstep(.8, .3, d.y);
+    c += vec3(1., .6, .35) * 1.5 * smoothstep(.12, .03, abs(az - 1.9)) * band;
+    c += vec3(.4, .65, 1.) * 1.3 * smoothstep(.12, .03, abs(az + 1.7)) * band;
+    c += vec3(1., .97, .92) * 1.1 * smoothstep(.07, 0., abs(d.y - .3) - .04);
+    // the wall behind us has a hard horizon: the front faces get chrome's classic bright-over-dark split, which bends
+    // as the letters soften
+    c += vec3(1.1) * smoothstep(.25, .8, d.z) * (.75 * smoothstep(-.36, -.29, d.y) + .35 * smoothstep(-.3, .5, d.y));
+    return c;
+  }
+  vec3 chrome(vec3 p, vec3 n, vec3 rd) {
+    float fr = .62 + .38 * pow(1. - max(dot(n, -rd), 0.), 5.), ao = .5 + .5 * clamp(map(p + n * .08) / .08, 0., 1.);
+    return env(reflect(rd, n)) * vec3(.93, .94, .97) * fr * ao * GL;
+  }
+  // a second trace, for what the floor and the puddle reflect (a = 1 where it found the metal)
+  vec4 trace2(vec3 ro, vec3 rd) {
+    float t = .02;
+    for (int i = 0; i &lt; 64; i++) { vec3 p = ro + rd * t; float d = map(p); if (d &lt; .002) return vec4(chrome(p, nrm(p), rd), 1); t += d; if (t &gt; 9. || p.y &gt; WH + 1.2) break; }
+    return vec4(env(rd), 0);
+  }
+  vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
+  void main() {
+    vec2 q = (uv * 2. - 1.) * vec2(R.x / R.y, 1.);
+    vec3 ta = vec3(0, WH * .4, 0), ro = vec3(0, WH * .4 + 1.45, 4.6);
+    vec3 f = normalize(ta - ro), rr = normalize(cross(f, vec3(0, 1, 0))), up = cross(rr, f), rd = normalize(f * FOC + rr * q.x + up * q.y);
+    float tf = rd.y &lt; 0. ? -ro.y / rd.y : 1e9, t = 0.; bool hit = false;
+    for (int i = 0; i &lt; 120; i++) { float d = map(ro + rd * t); if (d &lt; .0015) { hit = true; break; } t += d; if (t &gt; tf || t &gt; 16.) break; }
+    vec3 col;
+    if (hit &amp;&amp; t &lt; tf + .01) {
+      vec3 p = ro + rd * t, n = nrm(p);
+      if (p.y &lt; .14 &amp;&amp; n.y &gt; .5) col = trace2(p + n * .01, reflect(rd, n)).rgb * vec3(.93, .94, .97) * (.7 + .3 * pow(1. - max(dot(n, -rd), 0.), 5.)) * GL;
+      else col = chrome(p, n, rd);
+    } else if (tf &lt; 1e8) {
+      // black glass: dark, a soft pool of light under the word, and a mirror image of the metal that fades with
+      // distance (the empty studio it also reflects is kept faint, so the letters' reflection carries the floor)
+      vec3 p = ro + rd * tf; vec2 sp = p.xz * vec2(.16, .45); float spot = exp(-dot(sp, sp));
+      float fr = .05 + .95 * pow(1. - max(-rd.y, 0.), 5.);
+      vec4 rf = spot &gt; .02 ? trace2(p, reflect(rd, vec3(0, 1, 0))) : vec4(env(reflect(rd, vec3(0, 1, 0))), 0);
+      col = vec3(.012, .013, .016) * (.4 + spot) + rf.rgb * mix(.25, .9, fr) * (.2 + .8 * spot) * mix(.08, 1., rf.a);
+    } else col = mix(vec3(.03, .032, .04), vec3(.006, .007, .01), uv.y);
+    col *= 1. - .35 * dot(uv - .5, uv - .5);
+    o = vec4(pow(aces(col), vec3(1. / 2.2)), 1);
+  }`;
+  const VS = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const sh = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, FS)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  gl.useProgram(p); const U = n =&gt; gl.getUniformLocation(p, n);
+  gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16F, TW, TH, 0, gl.RG, gl.FLOAT, field);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.uniform1i(U('F'), 0); gl.uniform1i(U('ND'), drips.length); gl.uniform1i(U('NR'), rivs.length); gl.uniform1i(U('NL'), lobes.length);
+  let W = 1, H = 1;
+  const resize = () =&gt; { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(330000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); gl.viewport(0, 0, W, H); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  // the same melt as the shader's, so each drip and rivulet can be placed once per frame here instead of per pixel
+  const meltAt = (m, x) =&gt; Math.min(1, Math.max(0, m * 1.45 - 0.45 * (0.5 + 0.5 * Math.sin(x * 1.15 + 2.1))));
+  const sstep = (a, b, x) =&gt; { const k = Math.min(1, Math.max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
+  const DRv = new Float32Array(32), RVv = new Float32Array(24), LBv = new Float32Array(32);
+  let raf, last = performance.now(), t = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt * PARAMS.speed;
+    // solid (1.8 s), melting (4.2 s), a puddle (0.4 s), then it pulls itself back up: a damped spring that overshoots,
+    // so the word stands a little too tall for a moment before it settles
+    const c = t % 11; let m;
+    if (c &lt; 1.8) m = 0; else if (c &lt; 6) { const k = (c - 1.8) / 4.2; m = k * k * (3 - 2 * k); } else if (c &lt; 6.4) m = 1;
+    else { const k = c - 6.4; m = Math.exp(-1.6 * k) * Math.cos(1.9 * k); }
+    const M = Math.max(0, m), OV = 1 - Math.min(0, m) * 0.6;
+    for (let i = 0; i &lt; drips.length; i++) {
+      const d = drips[i], mx = meltAt(M, d.x), s = (1 - 0.45 * mx) * OV, ya = d.y * s - WH * 0.4 * sstep(0.2, 1, mx);
+      DRv.set([d.x, ya, Math.max(0, ya) * Math.min(1, sstep(0.04 + 0.25 * d.k, 0.75, mx) * PARAMS.drips), 0.12 * d.k], i * 4);
+    }
+    // rivulets start just under the top edge's rounding, which grows as the metal softens
+    for (let i = 0; i &lt; rivs.length; i++) {
+      const r = rivs[i], mx = meltAt(M, r.x), s = (1 - 0.45 * mx) * OV, yt = r.y * s - WH * 0.4 * sstep(0.2, 1, mx) - (0.035 + 0.17 * sstep(0, 0.55, mx)) * 0.9 - 0.01;
+      RVv.set([r.x, yt, Math.max(0, yt) * Math.min(1, sstep(0.1 + 0.3 * r.k, 0.8, mx) * PARAMS.drips), 0], i * 4);
+    }
+    for (let i = 0; i &lt; lobes.length; i++) LBv[i * 4] = lobes[i].x, LBv[i * 4 + 1] = 0.04 + (0.62 + 0.25 * lobes[i].k) * Math.pow(meltAt(M, lobes[i].x), 0.85);
+    const A = W / H;
+    gl.uniform4fv(U('LB'), LBv); gl.uniform2f(U('R'), W, H); gl.uniform1f(U('T'), t); gl.uniform1f(U('M'), M); gl.uniform1f(U('OV'), OV); gl.uniform1f(U('GL'), PARAMS.gloss);
+    gl.uniform1f(U('FOC'), Math.min(2.4, 1.49 * A)); gl.uniform1f(U('YAW'), 0.22 * Math.sin(t * 0.35));
+    gl.uniform4fv(U('DR'), DRv); gl.uniform4fv(U('RV'), RVv);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

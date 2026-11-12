@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonograph: Summed decaying sines near a simple ratio, slightly detuned · Motion Library</title>
+<meta name="description" content="Harmonograph is a Canvas effect: summed decaying sines near a simple ratio, slightly detuned. One plain JavaScript file with no dependencies; add it with npx motion-library add harmonograph.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/harmonograph.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Harmonograph · Motion Library">
+<meta property="og:description" content="Summed decaying sines near a simple ratio, slightly detuned">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/harmonograph.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Harmonograph",
+  "description": "Summed decaying sines near a simple ratio, slightly detuned",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Flow & particles, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/harmonograph.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/harmonograph.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Flow & particles",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/flow"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Harmonograph",
+    "item": "https://ajeckblad.github.io/motion-library/fx/harmonograph.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/flow">Flow &amp; particles</a></header>
+<main class="s-page">
+<article>
+<h1>Harmonograph</h1>
+<p class="tldr">Harmonograph is a Canvas effect: summed decaying sines near a simple ratio, slightly detuned. One plain JavaScript file with no dependencies; add it with npx motion-library add harmonograph.</p>
+<figure><img src="../posters/harmonograph.webp" alt="Harmonograph: Summed decaying sines near a simple ratio, slightly detuned" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/harmonograph">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Harmonograph?</h2>
+<p>A pen draws a slowly creeping rosette that thins as the swing dies.</p>
+
+<h2>How does Harmonograph work?</h2>
+<p>The pen position is a sum of four decaying sines with frequencies near a simple ratio like 2:3; the slight detuning makes the loops precess.</p>
+
+<h2>How do I add Harmonograph to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add harmonograph</code>. It writes <code>animations/harmonograph.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/harmonograph.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add harmonograph --speed 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Speed</td><td><code>--speed</code></td><td>1</td><td>0.3 to 3</td><td>0.1</td></tr>
+<tr><td>Decay</td><td><code>--decay</code></td><td>0.6</td><td>0.1 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Flow &amp; particles</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>4.0 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Harmonograph: the Victorian drawing machine. Two pendulums move the pen left-right and up-down, and a third swings
+// the paper; each is a decaying sine. When their frequencies sit near a simple ratio (2:3, 3:4, 1:2) the pen traces
+// a slowly precessing rosette, and the tiny detuning is what makes the loops creep round. As the swing dies down the
+// figure spirals into the centre; then the paper is changed and a new ratio is drawn.
+const PARAMS = { speed: 1, decay: 0.6 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const paper = document.createElement('canvas'), pctx = paper.getContext('2d');
+  let W = 0, H = 0, d = 1;
+  const resize = () =&gt; { d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = paper.width = W * d; canvas.height = paper.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); pctx.setTransform(d, 0, 0, d, 0, 0); fresh(); };
+  const RATIOS = [[2, 3], [3, 4], [1, 2], [3, 5], [4, 5], [1, 3], [2, 5]];
+  const INKS = ['#7fb4ff', '#ff7aa8', '#6fe3c0', '#c3a4ff', '#ffb36b'];   // light inks on dark stock
+  let pend, time = 0, prev = null, ink, nth = 0;
+  function fresh() {
+    const [p, q] = RATIOS[nth % RATIOS.length], base = 1.6, det = () =&gt; (Math.random() - 0.5) * 0.012;
+    pend = [
+      { f: base * p + det(), ph: Math.random() * 6.28, a: 1 },                          // pen x
+      { f: base * q + det(), ph: Math.random() * 6.28, a: 1 },                          // pen y
+      { f: base * p + det() * 2, ph: Math.random() * 6.28, a: 0.35 + Math.random() * 0.2 },   // paper x
+      { f: base * q + det() * 2, ph: Math.random() * 6.28, a: 0.35 + Math.random() * 0.2 },   // paper y
+    ];
+    ink = INKS[nth % INKS.length]; nth++; time = 0; prev = null;
+    pctx.fillStyle = '#0e0d12'; pctx.fillRect(0, 0, W, H);
+    for (let i = 0; i &lt; 600; i++) { pctx.fillStyle = `rgba(200,190,230,${Math.random() * 0.05})`; pctx.fillRect(Math.random() * W, Math.random() * H, 1, 1); }   // paper grain
+  }
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  const pos = t =&gt; {
+    const k = 0.01 + 0.05 * PARAMS.decay, e = Math.exp(-k * t), S = Math.min(W, H) * 0.42;
+    const [a, b, c, dd] = pend;
+    return [W / 2 + S * e * (a.a * Math.sin(a.f * t + a.ph) + c.a * Math.sin(c.f * t + c.ph)) / 1.5, H / 2 + S * e * (b.a * Math.sin(b.f * t + b.ph) + dd.a * Math.sin(dd.f * t + dd.ph)) / 1.5, e];
+  };
+  let raf, last = performance.now(), hold = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (hold &gt; 0) { hold -= dt; if (hold &lt;= 0) fresh(); }
+    else {
+      // many small sub-steps per frame keep the curve smooth
+      const steps = 80, h = dt * PARAMS.speed * 5 / steps;
+      pctx.strokeStyle = ink; pctx.lineCap = 'round'; pctx.lineJoin = 'round';
+      for (let i = 0; i &lt; steps; i++) {
+        time += h; const [x, y, e] = pos(time);
+        if (prev) { pctx.globalAlpha = 0.55 + 0.4 * e; pctx.lineWidth = 0.55 + 0.5 * e; pctx.beginPath(); pctx.moveTo(prev[0], prev[1]); pctx.lineTo(x, y); pctx.stroke(); }
+        prev = [x, y];
+        if (e &lt; 0.04) { hold = 1.6; break; }                               // the swing has died: admire it, then change the paper
+      }
+      pctx.globalAlpha = 1;
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(paper, 0, 0); ctx.setTransform(d, 0, 0, d, 0, 0);
+    if (prev &amp;&amp; hold &lt;= 0) {                                              // the pen nib
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(prev[0], prev[1], 3, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(prev[0] + 40, prev[1] - 60); ctx.stroke();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

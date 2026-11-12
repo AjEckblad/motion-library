@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo draw: Dash length = path length, then slide the offset to zero · Motion Library</title>
+<meta name="description" content="Logo draw is a DOM effect: dash length = path length, then slide the offset to zero. One plain JavaScript file with no dependencies; add it with npx motion-library add logo-draw.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/logo-draw.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Logo draw · Motion Library">
+<meta property="og:description" content="Dash length = path length, then slide the offset to zero">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/logo-draw.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Logo draw",
+  "description": "Dash length = path length, then slide the offset to zero",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Morph & SVG, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/logo-draw.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/logo-draw.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Morph & SVG",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/morph"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Logo draw",
+    "item": "https://ajeckblad.github.io/motion-library/fx/logo-draw.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/morph">Morph &amp; SVG</a></header>
+<main class="s-page">
+<article>
+<h1>Logo draw</h1>
+<p class="tldr">Logo draw is a DOM effect: dash length = path length, then slide the offset to zero. One plain JavaScript file with no dependencies; add it with npx motion-library add logo-draw.</p>
+<figure><img src="../posters/logo-draw.webp" alt="Logo draw: Dash length = path length, then slide the offset to zero" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/logo-draw">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Logo draw?</h2>
+<p>A logo draws itself stroke by stroke, then fills in as the name rises letter by letter.</p>
+
+<h2>How does Logo draw work?</h2>
+<p>Each stroke gets a dash as long as itself, offset by the same amount, then animated to zero; overlapping staggers make it read as one hand drawing.</p>
+
+<h2>How do I add Logo draw to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add logo-draw</code>. It writes <code>animations/logo-draw.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/logo-draw.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add logo-draw --draw 4000</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Draw (ms)</td><td><code>--draw</code></td><td>1500</td><td>500 to 4000</td><td>50</td></tr>
+<tr><td>Stroke stagger (ms)</td><td><code>--stagger</code></td><td>160</td><td>0 to 400</td><td>10</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Morph &amp; SVG</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>5.2 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Logo draw: each stroke of the mark has its dash set to its own length and offset by the same amount, so it starts invisible; sliding the offset to zero draws it like a pen. Once every stroke is down the shapes fill in, which turns a sketch into a finished brand mark on the launch screen.
+const PARAMS = { draw: 1500, stagger: 160 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.createElement('div');
+  root.className = 'ld-root';
+  root.innerHTML = `&lt;style&gt;
+    .ld-root { position: absolute; inset: 0; overflow: hidden; background: #1d0b1a; font-family: system-ui, -apple-system, sans-serif; }
+    .ld-b { position: absolute; left: 50%; top: 50%; width: 420px; height: 320px; transform-origin: 0 0; }
+    .ld-glow { position: absolute; left: 110px; top: 20px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(184,53,154,.35), transparent 70%); opacity: 0; transition: opacity 600ms ease-out; }
+    .ld-b svg { position: absolute; left: 150px; top: 46px; width: 120px; height: 120px; overflow: visible; }
+    .ld-b path, .ld-b circle { fill-opacity: 0; transition: fill-opacity 500ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .ld-b.filled path.f, .ld-b.filled circle.f { fill-opacity: 1; }
+    .ld-name { position: absolute; left: 0; right: 0; top: 186px; text-align: center; font-size: 30px; font-weight: 760; letter-spacing: -.02em; color: #fff; }
+    .ld-name span { display: inline-block; opacity: 0; transform: translateY(8px); transition: opacity 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 400ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .ld-tag { position: absolute; left: 0; right: 0; top: 232px; text-align: center; font-size: 13px; color: #d9a6c8; opacity: 0; transition: opacity 400ms ease-out 200ms; }
+    .ld-bar { position: absolute; left: 170px; top: 276px; width: 80px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+    .ld-bar i { position: absolute; inset: 0; background: #e57cc4; transform-origin: 0 50%; transform: scaleX(.02); }
+    .ld-b.filled .ld-glow, .ld-b.named .ld-tag { opacity: 1; }
+    .ld-b.named .ld-name span { opacity: 1; transform: none; }
+    .ld-b.out &gt; * { opacity: 0 !important; transition: opacity 350ms ease-out !important; }
+    ${reduce ? '.ld-name span { transform: none !important; }' : ''}
+  &lt;/style&gt;
+  &lt;div class=&quot;ld-b&quot;&gt;&lt;div class=&quot;ld-glow&quot;&gt;&lt;/div&gt;
+    &lt;svg viewBox=&quot;0 0 120 120&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;
+      &lt;circle class=&quot;s f&quot; cx=&quot;60&quot; cy=&quot;60&quot; r=&quot;54&quot; stroke=&quot;#e57cc4&quot; stroke-width=&quot;3&quot; fill=&quot;#2a0f26&quot;/&gt;
+      &lt;path class=&quot;s f&quot; d=&quot;M22 84 L48 44 L62 64 L74 50 L98 84 Z&quot; stroke=&quot;#fff&quot; stroke-width=&quot;3.2&quot; fill=&quot;#b8359a&quot;/&gt;
+      &lt;path class=&quot;s f&quot; d=&quot;M48 44 L42 60 L52 56 L56 66&quot; stroke=&quot;#fff&quot; stroke-width=&quot;2.6&quot; fill=&quot;#f7d6ea&quot;/&gt;
+      &lt;circle class=&quot;s f&quot; cx=&quot;84&quot; cy=&quot;34&quot; r=&quot;8&quot; stroke=&quot;#ffd36e&quot; stroke-width=&quot;3&quot; fill=&quot;#ffd36e&quot;/&gt;
+      &lt;path class=&quot;s&quot; d=&quot;M30 94 C 48 88, 72 100, 92 92&quot; stroke=&quot;#e57cc4&quot; stroke-width=&quot;3&quot;/&gt;
+    &lt;/svg&gt;
+    &lt;div class=&quot;ld-name&quot;&gt;${[...'Switchback'].map((c, i) =&gt; `&lt;span style=&quot;transition-delay:${i * 35}ms&quot;&gt;${c}&lt;/span&gt;`).join('')}&lt;/div&gt;
+    &lt;div class=&quot;ld-tag&quot;&gt;Trail maps that work offline&lt;/div&gt;
+    &lt;div class=&quot;ld-bar&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const board = root.querySelector('.ld-b'), bar = root.querySelector('.ld-bar i');
+  const strokes = [...root.querySelectorAll('.s')];
+  const fit = () =&gt; { const s = Math.min(stage.clientWidth / 420, stage.clientHeight / 320); board.style.transform = `scale(${s}) translate(-50%, -50%)`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const lens = strokes.map(p =&gt; p.getTotalLength());
+  const anims = new Set();
+  const T = new Set(), after = (ms, f) =&gt; { const id = setTimeout(() =&gt; { T.delete(id); f(); }, ms); T.add(id); };
+  const run = () =&gt; {
+    board.classList.remove('filled', 'named', 'out');
+    anims.forEach(a =&gt; a.cancel()); anims.clear();
+    // A pen accelerates and settles: ease-in-out per stroke, staggered so they overlap like one hand.
+    strokes.forEach((p, i) =&gt; {
+      const L = lens[i];
+      // reduced motion: each finished stroke fades in instead of being traced
+      if (reduce) { anims.add(p.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: i * 80, easing: 'ease-out', fill: 'both' })); return; }
+      p.style.strokeDasharray = L + ' ' + L;
+      const a = p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: PARAMS.draw * (i === 0 ? 1 : 0.7), delay: i * PARAMS.stagger, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'both' });
+      anims.add(a);
+    });
+    const drawn = reduce ? 1000 : PARAMS.draw + strokes.length * PARAMS.stagger;
+    const b = bar.animate([{ transform: 'scaleX(.02)' }, { transform: 'scaleX(1)' }], { duration: drawn + 1500, easing: 'cubic-bezier(0.23, 1, 0.32, 1)', fill: 'both' }); anims.add(b);
+    after(drawn - 150, () =&gt; board.classList.add('filled'));
+    after(drawn + 150, () =&gt; board.classList.add('named'));
+    after(drawn + 3400, () =&gt; board.classList.add('out'));
+    after(drawn + 3850, run);
+  };
+  run();
+  return () =&gt; { T.forEach(clearTimeout); T.clear(); anims.forEach(a =&gt; a.cancel()); anims.clear(); ro.disconnect(); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

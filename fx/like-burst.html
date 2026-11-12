@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Like burst: Squash, pop, ring and sparks on one beat · Motion Library</title>
+<meta name="description" content="Like burst is a DOM effect: squash, pop, ring and sparks on one beat. One plain JavaScript file with no dependencies; add it with npx motion-library add like-burst.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/like-burst.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Like burst · Motion Library">
+<meta property="og:description" content="Squash, pop, ring and sparks on one beat">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/like-burst.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Like burst",
+  "description": "Squash, pop, ring and sparks on one beat",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Micro & loading, DOM, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/like-burst.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/like-burst.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Micro & loading",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/micro"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Like burst",
+    "item": "https://ajeckblad.github.io/motion-library/fx/like-burst.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/micro">Micro &amp; loading</a></header>
+<main class="s-page">
+<article>
+<h1>Like burst</h1>
+<p class="tldr">Like burst is a DOM effect: squash, pop, ring and sparks on one beat. One plain JavaScript file with no dependencies; add it with npx motion-library add like-burst.</p>
+<figure><img src="../posters/like-burst.webp" alt="Like burst: Squash, pop, ring and sparks on one beat" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/like-burst">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Like burst?</h2>
+<p>A saved product’s heart squashes, pops past full size and settles as a ring and dots fire.</p>
+
+<h2>How does Like burst work?</h2>
+<p>Every part starts on the same frame so it reads as one event, and the sparks pick fresh random angles each time.</p>
+
+<h2>How do I add Like burst to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add like-burst</code>. It writes <code>animations/like-burst.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/like-burst.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add like-burst --particles 24</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Sparks</td><td><code>--particles</code></td><td>10</td><td>4 to 24</td><td>1</td></tr>
+<tr><td>Spread</td><td><code>--spread</code></td><td>1</td><td>0.4 to 2</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>DOM (CSS and the Web Animations API)</dd>
+<dt>Category</dt><dd>Micro &amp; loading</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>7.3 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Like burst on a shop's wishlist hearts: the heart squashes on press, pops past full size and settles, while a ring and a
+// spray of dots fire from its centre on the same frame, and the wishlist count in the header bumps.
+// It feels right because everything starts together, so it reads as one event: a small celebration for a small decision.
+const PARAMS = { particles: 10, spread: 1 };
+
+export default function (stage) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 540, H = 380;
+  const items = [
+    ['Stoneware mug', '$28', '#efe3d3', '&lt;path d=&quot;M54 42h44v40a12 12 0 0 1-12 12H66a12 12 0 0 1-12-12z&quot; fill=&quot;#b5694b&quot;/&gt;&lt;path d=&quot;M98 52h6a10 10 0 0 1 0 20h-6&quot; fill=&quot;none&quot; stroke=&quot;#b5694b&quot; stroke-width=&quot;6&quot;/&gt;&lt;ellipse cx=&quot;76&quot; cy=&quot;42&quot; rx=&quot;22&quot; ry=&quot;4&quot; fill=&quot;#8f4f36&quot;/&gt;'],
+    ['Linen table lamp', '$96', '#e3e8de', '&lt;path d=&quot;M56 30h40l10 32H46z&quot; fill=&quot;#f4efe2&quot;/&gt;&lt;rect x=&quot;74&quot; y=&quot;62&quot; width=&quot;4&quot; height=&quot;26&quot; fill=&quot;#6b5d4a&quot;/&gt;&lt;ellipse cx=&quot;76&quot; cy=&quot;92&quot; rx=&quot;18&quot; ry=&quot;5&quot; fill=&quot;#6b5d4a&quot;/&gt;'],
+    ['Oak side chair', '$210', '#e6dfd6', '&lt;rect x=&quot;56&quot; y=&quot;22&quot; width=&quot;40&quot; height=&quot;34&quot; rx=&quot;4&quot; fill=&quot;#c49a6c&quot;/&gt;&lt;rect x=&quot;52&quot; y=&quot;56&quot; width=&quot;48&quot; height=&quot;8&quot; rx=&quot;2&quot; fill=&quot;#a77b4f&quot;/&gt;&lt;path d=&quot;M56 64v30M96 64v30M60 64l-2 30M92 64l2 30&quot; stroke=&quot;#8a643f&quot; stroke-width=&quot;4&quot; stroke-linecap=&quot;round&quot;/&gt;'],
+  ];
+  const heart = '&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.2 0 3.6 1.2 5.3 3.2 1.7-2 3.1-3.2 5.3-3.2 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z&quot;/&gt;&lt;/svg&gt;';
+  const root = document.createElement('div');
+  root.className = 'lb-root';
+  root.innerHTML = `&lt;style&gt;
+    .lb-root { position: absolute; inset: 0; overflow: hidden; background: #faf8f5; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif; color: #15171a; }
+    .lb-scene { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; transform-origin: 0 0; }
+    .lb-top { position: absolute; left: 28px; right: 28px; top: 24px; display: flex; align-items: center; gap: 18px; font-size: 12.5px; color: #5b6066; }
+    .lb-top h2 { margin: 0 auto 0 0; font-size: 20px; font-weight: 720; letter-spacing: -0.02em; color: #15171a; }
+    .lb-wish { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px #ebe6df; color: #15171a; font-weight: 600; }
+    .lb-wish svg { width: 14px; height: 14px; fill: #d63c74; } .lb-n { display: inline-block; min-width: 8px; font-variant-numeric: tabular-nums; }
+    .lb-grid { position: absolute; left: 28px; right: 28px; top: 78px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .lb-card { position: relative; }
+    .lb-img { height: 214px; border-radius: 12px; display: grid; place-items: center; } .lb-img svg { width: 152px; height: 116px; }
+    .lb-card b { display: block; margin-top: 10px; font-size: 13.5px; font-weight: 600; } .lb-card span { font-size: 12.5px; color: #6b7076; }
+    .lb-btn { position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%; border: 0; padding: 0; background: #fff; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.12); display: grid; place-items: center; }
+    .lb-btn svg { position: relative; width: 18px; height: 18px; z-index: 1; } .lb-btn path { fill: none; stroke: #6b7076; stroke-width: 1.8; transition: fill .15s, stroke .15s; }
+    .lb-btn.on path { fill: #e5294c; stroke: #e5294c; }
+    .lb-ring { position: absolute; inset: -4px; border-radius: 50%; border: 3px solid #ff8fab; opacity: 0; pointer-events: none; }
+    .lb-spark { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; z-index: 2; border-radius: 50%; opacity: 0; pointer-events: none; }
+  &lt;/style&gt;&lt;div class=&quot;lb-scene&quot;&gt;
+    &lt;div class=&quot;lb-top&quot;&gt;&lt;h2&gt;New in the shop&lt;/h2&gt;&lt;span&gt;Home&lt;/span&gt;&lt;span&gt;Kitchen&lt;/span&gt;&lt;span class=&quot;lb-wish&quot;&gt;${heart}Wishlist &lt;span class=&quot;lb-n&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;lb-grid&quot;&gt;${items.map(([n, p, bg, art]) =&gt; `&lt;div class=&quot;lb-card&quot;&gt;&lt;div class=&quot;lb-img&quot; style=&quot;background:${bg}&quot;&gt;&lt;svg viewBox=&quot;0 0 152 116&quot;&gt;${art}&lt;/svg&gt;&lt;/div&gt;&lt;button class=&quot;lb-btn&quot; type=&quot;button&quot; aria-label=&quot;Save ${n}&quot; aria-pressed=&quot;false&quot;&gt;&lt;span class=&quot;lb-ring&quot;&gt;&lt;/span&gt;${heart}&lt;/button&gt;&lt;b&gt;${n}&lt;/b&gt;&lt;span&gt;${p}&lt;/span&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;
+  &lt;/div&gt;`;
+  stage.append(root);
+  const scene = root.querySelector('.lb-scene'), count = root.querySelector('.lb-n');
+  const fit = () =&gt; { const w = stage.clientWidth, h = stage.clientHeight, s = Math.min(w / W, h / H, 1.3); scene.style.transform = `translate(${(w - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`; };
+  const ro = new ResizeObserver(fit); ro.observe(stage); fit();
+  const btns = [...scene.querySelectorAll('.lb-btn')];
+  const colours = ['#e5294c', '#ffd43b', '#ff8fab', '#74c0fc', '#d63c74'];
+  const ease = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  const anims = new Set();
+  const play = (el, kf, o) =&gt; { const a = el.animate(kf, o); anims.add(a); a.onfinish = () =&gt; anims.delete(a); return a; };
+  const tally = () =&gt; {
+    count.textContent = btns.filter(b =&gt; b.classList.contains('on')).length;
+    play(count, [{ transform: reduce ? 'none' : 'translateY(5px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: ease });
+  };
+
+  function toggle(btn) {
+    const on = !btn.classList.contains('on');
+    btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', String(on)); tally();
+    if (!on || reduce) return;   // reduced motion: the heart fills and the count updates, without the squash, ring or sparks
+    play(btn.querySelector('svg'), [{ transform: 'scale(1)' }, { transform: 'scale(0.78, 0.72)', offset: 0.18 }, { transform: 'scale(1.25)', offset: 0.5 }, { transform: 'scale(0.95)', offset: 0.75 }, { transform: 'scale(1)' }], { duration: 560, easing: 'cubic-bezier(0.33, 1, 0.68, 1)' });
+    play(btn.querySelector('.lb-ring'), [{ transform: 'scale(0.5)', opacity: 0.9 }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 480, delay: 80, easing: ease });
+    const n = Math.round(PARAMS.particles);
+    for (let i = 0; i &lt; n; i++) {
+      const s = document.createElement('i'); s.className = 'lb-spark'; s.style.background = colours[i % colours.length]; btn.append(s);
+      const a = (i / n) * Math.PI * 2 + Math.random() * 0.4, d = 38 * (0.75 + Math.random() * 0.4) * PARAMS.spread;
+      play(s, [{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px) scale(0.3)`, opacity: 0 }],
+        { duration: 560 + Math.random() * 160, delay: 80, easing: ease }).finished.then(() =&gt; s.remove(), () =&gt; {});
+    }
+  }
+  let manual = -1e9, timers = [];
+  const onClick = e =&gt; { toggle(e.currentTarget); manual = performance.now(); };
+  btns.forEach(b =&gt; b.addEventListener('click', onClick));
+  // demo: save three things with a beat between each, hold, then clear quietly and go again
+  const later = (ms, fn) =&gt; timers.push(setTimeout(() =&gt; { if (performance.now() - manual &gt; 3000) fn(); }, ms));
+  function cycle() {
+    timers = [];
+    later(600, () =&gt; toggle(btns[1])); later(1900, () =&gt; toggle(btns[0])); later(3200, () =&gt; toggle(btns[2]));
+    later(5200, () =&gt; { btns.forEach(b =&gt; { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }); tally(); });
+    timers.push(setTimeout(cycle, 6200));
+  }
+  cycle();
+  return () =&gt; { timers.forEach(clearTimeout); anims.forEach(a =&gt; a.cancel()); ro.disconnect(); btns.forEach(b =&gt; b.removeEventListener('click', onClick)); root.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

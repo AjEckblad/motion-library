@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jelly cube: Mass-spring lattice drives free-form deformation; thickness-based light absorption · Motion Library</title>
+<meta name="description" content="Jelly cube is a WebGL effect: mass-spring lattice drives free-form deformation; thickness-based light absorption. One plain JavaScript file with no dependencies; add it with npx motion-library add jelly-cube.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/jelly-cube.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Jelly cube · Motion Library">
+<meta property="og:description" content="Mass-spring lattice drives free-form deformation; thickness-based light absorption">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/jelly-cube.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Jelly cube",
+  "description": "Mass-spring lattice drives free-form deformation; thickness-based light absorption",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, WebGL, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/jelly-cube.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/jelly-cube.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Jelly cube",
+    "item": "https://ajeckblad.github.io/motion-library/fx/jelly-cube.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Jelly cube</h1>
+<p class="tldr">Jelly cube is a WebGL effect: mass-spring lattice drives free-form deformation; thickness-based light absorption. One plain JavaScript file with no dependencies; add it with npx motion-library add jelly-cube.</p>
+<figure><img src="../posters/jelly-cube.webp" alt="Jelly cube: Mass-spring lattice drives free-form deformation; thickness-based light absorption" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/jelly-cube">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Jelly cube?</h2>
+<p>A jelly cube lands, squashes and wobbles; grab and throw it, or tap to make it hop.</p>
+
+<h2>How does Jelly cube work?</h2>
+<p>A 4×4×4 mass-spring lattice deforms a smooth cube through tricubic Bézier free-form deformation; a back-depth pass gives thickness for coloured absorption.</p>
+
+<h2>How do I add Jelly cube to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add jelly-cube</code>. It writes <code>animations/jelly-cube.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/jelly-cube.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add jelly-cube --softness 2.5</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Softness</td><td><code>--softness</code></td><td>1</td><td>0.4 to 2.5</td><td>0.05</td></tr>
+<tr><td>Hop height</td><td><code>--hop</code></td><td>1</td><td>0 to 1.6</td><td>0.05</td></tr>
+<tr><td>Jelly hue</td><td><code>--hue</code></td><td>350</td><td>0 to 360</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>WebGL</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>27.2 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// Jelly cube: a 4x4x4 lattice of masses held together by springs (edges, face and body diagonals, plus
+// skip-one springs that resist bending) and a gentle pull back toward its own rigid shape. The lattice bends a
+// smooth rounded cube through a Bezier volume. It is shaded as real jelly: light is absorbed by how much jelly
+// it passes through (thicker means deeper colour), the floor behind bends through it, and its shadow glows.
+// Grab and throw it, or tap to make it hop. Left alone, it hops on its own.
+const PARAMS = { softness: 1, hop: 1, hue: 350 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab';
+  stage.append(canvas);
+  const gl = canvas.getContext('webgl2', { antialias: true });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () =&gt; canvas.remove(); }
+
+  // ── the lattice: 64 nodes, rest shape a unit cube standing on the floor
+  const N = 64, X = new Float32Array(N * 3), Vl = new Float32Array(N * 3), Fo = new Float32Array(N * 3), Qr = new Float32Array(N * 3);
+  const id = (i, j, k) =&gt; i + 4 * j + 16 * k, surf = [];
+  for (let k = 0; k &lt; 4; k++) for (let j = 0; j &lt; 4; j++) for (let i = 0; i &lt; 4; i++) {
+    const n = id(i, j, k); Qr[n * 3] = i / 3 - 0.5; Qr[n * 3 + 1] = j / 3 - 0.5; Qr[n * 3 + 2] = k / 3 - 0.5;
+    if (i % 3 === 0 || j % 3 === 0 || k % 3 === 0) surf.push(n);
+  }
+  const sA = [], sB = [], sL = [];
+  for (let a = 0; a &lt; N; a++) for (let b = a + 1; b &lt; N; b++) {
+    const d = [0, 1, 2].map(c =&gt; Math.round((Qr[b * 3 + c] - Qr[a * 3 + c]) * 3)), m = Math.max(...d.map(Math.abs)), z = d.filter(v =&gt; v === 0).length;
+    if (m &lt;= 1 || (m === 2 &amp;&amp; z === 2)) { sA.push(a); sB.push(b); sL.push(Math.hypot(...d) / 3); }   // neighbours + diagonals, and skip-one bend springs
+  }
+  const S = sA.length;
+  // quaternion helpers for the rigid part
+  const qmul = (a, b) =&gt; [a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1], a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0], a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3], a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]];
+  const qmat = q =&gt; { const [x, y, z, w] = q; return [1 - 2 * (y * y + z * z), 2 * (x * y + z * w), 2 * (x * z - y * w), 2 * (x * y - z * w), 1 - 2 * (x * x + z * z), 2 * (y * z + x * w), 2 * (x * z + y * w), 2 * (y * z - x * w), 1 - 2 * (x * x + y * y)]; };
+  const qaxis = (ax, an) =&gt; { const l = Math.hypot(...ax) || 1, s = Math.sin(an / 2); return [ax[0] / l * s, ax[1] / l * s, ax[2] / l * s, Math.cos(an / 2)]; };
+  let rq = [0, 0, 0, 1];
+  const place = (q, c) =&gt; { const R = qmat(q); for (let n = 0; n &lt; N; n++) { const x = Qr[n * 3], y = Qr[n * 3 + 1], z = Qr[n * 3 + 2]; for (let r = 0; r &lt; 3; r++) { X[n * 3 + r] = R[r] * x + R[3 + r] * y + R[6 + r] * z + c[r]; Vl[n * 3 + r] = 0; } } };
+  place(qaxis([1, 0, 0.6], 0.55), [0.15, 1.35, 0]); rq = qaxis([1, 0, 0.6], 0.55);
+
+  // ── the visible surface: a rounded box, each vertex fixed inside the lattice (tricubic Bezier weights)
+  const G = 16, RB = 0.24, verts = [], keys = new Map(), tris = [];
+  const vkey = p =&gt; p.map(v =&gt; Math.round(v * 1e4)).join(',');
+  const addV = p =&gt; { const k = vkey(p); if (keys.has(k)) return keys.get(k); keys.set(k, verts.length / 3); verts.push(...p); return verts.length / 3 - 1; };
+  const round = p =&gt; { const c = p.map(v =&gt; Math.max(-(1 - RB), Math.min(1 - RB, v))), d = p.map((v, i) =&gt; v - c[i]), l = Math.hypot(...d) || 1; return c.map((v, i) =&gt; (v + d[i] / l * RB) * 0.5 * 0.985 + 0.5); };
+  for (let ax = 0; ax &lt; 3; ax++) for (const sgn of [-1, 1]) {
+    const grid = [];
+    for (let b = 0; b &lt;= G; b++) for (let a = 0; a &lt;= G; a++) { const p = [0, 0, 0]; p[ax] = sgn; p[(ax + 1) % 3] = a / G * 2 - 1; p[(ax + 2) % 3] = b / G * 2 - 1; grid.push(addV(round(p))); }
+    for (let b = 0; b &lt; G; b++) for (let a = 0; a &lt; G; a++) { const i0 = grid[b * (G + 1) + a], i1 = grid[b * (G + 1) + a + 1], i2 = grid[(b + 1) * (G + 1) + a], i3 = grid[(b + 1) * (G + 1) + a + 1]; tris.push([i0, i1, i3], [i0, i3, i2]); }
+  }
+  const NV = verts.length / 3, idx = new Uint16Array(tris.length * 3);
+  tris.forEach((t, i) =&gt; {   // wind every triangle so its normal points out of the box
+    const P = t.map(v =&gt; [verts[v * 3] - 0.5, verts[v * 3 + 1] - 0.5, verts[v * 3 + 2] - 0.5]);
+    const e1 = P[1].map((v, c) =&gt; v - P[0][c]), e2 = P[2].map((v, c) =&gt; v - P[0][c]), cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
+    const out = cr[0] * (P[0][0] + P[1][0] + P[2][0]) + cr[1] * (P[0][1] + P[1][1] + P[2][1]) + cr[2] * (P[0][2] + P[1][2] + P[2][2]) &gt; 0;
+    idx.set(out ? t : [t[0], t[2], t[1]], i * 3);
+  });
+  const bern = u =&gt; [(1 - u) ** 3, 3 * u * (1 - u) ** 2, 3 * u * u * (1 - u), u ** 3];
+  const W = new Float32Array(NV * 64);
+  for (let v = 0; v &lt; NV; v++) { const bu = bern(verts[v * 3]), bv = bern(verts[v * 3 + 1]), bw = bern(verts[v * 3 + 2]); for (let k = 0; k &lt; 4; k++) for (let j = 0; j &lt; 4; j++) for (let i = 0; i &lt; 4; i++) W[v * 64 + id(i, j, k)] = bu[i] * bv[j] * bw[k]; }
+  const POS = new Float32Array(NV * 3), NOR = new Float32Array(NV * 3);
+  const BUB = [[.34, .64, .4, .052], [.66, .34, .58, .036], [.5, .78, .72, .028], [.72, .62, .26, .042]];
+  const BW = BUB.map(([u, v, w]) =&gt; { const bu = bern(u), bv = bern(v), bw = bern(w), o = new Float32Array(64); for (let k = 0; k &lt; 4; k++) for (let j = 0; j &lt; 4; j++) for (let i = 0; i &lt; 4; i++) o[id(i, j, k)] = bu[i] * bv[j] * bw[k]; return o; });
+  const BF = new Float32Array(16);
+
+  // ── GL programs
+  const sh = (t, s) =&gt; { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const link = (v, f) =&gt; { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, v)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, f)); gl.bindAttribLocation(p, 0, 'pos'); gl.bindAttribLocation(p, 1, 'nor'); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; };
+  const quadVS = `#version 300 es
+  in vec2 pos; out vec2 uv; void main() { uv = pos * .5 + .5; gl_Position = vec4(pos, 0, 1); }`;
+  const meshVS = `#version 300 es
+  in vec3 pos, nor; uniform mat4 PV; out vec3 vW, vN; void main() { vW = pos; vN = nor; gl_Position = PV * vec4(pos, 1); }`;
+  const ENV = `
+  uniform vec3 L;
+  vec3 env(vec3 d) {
+    vec3 c = mix(vec3(.02, .018, .02), vec3(.07, .065, .075), smoothstep(-.25, .5, d.y));   // a dark studio: the softboxes do the work
+    if (d.y &gt; 0.) {
+      vec2 q = d.xz / d.y - vec2(-.95, .75);                                     // big softbox, up and to the left
+      vec2 b = abs(q) - vec2(.7, .45); float r = length(max(b, 0.)) + min(max(b.x, b.y), 0.) - .12;
+      c += vec3(3.2, 3.1, 3.) * smoothstep(.06, -.04, r);
+    }
+    float az = atan(d.x, d.z);
+    c += vec3(1.5, 1.55, 1.7) * smoothstep(.07, .02, abs(az - 1.35)) * smoothstep(-.1, .15, d.y) * smoothstep(.8, .45, d.y);  // tall strip on the right
+    return c;
+  }`;
+  const bgProg = link(quadVS, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform vec3 E, CF, CR, CU, TINT, SIG; uniform vec2 R; uniform float TH, SH_B, SH_K, HIT; uniform vec2 H[32]; uniform int HN; uniform vec3 CEN;
+  float sdPoly(vec2 p) {
+    float d = 1e9, s = 1.;
+    for (int i = 0; i &lt; 32; i++) {
+      if (i &gt;= HN) break;
+      int j = i == 0 ? HN - 1 : i - 1;
+      vec2 e = H[j] - H[i], w = p - H[i], b = w - e * clamp(dot(w, e) / dot(e, e), 0., 1.);
+      d = min(d, dot(b, b));
+      bvec3 c = bvec3(p.y &gt;= H[i].y, p.y &lt; H[j].y, e.x * w.y &gt; e.y * w.x);
+      if (all(c) || all(not(c))) s = -s;
+    }
+    return s * sqrt(d);
+  }
+  void main() {
+    vec2 q = (uv * 2. - 1.) * vec2(R.x / R.y, 1.) * TH;
+    vec3 rd = normalize(CF + CR * q.x + CU * q.y);
+    vec3 back = mix(vec3(.05, .045, .05), vec3(.018, .016, .02), smoothstep(-.1, .45, rd.y));
+    back += vec3(.11, .1, .115) * exp(-dot(q - vec2(0., .05), q - vec2(0., .05)) * 6.);   // a soft backlight halo the jelly glows against
+    vec3 col = back;
+    if (rd.y &lt; 0.) {
+      float t = -E.y / rd.y; vec3 p = E + rd * t;
+      vec3 fl = vec3(.86, .83, .79) * (.03 + .55 * exp(-dot(p.xz, p.xz) * .6));    // a spotlit pool on a dark stage floor
+      float sd = sdPoly(p.xz);
+      float inside = (1. - smoothstep(-SH_B, SH_B, sd)) * SH_K;                      // shadow cast along the light
+      float edge = exp(-pow(sd / (SH_B + .05), 2.)) * SH_K;                          // light bent away at the rim leaves a darker edge
+      float ao = exp(-dot(p.xz - CEN.xz, p.xz - CEN.xz) * 3.2) * .5 * HIT;           // contact darkening right under it
+      vec3 thru = exp(-SIG * .55) * .8 + .08;                                        // light that passed through jelly is coloured
+      fl *= mix(vec3(1), thru, inside) * (1. - .4 * edge) * (1. - ao);
+      fl += TINT * TINT * smoothstep(.0, .3, -sd) * SH_K * .45;                      // and gathers into a glowing core
+      col = mix(fl, back, smoothstep(5., 16., t));
+    }
+    col *= 1. - .25 * pow(length(uv - .5) * 1.25, 2.);
+    o = vec4(col, 1);
+  }`);
+  const backProg = link(meshVS, `#version 300 es
+  precision highp float; in vec3 vW, vN; out vec4 o; uniform vec3 E;
+  void main() { float x = clamp(length(vW - E) / 12., 0., .9999); float h = floor(x * 255.) / 255.; o = vec4(h, (x - h) * 255., 0, 1); }`);
+  const copyProg = link(quadVS, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D BG; void main() { o = texture(BG, uv); }`);
+  const jellyProg = link(meshVS, `#version 300 es
+  precision highp float; in vec3 vW, vN; out vec4 o;
+  uniform sampler2D BG, BK; uniform vec2 R; uniform vec3 E, SIG, TINT; uniform mat4 VM; uniform vec4 B[4];
+  ${ENV}
+  void main() {
+    vec3 n = normalize(vN), v = normalize(E - vW);
+    float cv = max(dot(n, v), 0.), F = .04 + .96 * pow(1. - cv, 5.);
+    vec2 s = gl_FragCoord.xy / R;
+    vec4 bk = texture(BK, s);
+    float th = clamp((bk.x + bk.y / 255.) * 12. - length(vW - E), 0., 2.);           // how much jelly this ray crosses
+    vec3 nv = mat3(VM) * n;
+    vec2 off = -nv.xy * (.05 + .15 * th) * vec2(R.y / R.x, 1.);                       // the floor behind bends through it
+    vec3 behind = pow(texture(BG, clamp(s + off, .001, .999)).rgb, vec3(2.2));
+    vec3 trans = behind * exp(-SIG * th * 1.25);                                       // Beer's law: thicker, deeper colour
+    float wrap = dot(n, L) * .5 + .5;
+    vec3 scat = TINT * (1. - exp(-th * 2.)) * (.16 + .38 * wrap) + TINT * pow(1. - cv, 2.) * .5;   // light scattered inside, brightest at the rims
+    vec3 rd = refract(-v, n, .75);
+    for (int i = 0; i &lt; 4; i++) {                                                      // a few trapped air bubbles, seen through the bent ray
+      vec3 oc = vW - B[i].xyz; float b = dot(oc, rd), c = dot(oc, oc) - B[i].w * B[i].w, h = b * b - c;
+      if (h &gt; 0.) { float tt = -b - sqrt(h); if (tt &gt; 0. &amp;&amp; tt &lt; th) { vec3 nb = normalize(oc + rd * tt); float cs = abs(dot(nb, rd)), rim = smoothstep(.55, .0, cs);
+        vec3 clear = behind * exp(-SIG * max(th - B[i].w * 2., 0.) * 1.25);               // less jelly in the way: clearer middle
+        trans = mix(clear, trans * .55, rim) + pow(max(dot(reflect(rd, nb), L), 0.), 60.) * .9 + smoothstep(.25, .0, cs) * .06; } }
+    }
+    vec3 r = reflect(-v, n);
+    vec3 refl = env(r) * (r.y &lt; 0. ? .55 : 1.);
+    vec3 col = mix(trans + scat, refl, F);
+    vec3 h = normalize(L + v); float nh = max(dot(n, h), 0.);
+    col += pow(nh, 220.) * 2.2 + pow(nh, 24.) * .06;
+    col = col / (1. + col * .18);
+    o = vec4(pow(col, vec3(1. / 2.2)), 1);
+  }`);
+
+  const quad = gl.createVertexArray(); gl.bindVertexArray(quad);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const mesh = gl.createVertexArray(); gl.bindVertexArray(mesh);
+  const posBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferData(gl.ARRAY_BUFFER, POS.byteLength, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+  const norBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, norBuf); gl.bufferData(gl.ARRAY_BUFFER, NOR.byteLength, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+  const U = (p, n) =&gt; gl.getUniformLocation(p, n);
+
+  // two offscreen targets: the floor (sampled through the jelly) and the jelly's back-face distance
+  const mkTarget = depth =&gt; { const tex = gl.createTexture(), fb = gl.createFramebuffer(), rb = depth ? gl.createRenderbuffer() : null; return { tex, fb, rb }; };
+  const tBG = mkTarget(false), tBK = mkTarget(true);
+  const alloc = (t, w, h) =&gt; {
+    gl.bindTexture(gl.TEXTURE_2D, t.tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, t.rb ? gl.NEAREST : gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, t.rb ? gl.NEAREST : gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, t.fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t.tex, 0);
+    if (t.rb) { gl.bindRenderbuffer(gl.RENDERBUFFER, t.rb); gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, w, h); gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, t.rb); }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  };
+  let cw = 0, ch = 0, Wc = 1, Hc = 1;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); Wc = stage.clientWidth || 1; Hc = stage.clientHeight || 1; cw = canvas.width = Wc * d | 0; ch = canvas.height = Hc * d | 0; alloc(tBG, cw, ch); alloc(tBK, cw, ch); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+
+  // ── camera (look-at, column-major)
+  const FOV = 0.62, TH = Math.tan(FOV / 2), Ln = [-0.55, 1, 0.42], Ll = Math.hypot(...Ln), Ld = Ln.map(v =&gt; v / Ll);
+  const norm = a =&gt; { const l = Math.hypot(...a) || 1; return a.map(v =&gt; v / l); }, crs = (a, b) =&gt; [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  let cam = null;
+  const camera = () =&gt; {
+    const asp = cw / ch, fit = Math.max(1, 1.25 / asp), eye = [0, 1.75 * fit, 4.7 * fit], ta = [0, 0.7, 0];
+    const f = norm(ta.map((v, i) =&gt; v - eye[i])), r = norm(crs(f, [0, 1, 0])), u = crs(r, f);
+    const VM = new Float32Array([r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -(r[0] * eye[0] + r[1] * eye[1] + r[2] * eye[2]), -(u[0] * eye[0] + u[1] * eye[1] + u[2] * eye[2]), f[0] * eye[0] + f[1] * eye[1] + f[2] * eye[2], 1]);
+    const t = 1 / TH, nr = 0.1, fr = 40, P = new Float32Array([t / asp, 0, 0, 0, 0, t, 0, 0, 0, 0, (fr + nr) / (nr - fr), -1, 0, 0, 2 * fr * nr / (nr - fr), 0]);
+    const PV = new Float32Array(16); for (let c = 0; c &lt; 4; c++) for (let rr = 0; rr &lt; 4; rr++) { let s = 0; for (let k = 0; k &lt; 4; k++) s += P[k * 4 + rr] * VM[c * 4 + k]; PV[c * 4 + rr] = s; }
+    cam = { eye, f, r, u, VM, PV, asp };
+  };
+  const ray = (px, py) =&gt; { const x = (px / Wc * 2 - 1) * TH * cam.asp, y = (1 - py / Hc * 2) * TH; return norm(cam.f.map((v, i) =&gt; v + cam.r[i] * x + cam.u[i] * y)); };
+  const toScreen = (p) =&gt; { const P = cam.PV, w = P[3] * p[0] + P[7] * p[1] + P[11] * p[2] + P[15]; return [((P[0] * p[0] + P[4] * p[1] + P[8] * p[2] + P[12]) / w * 0.5 + 0.5) * Wc, (0.5 - (P[1] * p[0] + P[5] * p[1] + P[9] * p[2] + P[13]) / w * 0.5) * Hc]; };
+
+  // ── pointer: grab a node and drag (the jelly stretches, then flies when let go); a quick tap makes it hop
+  let grab = null, lastInput = -1e9;
+  const nodeAt = (x, y) =&gt; { let best = -1, bd = Math.max(46, Hc * 0.16) ** 2; for (const n of surf) { const s = toScreen([X[n * 3], X[n * 3 + 1], X[n * 3 + 2]]), d = (s[0] - x) ** 2 + (s[1] - y) ** 2; if (d &lt; bd) { bd = d; best = n; } } return best; };
+  const local = e =&gt; { const b = canvas.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const onDown = e =&gt; {
+    if (!cam) return; const [x, y] = local(e), n = nodeAt(x, y); lastInput = performance.now(); if (n &lt; 0) return;
+    const p = [X[n * 3], X[n * 3 + 1], X[n * 3 + 2]], depth = p.reduce((s, v, i) =&gt; s + (v - cam.eye[i]) * cam.f[i], 0);
+    grab = { n, depth, target: p, t0: performance.now(), x, y, moved: 0 }; canvas.style.cursor = 'grabbing'; canvas.setPointerCapture?.(e.pointerId);
+  };
+  const onMove = e =&gt; {
+    if (!grab) return; const [x, y] = local(e), d = ray(x, y), k = grab.depth / d.reduce((s, v, i) =&gt; s + v * cam.f[i], 0);
+    grab.target = cam.eye.map((v, i) =&gt; v + d[i] * k); grab.target[1] = Math.max(0.02, grab.target[1]);
+    grab.moved = Math.max(grab.moved, Math.hypot(x - grab.x, y - grab.y)); lastInput = performance.now();
+  };
+  const onUp = () =&gt; {
+    if (grab &amp;&amp; grab.moved &lt; 6 &amp;&amp; performance.now() - grab.t0 &lt; 300) {    // a tap: pop up and away from where it was touched
+      const g = grab.n; for (let n = 0; n &lt; N; n++) { const dx = X[n * 3] - X[g * 3], dz = X[n * 3 + 2] - X[g * 3 + 2], w = Math.exp(-(dx * dx + dz * dz) * 3); Vl[n * 3] += dx * 2.2 * w; Vl[n * 3 + 1] += 4.2 * PARAMS.hop * (0.6 + 0.4 * w); Vl[n * 3 + 2] += dz * 2.2 * w; }
+    }
+    grab = null; canvas.style.cursor = 'grab'; lastInput = performance.now();
+  };
+  canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointercancel', onUp);
+
+  // ── physics
+  const GRAV = 14, cen = [0, 0, 0];
+  let nextHop = 1.75, hopN = 0;
+  const hop = () =&gt; {   // idle autopilot: a hop with a spin, always aimed back toward the middle
+    const a = hopN++ * 2.39996 + 0.7, ax = [Math.cos(a), 0.25 * Math.sin(a * 1.7), Math.sin(a)], w = (4.2 + 2.2 * Math.abs(Math.sin(a * 3.1))) * Math.min(1.4, PARAMS.hop), up = 4.1 * PARAMS.hop;
+    const axn = norm(ax), vx = -cen[0] * 1.6 + Math.cos(a * 2.3) * 0.35, vz = -cen[2] * 1.6 + Math.sin(a * 1.9) * 0.25;
+    for (let n = 0; n &lt; N; n++) { const rx = X[n * 3] - cen[0], ry = X[n * 3 + 1] - cen[1], rz = X[n * 3 + 2] - cen[2]; Vl[n * 3] += vx + w * (axn[1] * rz - axn[2] * ry); Vl[n * 3 + 1] += up + w * (axn[2] * rx - axn[0] * rz); Vl[n * 3 + 2] += vz + w * (axn[0] * ry - axn[1] * rx); }
+  };
+  function step(h) {
+    const soft = Math.max(0.3, PARAMS.softness), KS = 1100 / soft, CS = 2, KG = 60 / soft;
+    cen[0] = cen[1] = cen[2] = 0; for (let n = 0; n &lt; N; n++) for (let c = 0; c &lt; 3; c++) cen[c] += X[n * 3 + c] / N;
+    // best-fit rotation of the rest shape (polar decomposition by quaternion iteration, warm-started)
+    const A = new Float64Array(9);
+    for (let n = 0; n &lt; N; n++) for (let c = 0; c &lt; 3; c++) { const q = Qr[n * 3 + c]; for (let r = 0; r &lt; 3; r++) A[c * 3 + r] += (X[n * 3 + r] - cen[r]) * q; }
+    for (let it = 0; it &lt; 4; it++) {
+      const R = qmat(rq), om = [0, 0, 0]; let dn = 0;
+      for (let c = 0; c &lt; 3; c++) { const rc = [R[c * 3], R[c * 3 + 1], R[c * 3 + 2]], ac = [A[c * 3], A[c * 3 + 1], A[c * 3 + 2]], x = crs(rc, ac); om[0] += x[0]; om[1] += x[1]; om[2] += x[2]; dn += rc[0] * ac[0] + rc[1] * ac[1] + rc[2] * ac[2]; }
+      const o = om.map(v =&gt; v / (Math.abs(dn) + 1e-9)), w = Math.hypot(...o); if (w &lt; 1e-9) break;
+      rq = qmul(qaxis(o, w), rq); const l = Math.hypot(...rq); rq = rq.map(v =&gt; v / l);
+    }
+    const R = qmat(rq);
+    for (let n = 0; n &lt; N; n++) {
+      const x = Qr[n * 3], y = Qr[n * 3 + 1], z = Qr[n * 3 + 2];
+      for (let r = 0; r &lt; 3; r++) Fo[n * 3 + r] = KG * (R[r] * x + R[3 + r] * y + R[6 + r] * z + cen[r] - X[n * 3 + r]);
+      Fo[n * 3 + 1] -= GRAV;
+    }
+    for (let s = 0; s &lt; S; s++) {
+      const a = sA[s] * 3, b = sB[s] * 3, dx = X[b] - X[a], dy = X[b + 1] - X[a + 1], dz = X[b + 2] - X[a + 2], L = Math.hypot(dx, dy, dz) || 1e-6;
+      const ux = dx / L, uy = dy / L, uz = dz / L, rv = (Vl[b] - Vl[a]) * ux + (Vl[b + 1] - Vl[a + 1]) * uy + (Vl[b + 2] - Vl[a + 2]) * uz;
+      const f = KS * (L - sL[s]) + CS * rv;
+      Fo[a] += f * ux; Fo[a + 1] += f * uy; Fo[a + 2] += f * uz; Fo[b] -= f * ux; Fo[b + 1] -= f * uy; Fo[b + 2] -= f * uz;
+    }
+    if (grab) {   // pull the grabbed node and its neighbours toward the pointer
+      const g = grab.n * 3, ex = grab.target[0] - X[g], ey = grab.target[1] - X[g + 1], ez = grab.target[2] - X[g + 2];
+      for (let n = 0; n &lt; N; n++) { const d2 = (Qr[n * 3] - Qr[g]) ** 2 + (Qr[n * 3 + 1] - Qr[g + 1]) ** 2 + (Qr[n * 3 + 2] - Qr[g + 2]) ** 2, w = Math.exp(-d2 * 9) * 950; if (w &lt; 3) continue; Fo[n * 3] += ex * w - Vl[n * 3] * w * 0.04; Fo[n * 3 + 1] += ey * w - Vl[n * 3 + 1] * w * 0.04; Fo[n * 3 + 2] += ez * w - Vl[n * 3 + 2] * w * 0.04; }
+    }
+    for (let i = 0; i &lt; N * 3; i++) { Vl[i] = (Vl[i] + Fo[i] * h) * (1 - 0.15 * h); X[i] += Vl[i] * h; }
+    for (let n = 0; n &lt; N; n++) {
+      const i = n * 3;
+      if (X[i + 1] &lt; 0) {   // floor: no bounce per node (the springs give the bounce), friction from the impact
+        X[i + 1] = 0; const vn = Math.max(0, -Vl[i + 1]); Vl[i + 1] = Math.max(0, Vl[i + 1]);
+        const vt = Math.hypot(Vl[i], Vl[i + 2]); if (vt &gt; 0) { const k = Math.max(0, vt - (0.55 * vn + 0.004)) / vt; Vl[i] *= k; Vl[i + 2] *= k; }
+      }
+      for (const c of [0, 2]) { const lim = c === 0 ? 1.7 : 1.2; if (X[i + c] &gt; lim) { X[i + c] = lim; Vl[i + c] = -Math.abs(Vl[i + c]) * 0.3; } else if (X[i + c] &lt; -lim) { X[i + c] = -lim; Vl[i + c] = Math.abs(Vl[i + c]) * 0.3; } }
+    }
+  }
+
+  // convex hull of the lattice's shadow on the floor (projected along the light)
+  const hull = pts =&gt; {
+    pts.sort((a, b) =&gt; a[0] - b[0] || a[1] - b[1]);
+    const c = (o, a, b) =&gt; (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+    for (const p of pts) { while (lo.length &gt;= 2 &amp;&amp; c(lo[lo.length - 2], lo[lo.length - 1], p) &lt;= 0) lo.pop(); lo.push(p); }
+    for (let i = pts.length - 1; i &gt;= 0; i--) { const p = pts[i]; while (up.length &gt;= 2 &amp;&amp; c(up[up.length - 2], up[up.length - 1], p) &lt;= 0) up.pop(); up.push(p); }
+    return lo.slice(0, -1).concat(up.slice(0, -1));
+  };
+  const tint = () =&gt; { const h = ((PARAMS.hue % 360) + 360) % 360 / 60, s = 0.9, l = 0.5, C = (1 - Math.abs(2 * l - 1)) * s, x = C * (1 - Math.abs(h % 2 - 1)), m = l - C / 2;
+    const [r, g, b] = h &lt; 1 ? [C, x, 0] : h &lt; 2 ? [x, C, 0] : h &lt; 3 ? [0, C, x] : h &lt; 4 ? [0, x, C] : h &lt; 5 ? [x, 0, C] : [C, 0, x]; return [r + m, g + m, b + m]; };
+
+  let raf, last = performance.now(); const t0 = last;
+  function frame(now) {
+    const dt = Math.min(1 / 30, (now - last) / 1000), t = (now - t0) / 1000; last = now;
+    if (!grab &amp;&amp; now - lastInput &gt; 2500 &amp;&amp; t &gt; nextHop) { hop(); nextHop = t + 2.5; }
+    else if (grab || now - lastInput &lt;= 2500) nextHop = Math.max(nextHop, t + 1.2);
+    const n = Math.max(1, Math.ceil(dt * 720)); for (let i = 0; i &lt; n; i++) step(dt / n);
+    camera();
+    // deform the rounded box through the lattice, then smooth normals
+    for (let v = 0; v &lt; NV; v++) { let x = 0, y = 0, z = 0; const o = v * 64; for (let k = 0; k &lt; 64; k++) { const w = W[o + k]; x += w * X[k * 3]; y += w * X[k * 3 + 1]; z += w * X[k * 3 + 2]; } POS[v * 3] = x; POS[v * 3 + 1] = y; POS[v * 3 + 2] = z; }
+    NOR.fill(0);
+    for (let i = 0; i &lt; idx.length; i += 3) {
+      const a = idx[i] * 3, b = idx[i + 1] * 3, c = idx[i + 2] * 3, e1x = POS[b] - POS[a], e1y = POS[b + 1] - POS[a + 1], e1z = POS[b + 2] - POS[a + 2], e2x = POS[c] - POS[a], e2y = POS[c + 1] - POS[a + 1], e2z = POS[c + 2] - POS[a + 2];
+      const nx = e1y * e2z - e1z * e2y, ny = e1z * e2x - e1x * e2z, nz = e1x * e2y - e1y * e2x;
+      for (const q of [a, b, c]) { NOR[q] += nx; NOR[q + 1] += ny; NOR[q + 2] += nz; }
+    }
+    BW.forEach((w, b) =&gt; { let x = 0, y = 0, z = 0; for (let k = 0; k &lt; 64; k++) { x += w[k] * X[k * 3]; y += w[k] * X[k * 3 + 1]; z += w[k] * X[k * 3 + 2]; } BF.set([x, y, z, BUB[b][3]], b * 4); });
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, POS);
+    gl.bindBuffer(gl.ARRAY_BUFFER, norBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, NOR);
+    // shadow footprint, its softness (grows with height) and how close the jelly is to the floor
+    const sp = surf.map(k =&gt; { const y = X[k * 3 + 1]; return [X[k * 3] - Ld[0] / Ld[1] * y, X[k * 3 + 2] - Ld[2] / Ld[1] * y]; });
+    const H = hull(sp).slice(0, 32), Hf = new Float32Array(64); H.forEach((p, i) =&gt; { Hf[i * 2] = p[0]; Hf[i * 2 + 1] = p[1]; });
+    let minY = 1e9; for (let k = 0; k &lt; N; k++) minY = Math.min(minY, X[k * 3 + 1]);
+    const lift = Math.max(0, cen[1] - 0.5), TI = tint(), SIG = TI.map(c =&gt; (1 - c) * 2.4 + 0.1);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, tBG.fb); gl.viewport(0, 0, cw, ch); gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+    gl.useProgram(bgProg); gl.bindVertexArray(quad);
+    gl.uniform3fv(U(bgProg, 'E'), cam.eye); gl.uniform3fv(U(bgProg, 'CF'), cam.f); gl.uniform3fv(U(bgProg, 'CR'), cam.r); gl.uniform3fv(U(bgProg, 'CU'), cam.u);
+    gl.uniform2f(U(bgProg, 'R'), cw, ch); gl.uniform1f(U(bgProg, 'TH'), TH); gl.uniform3fv(U(bgProg, 'TINT'), TI); gl.uniform3fv(U(bgProg, 'SIG'), SIG); gl.uniform3fv(U(bgProg, 'CEN'), cen);
+    gl.uniform2fv(U(bgProg, 'H'), Hf); gl.uniform1i(U(bgProg, 'HN'), H.length);
+    gl.uniform1f(U(bgProg, 'SH_B'), 0.05 + lift * 0.28); gl.uniform1f(U(bgProg, 'SH_K'), 0.85 / (1 + lift * 1.6)); gl.uniform1f(U(bgProg, 'HIT'), Math.exp(-minY * 5));
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, tBK.fb); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.FRONT);
+    gl.useProgram(backProg); gl.bindVertexArray(mesh);
+    gl.uniformMatrix4fv(U(backProg, 'PV'), false, cam.PV); gl.uniform3fv(U(backProg, 'E'), cam.eye);
+    gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, cw, ch); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+    gl.useProgram(copyProg); gl.bindVertexArray(quad); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tBG.tex); gl.uniform1i(U(copyProg, 'BG'), 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+    gl.useProgram(jellyProg); gl.bindVertexArray(mesh);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tBK.tex); gl.uniform1i(U(jellyProg, 'BG'), 0); gl.uniform1i(U(jellyProg, 'BK'), 1);
+    gl.uniformMatrix4fv(U(jellyProg, 'PV'), false, cam.PV); gl.uniformMatrix4fv(U(jellyProg, 'VM'), false, cam.VM);
+    gl.uniform3fv(U(jellyProg, 'E'), cam.eye); gl.uniform2f(U(jellyProg, 'R'), cw, ch); gl.uniform3fv(U(jellyProg, 'L'), Ld);
+    gl.uniform3fv(U(jellyProg, 'SIG'), SIG); gl.uniform3fv(U(jellyProg, 'TINT'), TI); gl.uniform4fv(U(jellyProg, 'B'), BF);
+    gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; {
+    cancelAnimationFrame(raf); ro.disconnect();
+    canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp);
+    gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
+  };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

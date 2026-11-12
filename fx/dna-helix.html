@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNA double helix: Pre-shaded sphere sprites sorted back to front, no 3D engine · Motion Library</title>
+<meta name="description" content="DNA double helix is a Canvas effect: pre-shaded sphere sprites sorted back to front, no 3D engine. One plain JavaScript file with no dependencies; add it with npx motion-library add dna-helix.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/dna-helix.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="DNA double helix · Motion Library">
+<meta property="og:description" content="Pre-shaded sphere sprites sorted back to front, no 3D engine">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/dna-helix.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "DNA double helix",
+  "description": "Pre-shaded sphere sprites sorted back to front, no 3D engine",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/dna-helix.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/dna-helix.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "DNA double helix",
+    "item": "https://ajeckblad.github.io/motion-library/fx/dna-helix.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>DNA double helix</h1>
+<p class="tldr">DNA double helix is a Canvas effect: pre-shaded sphere sprites sorted back to front, no 3D engine. One plain JavaScript file with no dependencies; add it with npx motion-library add dna-helix.</p>
+<figure><img src="../posters/dna-helix.webp" alt="DNA double helix: Pre-shaded sphere sprites sorted back to front, no 3D engine" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/dna-helix">Open it live, tune it and copy the code</a></p>
+
+<h2>What is DNA double helix?</h2>
+<p>A DNA double helix turns while a replication fork unzips and rezips it.</p>
+
+<h2>How does DNA double helix work?</h2>
+<p>Points in 3D are rotated, projected and drawn back to front as pre-shaded sphere sprites; the second backbone sits 140° behind, making the grooves.</p>
+
+<h2>How do I add DNA double helix to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add dna-helix</code>. It writes <code>animations/dna-helix.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/dna-helix.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add dna-helix --spin 3</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Spin</td><td><code>--spin</code></td><td>1</td><td>0 to 3</td><td>0.05</td></tr>
+<tr><td>Unzipping</td><td><code>--unzip</code></td><td>1</td><td>0 to 1.5</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>3.9 KB, unminified</dd>
+<dt>Interactive</dt><dd>No: it plays on its own</dd>
+<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<pre><code>// DNA double helix: two backbones winding round a common axis, a quarter turn apart in the minor/major groove way real
+// DNA is, joined by base pairs (A–T, C–G). Everything is built as points in 3D, turned, projected and drawn back to
+// front as shaded spheres, so it reads as solid without a 3D engine. A replication fork travels along it: there the
+// strands peel apart, rungs split into their two halves, then zip back together behind it.
+const PARAMS = { spin: 1, unzip: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  const BASES = { A: '#ff5d73', T: '#ffd166', C: '#4cc9f0', G: '#7bd389' }, PAIR = { A: 'T', T: 'A', C: 'G', G: 'C' };
+  const N = 44, seq = Array.from({ length: N }, () =&gt; 'ATCG'[Math.random() * 4 | 0]);
+  // a shaded sphere sprite per colour, made once
+  const ball = col =&gt; { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), gr = g.createRadialGradient(24, 22, 2, 32, 32, 31); gr.addColorStop(0, '#fff'); gr.addColorStop(0.25, col); gr.addColorStop(1, 'rgba(0,0,0,.85)'); g.fillStyle = gr; g.beginPath(); g.arc(32, 32, 31, 0, 7); g.fill(); return c; };
+  const SPR = Object.fromEntries([...Object.entries(BASES), ['bb1', '#9aa7ff'], ['bb2', '#c7a0ff']].map(([k, v]) =&gt; [k, ball(v)]));
+  let raf; const t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000, S = Math.min(W, H), F = S * 2.4;
+    const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7); bg.addColorStop(0, '#141a33'); bg.addColorStop(1, '#05060d');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    const spin = t * 0.6 * PARAMS.spin, tilt = 1.05, ct = Math.cos(tilt), st = Math.sin(tilt);
+    const fork = ((t * 0.09) % 1.4 - 0.2) * N;                             // where the strands are open, travelling along
+    const items = [];
+    const put = (x, y, z, spr, r) =&gt; {
+      // tilt the helix's axis diagonally across the view, then project
+      const X = x * ct - y * st, Y = x * st + y * ct, k = F / (F + z * S * 0.5);
+      items.push({ x: W / 2 + X * S * 0.34 * k, y: H / 2 + Y * S * 0.34 * k, z, s: r * S * 0.045 * k, spr });
+    };
+    for (let i = 0; i &lt; N; i++) {
+      const y = (i / (N - 1) - 0.5) * 2.6, a = i * 0.6 + spin;
+      const open = PARAMS.unzip * Math.max(0, 1 - Math.abs(i - fork) / 5) ** 1.5;   // how far apart the strands are here
+      const R = 0.32 + open * 0.35, a2 = a + 2.4 + open * 0.8;               // the second strand sits ~140° round (the grooves)
+      const p1 = [Math.cos(a) * R, y, Math.sin(a) * R], p2 = [Math.cos(a2) * R, y, Math.sin(a2) * R];
+      put(...p1, 'bb1', 0.55); put(...p2, 'bb2', 0.55);
+      const b1 = seq[i], b2 = PAIR[b1], gap = 0.5 + open * 0.5;
+      for (let k = 1; k &lt;= 4; k++) {                                       // the rung: each half its base's colour, split where open
+        const u = k / 9; put(p1[0] + (p2[0] - p1[0]) * u * gap, y, p1[2] + (p2[2] - p1[2]) * u * gap, b1, 0.36);
+        put(p2[0] + (p1[0] - p2[0]) * u * gap, y, p2[2] + (p1[2] - p2[2]) * u * gap, b2, 0.36);
+      }
+    }
+    items.sort((a, b) =&gt; b.z - a.z);
+    for (const it of items) { const fog = Math.min(1, Math.max(0.35, 0.75 - it.z * 0.5)); ctx.globalAlpha = fog; ctx.drawImage(SPR[it.spr], it.x - it.s, it.y - it.s, it.s * 2, it.s * 2); }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>
