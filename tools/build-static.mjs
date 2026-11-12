@@ -138,7 +138,7 @@ const faqHtml = `<h2 id="faq-title">Questions</h2><div class="faq-list">
 ${FAQ.en.map(([q, ans]) => `<details class="faq-item"><summary><h3>${esc(q)}</h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary><p>${esc(ans)}</p></details>`).join('\n')}
 </div>`;
 const siteLd = [
-  { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Motion Library', url: abs('index.html'), inLanguage: ['en', 'zh-Hans'],
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Motion Library', url: abs('index.html'), inLanguage: ['en', 'zh-Hans', 'es', 'fr'],
     description: `${ANIMS.length} hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies, tunable live and installable with npx.` },
   { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Motion Library effects', numberOfItems: fx.length,
     itemListElement: fx.map((f, i) => ({ '@type': 'ListItem', position: i + 1, name: f.a.title, url: abs(f.page) })) },

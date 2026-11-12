@@ -43,10 +43,17 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
     }
     // desktop: the words' right edges follow a circular arc that bulges toward the grid in the middle
     const top = Math.max(36, h * 0.06), bottom = h - Math.max(90, h * 0.14), mid = (top + bottom) / 2, half = (bottom - top) / 2;
-    const depth = Math.min(80, w * 0.28), padR = 26;
+    const padR = 26;
+    // the arc bulges up to 80px toward the grid in the middle, but never so far that a word sticks out of the column at
+    // rest: longer translations (Generativo y matemáticas) flatten it just enough to fit, 4px inside the edge
+    const ys = items.map((_, i) => top + (bottom - top) * (i / (items.length - 1)));
+    const depth = Math.max(0, Math.min(80, w * 0.28, ...items.map((it, i) => {
+      const k = (ys[i] - mid) / half, bulge = Math.sqrt(Math.max(0, 1 - k * k));
+      return bulge > 0.05 ? (w - padR - 4 - it.lbl.offsetWidth * 1.04) / bulge : Infinity;
+    })));
     geo = { mobile: false, w, h, spacing: (bottom - top) / (items.length - 1) };
     items.forEach((it, i) => {
-      it.y = top + (bottom - top) * (i / (items.length - 1));
+      it.y = ys[i];
       const k = (it.y - mid) / half;
       const right = padR + depth * Math.sqrt(Math.max(0, 1 - k * k));
       it.el.style.left = ''; it.el.style.right = right + 'px'; it.el.style.top = (it.y - 18) + 'px';

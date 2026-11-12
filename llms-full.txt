@@ -477,7 +477,7 @@ A stone ring on a dune shows a night sea through it, and the camera flies throug
 Rays are raymarched through the desert; any ray crossing the ring’s opening continues from that point in the other world, so parallax is real.
 
 Settings: --speed 1 (0.3 to 2, step 0.1; Speed); --glow 1 (0 to 2, step 0.05; Ring glow); --waves 1 (0 to 2.5, step 0.05; Waves).
-Renderer: WebGL. Size: 8.8 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/portal.html
+Renderer: WebGL. Size: 27.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/portal.html
 
 ### Glass lens refraction
 
@@ -510,7 +510,7 @@ Silk falls over a plinth, tents on spikes and is whipped off to reveal a chrome 
 Verlet cloth with neighbour, diagonal and bending constraints solved ten times a frame, colliding with the star’s core sphere and cone spikes.
 
 Settings: --grid 46 (20 to 64, step 2; Cloth resolution); --stiffness 1 (0.3 to 1, step 0.05; Stiffness); --speed 1 (0.4 to 2, step 0.1; Speed).
-Renderer: WebGL. Size: 17.6 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html
+Renderer: WebGL. Size: 27.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/cloth-reveal.html
 
 ### Liquid metal
 
@@ -924,7 +924,7 @@ Renderer: WebGL. Size: 11.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### ASCII render
 
-ASCII render is a WebGL effect: brightness picks a glyph, edges pick - / |  by direction. One plain JavaScript file with no dependencies; add it with npx motion-library add ascii-render.
+ASCII render is a WebGL effect: brightness picks a glyph, edges pick - / | \ by direction. One plain JavaScript file with no dependencies; add it with npx motion-library add ascii-render.
 
 A Menger sponge turns over a floor, drawn only in amber characters.
 

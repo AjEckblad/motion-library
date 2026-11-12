@@ -332,6 +332,13 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   check('中文 switches the page and is remembered', zh.lang === 'zh-Hans' && zh.title === '全部动画' && zh.faq === '常见问题' && zh.dial.includes('流动'), JSON.stringify(zh));
   await lp.click('#lang-btn'); await lp.waitForTimeout(250); await lp.click('#lang-menu [data-lang="en"]'); await lp.waitForTimeout(1500);
   check('EN switches back', await lp.evaluate(() => document.documentElement.lang === 'en' && document.querySelector('#view-title').textContent === 'All animations'));
+  // Español: the page, an effect's notes, its sliders and the player all switch
+  await lp.click('#lang-btn'); await lp.waitForTimeout(250); await lp.click('#lang-menu [data-lang="es"]'); await lp.waitForTimeout(1500);
+  await lp.evaluate(() => { location.hash = '#/a/metaballs'; }); await lp.waitForTimeout(1800);
+  const es = await lp.evaluate(() => ({ lang: document.documentElement.lang, title: document.querySelector('#view-title').textContent, how: document.querySelector('#detail .notes h2')?.textContent, slider: document.querySelector('#detail .knob label')?.textContent, frame: document.querySelector('#detail .pb-step span')?.textContent }));
+  check('Español translates the page, notes, sliders and player', es.lang === 'es' && es.title === 'Todas las animaciones' && es.how === 'Cómo funciona' && es.slider === 'Gotas' && es.frame === 'Fotograma', JSON.stringify(es));
+  await lp.keyboard.press('Escape'); await lp.waitForTimeout(500);
+  await lp.click('#lang-btn'); await lp.waitForTimeout(250); await lp.click('#lang-menu [data-lang="en"]'); await lp.waitForTimeout(1500);
   await lp.context().close();
 }
 

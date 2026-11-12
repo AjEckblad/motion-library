@@ -102,7 +102,7 @@
 - [Kaleidoscope](https://ajeckblad.github.io/motion-library/fx/kaleidoscope.html): Polar angle wrapped into one mirrored wedge. `npx motion-library add kaleidoscope`
 - [Ordered dither](https://ajeckblad.github.io/motion-library/fx/dither.html): Ordered dithering against an 8×8 Bayer threshold matrix. `npx motion-library add dither`
 - [Pen sketch](https://ajeckblad.github.io/motion-library/fx/pen-sketch.html): Hatching layered by lighting; outlines from depth and normal jumps. `npx motion-library add pen-sketch`
-- [ASCII render](https://ajeckblad.github.io/motion-library/fx/ascii-render.html): Brightness picks a glyph, edges pick - / |  by direction. `npx motion-library add ascii-render`
+- [ASCII render](https://ajeckblad.github.io/motion-library/fx/ascii-render.html): Brightness picks a glyph, edges pick - / | \ by direction. `npx motion-library add ascii-render`
 - [Pixel sort](https://ajeckblad.github.io/motion-library/fx/pixel-sort.html): GPU odd-even transposition sort within bright runs per column. `npx motion-library add pixel-sort`
 - [Hyperbolic tiling](https://ajeckblad.github.io/motion-library/fx/hyperbolic-tiling.html): Fold pixels into one triangle by reflections; glide by Möbius map. `npx motion-library add hyperbolic-tiling`
 

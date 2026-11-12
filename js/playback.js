@@ -1,4 +1,5 @@
-// Playback controls shared by the detail and compare views. They drive the virtual clock inside each
+import { t } from './i18n.js';
+// Playback controls for the detail view. They drive the virtual clock inside each
 // stage iframe: speed, pause, single-frame step and replay. The readout is the stage's own clock.
 const icons = {
   pause: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg>',
@@ -12,15 +13,15 @@ export function createPlaybar(frames, { startPaused = false, onState } = {}) {
   const el = document.createElement('div');
   el.className = 'playbar';
   el.innerHTML = `
-    <button class="pb-btn pb-play" type="button" aria-label="${startPaused ? 'Play' : 'Pause'}">${startPaused ? icons.play : icons.pause}</button>
-    <div class="seg" role="group" aria-label="Speed">
+    <button class="pb-btn pb-play" type="button" aria-label="${startPaused ? t('Play') : t('Pause')}">${startPaused ? icons.play : icons.pause}</button>
+    <div class="seg" role="group" aria-label="${t('Speed')}">
       <button type="button" data-rate="0.25" aria-pressed="false">0.25×</button>
       <button type="button" data-rate="0.5" aria-pressed="false">0.5×</button>
       <button type="button" data-rate="1" aria-pressed="true">1×</button>
     </div>
-    <button class="pb-btn pb-step" type="button" aria-label="Step one frame">${icons.step}<span>Frame</span></button>
-    <button class="pb-btn pb-replay" type="button" aria-label="Replay from the start">${icons.replay}<span>Replay</span></button>
-    <span class="clock" aria-label="Animation time">00:00.00</span>`;
+    <button class="pb-btn pb-step" type="button" aria-label="${t('Step one frame')}">${icons.step}<span>${t('Frame')}</span></button>
+    <button class="pb-btn pb-replay" type="button" aria-label="${t('Replay from the start')}">${icons.replay}<span>${t('Replay')}</span></button>
+    <span class="clock" aria-label="${t('Animation time')}">00:00.00</span>`;
   const playBtn = el.querySelector('.pb-play'), clock = el.querySelector('.clock');
   let paused = startPaused, rate = 1, starts = new WeakMap(), raf = 0;
 
@@ -31,7 +32,7 @@ export function createPlaybar(frames, { startPaused = false, onState } = {}) {
     paused = p;
     each(c => p ? c.pause() : c.play());
     playBtn.innerHTML = p ? icons.play : icons.pause;
-    playBtn.setAttribute('aria-label', p ? 'Play' : 'Pause');
+    playBtn.setAttribute('aria-label', p ? t('Play') : t('Pause'));
     onState?.(p);
   }
   playBtn.addEventListener('click', () => setPaused(!paused));

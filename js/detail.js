@@ -7,7 +7,7 @@ import { heartIcon, onHeartPress } from './hearts.js';
 import { store } from './store.js';
 import { createPlaybar } from './playback.js';
 import { Creature, PALETTES } from './creatures.js';
-import { t, tr, catName } from './i18n.js';
+import { t, tr, tl, catName } from './i18n.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const drawer = 'cubic-bezier(0.32, 0.72, 0, 1)';
@@ -113,7 +113,7 @@ export function createDetail({ celebrate, toast, onClose }) {
       const id = `k-${a.id}-${k}`;
       const knob = document.createElement('div'); knob.className = 'knob';
       knob.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${r.min}" max="${r.max}" step="${r.step}">`;
-      knob.querySelector('label').textContent = r.label;
+      knob.querySelector('label').textContent = tl(r.label);
       const input = knob.querySelector('input');
       input.value = defaults[k]; input.dataset.k = k;
       input.addEventListener('input', () => { values[k] = +input.value; knob.querySelector('output').textContent = formatValue(values[k], r.step); update(); });

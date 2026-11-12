@@ -1718,8 +1718,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/portal",
    "npx": "npx motion-library add portal",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 9040,
+   "reducedMotion": true,
+   "bytes": 28274,
    "settings": [
     {
      "key": "speed",
@@ -1844,8 +1844,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/cloth-reveal",
    "npx": "npx motion-library add cloth-reveal",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 18022,
+   "reducedMotion": true,
+   "bytes": 27599,
    "settings": [
     {
      "key": "grid",
@@ -3413,7 +3413,7 @@
    "category": "Shaders & glitch",
    "categoryId": "shaders",
    "renderer": "WebGL",
-   "description": "Brightness picks a glyph, edges pick - / |  by direction",
+   "description": "Brightness picks a glyph, edges pick - / | \\ by direction",
    "descriptionZh": "亮度决定字符，边缘按方向选用 - / | \\",
    "page": "https://ajeckblad.github.io/motion-library/fx/ascii-render.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ascii-render",

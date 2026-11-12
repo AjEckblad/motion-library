@@ -273,7 +273,7 @@ export const MORE = [
     notes: ['Plaster solids on a turntable drawn in boiling blue-black ink with hatching that deepens into shadow.', 'A G-buffer pass stores light, depth and normal; the pen pass draws outlines at jumps and layers hatching directions by darkness, redrawn on twos.'],
     params: { density: P(0.5, 2, 0.05, 'Hatch density'), boil: P(1, 24, 1, 'Boils / second'), speed: P(0, 3, 0.1, 'Turntable speed') } },
   { id: 'ascii-render', cat: 'shaders', title: 'ASCII render', kind: 'webgl', posterAt: 2500,
-    trick: 'Brightness picks a glyph, edges pick - / | \ by direction',
+    trick: 'Brightness picks a glyph, edges pick - / | \\ by direction',
     notes: ['A Menger sponge turns over a floor, drawn only in amber characters.', 'Raymarched per character cell; edge cells pick - / | \\ from a Sobel structure tensor, and others pick glyphs from a brightness ramp in a pre-drawn atlas.'],
     params: { cell: P(5, 16, 1, 'Cell width (px)'), spin: P(0, 3, 0.1, 'Spin'), edges: P(0.3, 3, 0.1, 'Edge sensitivity') } },
   { id: 'pixel-sort', cat: 'shaders', title: 'Pixel sort', kind: 'webgl', posterAt: 6500,
