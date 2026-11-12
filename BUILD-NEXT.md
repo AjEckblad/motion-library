@@ -27,7 +27,11 @@ Helper agents' own reservations (worth AJ's eye): ferrofluid's flat oil shows sm
 pool reads as a smooth slug on fast moves; SPH water has ~1 px rest shimmer; shatter's ball reads as dark steel; black
 hole's spin is a per-ray-mass approximation (not a full Kerr integrator) and its disc lacks the film's fine grain; lava
 flows at time-lapse speed with a slightly grainy plume; fire is a 2D slice (often one merged column).
-NEXT for AJ: /review-animations (only AJ can start it); npm 0.3.2 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`).
+/review-animations (AJ ran it, 2026-11-12 night): approved after three fixes, guarded in tools/motion-check.mjs (21/21):
+the language menu swallowed a click during its 120 ms fade-out (now it reopens from the opacity it had reached);
+Ferrofluid's magnet and SPH water's tilt walked away from a resting mouse after ~2 s (now a mouse over the stage keeps
+control; leaving, or a finger lifted for ~2 s, hands it back to the automatic motion).
+NEXT for AJ: npm 0.3.2 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`).
 - [x] UI demos: the 50 with a pastel ground behind app windows / phones (basics, transitions, micro, springs, morph) get
       a near-black ground; the windows and phones keep their own colours. The 30 full-page designs (text, scroll,
       hover) stay exactly as designed (AJ chose this). Done: one shared ground radial-gradient(120% 100% at 50% 0%,

@@ -194,9 +194,11 @@ export default function (stage) {
     cam.f = f; cam.r = [1, 0, 0]; cam.u = [0, Math.cos(EL), -Math.sin(EL)]; cam.halfW = D * a * 0.5 / FOC;
   };
   // the pointer's x on the shelf: cast its ray onto the plane of the glass
-  let px = 0.5, py = 0.5, lastMove = -1e9;
-  const onMove = e => { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); };
-  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove);
+  // a resting mouse keeps the magnet where it is; leaving the stage, or a finger lifted for 1.8 s, hands it back to the drift
+  let px = 0.5, py = 0.5, lastMove = -1e9, held = false;
+  const onMove = e => { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
+  const onLeave = () => { held = false; };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
   const pointerX = () => {
     const a = W / H, sx = (px - 0.5) * a, sy = 0.5 - py, d = cam.f.map((f, i) => f * FOC + cam.r[i] * sx + cam.u[i] * sy);
     if (d[1] >= -1e-3) return sx * 4; return cam.p[0] + d[0] * (-cam.p[1] / d[1]);
@@ -213,7 +215,7 @@ export default function (stage) {
     setCam();
     const amp = Math.max(0.3, Math.min(1.05, cam.halfW - 0.8));
     const auto = reduce ? 0.18 * Math.sin(t * 0.06) : amp * Math.tanh(2.2 * Math.sin(t * Math.PI * 2 / 7.5 - 0.5)) / Math.tanh(2.2);
-    const live = now - lastMove < 1800;
+    const live = held || now - lastMove < 1800;
     const lim = Math.max(0.3, cam.halfW - 0.75), target = live ? Math.max(-lim, Math.min(lim, pointerX())) : auto;
     for (let i = 0, n = 4, h = dt / n; i < n; i++) {
       [S.m, S.mv] = spring(S.m, S.mv, target, 9, 1, h);
@@ -246,5 +248,5 @@ export default function (stage) {
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 }

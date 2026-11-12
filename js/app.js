@@ -373,25 +373,28 @@ for (const [q, a] of FAQ[LANG] || FAQ.en) {
     menu.append(b);
   }
   const items = [...menu.querySelectorAll('button')];
-  let anim = null;
+  // isOpen, not menu.hidden: during the 120 ms fade-out the menu is still showing, and a click then means "open again"
+  let anim = null, isOpen = false;
   function open(animate) {
-    anim?.cancel(); menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
-    if (animate) anim = menu.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: ease });
+    // reopened mid-fade: carry on from the opacity it had reached instead of blinking to 0
+    const from = anim ? +getComputedStyle(menu).opacity : 0;
+    anim?.cancel(); anim = null; isOpen = true; menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
+    if (animate) anim = menu.animate(reduce.matches ? [{ opacity: from }, { opacity: 1 }] : [{ opacity: from, transform: from ? 'none' : 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: ease });
     (items.find(b => b.getAttribute('aria-checked') === 'true') || items[0]).focus({ preventScroll: true });
     setTimeout(() => document.addEventListener('pointerdown', outside), 0);
   }
   function close(refocus = false, animate = false) {
-    if (menu.hidden) return;
-    document.removeEventListener('pointerdown', outside); btn.setAttribute('aria-expanded', 'false');
+    if (!isOpen) return;
+    isOpen = false; document.removeEventListener('pointerdown', outside); btn.setAttribute('aria-expanded', 'false');
     anim?.cancel(); anim = null;
-    if (animate && !reduce.matches) { const a = menu.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: ease }); a.onfinish = () => { menu.hidden = true; }; }
+    if (animate && !reduce.matches) { anim = menu.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: ease }); anim.onfinish = () => { menu.hidden = true; anim = null; }; }
     else menu.hidden = true;
     if (refocus) btn.focus({ preventScroll: true });
   }
   const outside = e => { if (!$('#lang').contains(e.target)) close(false, true); };
   // a click with detail 0 came from the keyboard (Enter or Space on the button)
-  btn.addEventListener('click', e => { if (menu.hidden) open(e.detail > 0); else close(false, e.detail > 0); });
-  btn.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && menu.hidden) { e.preventDefault(); open(false); } });
+  btn.addEventListener('click', e => { if (!isOpen) open(e.detail > 0); else close(false, e.detail > 0); });
+  btn.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && !isOpen) { e.preventDefault(); open(false); } });
   menu.addEventListener('keydown', e => {
     const i = items.indexOf(document.activeElement);
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }

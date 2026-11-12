@@ -1368,7 +1368,7 @@
    "npx": "npx motion-library add ferrofluid",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 17702,
+   "bytes": 18031,
    "settings": [
     {
      "key": "spikes",
@@ -1647,7 +1647,7 @@
    "npx": "npx motion-library add sph-water",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 27074,
+   "bytes": 27401,
    "settings": [
     {
      "key": "particles",

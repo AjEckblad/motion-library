@@ -321,9 +321,11 @@ export default function (stage) {
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
   // the tilt: the pointer's x leans the tank; left alone it rocks to one side, holds, rights itself, and so on
-  let ptr = 0.5, lastMove = -1e9;
-  const onMove = e => { const b = canvas.getBoundingClientRect(); ptr = (e.clientX - b.left) / b.width; lastMove = performance.now(); };
-  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove);
+  // a resting mouse holds the tank at its lean; leaving the stage, or a finger lifted for 2 s, hands it back to the rocking
+  let ptr = 0.5, lastMove = -1e9, held = false;
+  const onMove = e => { const b = canvas.getBoundingClientRect(); ptr = (e.clientX - b.left) / b.width; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
+  const onLeave = () => { held = false; };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
   const ease = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
   const auto = t => {
     const c = t % 8, m = 0.21;
@@ -333,7 +335,7 @@ export default function (stage) {
   let ang = 0, angV = 0, raf, last = performance.now(), t = 0, acc0 = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-    const live = now - lastMove < 2000;
+    const live = held || now - lastMove < 2000;
     const target = live ? Math.max(-0.26, Math.min(0.26, (0.5 - ptr) * 0.62)) : reduce ? 0.03 * Math.sin(t * 0.25) : auto(t) * PARAMS.slosh;
     acc0 += dt;
     let steps = 0;
@@ -368,5 +370,5 @@ export default function (stage) {
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 }

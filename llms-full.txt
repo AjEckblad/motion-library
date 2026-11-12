@@ -375,7 +375,7 @@ Black, mirror-glossy spikes rise over a magnet under glass; move the pointer and
 Raymarched distance field: a sprung, stretching blob smooth-unioned with leaning concave cones on a hexagonal lattice, shaded only by studio reflections.
 
 Settings: --spikes 22 (8 to 40, step 1; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength).
-Renderer: WebGL. Size: 17.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
+Renderer: WebGL. Size: 17.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 
@@ -452,7 +452,7 @@ Water sloshes in a rocking glass tank, climbing the walls, foaming and casting c
 SPH with double density relaxation; particles splat into a float field, and each pixel traces it in perspective for absorption, meniscus, Fresnel surface and caustics.
 
 Settings: --particles 1600 (800 to 2800, step 100; Particles); --slosh 1 (0 to 1.5, step 0.05; Slosh).
-Renderer: WebGL. Size: 26.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/sph-water.html
+Renderer: WebGL. Size: 26.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/sph-water.html
 
 
 ## Chrome & 3D

@@ -1,5 +1,5 @@
-// Guards the /review-animations fixes (2026-11-10) in a real browser: keyboard swaps don't animate, the grid
-// entrance is 240 ms with a stagger capped at 210 ms, the heart press shows, hover motion is gated. node tools/motion-check.mjs
+// Guards the /review-animations fixes (2026-11-10, 2026-11-12) in a real browser: keyboard swaps don't animate, the grid
+// entrance is 240 ms with a stagger capped at 210 ms, the heart press shows, hover motion is gated, the language menu reopens mid-fade, a resting mouse keeps the magnet / tank. node tools/motion-check.mjs
 import path from 'node:path';
 import { ROOT, serve, launch } from './lib.mjs';
 const { server, base } = await serve();
@@ -136,6 +136,34 @@ const gated = m => m === '(hover: hover) and (pointer: fine)' || m.startsWith('(
 check('every hover rule is hover-gated', Object.keys(hov).length >= 10 && Object.values(hov).every(gated), Object.fromEntries(Object.entries(hov).filter(([, m]) => !gated(m))));
 const brandT = await page.evaluate(() => getComputedStyle(document.querySelector('.brand-mark path')).transitionDuration);
 check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT });
+
+// 6. the language menu: a click during its 120 ms fade-out opens it again (it used to count as a second close)
+{
+  await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(200);
+  const b = await (await page.$('#lang-btn')).boundingBox(), x = b.x + b.width / 2, y = b.y + b.height / 2;
+  await page.mouse.click(x, y); await page.waitForTimeout(400);
+  await page.mouse.click(x, y); await page.waitForTimeout(40);
+  await page.mouse.click(x, y); await page.waitForTimeout(400);
+  const st = await page.evaluate(() => ({ expanded: document.querySelector('#lang-btn').getAttribute('aria-expanded'), hidden: document.querySelector('#lang-menu').hidden }));
+  check('language menu: a click mid-fade reopens it', st.expanded === 'true' && !st.hidden, st);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+}
+// 6b. Ferrofluid's magnet and SPH water's tilt stay under a resting mouse (they used to wander off after ~2 s)
+{
+  const sp = await ctx.newPage(); sp.on('pageerror', e => errors.push('stage: ' + e.message));
+  for (const [id, probe] of [['fluid/ferrofluid', 'S.m'], ['fluid/sph-water', 'ang']]) {
+    const src = await (await fetch(base + '/anims/' + id + '.js')).text();
+    await sp.route('**/anims/' + id + '.js', r => r.fulfill({ body: src.replace('function frame(now) {', `function frame(now) { window.__v = ${probe};`), contentType: 'text/javascript' }));
+    await sp.goto(base + '/stage.html?src=anims/' + id + '.js'); await sp.waitForTimeout(1500);
+    const c = await sp.evaluate(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
+    for (let i = 0; i <= 10; i++) { await sp.mouse.move(c.x + c.w * (0.5 + 0.03 * i), c.y + c.h * 0.6); await sp.waitForTimeout(30); }
+    await sp.waitForTimeout(1500); const a = await sp.evaluate(() => window.__v);
+    await sp.waitForTimeout(2500); const z = await sp.evaluate(() => window.__v);
+    check(`${id.split('/')[1]}: a resting mouse keeps control`, Math.abs(a - z) < 0.02, { after1_5s: +a.toFixed(3), after4s: +z.toFixed(3) });
+    await sp.unroute('**/anims/' + id + '.js');
+  }
+  await sp.close();
+}
 
 // 7. touch phone: hearts stay visible without hover
 const m = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
