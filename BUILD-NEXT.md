@@ -2,7 +2,7 @@
 
 Live: https://ajeckblad.github.io/motion-library/ (repo AjEckblad/motion-library; gh is logged in, so commit + `git push`
 from here deploys in about a minute). 213 pieces. Checks: `node tools/check.mjs` 82/82, `node tools/motion-check.mjs` 17/17,
-`node tools/posters.mjs chrome --leak` all clean and moving. CLI bumped to 0.3.2 and rebuilt (not yet on npm).
+`node tools/posters.mjs chrome --leak` all clean and moving. CLI 0.3.2 is published on npm (AJ, 2026-11-12 night).
 
 Finished this session:
 1. Portal: the "hazy grey-brown" night world was the crossing flash. It was ADDED light before tone mapping, so a linear
@@ -31,7 +31,7 @@ flows at time-lapse speed with a slightly grainy plume; fire is a 2D slice (ofte
 the language menu swallowed a click during its 120 ms fade-out (now it reopens from the opacity it had reached);
 Ferrofluid's magnet and SPH water's tilt walked away from a resting mouse after ~2 s (now a mouse over the stage keeps
 control; leaving, or a finger lifted for ~2 s, hands it back to the automatic motion).
-NEXT for AJ: npm 0.3.2 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`).
+npm 0.3.2: PUBLISHED by AJ (2026-11-12 night). Nothing is waiting on AJ.
 - [x] UI demos: the 50 with a pastel ground behind app windows / phones (basics, transitions, micro, springs, morph) get
       a near-black ground; the windows and phones keep their own colours. The 30 full-page designs (text, scroll,
       hover) stay exactly as designed (AJ chose this). Done: one shared ground radial-gradient(120% 100% at 50% 0%,
@@ -60,9 +60,7 @@ in a temporary worktree without the agents' files (fx pages and llms-full.txt em
 - [x] Shatter & rewind: refine to reference quality (steel ball through dichroic glass before a ring of light).
 
 WAITING ON AJ
-- npm 0.3.2: `cd ~/Downloads/motion-library/cli && npm login && npm publish` (in their own Terminal)
-- ink-drop: cut? (Ink fluid covers it). Not answered yet.
-- /review-animations (only AJ can start it).
+- Nothing. (Ink drop: AJ said cut it, done. /review-animations: run, fixes shipped. npm 0.3.2: published.)
 
 # Earlier (2026-11-12, round 2): interactive math, short notes, blue accent, IBM Plex type are DONE
 
