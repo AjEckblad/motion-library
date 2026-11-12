@@ -56,7 +56,7 @@ export function createDetail({ celebrate, toast, onClose }) {
     root.querySelector('.cat').append(catName(cat));
     root.querySelector('#d-title').textContent = tr(a, 'title');
     root.querySelector('.file').textContent = srcOf(a);
-    root.querySelector('.d-stage img').src = `posters/${a.id}.webp`;
+    root.querySelector('.d-stage img').src = `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`;
     const notes = root.querySelector('.notes');
     tr(a, 'notes').forEach(n => { const p = document.createElement('p'); p.textContent = n; notes.append(p); });
     root.querySelector('.d-close').addEventListener('click', requestClose);
@@ -90,7 +90,7 @@ export function createDetail({ celebrate, toast, onClose }) {
     const box = root.querySelector('.d-stage');
     iframe = document.createElement('iframe');
     const q = query(values) || query(shared);
-    iframe.src = `stage.html?src=${srcOf(cur)}&mode=detail${cur.pointer ? '' : '&paused=1'}${q ? '&p=' + encodeURIComponent(q) : ''}`;
+    iframe.src = `stage.html?src=${srcOf(cur)}${cur.v ? '&v=' + cur.v : ''}&mode=detail${cur.pointer ? '' : '&paused=1'}${q ? '&p=' + encodeURIComponent(q) : ''}`;
     iframe.title = `Live animation: ${cur.title}`;
     box.prepend(iframe);
   }
@@ -151,7 +151,7 @@ export function createDetail({ celebrate, toast, onClose }) {
   const npxCommand = () => { const q = query(values); return `npx motion-library add ${cur.id}${q ? ' ' + q.split('&').map(p => '--' + p.replace('=', ' ')).join(' ') : ''}`; };
   const shareUrl = () => `${location.origin}${location.pathname}${link()}`;
   function embedSnippet() {
-    const q = query(values), url = new URL(`stage.html?src=${srcOf(cur)}&mode=embed${q ? '&p=' + encodeURIComponent(q) : ''}`, location.href).href;
+    const q = query(values), url = new URL(`stage.html?src=${srcOf(cur)}${cur.v ? '&v=' + cur.v : ''}&mode=embed${q ? '&p=' + encodeURIComponent(q) : ''}`, location.href).href;
     const esc = t => t.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     return `<iframe src="${esc(url)}" title="${esc(cur.title)} · Motion Library" width="640" height="400" loading="lazy" style="border:0;border-radius:12px;max-width:100%"></iframe>`;
   }
@@ -208,7 +208,7 @@ export function createDetail({ celebrate, toast, onClose }) {
     if (media && !reduce.matches) {
       box.style.visibility = 'hidden';
       root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: easeOut });
-      flip(media, box.getBoundingClientRect(), `posters/${a.id}.webp`, () => { box.style.visibility = ''; mountStage(); });
+      flip(media, box.getBoundingClientRect(), `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`, () => { box.style.visibility = ''; mountStage(); });
     } else {
       if (!reduce.matches) root.animate([{ opacity: 0, transform: 'scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: drawer });
       mountStage();
@@ -224,7 +224,7 @@ export function createDetail({ celebrate, toast, onClose }) {
     if (instant || reduce.matches || !a) { finish(); return; }
     busy = true;
     const from = box.getBoundingClientRect();
-    if (back) flip(from, back, `posters/${a.id}.webp`, null, { duration: 300, easing: easeOut });
+    if (back) flip(from, back, `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`, null, { duration: 300, easing: easeOut });
     closeAnim = root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: back ? 220 : 180, easing: easeOut, fill: 'forwards' });
     // once hidden, cancel the fade: a finished fill:forwards animation keeps opacity 0 on #detail and every later open would be invisible
     closeAnim.onfinish = () => { finish(); closeAnim?.cancel(); closeAnim = null; };

@@ -68,8 +68,8 @@
     "control": 999
    },
    "font": {
-    "family": "IBM Plex Sans",
-    "second": "IBM Plex Mono",
+    "family": "Wix Madefor Text",
+    "second": "JetBrains Mono",
     "fallback": "Inter, system-ui, sans-serif",
     "sizes": {
      "title": 26,
@@ -84,7 +84,7 @@
      600,
      700
     ],
-    "note": "Section titles 20/400 in the muted grey; card titles 16/600; tabular figures everywhere. | 2026-11-12: AJ asked for a different, more professional font; IBM Plex Sans (with Plex Mono for code) chosen by impeccable typeset, replacing the dealt Public Sans. Ramp 13/14/16/20/24/28, weights 400/500/600."
+    "note": "Section titles 20/400 in the muted grey; card titles 16/600; tabular figures everywhere. | 2026-11-12: AJ asked for a different, more professional font; IBM Plex Sans (with Plex Mono for code) chosen by impeccable typeset, replacing the dealt Public Sans. Ramp 13/14/16/20/24/28, weights 400/500/600. | 2026-11-13: AJ disliked Plex; Wix Madefor Text (UI) with its Display cut (headings 20px+) and JetBrains Mono (code), all OFL, chosen after rendering 15 faces on the real catalogue."
    },
    "density": "dense",
    "rowHeight": 42,

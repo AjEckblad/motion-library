@@ -95,6 +95,8 @@ const S = { zh: {
   'Command copied: run it in your project folder': '命令已复制：在项目文件夹里运行',
   'Prompt copied: paste it into Claude or Cursor': '提示词已复制：粘贴到 Claude 或 Cursor',
   'Questions': '常见问题',
+  'FAQ': '常见问题',
+  'Free to use, MIT-0': '免费使用，MIT-0 许可证',
 },
 es: {
   "Pause": "Pausar",
@@ -142,6 +144,8 @@ es: {
   "Command copied: run it in your project folder": "Comando copiado: ejecútalo en la carpeta de tu proyecto",
   "Prompt copied: paste it into Claude or Cursor": "Prompt copiado: pégalo en Claude o Cursor",
   "Questions": "Preguntas",
+  "FAQ": "Preguntas",
+  "Free to use, MIT-0": "De uso libre, MIT-0",
 },
 fr: {
   "Pause": "Pause",
@@ -189,6 +193,8 @@ fr: {
   "Command copied: run it in your project folder": "Commande copiée : exécutez-la dans le dossier de votre projet",
   "Prompt copied: paste it into Claude or Cursor": "Prompt copié : collez-le dans Claude ou Cursor",
   "Questions": "Questions",
+  "FAQ": "FAQ",
+  "Free to use, MIT-0": "Libre d’utilisation, MIT-0",
 } };
 export const t = s => S[lang]?.[s] || s;
 export const catName = c => CATS[lang]?.[c.id] || c.name;

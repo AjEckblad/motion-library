@@ -34,56 +34,56 @@ colors:
   cat-retro: "#16a34a"
 typography:
   display:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Display, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "28px"
     fontWeight: 600
     lineHeight: 1.1
-    letterSpacing: "-0.025em"
+    letterSpacing: "-0.02em"
   headline:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Display, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "24px"
     fontWeight: 600
     lineHeight: 1.2
-    letterSpacing: "-0.02em"
+    letterSpacing: "-0.015em"
   subhead:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Display, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "20px"
     fontWeight: 600
     lineHeight: 1.25
-    letterSpacing: "-0.015em"
+    letterSpacing: "-0.01em"
   title:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "16px"
     fontWeight: 500
     lineHeight: 1.3
     letterSpacing: "-0.01em"
   body:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.6
   label:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "14px"
     fontWeight: 500
     lineHeight: 1
   meta:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.4
   dial-label:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1
   dial-label-active:
-    fontFamily: "IBM Plex Sans, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "14px"
     fontWeight: 500
     lineHeight: 1
   code:
-    fontFamily: "IBM Plex Mono, ui-monospace, Menlo, monospace"
+    fontFamily: "JetBrains Mono, ui-monospace, Menlo, monospace"
     fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.65
@@ -182,7 +182,7 @@ The build refuses the default catalogue look: no left sidebar, no glowing cards,
 - Near-black frame (#0c0c0e), sheets one tone step lighter; dark only.
 - Near-white ink for all chrome; colour lives only in category dots, the heart, the one accent and the content.
 - Three across: flat 5:4 preview windows with 8px corners and no shadow, posters rendered at 1120x896 WebP.
-- One superfamily, IBM Plex Sans and IBM Plex Mono (self-hosted woff2), with system CJK faces for 中文; the mono only for code and the npx command.
+- One superfamily, Wix Madefor (Text for every UI word, Display for headings of 20px and up), plus JetBrains Mono for code and the npx command; self-hosted woff2, with system CJK faces for 中文.
 - Motion is springy and short; the needle, the grid swap and the FLIP expand are the system's voice.
 - No raster imagery except generated poster frames of the animations themselves.
 
@@ -223,25 +223,26 @@ A near-black monochrome system with fifteen small category hues, one light sky-b
 
 ## Typography
 
-**Display Font:** none beyond the page title; the system has one family.
-**Body Font:** IBM Plex Sans (SIL OFL), self-hosted variable woff2 (weight 100 to 700, latin subset, 40 KB), then PingFang SC / Noto Sans SC for Chinese, then system-ui. Chosen 2026-11-12 to replace Public Sans: AJ asked for a more professional look. Plex is an engineered grotesque with real character in its details, and it is not the face every dev-tool site already uses (Geist and Inter were considered and rejected as overused).
-**Mono Font:** IBM Plex Mono 400 and 500 (same superfamily, 10 KB each), used only for code, the file path and the npx command. Sans and mono were drawn together, so the install line and code read as part of the same system.
+**Display Font:** Wix Madefor Display (SIL OFL), the same superfamily's cut for large sizes, on the page title, the section and FAQ headings, the detail title, group names and the empty state (every heading of 20px and up). Self-hosted variable woff2, weight 400 to 800, latin subset, 20 KB.
+**Body Font:** Wix Madefor Text (SIL OFL), self-hosted variable woff2 (weight 400 to 800, latin subset, 20 KB), then PingFang SC / Noto Sans SC for Chinese, then system-ui. Chosen 2026-11-13: AJ disliked IBM Plex and asked for a better-looking, more professional face. Fifteen faces were rendered on the real catalogue (dial, cards, FAQ, detail view): Switzer looked closest to a premium Swiss grotesque but its Fontshare licence is murky for files in a public repo; Wix Madefor matched it among the OFL faces, a neutral, crisp neo-grotesk with a Text and a Display cut, and the impeccable detector does not flag it as overused (it flags Inter, Geist and Instrument Sans).
+**Mono Font:** JetBrains Mono (SIL OFL), variable 400 to 600, latin subset, 31 KB, used only for code, the file path and the npx command: tall x-height and open shapes that stay clear at 13px on Code Paper.
+Licences and copyright lines: `fonts/OFL.txt`.
 
-**Character:** One quiet grotesque with clear size steps. Hierarchy comes from six sizes and three weights; nothing in between.
+**Character:** One neutral, precise grotesque with clear size steps; the Display cut tightens the headings. Hierarchy comes from six sizes and three weights; nothing in between.
 
 ### Hierarchy (tokens in `css/app.css` `:root`, `--fs-*`)
-- **Display** (`--fs-display`, 28px, 600, 1.1, -0.025em): the page title ("All animations").
-- **Headline** (`--fs-h1`, 24px, 600, 1.2, -0.02em): category section headings and the FAQ heading.
-- **Subhead** (`--fs-h2`, 20px, 600, -0.015em): the detail title, Hearted group names, the empty state.
+- **Display** (`--fs-display`, 28px, 600, 1.1, -0.02em, Display cut): the page title ("All animations").
+- **Headline** (`--fs-h1`, 24px, 600, 1.2, -0.015em, Display cut): category section headings and the FAQ heading.
+- **Subhead** (`--fs-h2`, 20px, 600, -0.01em, Display cut): the detail title, Hearted group names, the empty state.
 - **Title** (`--fs-title`, 16px): card titles and FAQ questions at 500; panel headings ("How it works", "Install", "Tweak", "Code") at 600.
 - **Body** (`--fs-body`, 16px, 400, 1.6): notes (62ch) and FAQ answers (68ch), `text-wrap: pretty`.
 - **Label** (`--fs-label`, 14px, 500): top-bar buttons, link buttons, toast, popover items; the line under each card title is 14px 400 in Muted Slate; the dial is 14px 400, the chosen entry 500 in ink.
-- **Meta** (`--fs-meta`, 13px): counts, kind labels, timecode, clock, slider labels and values, compact panel buttons, the language switch, and code (Geist Mono 400, 1.65).
+- **Meta** (`--fs-meta`, 13px): counts, kind labels, timecode, clock, slider labels and values, compact panel buttons, the language switch, and code (JetBrains Mono 400, 1.65).
 
 ### Named Rules
 **The Three Weights Rule.** 400 for reading and quiet labels, 500 for controls and card titles, 600 for headings. No in-between weights.
 
-**The No Faked Style Rule.** Only upright Plex Mono is loaded, so code comments are set apart by tone, never by a synthesized slant.
+**The No Faked Style Rule.** Only upright JetBrains Mono is loaded, so code comments are set apart by tone, never by a synthesized slant.
 
 **The Tabular Numbers Rule.** Every count, timecode, clock, slider value and speed option uses tabular figures.
 
@@ -304,10 +305,10 @@ Calm pill controls with a tactile press.
 - **Text inputs:** Control Stroke border, 6 to 8px corners.
 
 ### Navigation
-The dial is the navigation (see below). The top bar carries the brand mark (a gauge glyph whose needle rotates -38 degrees on hover), search, Surprise me and sound. The detail view uses a breadcrumb: category dot and name in Muted Slate, a slash, then the title.
+The dial is the navigation (see below). The top bar carries the brand mark (a gauge glyph whose needle rotates -38 degrees on hover), Surprise me, a GitHub button (the repo) and the language menu. The page closes with a quiet footer under the FAQ: the licence, then GitHub, npm, llms.txt and llms-full.txt (the plain-text guides AI agents read). The detail view uses a breadcrumb: category dot and name in Muted Slate, a slash, then the title.
 
 ### The Dial (signature)
-A semicircle on the right edge carrying All, Hearted and the 12 categories, with horizontal labels set to the left of the arc, a hue dot on the arc and a count beyond it. Entries are fixed on the arc; a Slate Ink needle (3px, round cap) points from the hub to the chosen entry.
+A semicircle on the right edge carrying All, Hearted, the categories and, last, FAQ (it glides to the questions under the full list and lights while they are in view), with horizontal labels set to the left of the arc, a hue dot on the arc and a count beyond it. Entries are fixed on the arc; a Slate Ink needle (3px, round cap) points from the hub to the chosen entry.
 - **Radius:** clamped between 150 and 380px from the available height and width; the arc spans plus and minus 64 degrees.
 - **Fisheye:** under the pointer each label swells on a Gaussian falloff and shifts left, in transform only (the UI face has no width axis, so nothing relayouts). Its strength is set from the room the tightest word has: every word moves left the same way, and the longest stops 10px short of the cards (about 1.14× in English, the full 1.38× for the shorter 中文 labels). A slightly underdamped spring carries each label to its target; keyboard moves and reduced motion land at once. (Two rejected approaches: capping each long word's scale made the hovered word smaller than its neighbours; sliding long words right broke the shared leftward motion.)
 - **Needle spring:** stiffness 170, damping ratio about 0.62, so it overshoots slightly and settles; a soft tick sounds each time it passes an entry.
@@ -319,7 +320,7 @@ A semicircle on the right edge carrying All, Hearted and the 12 categories, with
 Fluffy round creatures drawn in canvas from a few thousand fur strands in three-tone palettes (mist blue-grey, peach, mint), with dark eyes and a small pink accent. They perch on the dial, peek from the frame, sit on the sheet's edge, keep the empty state company and sit in the detail notes. They breathe, hop, blink every 2 to 6 seconds and follow the cursor with their eyes. They are decoration only and never carry information.
 
 ### Detail view
-Opens with a FLIP expand from the clicked tile (460ms, drawer curve) into the stage; panels fade and settle from 98.5% scale over 240ms. The play bar holds pause, a speed segment (0.25x, 0.5x, 1x), frame-step, replay and a tabular clock. Tweak sliders sit under a hairline; changed code lines get a faint sky-blue band and the hot value a stronger one. The code pane is IBM Plex Mono on Code Paper with line numbers. Pointer-driven pieces (`pointer: true`) open already running with no big play button: you play them by moving over them. Their hint ("Interactive: move or press inside") sits in the control row beside the clock, in Muted Slate with a small cursor icon, never over the animation: white text on a light demo can't be read. On wide screens the stage fills the left panel down to the controls (no fixed 16:10 box), capped at 88% of its width so it never turns portrait.
+Opens with a FLIP expand from the clicked tile (460ms, drawer curve) into the stage; panels fade and settle from 98.5% scale over 240ms. The play bar holds pause, a speed segment (0.25x, 0.5x, 1x), frame-step, replay and a tabular clock. Tweak sliders sit under a hairline; changed code lines get a faint sky-blue band and the hot value a stronger one. The code pane is JetBrains Mono on Code Paper with line numbers. Pointer-driven pieces (`pointer: true`) open already running with no big play button: you play them by moving over them. Their hint ("Interactive: move or press inside") sits in the control row beside the clock, in Muted Slate with a small cursor icon, never over the animation: white text on a light demo can't be read. On wide screens the stage fills the left panel down to the controls (no fixed 16:10 box), capped at 88% of its width so it never turns portrait.
 
 ### Popover, tray, toast
 - **Group-picker popover:** white, 12px corners, 6px padding, popover lift shadow; enters from 96% scale over 160ms from the trigger's corner. Rows are 8px-cornered with a tick for checked groups.

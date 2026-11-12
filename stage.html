@@ -108,6 +108,8 @@ let cleanup = null, mountFn = null, scrollLoop = 0, mountGen = 0;
 
 // only the library's own animation files load here: a crafted ?src= must not run someone else's script on this origin
 const SRC = /^anims\/[a-z]+\/[a-z0-9-]+\.js$/;
+// ?v= is the file's content hash (js/versions.js): a new hash is a new URL, so the browser can't reuse an old copy
+const VER = /^[0-9a-f]{6,16}$/.test(q.get('v') || '') ? '?v=' + q.get('v') : '';
 
 async function load(code) {
   let mod;
@@ -116,7 +118,7 @@ async function load(code) {
     try { mod = await import(url); } finally { URL.revokeObjectURL(url); }
   } else {
     if (!SRC.test(q.get('src') || '')) throw new Error('Unknown animation');
-    mod = await import(new URL(q.get('src'), new URL('./', location.href)).href);
+    mod = await import(new URL(q.get('src') + VER, new URL('./', location.href)).href);
   }
   mountFn = mod.default;
 }
@@ -195,7 +197,7 @@ if (mode === 'embed') setupEmbed();
 if (q.get('src')) {
   try {
     if (anim && tuned) {
-      const r = await fetch(q.get('src'));
+      const r = await fetch(q.get('src') + VER);
       const { writeParams } = await import('./js/code.js');
       await load(writeParams(await r.text(), window.__params, anim.params));
     } else await load(null);

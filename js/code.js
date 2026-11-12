@@ -3,7 +3,7 @@ import { srcOf } from '../anims/registry.js';
 
 const cache = new Map();
 export async function source(anim) {
-  if (!cache.has(anim.id)) cache.set(anim.id, fetch(srcOf(anim)).then(r => { if (!r.ok) throw new Error(`Could not load ${srcOf(anim)}`); return r.text(); }));
+  if (!cache.has(anim.id)) cache.set(anim.id, fetch(srcOf(anim) + (anim.v ? '?v=' + anim.v : '')).then(r => { if (!r.ok) throw new Error(`Could not load ${srcOf(anim)}`); return r.text(); }));
   return cache.get(anim.id);
 }
 

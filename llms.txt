@@ -8,6 +8,7 @@
 - `npx motion-library add <id> [--setting value ...]` writes `animations/<id>.js` into the current project (Node 18+).
 - Each file's default export takes a sized container element, draws into it and returns a cleanup function.
 - `npx motion-library prompt <id>` prints a prompt for an AI coding assistant with the notes, settings and code.
+- Source code: https://github.com/AjEckblad/motion-library · npm: https://www.npmjs.com/package/motion-library
 
 ## Flow & particles
 

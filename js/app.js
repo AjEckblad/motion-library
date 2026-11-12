@@ -1,4 +1,7 @@
 import { CATEGORIES, ANIMS, catById, animById, srcOf } from '../anims/registry.js';
+import { V, PV } from './versions.js';
+// content hashes ride on each effect (js/versions.js): its file and poster URLs change whenever they do, so no stale copies
+for (const a of ANIMS) { a.v = V[a.id] || ''; a.pv = PV[a.id] || ''; }
 import { store } from './store.js';
 import { createDial } from './dial.js';
 import { Creature, PALETTES } from './creatures.js';
@@ -30,13 +33,14 @@ const entries = [
   { id: 'all', name: t('All'), hue: '#f2f2f3' },
   { id: 'hearted', name: t('Hearted'), hue: '#ffb3c8' },
   ...CATEGORIES.map(c => ({ id: c.id, name: catName(c), hue: c.hue })),
+  { id: 'faq', name: t('FAQ'), hue: '#9aa3ad' },                 // last on the dial: jumps to the questions under the full list
 ];
 const dial = createDial({
   root: $('#dial'), list: $('#dial-items'), entries,
   onSelect: (id, kb) => {
-    const hash = id === 'all' ? '#/' : id === 'hearted' ? '#/hearted' : `#/c/${id}`;
-    // already on the full list: a category just scrolls to its section (the hash follows without a history entry)
-    if (catById[id] && view === 'all') { history.replaceState(history.state, '', hash); scrollToCat(id, kb); return; }
+    const hash = id === 'all' ? '#/' : id === 'hearted' ? '#/hearted' : id === 'faq' ? '#/faq' : `#/c/${id}`;
+    // already on the full list: a category (or the FAQ) just scrolls to its section (the hash follows without a history entry)
+    if ((catById[id] || id === 'faq') && view === 'all') { history.replaceState(history.state, '', hash); scrollToCat(id, kb); return; }
     if (id === 'all' && view === 'all') { history.replaceState(history.state, '', hash); scrollTo({ top: 0, behavior: kb || reduce.matches ? 'instant' : 'smooth' }); return; }
     if (hash !== location.hash) { kbNav = kb; location.hash = hash; }
   },
@@ -59,7 +63,7 @@ function cardEl(a) {
     <div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span></span></h3><span class="kind"></span><p class="trick"></p></div>
     <button class="card-hit" type="button"></button>
     <button class="heart" type="button">${heartIcon()}</button>`;
-  el.querySelector('img').src = `posters/${a.id}.webp`;
+  el.querySelector('img').src = `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`;
   el.querySelector('.card-title span').textContent = tr(a, 'title');
   el.querySelector('.kind').textContent = KIND[a.kind];
   el.querySelector('.trick').textContent = tr(a, 'trick');
@@ -124,7 +128,7 @@ function renderSections(list) {
   }
 }
 function scrollToCat(id, instant = false) {
-  const sec = document.getElementById(`sec-${id}`); if (!sec) return;
+  const sec = id === 'faq' ? faqEl : document.getElementById(`sec-${id}`); if (!sec || sec.hidden) return;
   const y = sec.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h') || 60) - 12;
   spyLock = performance.now() + 900;                              // the smooth scroll passes other sections: keep the chosen one lit
   clearTimeout(spyT); spyT = setTimeout(() => { spyLock = 0; watchSections(); }, 920);   // then read the page again
@@ -143,6 +147,9 @@ function spy() {
   if (view !== 'all' || detail.isOpen || performance.now() < spyLock) return;
   const line = innerHeight * 0.3; let cur = 'all';
   for (const sec of grid.querySelectorAll('.cat-sec')) { if (sec.getBoundingClientRect().top <= line) cur = sec.dataset.cat; else break; }
+  // the FAQ once its heading passes the line, or as soon as the page can't scroll any further and it is in view
+  const fq = faqEl.getBoundingClientRect();
+  if (!faqEl.hidden && (fq.top <= line || (scrollY + innerHeight >= document.documentElement.scrollHeight - 2 && fq.top < innerHeight * 0.75))) cur = 'faq';
   if (scrollY < 40) cur = 'all';
   if (dial.selected !== cur) dial.select(cur);
 }
@@ -206,7 +213,7 @@ function startPreview(card) {
   stopPreview();
   const a = animById[card.dataset.id], media = card.querySelector('.card-media');
   const f = document.createElement('iframe');
-  f.src = `stage.html?src=${srcOf(a)}&mode=preview`; f.title = tr(a, 'title'); f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
+  f.src = `stage.html?src=${srcOf(a)}${a.v ? '&v=' + a.v : ''}&mode=preview`; f.title = tr(a, 'title'); f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
   media.append(f);
   live = { card, iframe: f, t0: 0 };
   card.classList.add('is-live');
@@ -326,10 +333,10 @@ function route() {
     return;
   }
   detail.close(kbClose); kbClose = false;
-  if (kind === 'c' && catById[arg]) {
+  if ((kind === 'c' && catById[arg]) || kind === 'faq') {
     // coming from another view (Hearted): swap to the full list at once, so the section exists to glide to
     setView('all', false, false);
-    requestAnimationFrame(() => scrollToCat(arg, instant || !viewReadyOnce));
+    requestAnimationFrame(() => scrollToCat(kind === 'faq' ? 'faq' : arg, instant || !viewReadyOnce));
     viewReadyOnce = true; return;
   }
   viewReadyOnce = true;
@@ -404,6 +411,7 @@ for (const [q, a] of FAQ[LANG] || FAQ.en) {
   });
 }
 $('#surprise span').textContent = t('Surprise me');
+$('#foot-licence').textContent = t('Free to use, MIT-0');
 $('.skip').textContent = t('Skip to animations');
 $('#dial').setAttribute('aria-label', t('Categories'));
 

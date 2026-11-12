@@ -329,6 +329,11 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   const cols = await lp.evaluate(() => getComputedStyle(document.querySelector('.cat-sec .grid')).gridTemplateColumns.split(' ').length);
   check('the grid is three across on a desktop', cols === 3, `${cols} columns`);
   check('the FAQ sits under the full list', await lp.locator('#faq .faq-item').count() >= 6 && await lp.locator('#faq').isVisible());
+  // FAQ is the last word on the dial: it glides to the questions and stays lit there
+  await lp.locator('.dial-item[data-id="faq"]').click(); await lp.waitForTimeout(1300);
+  const fq = await lp.evaluate(() => ({ top: Math.round(document.querySelector('#faq').getBoundingClientRect().top), on: document.querySelector('.dial-item[data-id="faq"]').getAttribute('aria-checked'), hash: location.hash, last: document.querySelector('#faq .faq-item:last-child h3').textContent }));
+  check('the dial’s FAQ jumps to the questions', fq.top >= 0 && fq.top < 200 && fq.on === 'true' && fq.hash === '#/faq' && fq.last === 'Is this really free?', JSON.stringify(fq));
+  await lp.evaluate(() => scrollTo(0, 0)); await lp.waitForTimeout(400);
   // the language menu: closed at rest, opens from the globe button with four languages, the current one ticked
   check('the language menu is closed until opened', await lp.locator('#lang-menu').isHidden());
   await lp.click('#lang-btn'); await lp.waitForTimeout(250);
@@ -367,6 +372,14 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   const robots = await (await fetch(`${base}/robots.txt`)).text();
   check('robots.txt lets AI crawlers in', /User-agent: GPTBot\nAllow: \//.test(robots) && /User-agent: ClaudeBot\nAllow: \//.test(robots) && !/Disallow: \/\s/.test(robots));
   check('llms.txt lists every effect', ((await (await fetch(`${base}/llms.txt`)).text()).match(/^- \[[^\]]+\]\([^)]*fx\//gm) || []).length === ANIMS.length);
+  // js/versions.js must match the files, or a changed effect keeps an old URL and browsers may show a stale copy
+  {
+    const { V, PV } = await import(pathToFileURL(path.join(ROOT, 'js/versions.js')).href + '?t=' + Date.now());
+    const crypto = await import('node:crypto'), h = rel => crypto.createHash('sha1').update(fs.readFileSync(path.join(ROOT, rel))).digest('hex').slice(0, 8);
+    const stale = ANIMS.filter(x => V[x.id] !== h(`anims/${x.cat}/${x.id}.js`) || PV[x.id] !== h(`posters/${x.id}.webp`)).map(x => x.id);
+    check('js/versions.js matches every effect and poster (run tools/build-static.mjs)', stale.length === 0, stale.slice(0, 8).join(', '));
+  }
+  check('llms.txt and the page footer point at the GitHub repo', (await (await fetch(`${base}/llms.txt`)).text()).includes('github.com/AjEckblad/motion-library') && fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('href="https://github.com/AjEckblad/motion-library"'));
   await nj.context().close();
 }
 
