@@ -66,19 +66,34 @@ await page.mouse.wheel(0, 3000); await page.waitForTimeout(500);
 check('the dial follows the scroll', (await page.getAttribute('.dial-item[data-id="text"]', 'aria-checked')) === 'false');
 await page.locator('.dial-item[data-id="text"]').click(); await page.waitForTimeout(900);
 check('dial marks the chosen entry', (await page.getAttribute('.dial-item[data-id="text"]', 'aria-checked')) === 'true');
-// a magnified dial word never crosses into the grid, however long it is
+// hovering the dial: every word moves left and swells by the same fisheye, the hovered one the most, and none reaches
+// the cards (sampled every frame, so the spring's overshoot counts)
 {
-  let worst = Infinity, at = '', least = Infinity, small = '';
-  for (const id of await page.$$eval('.dial-item', els => els.map(e => e.dataset.id))) {
+  await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(300);
+  const cardR = await page.evaluate(() => Math.max(...[...document.querySelectorAll('#grid .card-media')].slice(0, 6).map(c => c.getBoundingClientRect().right)));
+  const rest = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.dial-item')].map(it => [it.dataset.id, it.offsetLeft + it.querySelector('.lbl').offsetLeft + it.parentElement.getBoundingClientRect().left])));
+  let worst = Infinity, at = '', inverted = [], stayed = [];
+  const ids = await page.$$eval('.dial-item', els => els.map(e => e.dataset.id));
+  for (const id of ids) {
     const b = await page.locator(`.dial-item[data-id="${id}"] .lbl`).boundingBox();
-    await page.mouse.move(b.x + b.width - 8, b.y + b.height / 2); await page.waitForTimeout(450);
-    const [gap, sc] = await page.evaluate(id => { const l = document.querySelector(`.dial-item[data-id="${id}"] .lbl`), m = getComputedStyle(l).transform; return [l.getBoundingClientRect().left - document.querySelector('#dial').getBoundingClientRect().left, m === 'none' ? 1 : +m.match(/matrix\(([^,]+)/)[1]]; }, id);
-    if (gap < worst) { worst = gap; at = id; }
-    if (sc < least) { least = sc; small = id; }
+    await page.mouse.move(b.x + b.width - 8, b.y + b.height / 2);
+    for (let f = 0; f < 28; f++) {
+      await page.waitForTimeout(16);
+      const l = await page.evaluate(id => document.querySelector(`.dial-item[data-id="${id}"] .lbl`).getBoundingClientRect().left, id);
+      if (l - cardR < worst) { worst = l - cardR; at = id; }
+    }
+    const r = await page.evaluate(id => {
+      const sc = el => { const m = getComputedStyle(el).transform; return m === 'none' ? 1 : +m.match(/matrix\(([^,]+)/)[1]; };
+      const all = [...document.querySelectorAll('.dial-item')].map(it => ({ id: it.dataset.id, s: sc(it.querySelector('.lbl')) }));
+      const me = all.find(x => x.id === id);
+      return { biggest: all.every(x => x.s <= me.s + 1e-3), left: document.querySelector(`.dial-item[data-id="${id}"] .lbl`).getBoundingClientRect().left };
+    }, id);
+    if (!r.biggest) inverted.push(id);
+    if (!(r.left < rest[id] - 2)) stayed.push(id);
   }
-  check('hovered dial words stay inside the dial column', worst >= 0, `closest: ${at} at ${Math.round(worst)}px`);
-  // and they still swell fully: a long word slides right rather than being held back (held back, it ends up smaller than its neighbours)
-  check('every hovered dial word swells fully, long ones too', least > 1.3, `smallest: ${small} at ${least.toFixed(2)}`);
+  check('hovered dial words never reach the cards', worst >= 4, `closest: ${at} at ${Math.round(worst)}px from the cards`);
+  check('the hovered dial word is the biggest, long ones too', inverted.length === 0, inverted.join(', ') || 'all');
+  check('every hovered dial word moves left', stayed.length === 0, stayed.join(', ') || 'all');
   await page.mouse.move(5, 500); await page.waitForTimeout(300);
 }
 // the interactive hint sits in the control row, not over the animation

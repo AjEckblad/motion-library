@@ -49,7 +49,10 @@ await page.waitForTimeout(400);
     const el = document.querySelector('.dial-item[aria-checked="true"] .lbl'), m = getComputedStyle(el).transform;
     r(m === 'none' ? 1 : +m.match(/matrix\(([^,]+)/)[1]);
   }))));
-  check('dial arrow keys: the chosen word lands at once, no spring', Math.abs(sc - 1.16) < 0.002, { scale: sc, from: sel });
+  // where it settles (the chosen size scales with the fisheye strength, so read it rather than hard-coding it)
+  await page.waitForTimeout(700);
+  const settled = await page.evaluate(() => { const m = getComputedStyle(document.querySelector('.dial-item[aria-checked="true"] .lbl')).transform; return m === 'none' ? 1 : +m.match(/matrix\(([^,]+)/)[1]; });
+  check('dial arrow keys: the chosen word lands at once, no spring', settled > 1.01 && Math.abs(sc - settled) < 0.002, { twoFramesIn: sc, settled, from: sel });
   await page.keyboard.press('ArrowUp'); await page.waitForTimeout(400);
 }
 // 1c. the fisheye is transform-only: a hover sweep over the dial causes (almost) no layout

@@ -7,7 +7,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const narrow = matchMedia('(max-width: 860px)');
 
 export function createDial({ root, list, entries, onSelect, onLayout }) {
-  let selected = entries[0].id, geo = null, hoverY = null, raf = 0, last = performance.now(), snap = false;   // snap: the next frame lands at once (keyboard)
+  let selected = entries[0].id, geo = null, hoverY = null, raf = 0, last = performance.now(), snap = false, amp = 1;   // amp: how much of the full fisheye fits   // snap: the next frame lands at once (keyboard)
   const items = entries.map((e, i) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'dial-item'; b.setAttribute('role', 'radio'); b.dataset.id = e.id;
@@ -51,10 +51,17 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
       const k = (it.y - mid) / half;
       const right = padR + depth * Math.sqrt(Math.max(0, 1 - k * k));
       it.el.style.left = ''; it.el.style.right = right + 'px'; it.el.style.top = (it.y - 18) + 'px';
-      // remembered for the frame loop, which keeps a swelling word clear of the grid (see frame). The width is taken
-      // at the chosen (500) weight, which is a little wider than the resting one.
-      it.right = right; it.wd = it.lbl.offsetWidth * 1.04;
+      it.right = right; it.wd = it.lbl.offsetWidth * 1.04;          // at the chosen (500) weight, a little wider than at rest
     });
+    // Every word swells and moves left by the same fisheye; how strong it is depends on the room the tightest word has.
+    // A word grows leftward from its right edge and shifts 34px per unit of scale, so at the peak (1 + 0.38·amp) its left
+    // edge travels 0.38·amp·(width + 34). It may cross the sheet’s right padding (the gap before the cards) but stops
+    // 10px short of the cards, with room for the spring’s ~13% overshoot. In English the longest name (Generative &
+    // math, 2px from the column edge at rest) allows about 1.14×; shorter labels (中文) get the full 1.38×.
+    const sheet = document.querySelector('.sheet'), gap = sheet ? parseFloat(getComputedStyle(sheet).paddingRight) || 0 : 0;
+    // each word's resting left edge, measured in the column (offsetLeft ignores the transforms already applied)
+    amp = Math.min(1, ...items.map(it => (it.el.offsetLeft + it.lbl.offsetLeft + gap - 10) / (0.38 * 1.13 * (it.wd + 34))));
+    amp = Math.max(0.2, amp);
     kick(); onLayout?.();
   }
 
@@ -71,8 +78,8 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
     let moving = false;
     items.forEach((it, i) => {
       const isSel = entries[i].id === selected;
-      let target = isSel ? 1.16 : 1;
-      if (geo && !geo.mobile && hoverY !== null) { const d = (it.y - hoverY) / geo.spacing; target = Math.max(target, 1 + 0.38 * Math.exp(-(d * d) / 1.3)); }
+      let target = isSel ? 1 + 0.16 * amp : 1;
+      if (geo && !geo.mobile && hoverY !== null) { const d = (it.y - hoverY) / geo.spacing; target = Math.max(target, 1 + 0.38 * amp * Math.exp(-(d * d) / 1.3)); }
       // a slightly underdamped spring: the chosen word pops out with a little overshoot. Keyboard moves and reduced
       // motion land at once: a key pressed again and again must not bounce every time
       if (reduce.matches || snap) { it.s = target; it.v = 0; }
@@ -80,17 +87,7 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
       if (Math.abs(target - it.s) > 0.001 || Math.abs(it.v) > 0.01) moving = true;
       // transform only: the UI face has no width axis, so stretching the words would relayout text for nothing
       const desk = geo && !geo.mobile;
-      let sv = it.s, tx = -(sv - 1) * 34;
-      if (desk && it.wd) {
-        // every word swells by the same fisheye. One that would cross into the grid slides right, toward the screen
-        // edge where the arc leaves room, instead of shrinking: its left edge stays 8px inside the column and its right
-        // edge 6px off the screen. Only a word wider than the whole column is held back.
-        const room = geo.w - 14;
-        if (it.wd * sv > room) sv = Math.max(1, room / it.wd);
-        const left = geo.w - it.right + tx - it.wd * sv;
-        if (left < 8) tx += 8 - left;
-      }
-      const tf = desk ? `translateX(${tx.toFixed(2)}px) scale(${sv.toFixed(4)})` : '';
+      const tf = desk ? `translateX(${(-(it.s - 1) * 34).toFixed(2)}px) scale(${it.s.toFixed(4)})` : '';
       if (tf !== it.tf) { it.lbl.style.transform = tf; it.tf = tf; }
       it.dot.style.transform = !desk && isSel ? 'scale(1.3)' : '';
     });
