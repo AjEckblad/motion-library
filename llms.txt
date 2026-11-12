@@ -1,6 +1,6 @@
 # Motion Library
 
-> 214 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 215 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -89,6 +89,7 @@
 - [DNA double helix](https://ajeckblad.github.io/motion-library/fx/dna-helix.html): Pre-shaded sphere sprites sorted back to front, no 3D engine. `npx motion-library add dna-helix`
 - [3D fractal tree](https://ajeckblad.github.io/motion-library/fx/fractal-tree.html): Three-way recursive branching around the golden angle, grown level by level. `npx motion-library add fractal-tree`
 - [Shatter & rewind](https://ajeckblad.github.io/motion-library/fx/shatter.html): Spiderweb Voronoi shards on closed-form paths; time slows, stops, reverses. `npx motion-library add shatter`
+- [Snow globe](https://ajeckblad.github.io/motion-library/fx/snow-globe.html): A ray-marched scene seen through refracting water, with settling snow. `npx motion-library add snow-globe`
 
 ## Shaders & glitch
 

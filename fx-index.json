@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 214,
+ "count": 215,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -2977,6 +2977,51 @@
      "min": 0.4,
      "max": 2,
      "step": 0.1
+    }
+   ]
+  },
+  {
+   "id": "snow-globe",
+   "title": "Snow globe",
+   "titleZh": "雪景球",
+   "category": "Chrome & 3D",
+   "categoryId": "chrome",
+   "renderer": "WebGL",
+   "description": "A ray-marched scene seen through refracting water, with settling snow",
+   "descriptionZh": "透过折射的水看光线步进的场景，雪花缓缓沉落",
+   "page": "https://ajeckblad.github.io/motion-library/fx/snow-globe.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/snow-globe",
+   "npx": "npx motion-library add snow-globe",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 20046,
+   "settings": [
+    {
+     "key": "flakes",
+     "flag": "--flakes",
+     "label": "Flakes",
+     "default": 900,
+     "min": 200,
+     "max": 3000,
+     "step": 50
+    },
+    {
+     "key": "shake",
+     "flag": "--shake",
+     "label": "Shake",
+     "default": 1,
+     "min": 0.2,
+     "max": 2,
+     "step": 0.05
+    },
+    {
+     "key": "every",
+     "flag": "--every",
+     "label": "Shake every (s)",
+     "default": 9,
+     "min": 4,
+     "max": 20,
+     "step": 1
     }
    ]
   },

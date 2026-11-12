@@ -482,4 +482,8 @@ export const MORE = [
     trick: 'Each row bent from the spine in short segments, so paper never stretches',
     notes: ['An open book turns its own pages: each lifts from the lower corner, bends over the spine and lands. Drag the right page to turn it yourself.', 'Every row of the page is a chain of short segments angled a little more toward the edge, so it arcs without stretching; its shadow is projected onto the pages below.'],
     params: { every: P(2, 10, 0.5, 'Turn every (s)'), curl: P(0, 2, 0.05, 'Curl'), speed: P(0.4, 2.5, 0.1, 'Speed') } },
+  { id: 'snow-globe', cat: 'chrome', title: 'Snow globe', kind: 'webgl', posterAt: 2500, pointer: true,
+    trick: 'A ray-marched scene seen through refracting water, with settling snow',
+    notes: ['A glass globe on a wooden base, with a cabin and pines inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.', 'Rays bend into the water at the glass, so the scene is magnified and wraps at the rim; the snow rides a swirl that dies away, sinks, and rests where it lands.'],
+    params: { flakes: P(200, 3000, 50, 'Flakes'), shake: P(0.2, 2, 0.05, 'Shake'), every: P(4, 20, 1, 'Shake every (s)') } },
 ];

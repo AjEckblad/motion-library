@@ -1,5 +1,13 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "snow-globe": {
+  "title": "Bola de nieve",
+  "trick": "Una escena por ray marching vista a través del agua que refracta, con nieve que se posa",
+  "notes": [
+   "Una bola de cristal sobre una base de madera, con una cabaña y pinos dentro; de vez en cuando se agita y la nieve sube en remolino y se posa. Arrastra sobre ella para agitarla.",
+   "Los rayos se doblan al entrar en el agua por el cristal, así que la escena se amplía y se curva en el borde; la nieve sigue un remolino que se apaga, se hunde y se queda donde cae."
+  ]
+ },
  "page-turn": {
   "title": "Paso de página",
   "trick": "Cada fila se dobla desde el lomo en tramos cortos: el papel nunca se estira",
@@ -1716,6 +1724,8 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Flakes": "Copos",
+ "Shake every (s)": "Agitar cada (s)",
  "Turn every (s)": "Pasar cada (s)",
  "Half twists": "Medias vueltas",
  "Band width": "Ancho de la cinta",

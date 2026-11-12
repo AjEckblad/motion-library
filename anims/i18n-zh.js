@@ -1,5 +1,13 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "snow-globe": {
+  "title": "雪景球",
+  "trick": "透过折射的水看光线步进的场景，雪花缓缓沉落",
+  "notes": [
+   "木座上的玻璃球里有一座小屋和几棵松树；它不时被摇一摇，雪花旋起再慢慢落下。拖过它就能亲手摇。",
+   "光线在玻璃处折入水中，所以场景被放大，并在边缘弯折；雪花随一股渐渐平息的漩流漂动、下沉，落在哪里就停在哪里。"
+  ]
+ },
  "page-turn": {
   "title": "翻页",
   "trick": "每一行从书脊出发由短段连接弯曲，纸张永不拉伸",
@@ -1716,6 +1724,8 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Flakes": "雪花数",
+ "Shake every (s)": "摇晃间隔（秒）",
  "Turn every (s)": "翻页间隔（秒）",
  "Half twists": "半扭数",
  "Band width": "带宽",

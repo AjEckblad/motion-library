@@ -1,5 +1,13 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "snow-globe": {
+  "title": "Boule à neige",
+  "trick": "Une scène en ray marching vue à travers l’eau qui réfracte, avec de la neige qui se dépose",
+  "notes": [
+   "Une boule de verre sur un socle en bois, avec un chalet et des sapins à l’intérieur ; de temps en temps on la secoue et la neige tourbillonne puis retombe. Faites glisser dessus pour la secouer.",
+   "Les rayons se courbent en entrant dans l’eau à travers le verre, si bien que la scène est agrandie et se déforme au bord ; la neige suit un tourbillon qui s’éteint, coule et reste où elle tombe."
+  ]
+ },
  "page-turn": {
   "title": "Tourner la page",
   "trick": "Chaque rangée pliée depuis le dos en courts segments : le papier ne s’étire jamais",
@@ -1716,6 +1724,8 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Flakes": "Flocons",
+ "Shake every (s)": "Secouer toutes les (s)",
  "Turn every (s)": "Tourner toutes les (s)",
  "Half twists": "Demi-tours",
  "Band width": "Largeur du ruban",
