@@ -1,5 +1,15 @@
-// Fire & smoke: a GPU fluid solver with buoyancy. Heat rises (it pushes the velocity field up), cools as it
-// travels and leaves smoke behind. Colour comes from temperature through a blackbody ramp: white, yellow, red, smoke.
+// Fire & smoke: a campfire at night, two logs burning down into a bed of coals, smoke rolling up and sparks going
+// with it. It is a fluid simulation of combustion on the GPU. The coals and the logs' hot ends give off fuel gas; each bit of fuel burns down at a fixed rate as
+// the flow carries it, so the flame's edge is the place where fuel runs out: it is sharp, and when an eddy pinches
+// off a pocket of fuel, that pocket burns on as a tongue and goes out on its own. While fuel burns it holds the gas
+// at flame temperature; once it is gone the gas cools, fast at first (radiation goes as T⁴), then slowly, and
+// leaves soot behind as smoke. Heat lifts the flow (buoyancy), smoke weighs it down a little, and curl noise plus
+// vorticity confinement keep it turbulent, so the flames lick and the smoke rolls. Colour is light, not a palette: the flame glows as a blackbody,
+// through Planck's law at three wavelengths, so the hot core goes yellow-white and the cooling tips orange and red,
+// and there is a thin blue zone at the root where fresh fuel first ignites. The smoke is lit by the flame through
+// itself (a short march toward the fire through the smoke's own density), with its rolls catching the light on
+// the side that faces it. The coals glow between their lumps, the ground takes the firelight, and sparks are
+// particles carried by the simulated air, cooling from yellow to dull red as they rise.
 const PARAMS = { heat: 1, cooling: 0.95, curl: 22 };
 
 export default function (stage) {
@@ -8,76 +18,327 @@ export default function (stage) {
   stage.append(canvas);
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
   if (!gl || !gl.getExtension('EXT_color_buffer_float')) { stage.textContent = 'This needs WebGL2 with float render targets.'; return () => canvas.remove(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const VS = `#version 300 es
-  in vec2 p; out vec2 uv, vL, vR, vT, vB; uniform vec2 texel;
-  void main() { uv = p * .5 + .5; vL = uv - vec2(texel.x, 0); vR = uv + vec2(texel.x, 0); vT = uv + vec2(0, texel.y); vB = uv - vec2(0, texel.y); gl_Position = vec4(p, 0, 1); }`;
-  const head = `#version 300 es
-  precision highp float; precision highp sampler2D; in vec2 uv, vL, vR, vT, vB; out vec4 o;`;
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const HEAD = `#version 300 es
+  precision highp float; precision highp sampler2D; in vec2 uv; out vec4 o;
+  uniform vec2 VT; uniform float ASP;
+  float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  vec2 h22(vec2 p) { vec3 q = fract(p.xyx * vec3(.1031, .103, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xx + q.yz) * q.zy); }
+  float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + 1.), f.x), f.y); }
+  vec3 noised(vec2 p) { vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f), du = 6. * f * (1. - f);
+    float a = h21(i), b = h21(i + vec2(1, 0)), c = h21(i + vec2(0, 1)), d = h21(i + 1.), k1 = b - a, k2 = c - a, k4 = a - b - c + d;
+    return vec3(a + k1 * u.x + k2 * u.y + k4 * u.x * u.y, du * (vec2(k1, k2) + k4 * u.yx)); }
+  // the coal bed: a low mound, its top edge in screen units (x from the centre, in heights)
+  const float BW = .26, BASE = .15;
+  float bedTop(float x) { float u = x / BW; return u * u < 1. ? BASE + .045 * sqrt(1. - u * u) + .01 * (vn(vec2(x * 26., 1.)) - .5) : 0.; }
+  // two logs pushed into the coals from either side, their inner ends burnt away: (along 0..1, across -1..1, length)
+  const vec2 LA0 = vec2(-.47, .112), LA1 = vec2(-.035, .2), LB0 = vec2(.48, .1), LB1 = vec2(.045, .19);
+  const float LAR = .036, LBR = .041;
+  vec3 logc(vec2 p, vec2 a, vec2 b, float r) { vec2 ab = b - a; float L = length(ab); vec2 d = ab / L; return vec3(dot(p - a, d) / L, dot(p - a, vec2(-d.y, d.x)) / r, L); }
+  vec2 P(vec2 q) { return vec2((q.x - .5) * ASP, q.y); }
+  vec3 planck(float K) { vec3 l = vec3(.61, .55, .465); return pow(vec3(.61) / l, vec3(5.)) * exp(-14388. / l / K + 14388. / .61 / 1450.); }`;
   const FS = {
-    // the burner: heat (x), smoke (y) and an upward kick near the bottom, flickering
-    source: `uniform sampler2D tgt; uniform float T, amt; uniform vec2 aspect; uniform int mode;
-      float n(vec2 p) { return fract(sin(dot(p, vec2(12.9, 78.2))) * 43758.5); }
-      void main() { vec4 v = texture(tgt, uv); vec2 d = (uv - vec2(.5 + .04 * sin(T * 3.1), .07)) * aspect; float r = exp(-dot(d * vec2(1.7, 4.5), d * vec2(1.7, 4.5)) * 90.);
-        float flick = .7 + .3 * n(floor(uv * 40.) + floor(T * 20.));
-        if (mode == 0) o = v + vec4(0, r * 2.2 * amt, 0, 0); else o = v + vec4(r * flick * amt * .9, r * amt * .25, 0, 0); }`,
-    advect: `uniform sampler2D vel, src; uniform vec2 simTexel; uniform float dt; uniform vec4 keep;
-      void main() { vec2 c = uv - dt * texture(vel, uv).xy * simTexel; o = keep * texture(src, c); }`,
-    buoy: `uniform sampler2D vel, dye; uniform float dt;
-      void main() { vec4 v = texture(vel, uv); vec2 d = texture(dye, uv).xy; o = vec4(v.xy + vec2(0, d.x * 260. - d.y * 18.) * dt, 0, 1); }`,
-    divergence: `uniform sampler2D vel;
-      void main() { float L = texture(vel, vL).x, R = texture(vel, vR).x, T = texture(vel, vT).y, B = texture(vel, vB).y; vec2 C = texture(vel, uv).xy;
-        if (vL.x < 0.) L = -C.x; if (vR.x > 1.) R = -C.x; if (vT.y > 1.) T = -C.y; if (vB.y < 0.) B = -C.y; o = vec4(.5 * (R - L + T - B), 0, 0, 1); }`,
-    curl: `uniform sampler2D vel; void main() { o = vec4(.5 * (texture(vel, vR).y - texture(vel, vL).y - texture(vel, vT).x + texture(vel, vB).x), 0, 0, 1); }`,
-    vorticity: `uniform sampler2D vel, crl; uniform float strength, dt;
-      void main() { float L = texture(crl, vL).x, R = texture(crl, vR).x, T = texture(crl, vT).x, B = texture(crl, vB).x, C = texture(crl, uv).x;
-        vec2 f = .5 * vec2(abs(T) - abs(B), abs(R) - abs(L)); f /= length(f) + 1e-4; f *= strength * C; f.y *= -1.; o = vec4(texture(vel, uv).xy + f * dt, 0, 1); }`,
-    pressure: `uniform sampler2D prs, div; void main() { o = vec4((texture(prs, vL).x + texture(prs, vR).x + texture(prs, vB).x + texture(prs, vT).x - texture(div, uv).x) * .25, 0, 0, 1); }`,
-    gradient: `uniform sampler2D prs, vel; void main() { o = vec4(texture(vel, uv).xy - .5 * vec2(texture(prs, vR).x - texture(prs, vL).x, texture(prs, vT).x - texture(prs, vB).x), 0, 1); }`,
-    scale: `uniform sampler2D src; uniform float k; void main() { o = k * texture(src, uv); }`,
-    display: `uniform sampler2D dye;
-      vec3 black(float t) { return clamp(vec3(t * 3.2, t * t * 2.4, pow(t, 4.) * 3.), 0., 1.); }
-      void main() { vec2 d = texture(dye, uv).xy; vec3 bg = mix(vec3(.04, .035, .05), vec3(.08, .06, .07), uv.y);
-        vec3 smoke = vec3(.32, .3, .31) * (1. - exp(-d.y * 1.4));
-        vec3 c = bg * exp(-d.y * 1.2) + smoke + black(clamp(d.x * .75, 0., 1.)) * 1.3;
-        o = vec4(c / (1. + c * .25), 1); }`,
+    // velocity carried along by itself
+    advectV: `uniform sampler2D V; uniform float dt, VISC;
+      void main() { vec2 c = uv - dt * texture(V, uv).xy * VT;
+        // with a touch of viscosity: it damps the grid's odd-even wobble, which would print stripes in the flame
+        vec2 n = .25 * (texture(V, c + vec2(VT.x, 0)).xy + texture(V, c - vec2(VT.x, 0)).xy + texture(V, c + vec2(0, VT.y)).xy + texture(V, c - vec2(0, VT.y)).xy);
+        o = vec4(mix(texture(V, c).xy, n, VISC) * .999, 0, 1); }`,
+    // heat lifts, smoke weighs, curl noise stirs (hot gas most), and the coals breathe out a little upward flow
+    forces: `uniform sampler2D V, SC; uniform float dt, T, BUOY, HEAT;
+      void main() {
+        vec2 v = texture(V, uv).xy; vec4 s = texture(SC, uv); vec2 p = P(uv);
+        v.y += dt * (BUOY * s.x - 1.5 * min(s.y, 2.));
+        vec3 a = noised(p * 4.5 + vec2(T * .3, -T * 1.4)), b = noised(p * 9.5 + vec2(3.1, -T * 2.6) + a.yz * .4);
+        vec2 cn = vec2(a.z, -a.y) + vec2(b.z, -b.y) * .4;      // curl of the noise: stirring without compressing
+        float root = smoothstep(BASE + .03, BASE + .2, p.y);       // roots stay planted on the logs, the tips lick
+        v += dt * cn * (55. * s.x + 14.) * (.6 + .4 * HEAT) * (.25 + .75 * root);
+        float bt = bedTop(p.x); v.y += dt * 200. * HEAT * smoothstep(.05, .0, abs(p.y - bt)) * step(.001, bt) * smoothstep(1., .5, abs(p.x) / BW);
+        v.x *= 1. - dt * (.7 + 1.3 * (1. - smoothstep(.0, .35, s.x)) + 5. * smoothstep(BASE + .16, BASE + .02, p.y));   // still night air: no wind to lay the flames down
+        if (uv.y < VT.y * 1.5) v.y = max(v.y, 0.);
+        float sp = length(v); if (!(sp < 1e4)) v = vec2(0); else if (sp > 420.) v *= 420. / sp;   // a speed limit, and no NaN
+        o = vec4(v, 0, 1);
+      }`,
+    curl: `uniform sampler2D V;
+      void main() { o = vec4(.5 * (texture(V, uv + vec2(VT.x, 0)).y - texture(V, uv - vec2(VT.x, 0)).y - texture(V, uv + vec2(0, VT.y)).x + texture(V, uv - vec2(0, VT.y)).x), 0, 0, 1); }`,
+    vorticity: `uniform sampler2D V, CU; uniform float strength, dt;
+      void main() { float L = texture(CU, uv - vec2(VT.x, 0)).x, R = texture(CU, uv + vec2(VT.x, 0)).x, Tt = texture(CU, uv + vec2(0, VT.y)).x, B = texture(CU, uv - vec2(0, VT.y)).x, C = texture(CU, uv).x;
+        vec2 f = .5 * vec2(abs(Tt) - abs(B), abs(R) - abs(L)); f /= length(f) + 1e-4; f *= strength * C; f.y *= -1.; o = vec4(texture(V, uv).xy + f * dt, 0, 1); }`,
+    divergence: `uniform sampler2D V;
+      void main() { vec2 C = texture(V, uv).xy; float L = texture(V, uv - vec2(VT.x, 0)).x, R = texture(V, uv + vec2(VT.x, 0)).x, Tt = texture(V, uv + vec2(0, VT.y)).y, B = texture(V, uv - vec2(0, VT.y)).y;
+        if (uv.y - VT.y < 0.) B = -C.y;                     // the ground is a wall; the sides and top are open air
+        o = vec4(.5 * (R - L + Tt - B), 0, 0, 1); }`,
+    pressure: `uniform sampler2D PR, DV;
+      float pr(vec2 q) { return q.y > 1. || q.x < 0. || q.x > 1. ? 0. : texture(PR, q).x; }   // open air: no pressure
+      void main() { o = vec4((pr(uv - vec2(VT.x, 0)) + pr(uv + vec2(VT.x, 0)) + texture(PR, uv - vec2(0, VT.y)).x + pr(uv + vec2(0, VT.y)) - texture(DV, uv).x) * .25, 0, 0, 1); }`,
+    gradient: `uniform sampler2D PR, V;
+      float pr(vec2 q) { return q.y > 1. || q.x < 0. || q.x > 1. ? 0. : texture(PR, q).x; }
+      void main() { o = vec4(texture(V, uv).xy - .5 * vec2(pr(uv + vec2(VT.x, 0)) - pr(uv - vec2(VT.x, 0)), pr(uv + vec2(0, VT.y)) - texture(PR, uv - vec2(0, VT.y)).x), 0, 1); }`,
+    scale: `uniform sampler2D SRC; uniform float k; void main() { o = k * texture(SRC, uv); }`,
+    // scalars (heat, smoke, fuel), carried by the flow on a grid twice as fine as the velocity's
+    advectS: `uniform sampler2D V, SRC; uniform float dt;
+      void main() { o = texture(SRC, uv - dt * texture(V, uv).xy * VT); }`,
+    // combustion: fuel burns down at a fixed rate; burning gas sits at flame temperature; soot is left where it
+    // dies; the gas cools by radiation (T⁴) and by mixing; the coals give off fresh fuel, in wandering jets
+    react: `uniform sampler2D SC; uniform float dt, T, HEAT, COOLR;
+      void main() {
+        vec4 s = texture(SC, uv); float th = s.x, rho = s.y, Y = s.z;
+        float burn = smoothstep(0., .04, Y);
+        Y = max(Y - 1.22 * dt, 0.);
+        th = max(th, burn * (.6 + .4 * smoothstep(0., .6, Y)));
+        rho += dt * 2.6 * burn * smoothstep(.13, .0, Y);
+        th = max(th - dt * COOLR * (4.5 * th * th * th * th + .3 * th), 0.);
+        rho *= 1. - dt * (.1 + .25 * smoothstep(.55, 1., uv.y));
+        vec2 p = P(uv); float bt = bedTop(p.x);
+        if (bt > 0.) {
+          float jets = .4 + .6 * smoothstep(.3, .68, vn(vec2(p.x * 14. + 4., T * 1.2)) * .6 + vn(vec2(p.x * 33., T * 2.4)) * .5);
+          float src = jets * smoothstep(.02, .0, abs(p.y - bt + .006)) * smoothstep(.92, .45, abs(p.x) / BW);
+          Y = max(Y, min(1., src * (.75 + .35 * HEAT)));
+          th = max(th, src * .62);
+        }
+        for (int k = 0; k < 2; k++) {
+          vec3 lc = k == 0 ? logc(p, LA0, LA1, LAR) : logc(p, LB0, LB1, LBR);
+          float jl = smoothstep(.42, .75, vn(vec2(p.x * 19. + float(k) * 9., T * 1.6)) * .7 + vn(vec2(p.x * 47., T * 3.1)) * .4);
+          float src = jl * smoothstep(.25, .0, abs(lc.y - 1.05)) * smoothstep(.0, .05, lc.x) * smoothstep(.24, .06, abs(p.x));
+          Y = max(Y, min(1., src * (.7 + .3 * HEAT))); th = max(th, src * .6);
+        }
+        if (uv.y > 1. - 2. * VT.y) rho *= .9;
+        o = all(lessThan(abs(vec3(th, rho, Y)), vec3(1e4))) ? vec4(th, rho, Y, 1) : vec4(0, 0, 0, 1);
+      }`,
+    // what the flame gives off, at simulation size with mipmaps: the light it throws on everything around
+    emit: `uniform sampler2D SC;
+      void main() { vec4 s = texture(SC, uv); o = vec4(planck(700. + 880. * s.x) * (.3 + .7 * smoothstep(0., .25, s.z)) * smoothstep(1., .86, s.z), 1); }`,
+    // ---- the picture
+    render: `uniform sampler2D SC, EM; uniform float T, EXPO;
+      vec3 vor(vec2 p) { vec2 i = floor(p), f = fract(p); float d1 = 9., d2 = 9., id = 0.;
+        for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) { vec2 g = vec2(x, y), r = g + .15 + .7 * h22(i + g) - f; float d = dot(r, r); if (d < d1) { d2 = d1; d1 = d; id = h21(i + g + 7.); } else if (d < d2) d2 = d; }
+        return vec3(sqrt(d1), sqrt(d2), id); }
+      vec3 glow(vec2 q) { return textureLod(EM, q, 3.).rgb * .25 + textureLod(EM, q, 4.5).rgb * .35 + textureLod(EM, q, 6.).rgb * .4; }
+      void main() {
+        vec2 p = P(uv); vec4 s = texture(SC, uv); float rho = s.y;
+        // the flame is read through a fine warp that rises with it: detail finer than the simulation, so its edges
+        // break into small licks and its body into streaks
+        vec2 wq = p * vec2(26., 12.) - vec2(0., T * 5.);
+        vec2 wp = (vec2(vn(wq), vn(wq + 17.)) - .5) * vec2(.006, .012) + (vec2(vn(wq * 2.3 + 5.), vn(wq * 2.3 + 9.)) - .5) * vec2(.003, .005);
+        vec4 sf = texture(SC, uv + wp * smoothstep(BASE, BASE + .12, p.y)); float th = sf.x, Y = sf.z;
+        // the fire as a light: its average glow (it flickers with the flames), falling off with distance
+        vec3 F = textureLod(EM, vec2(.5, .4), 7.).rgb * 1.3;
+        vec2 fc = vec2(0., BASE + .17); float dl = length(p - fc);
+        vec3 fire = F / (1. + dl * dl * 20.) + glow(uv) * .12;
+        // the night, and the ground in perspective, both lit by the fire
+        vec3 col = vec3(.004, .004, .007) + fire * .025;
+        float hz = BASE + .085;
+        if (p.y < hz) {
+          float dz = hz - p.y + .012; vec2 gp = vec2(p.x / dz, 1. / dz) * .045;
+          vec3 v = vor(gp * 70.); float stone = step(.8, v.z) * smoothstep(.0, .3, v.y - v.x);
+          float grit = vn(gp * 60.) * .5 + vn(gp * 140.) * .3 + vn(gp * 9.) * .4;
+          vec3 alb = vec3(.07, .058, .048) * (.5 + .5 * grit) + vec3(.035, .03, .028) * stone * (.6 + .6 * v.y);
+          alb = mix(alb, vec3(.16, .15, .14), smoothstep(.75, .95, vn(gp * 5. + 2.)) * .5 * smoothstep(.6, .2, abs(p.x)));   // pale ash
+          vec3 c = alb * (fire * 1.2 * smoothstep(-.05, .2, p.y) + vec3(.004, .005, .008));
+          col = mix(col, c, smoothstep(.0, .02, hz - p.y));
+        }
+        // the coals: lumps of charcoal, dark on top, glowing in the gaps between them and through their cracks
+        float bt = bedTop(p.x);
+        if (p.y < bt + .004 && bt > 0.) {
+          vec2 cp = p * vec2(42., 52.) + vec2(vn(p * 30.), vn(p * 30. + 5.)) * .6; vec3 v = vor(cp), v2 = vor(cp * 2.9 + 3.);
+          float edge = v.y - v.x, dome = smoothstep(.0, .5, edge);
+          float deep = smoothstep(bt, bt - .06, p.y), core = smoothstep(BW, .0, abs(p.x));
+          float pulse = .7 + .3 * sin(T * (1.1 + v.z * 1.7) + v.z * 40.) * vn(vec2(v.z * 9., T * .7));
+          float heat = clamp(.25 + .6 * core + .25 * deep, 0., 1.) * pulse;
+          float ash = smoothstep(.55, .85, vn(cp * 1.7 + 9.)) * dome;          // a skin of pale ash on some coals
+          vec3 lit = mix(vec3(.035, .03, .028), vec3(.2, .19, .18), ash) * (.5 + .6 * v.z) * dome * (fire * 1.6 + .006);
+          float lumpHot = smoothstep(.15, .6, v.z);             // some lumps still burning, some gone dark
+          float seam = (smoothstep(.16, .0, edge) + smoothstep(.09, .0, v2.y - v2.x) * .7 * dome * (1. - ash)) * (.35 + .65 * lumpHot);
+          vec3 c = lit + planck(1000. + 450. * heat) * (seam + .3 * (1. - dome)) * 1.8 + planck(880. + 380. * heat) * dome * (1. - ash) * .5;
+          col = mix(col, c, smoothstep(.004, -.004, p.y - bt) * smoothstep(BASE - .03, BASE - .005, p.y + .02 * (1. - abs(p.x) / BW)));
+        }
+        // the flame: blackbody light from soot in the burning gas; soot forms a moment after the fuel ignites, and
+        // below that the fresh fuel burns blue
+        float soot = (.3 + .7 * smoothstep(0., .25, Y)) * smoothstep(1., .88, Y);
+        vec3 fl = planck(700. + 880. * th) * soot + vec3(.05, .16, 1.) * smoothstep(.88, .98, Y) * smoothstep(.45, .7, th) * .06 * smoothstep(.0, .02, p.y - bedTop(p.x));
+        // the logs: charred into blocks (alligator char) whose cracks glow near the fire, bark at the cool ends, and
+        // a sawn face at the outer end. The flame burns behind and between them, a little of it in front
+        col += fl * .9;
+        for (int k = 0; k < 2; k++) {
+          vec2 a = k == 0 ? LA0 : LB0, b = k == 0 ? LA1 : LB1; float r = k == 0 ? LAR : LBR;
+          vec3 lc = logc(p, a, b, r); float L = lc.z, sl = lc.x * L;
+          float taper = (1. - smoothstep(.62, 1., lc.x) * (.75 + .25 * vn(vec2(lc.y * 3., float(k))))) * (1. + .06 * (vn(vec2(sl * 45., float(k) * 7.)) - .5));
+          float c = lc.y / max(taper, .05);
+          float cap = (sl / (r * .45)) * (sl / (r * .45)) + c * c;
+          if (abs(c) < 1. && lc.x > 0. && lc.x < 1. || sl < 0. && cap < 1.) {
+            vec2 q = a + (b - a) * clamp(lc.x, 0., 1.);
+            float heat = smoothstep(.34, .02, length(q - vec2(0., BASE + .06))) * (.65 + .35 * vn(vec2(sl * 9., T * .6 + float(k) * 3.)));
+            vec3 lcol;
+            if (sl < 0.) {                                         // the sawn end: rings, charred at the rim
+              float rr = sqrt(cap); vec2 e = vec2(sl / (r * .45), c);
+              lcol = vec3(.09, .065, .045) * (.75 + .25 * sin(rr * 38. + vn(e * 5.) * 4.)) * smoothstep(1., .75, rr) * (fire * .7 + .004);
+              lcol += planck(900. + 380. * heat) * smoothstep(.8, 1., rr) * .6;
+            } else {
+              float ang = asin(clamp(c, -1., 1.)), sh = .25 + .75 * smoothstep(-.6, .9, c) + 1.5 * smoothstep(.75, .97, c);   // lit from above, a rim on top
+              vec3 v = vor(vec2(sl * 30., ang * 3.2 + float(k) * 5.)), v2 = vor(vec2(sl * 80., ang * 8.));
+              float crack = smoothstep(.12, .0, v.y - v.x), fine = smoothstep(.07, .0, v2.y - v2.x);
+              float charr = smoothstep(.0, .35, heat + .15);
+              vec3 bark = vec3(.11, .085, .06) * (.6 + .5 * vn(vec2(sl * 90., ang * 5.))) * (.7 + .3 * sin(ang * 26. + vn(vec2(sl * 12., ang)) * 6.));
+              vec3 chr = vec3(.045, .04, .038) * (.6 + .6 * v.z) * (1. - .7 * crack);
+              lcol = mix(bark, chr, charr) * sh * (fire * .55 + .004) * smoothstep(1., .8, abs(c));
+              lcol += planck(820. + 540. * heat) * (crack * .8 + fine * .2 + .12 * smoothstep(.75, 1., lc.x)) * charr * smoothstep(1., .3, abs(c) - .3 * c);
+            }
+            col = mix(col, lcol, smoothstep(1., .93, max(abs(c), sl < 0. ? sqrt(cap) : 0.)));
+          }
+        }
+        col += fl * .1;
+        // smoke: absorbs what is behind it; lit by the fire through the smoke between, brightest where it faces it
+        vec2 tf = (vec2(fc.x / ASP + .5, fc.y) - uv);
+        float occ = 0.; for (int i = 0; i < 7; i++) occ += texture(SC, uv + tf * (float(i) + .5) / 7.).y;
+        occ *= dl / 7. * 7.;
+        vec2 gd = vec2(texture(SC, uv + vec2(VT.x * 2., 0)).y - texture(SC, uv - vec2(VT.x * 2., 0)).y, texture(SC, uv + vec2(0, VT.y * 2.)).y - texture(SC, uv - vec2(0, VT.y * 2.)).y);
+        float face = .55 + .45 * clamp(dot(-normalize(gd + 1e-5), normalize(fc - p)), -1., 1.) * smoothstep(.0, .05, length(gd));
+        float tau = rho * 2.6, tr = exp(-tau);
+        vec3 fl2 = fire * 1.1 * exp(-occ) * face; fl2 = mix(vec3(dot(fl2, vec3(.3, .5, .2))), fl2, .55);
+        vec3 sl = fl2 + glow(uv) * .5 + vec3(.012, .014, .02);
+        col = col * tr + vec3(.48, .47, .46) * sl * (1. - tr) + fl * (1. - tr) * .85;                   // smoke dims the flame only a little
+        o = vec4(col * EXPO, 1);
+      }`,
+    // sparks: each is a texel (x, y, life, seed), moved by the simulated air plus its own drift
+    sparks: `uniform sampler2D PT, V; uniform float dt, T, SEED;
+      void main() {
+        vec4 q = texelFetch(PT, ivec2(gl_FragCoord.xy), 0);
+        vec2 v = texture(V, q.xy).xy * VT;
+        float r = h21(vec2(q.w * 91., floor(T * 3.)));
+        q.xy += (v * .9 + vec2((r - .5) * .06, .05)) * dt;
+        q.z -= dt / (1.6 + 2.2 * fract(q.w * 13.7));
+        if (q.z <= 0. || q.y > 1.02 || q.x < -.02 || q.x > 1.02) {
+          vec2 rr = h22(vec2(gl_FragCoord.x, SEED));
+          float x = (rr.x * 2. - 1.) * BW * .7; float y = bedTop(x) - .005;
+          q = vec4(x / ASP + .5, y, 1., fract(rr.y + SEED * .37));
+          if (h21(vec2(SEED, gl_FragCoord.x * .37)) > .0006 + .012 * pow(vn(vec2(T * 1.7, 3.)), 6.)) q.z = -1.;   // a few at a time, in pops
+        }
+        o = q;
+      }`,
+    composite: `uniform sampler2D S; uniform vec2 R; uniform float FADE;
+      vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
+      vec3 tap(float l) { vec2 t = exp2(l) / R; vec3 c = textureLod(S, uv, l).rgb * .25;
+        c += (textureLod(S, uv + t * vec2(.9, .4), l).rgb + textureLod(S, uv + t * vec2(-.4, .9), l).rgb + textureLod(S, uv + t * vec2(-.9, -.4), l).rgb + textureLod(S, uv + t * vec2(.4, -.9), l).rgb) * .1875;
+        return c; }
+      void main() {
+        vec3 c = textureLod(S, uv, 0.).rgb, bl = tap(1.5) * .35 + tap(3.) * .3 + tap(4.5) * .2 + tap(6.) * .15;
+        c = aces(c + bl * .35) * FADE;
+        vec2 v = uv - .5; c *= 1. - .5 * dot(v, v);
+        o = vec4(pow(c, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy + fract(R.x * .1)) - .5) / 255., 1);
+      }`,
   };
+  // the sparks are drawn as short streaks, one quad each, along the way they are moving
+  const SPARK_VS = `#version 300 es
+  precision highp float; uniform sampler2D PT, V; uniform vec2 R, VT; uniform float ASP;
+  out float vL; out vec2 vQ;
+  void main() {
+    int id = gl_VertexID / 6, k = gl_VertexID % 6;
+    vec4 q = texelFetch(PT, ivec2(id, 0), 0);
+    vec2 v = texture(V, q.xy).xy * VT * .9 + vec2(0, .05);
+    vec2 a = q.xy * R, b = (q.xy - v * .012) * R, d = b - a;          // a streak as long as its motion blur
+    if (length(d) < 1.) d = vec2(0, -1);
+    vec2 n = normalize(vec2(-d.y, d.x)) * 1.3; a -= normalize(d) * 1.2;
+    vec2 cs[6] = vec2[6](vec2(0, -1), vec2(1, -1), vec2(1, 1), vec2(0, -1), vec2(1, 1), vec2(0, 1));
+    vec2 c = cs[k]; vec2 pos = a + d * c.x + n * c.y;
+    vL = q.z > 0. ? q.z : 0.; vQ = vec2(c.x, c.y);
+    gl_Position = vec4(pos / R * 2. - 1., 0, 1);
+  }`;
+  const SPARK_FS = `#version 300 es
+  precision highp float; in float vL; in vec2 vQ; out vec4 o;
+  vec3 planck(float K) { vec3 l = vec3(.61, .55, .465); return pow(vec3(.61) / l, vec3(5.)) * exp(-14388. / l / K + 14388. / .61 / 1450.); }
+  void main() { if (vL <= 0.) discard;
+    float a = (1. - abs(vQ.y)) * (1. - vQ.x * .7);
+    o = vec4(planck(900. + 650. * vL) * a * a * 3., 1); }`;
   const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
-  const vs = compile(gl.VERTEX_SHADER, VS), progs = {};
-  for (const k in FS) {
-    const p = gl.createProgram(); gl.attachShader(p, vs); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, head + FS[k])); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
-    const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const name = gl.getActiveUniform(p, i).name; u[name] = gl.getUniformLocation(p, name); }
-    progs[k] = { p, u };
-  }
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  const fbo = (w, h) => { const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
-    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); return { tex, fb, w, h }; };
-  const pair = (w, h) => { let a = fbo(w, h), b = fbo(w, h); return { get read() { return a; }, get write() { return b; }, swap() { [a, b] = [b, a]; } }; };
-  let W = 0, H = 0, vel, dye, div, crl, prs;
-  const resize = () => { const d = Math.min(devicePixelRatio, 1.5); W = Math.max(2, stage.clientWidth * d | 0); H = Math.max(2, stage.clientHeight * d | 0); canvas.width = W; canvas.height = H;
-    const ar = W / H, sw = Math.round(128 * Math.max(1, ar)), sh = Math.round(128 * Math.max(1, 1 / ar)); vel = pair(sw, sh); prs = pair(sw, sh); div = fbo(sw, sh); crl = fbo(sw, sh); dye = pair(sw * 3, sh * 3); };
-  resize(); const ro = new ResizeObserver(resize); ro.observe(stage);
-  const bind = (u, t) => { gl.activeTexture(gl.TEXTURE0 + u); gl.bindTexture(gl.TEXTURE_2D, t.tex); return u; };
-  const run = (prog, target, set) => { gl.useProgram(prog.p); const w = target ? target.w : W, h = target ? target.h : H; gl.uniform2f(prog.u.texel, 1 / w, 1 / h); set(prog.u); gl.viewport(0, 0, w, h); gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.fb : null); gl.drawArrays(gl.TRIANGLES, 0, 3); };
-  let last = performance.now(), raf;
+  const link = (vsrc, fsrc) => {
+    const p = gl.createProgram(); gl.attachShader(p, compile(gl.VERTEX_SHADER, vsrc)); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsrc)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i < n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm.replace(/\[0\]$/, '')] = gl.getUniformLocation(p, nm); }
+    return { p, u };
+  };
+  const progs = {}; for (const k in FS) progs[k] = link(VS, HEAD + FS[k]);
+  const sparkP = link(SPARK_VS, SPARK_FS);
+  gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const fbo = (w, h, fmt = gl.RGBA16F, mips = false, filt = gl.LINEAR) => {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    const levels = mips ? Math.floor(Math.log2(Math.max(w, h))) + 1 : 1; gl.texStorage2D(gl.TEXTURE_2D, levels, fmt, w, h);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mips ? gl.LINEAR_MIPMAP_LINEAR : filt); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filt);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    return { t, f, w, h };
+  };
+  const pair = (w, h, fmt, filt) => { let a = fbo(w, h, fmt, false, filt), b = fbo(w, h, fmt, false, filt); return { get r() { return a; }, get w() { return b; }, swap() { [a, b] = [b, a]; }, all: [a, b] }; };
+  const NP = 420;
+  let W = 1, H = 1, VW = 1, VH = 1, vel, prs, div, crl, sca, em, scene, pts, made = [];
+  const resize = () => {
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(820000 / (w * h))));
+    W = canvas.width = Math.max(2, (w * d) | 0); H = canvas.height = Math.max(2, (h * d) | 0);
+    for (const t of made) { gl.deleteTexture(t.t); gl.deleteFramebuffer(t.f); }
+    const asp = W / H; VH = Math.round(170 * Math.min(1.25, Math.max(0.8, 1 / Math.sqrt(asp)))); VW = Math.max(64, Math.round(VH * asp));
+    vel = pair(VW, VH); prs = pair(VW, VH); div = fbo(VW, VH); crl = fbo(VW, VH);
+    sca = pair(VW * 2, VH * 2);
+    em = fbo(VW * 2, VH * 2, gl.RGBA16F, true); scene = fbo(W, H, gl.RGBA16F, true);
+    pts = pair(NP, 1, gl.RGBA32F, gl.NEAREST);
+    made = [...vel.all, ...prs.all, div, crl, ...sca.all, em, scene, ...pts.all];
+    for (const t of pts.all) { gl.bindFramebuffer(gl.FRAMEBUFFER, t.f); gl.clearColor(0, 0, -1, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+    warm = 0;
+  };
+  const run = (pr, out, set) => {
+    gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, out ? out.f : null); gl.viewport(0, 0, out ? out.w : W, out ? out.h : H);
+    let unit = 0;
+    if (pr.u.VT) gl.uniform2f(pr.u.VT, 1 / VW, 1 / VH); if (pr.u.ASP) gl.uniform1f(pr.u.ASP, W / H);
+    set((name, v) => {
+      const loc = pr.u[name]; if (loc == null) return;
+      if (v && v.t) { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, v.t); gl.uniform1i(loc, unit++); }
+      else if (Array.isArray(v)) gl.uniform2f(loc, v[0], v[1]); else gl.uniform1f(loc, v);
+    });
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+  let warm = 0, t = 0, seed = 0;
+  const step = dt => {
+    const heat = PARAMS.heat, coolr = Math.max(0.15, (1 - PARAMS.cooling) / 0.05);
+    run(progs.advectV, vel.w, u => { u('V', vel.r); u('dt', dt); u('VISC', 0.22 + 0.14 * Math.max(0, heat - 1)); }); vel.swap();
+    run(progs.forces, vel.w, u => { u('V', vel.r); u('SC', sca.r); u('dt', dt); u('T', t); u('BUOY', 300 * (0.7 + 0.3 * heat)); u('HEAT', heat); }); vel.swap();
+    run(progs.curl, crl, u => u('V', vel.r));
+    run(progs.vorticity, vel.w, u => { u('V', vel.r); u('CU', crl); u('strength', 3.5 + PARAMS.curl * 0.12); u('dt', dt); }); vel.swap();
+    run(progs.divergence, div, u => u('V', vel.r));
+    run(progs.scale, prs.w, u => { u('SRC', prs.r); u('k', 0.85); }); prs.swap();
+    for (let i = 0; i < 24; i++) { run(progs.pressure, prs.w, u => { u('PR', prs.r); u('DV', div); }); prs.swap(); }
+    run(progs.gradient, vel.w, u => { u('PR', prs.r); u('V', vel.r); }); vel.swap();
+    run(progs.advectS, sca.w, u => { u('V', vel.r); u('SRC', sca.r); u('dt', dt); }); sca.swap();
+    run(progs.react, sca.w, u => { u('SC', sca.r); u('dt', dt); u('T', t); u('HEAT', heat); u('COOLR', coolr); }); sca.swap();
+    run(progs.sparks, pts.w, u => { u('PT', pts.r); u('V', vel.r); u('dt', dt); u('T', t); u('SEED', (seed = (seed + 0.6180339) % 1) * 97 + 1); }); pts.swap();
+    t += dt;
+  };
+  const draw = () => {
+    run(progs.emit, em, u => u('SC', sca.r)); gl.bindTexture(gl.TEXTURE_2D, em.t); gl.generateMipmap(gl.TEXTURE_2D);
+    run(progs.render, scene, u => { u('SC', sca.r); u('EM', em); u('T', t); u('EXPO', 1); });
+    // sparks, added on top
+    gl.useProgram(sparkP.p); gl.bindFramebuffer(gl.FRAMEBUFFER, scene.f); gl.viewport(0, 0, W, H);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, pts.r.t); gl.uniform1i(sparkP.u.PT, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, vel.r.t); gl.uniform1i(sparkP.u.V, 1);
+    gl.uniform2f(sparkP.u.R, W, H); gl.uniform2f(sparkP.u.VT, 1 / VW, 1 / VH); gl.uniform1f(sparkP.u.ASP, W / H);
+    gl.disableVertexAttribArray(0); gl.drawArrays(gl.TRIANGLES, 0, NP * 6); gl.enableVertexAttribArray(0); gl.disable(gl.BLEND);
+    gl.bindTexture(gl.TEXTURE_2D, scene.t); gl.generateMipmap(gl.TEXTURE_2D);
+    run(progs.composite, null, u => { u('S', scene); u('R', [W, H]); u('FADE', reduce ? 1 : Math.min(1, fade / 0.5)); });
+  };
+  // a few seconds of fire are run before anything shows, so it opens burning, with smoke already up
+  const WARM = 210; let fade = 0;
+  const ro = new ResizeObserver(() => { resize(); if (reduce) { while (warm < WARM) { step(1 / 60); warm++; } draw(); } }); ro.observe(stage); resize();
+  let raf, last = null;
   function frame(now) {
-    const dt = Math.min(0.016, (now - last) / 1000); last = now; const t = now / 1000, st = [1 / vel.read.w, 1 / vel.read.h], asp = [W / H, 1];
-    run(progs.source, vel.write, u => { gl.uniform1i(u.tgt, bind(0, vel.read)); gl.uniform1f(u.T, t); gl.uniform1f(u.amt, 60 * PARAMS.heat * dt * 60); gl.uniform2f(u.aspect, ...asp); gl.uniform1i(u.mode, 0); }); vel.swap();
-    run(progs.source, dye.write, u => { gl.uniform1i(u.tgt, bind(0, dye.read)); gl.uniform1f(u.T, t); gl.uniform1f(u.amt, PARAMS.heat * dt * 60 * 0.4); gl.uniform2f(u.aspect, ...asp); gl.uniform1i(u.mode, 1); }); dye.swap();
-    run(progs.buoy, vel.write, u => { gl.uniform1i(u.vel, bind(0, vel.read)); gl.uniform1i(u.dye, bind(1, dye.read)); gl.uniform1f(u.dt, dt); }); vel.swap();
-    run(progs.curl, crl, u => gl.uniform1i(u.vel, bind(0, vel.read)));
-    run(progs.vorticity, vel.write, u => { gl.uniform1i(u.vel, bind(0, vel.read)); gl.uniform1i(u.crl, bind(1, crl)); gl.uniform1f(u.strength, PARAMS.curl); gl.uniform1f(u.dt, dt); }); vel.swap();
-    run(progs.divergence, div, u => gl.uniform1i(u.vel, bind(0, vel.read)));
-    run(progs.scale, prs.write, u => { gl.uniform1i(u.src, bind(0, prs.read)); gl.uniform1f(u.k, 0.8); }); prs.swap();
-    for (let i = 0; i < 20; i++) { run(progs.pressure, prs.write, u => { gl.uniform1i(u.prs, bind(0, prs.read)); gl.uniform1i(u.div, bind(1, div)); }); prs.swap(); }
-    run(progs.gradient, vel.write, u => { gl.uniform1i(u.prs, bind(0, prs.read)); gl.uniform1i(u.vel, bind(1, vel.read)); }); vel.swap();
-    run(progs.advect, vel.write, u => { gl.uniform1i(u.vel, bind(0, vel.read)); gl.uniform1i(u.src, bind(0, vel.read)); gl.uniform2f(u.simTexel, ...st); gl.uniform1f(u.dt, dt); gl.uniform4f(u.keep, 0.995, 0.995, 1, 1); }); vel.swap();
-    const cool = Math.pow(PARAMS.cooling, dt * 60);
-    run(progs.advect, dye.write, u => { gl.uniform1i(u.vel, bind(0, vel.read)); gl.uniform1i(u.src, bind(1, dye.read)); gl.uniform2f(u.simTexel, ...st); gl.uniform1f(u.dt, dt); gl.uniform4f(u.keep, cool, Math.pow(0.992, dt * 60), 1, 1); }); dye.swap();
-    run(progs.display, null, u => gl.uniform1i(u.dye, bind(0, dye.read)));
+    const dt = last === null ? 1 / 60 : Math.min(1 / 30, (now - last) / 1000); last = now;
+    if (warm < WARM) { for (let i = 0; i < 30 && warm < WARM; i++, warm++) step(1 / 60); }
+    else { fade += dt; const n = dt > 1 / 45 ? 2 : 1; for (let i = 0; i < n; i++) step(dt / n); }
+    draw();
     raf = requestAnimationFrame(frame);
   }
-  raf = requestAnimationFrame(frame);
+  if (reduce) { while (warm < WARM) { step(1 / 60); warm++; } draw(); } else raf = requestAnimationFrame(frame);
   return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 }

@@ -242,18 +242,18 @@ export const FR = {
  },
  "fire-smoke": {
   "title": "Feu et fumée",
-  "trick": "Solveur de fluide avec une chaleur qui monte puis refroidit en fumée",
+  "trick": "Combustion simulée : le gaz brûle et brille en corps noir",
   "notes": [
-   "Les flammes lèchent vers le haut et refroidissent en une fumée grise qui s’enroule.",
-   "Un solveur Navier–Stokes avec poussée d’Archimède : la chaleur soulève le champ de vitesse et refroidit à chaque pas ; la couleur traduit la température via une rampe de corps noir."
+   "Un feu de camp la nuit : les flammes lèchent les bûches et les braises, des étincelles montent et la fumée grise roule, éclairée par-dessous.",
+   "Le combustible brûle à vitesse fixe, donc la pointe de la flamme est là où il s’épuise ; le gaz chaud brille selon Planck et refroidit en T⁴."
   ]
  },
  "lava-flow": {
   "title": "Coulée de lave",
-  "trick": "Écoulement visqueux dépendant de la température ; croûte dessinée sur des coordonnées advectées",
+  "trick": "Lave simulée sur un volcan érodé, éclairée en corps noir",
   "notes": [
-   "La lave descend lentement la pente depuis un évent, se couvre d’une croûte et se déchire en fissures incandescentes.",
-   "Un écoulement de champ de hauteurs sur GPU où la mobilité de chaque cellule augmente avec l’épaisseur et chute fortement en refroidissant, si bien que levées et lobes se forment tout seuls."
+   "Un volcan au crépuscule : la lave déborde du cratère dans les ravines, se couvre d’une croûte qui se fend, et sa lueur éclaire les pentes et le panache.",
+   "Une simulation d’épaisseur et de chaleur tourne sur la montagne tracée par rayons ; la couleur suit la loi de Planck, les fissures brillent et la croûte vire au rouge sombre."
   ]
  },
  "ferrofluid": {
@@ -474,10 +474,10 @@ export const FR = {
  },
  "black-hole": {
   "title": "Trou noir",
-  "trick": "Rayons déviés vers le trou à chaque pas ; disque d’accrétion à effet Doppler",
+  "trick": "Chaque rayon suit l’équation exacte de la lumière autour du trou",
   "notes": [
-   "Un trou noir courbe le champ d’étoiles en anneau d’Einstein, son disque passant au-dessus et au-dessous de l’ombre.",
-   "Chaque rayon avance pas à pas, attiré vers le trou en 1/r² ; le disque est plus brillant et plus bleu du côté qui s’approche, par effet de faisceau relativiste."
+   "Gargantua tel que le film l’a dessiné : un disque blanc et fin qui s’arque au-dessus et au-dessous de l’ombre, un anneau de photons très fin, des étoiles étirées au bord.",
+   "Chaque rayon suit l’équation de l’orbite de la lumière, u″ + u = 3Mu², et lit le disque à chaque traversée ; la rotation décale l’ombre."
   ]
  },
  "tesseract": {

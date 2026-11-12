@@ -242,18 +242,18 @@ export const ES = {
  },
  "fire-smoke": {
   "title": "Fuego y humo",
-  "trick": "Solver de fluidos con calor que flota y se enfría hasta volverse humo",
+  "trick": "Combustión simulada: el gas arde y brilla como un cuerpo negro",
   "notes": [
-   "Las llamas lamen hacia arriba y se enfrían en humo gris que se enrosca.",
-   "Un solver de Navier–Stokes con flotabilidad: el calor eleva el campo de velocidad y se enfría en cada paso; el color traduce la temperatura mediante una rampa de cuerpo negro."
+   "Una hoguera de noche: las llamas lamen desde los troncos y las brasas, suben chispas y el humo gris se enrosca, iluminado desde abajo.",
+   "El combustible arde a ritmo fijo, así que la punta de la llama es donde se acaba; el gas caliente brilla según Planck y se enfría como T⁴."
   ]
  },
  "lava-flow": {
   "title": "Colada de lava",
-  "trick": "Flujo viscoso dependiente de la temperatura; corteza dibujada sobre coordenadas advectadas",
+  "trick": "Lava simulada sobre un volcán erosionado, con luz de cuerpo negro",
   "notes": [
-   "La lava baja despacio por la ladera desde una boca, se cubre de corteza y se rasga en grietas incandescentes.",
-   "Un flujo de campo de alturas en GPU en el que la movilidad de cada celda aumenta con el espesor y cae bruscamente al enfriarse, así que los diques y lóbulos se forman solos."
+   "Un volcán al anochecer: la lava rebosa del cráter por barrancos erosionados, se cubre de costra y se agrieta, y su brillo ilumina las laderas y la columna.",
+   "Una simulación de grosor y calor corre sobre la montaña trazada por rayos; el color sale de la ley de Planck, así las grietas brillan y la costra se apaga en rojo."
   ]
  },
  "ferrofluid": {
@@ -474,10 +474,10 @@ export const ES = {
  },
  "black-hole": {
   "title": "Agujero negro",
-  "trick": "Rayos desviados hacia el agujero en cada paso; disco de acreción con haz Doppler",
+  "trick": "Cada rayo sigue la ecuación exacta de la luz alrededor del agujero",
   "notes": [
-   "Un agujero negro curva el campo de estrellas en un anillo de Einstein, con su disco arqueándose por encima y por debajo de la sombra.",
-   "Cada rayo avanza paso a paso y es atraído hacia el agujero según 1/r²; el disco es más brillante y más azul en el lado que se acerca, por el efecto de haz relativista."
+   "Gargantua como la dibujó la película: un disco blanco y fino que se arquea sobre y bajo la sombra, un anillo de fotones finísimo y estrellas estiradas en el borde.",
+   "Cada rayo sigue la ecuación de la órbita de la luz, u″ + u = 3Mu², y lee el disco en cada cruce; el giro desplaza la sombra."
   ]
  },
  "tesseract": {

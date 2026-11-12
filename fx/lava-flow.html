@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lava flow: Temperature-dependent viscous flow; crust drawn on advected coordinates · Motion Library</title>
-<meta name="description" content="Lava flow is a WebGL effect: temperature-dependent viscous flow; crust drawn on advected coordinates. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-flow.">
+<title>Lava flow: Lava simulated on an eroded volcano, lit by blackbody light · Motion Library</title>
+<meta name="description" content="Lava flow is a WebGL effect: lava simulated on an eroded volcano, lit by blackbody light. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-flow.">
 <link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/lava-flow.html">
 <meta name="theme-color" content="#0c0c0e">
 <meta property="og:title" content="Lava flow · Motion Library">
-<meta property="og:description" content="Temperature-dependent viscous flow; crust drawn on advected coordinates">
+<meta property="og:description" content="Lava simulated on an eroded volcano, lit by blackbody light">
 <meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/lava-flow.webp">
 <link rel="stylesheet" href="../css/static.css">
 <script type="application/ld+json">[
@@ -16,7 +16,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Lava flow",
-  "description": "Temperature-dependent viscous flow; crust drawn on advected coordinates",
+  "description": "Lava simulated on an eroded volcano, lit by blackbody light",
   "programmingLanguage": "JavaScript",
   "runtimePlatform": "Web browser",
   "license": "https://spdx.org/licenses/MIT-0.html",
@@ -61,15 +61,15 @@
 <main class="s-page">
 <article>
 <h1>Lava flow</h1>
-<p class="tldr">Lava flow is a WebGL effect: temperature-dependent viscous flow; crust drawn on advected coordinates. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-flow.</p>
-<figure><img src="../posters/lava-flow.webp" alt="Lava flow: Temperature-dependent viscous flow; crust drawn on advected coordinates" width="1120" height="896"></figure>
+<p class="tldr">Lava flow is a WebGL effect: lava simulated on an eroded volcano, lit by blackbody light. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-flow.</p>
+<figure><img src="../posters/lava-flow.webp" alt="Lava flow: Lava simulated on an eroded volcano, lit by blackbody light" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/lava-flow">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Lava flow?</h2>
-<p>Lava creeps downhill from a vent, crusting over and tearing into glowing seams.</p>
+<p>A volcano at dusk: lava spills from the crater down eroded gullies, crusting and cracking, its glow lighting the slopes and plume.</p>
 
 <h2>How does Lava flow work?</h2>
-<p>A GPU height-field flow where each cell’s mobility rises with thickness and drops steeply as it cools, so levees and lobes form unaided.</p>
+<p>A thickness-and-heat simulation runs on the raymarched mountain; colour is Planck’s law, so cracks glow and crust goes dull red.</p>
 
 <h2>How do I add Lava flow to my website?</h2>
 <ol>
@@ -94,20 +94,26 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>13.3 KB, unminified</dd>
+<dt>File size</dt><dd>27.8 KB, unminified</dd>
 <dt>Interactive</dt><dd>No: it plays on its own</dd>
-<dt>Reduced motion</dt><dd>Plays the same for everyone</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
 </dl>
 
 <h2>Source code</h2>
-<pre><code>// Lava flow, seen from above at night: lava wells out of a vent and creeps downhill over black rock, a crust forms on
-// it and tears open into glowing cracks. It is a simulation on the GPU. Each cell holds a thickness and a temperature;
-// lava flows to lower neighbours at a rate that grows steeply with its thickness (how thin films of syrup move)
-// and collapses as it cools, because cold lava is hundreds of times stiffer. Thin edges cool fastest and stall into
-// levees while the hot middle keeps a channel open, and the front buds into lobes. The crust is a skin: each cell
-// also carries how long its surface has been out in the air, reset at the vent and torn back to fresh where the flow
-// runs fast. Its pattern is drawn on coordinates the flow carries along, so plates drift, stretch and tear apart.
+<pre><code>// Lava flow: a volcano at dusk, lava spilling from its crater and running down the gullies of its flank. The mountain
+// is made once on the GPU: a concave cone (steep near the top, easing into an apron), a crater with a breach in its
+// rim, and erosion: at every scale, a field of stripes laid along the local downhill direction, each octave bent
+// by the slopes the ones before it carved, which is how real gullies branch and run down a slope. Scree, rock and
+// ash follow from where it carved and where it built up. Then the lava is a simulation on that very terrain: each
+// cell holds a thickness and a temperature, and lava flows to lower neighbours at a rate that grows steeply with
+// its thickness and collapses as it cools (cold lava is hundreds of times stiffer), so it finds the gullies by
+// itself, builds levees and keeps a hot channel open down the middle. A crust ages on its surface and is torn
+// open where the flow runs fast; its plates are drawn on coordinates the flow carries along, so they drift,
+// stretch and crack apart. Every pixel is a ray marched over the terrain plus the lava. Lava's light is
+// blackbody radiation: three wavelengths through Planck's law, so a crack at 1150 °C glows yellow-orange and the
+// crust at 600 °C is a dull red a thousand times dimmer. That light is mipmapped from above and thrown back onto
+// the slopes around it; the crater lights the steam plume from below, and the plume rises through 3D noise.
 const PARAMS = { flow: 1, cooling: 1, speed: 1 };
 
 export default function (stage) {
@@ -116,6 +122,8 @@ export default function (stage) {
   stage.append(canvas);
   const gl = canvas.getContext('webgl2', { antialias: false });
   if (!gl || !gl.getExtension('EXT_color_buffer_float')) { stage.textContent = 'This needs WebGL2 with float render targets.'; return () =&gt; canvas.remove(); }
+  const lin = !!gl.getExtension('OES_texture_float_linear');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sh = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
   const VS = `#version 300 es
   layout(location = 0) in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
@@ -125,10 +133,20 @@ export default function (stage) {
     const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i &lt; n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
     return { p, u };
   };
-  const NX = 320, NY = 200;
+  const NS = 256, NT = 1024;                                   // simulation cells, terrain texels (each side)
   const COMMON = `#version 300 es
-  precision highp float; in vec2 uv; out vec4 o;
-  uniform sampler2D S, Z, M; const ivec2 N = ivec2(${NX}, ${NY});
+  precision highp float; precision highp sampler3D; in vec2 uv; out vec4 o;
+  #define PI 3.14159265
+  const float TER = 10.;                                       // the terrain texture spans [-TER, TER] in x and z
+  const vec2 SIM0 = vec2(-6., -10.5); const float SIMW = 12.;   // the simulated patch of the mountain
+  const float HU = .045;                                        // a unit of lava thickness, in world units
+  const ivec2 N = ivec2(${NS});
+  float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  vec2 h22(vec2 p) { vec3 q = fract(p.xyx * vec3(.1031, .103, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xx + q.yz) * q.zy); }
+  float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + 1.), f.x), f.y); }`;
+  const SIMC = `${COMMON}
+  uniform sampler2D S, Z, M;
   vec4 st(ivec2 c) { return texelFetch(S, clamp(c, ivec2(0), N - 1), 0); }
   float zz(ivec2 c) { return texelFetch(Z, clamp(c, ivec2(0), N - 1), 0).x; }
   // how easily a cell's lava moves: steeply more the thicker it is (capped, for a stable step), stiffening as it cools
@@ -136,102 +154,302 @@ export default function (stage) {
   // lava moving from a to b this step: driven by the difference in surface height, at the upstream cell's ease
   float flux(ivec2 a, ivec2 b, float C) {
     vec4 sa = st(a), sb = st(b); float Ha = zz(a) + sa.x, Hb = zz(b) + sb.x;
-    if (b.y &lt; 0) Hb = Ha - 1.;                                       // the bottom edge is open: it runs off the screen
+    if (any(lessThan(b, ivec2(0))) || any(greaterThanEqual(b, N))) Hb = Ha - .5;     // it runs off the patch
     return C * (Ha &gt; Hb ? mob(sa) : mob(sb)) * (Ha - Hb);
-  }
-  vec4 bil(sampler2D t, vec2 c) {                                    // bilinear, by hand (32-bit textures may not filter)
-    vec2 f = c - .5, i = floor(f), w = f - i; ivec2 a = ivec2(i);
-    return mix(mix(texelFetch(t, clamp(a, ivec2(0), N - 1), 0), texelFetch(t, clamp(a + ivec2(1, 0), ivec2(0), N - 1), 0), w.x),
-               mix(texelFetch(t, clamp(a + ivec2(0, 1), ivec2(0), N - 1), 0), texelFetch(t, clamp(a + 1, ivec2(0), N - 1), 0), w.x), w.y);
   }`;
-  // the ground: a slope down the screen with hummocks and gullies, made once
-  const groundP = prog(`${COMMON}
-  float h21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  float n2(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + 1.), f.x), f.y); }
-  uniform float SEED;
-  void main() { vec2 c = gl_FragCoord.xy, q = c / 38. + SEED; float f = 0., a = 1.; for (int i = 0; i &lt; 5; i++) { f += a * n2(q); q = q * 2.03 + 7.1; a *= .5; }
-    o = vec4(.34 * c.y + 4.5 * f, 0, 0, 1); }`);
+
+  // ---- the mountain, made once
+  const terrainP = prog(`${COMMON}
+  uniform float RES;
+  vec3 noised(vec2 p) {                                        // value noise in [-1, 1] with its gradient
+    vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f), du = 6. * f * (1. - f);
+    float a = h21(i), b = h21(i + vec2(1, 0)), c = h21(i + vec2(0, 1)), d = h21(i + 1.);
+    float k1 = b - a, k2 = c - a, k4 = a - b - c + d;
+    return vec3(a + k1 * u.x + k2 * u.y + k4 * u.x * u.y, du * (vec2(k1, k2) + k4 * u.yx)) * 2. - vec3(1, 0, 0);
+  }
+  // erosion: overlapping stripes laid along the downhill direction (after Clay John's eroded-terrain noise)
+  vec3 erosion(vec2 p, vec2 dir) {
+    vec2 ip = floor(p), fp = fract(p); vec3 va = vec3(0); float wt = 0.;
+    for (int i = -2; i &lt;= 1; i++) for (int j = -2; j &lt;= 1; j++) {
+      vec2 o = vec2(i, j), pp = fp + o - h22(ip - o) * .5;
+      float w = exp(-dot(pp, pp) * 2.), mag = dot(pp, dir); wt += w;
+      va += vec3(cos(mag * 6.2832), -sin(mag * 6.2832) * dir) * w;
+    }
+    return va / wt;
+  }
+  void main() {
+    vec2 p = (gl_FragCoord.xy / RES * 2. - 1.) * TER;
+    float r = length(p), er = exp(-r / 3.6);
+    // the cone, steep at the top and easing into a long apron; its gradient comes along for the erosion
+    float h = 3.1 - 2.7 * (1. - er) - .045 * r;
+    vec2 g = -(.75 * er + .045) * p / max(r, 1e-3);
+    vec3 n = noised(p * .32 + 3.7); float nm = smoothstep(1.2, 4., r);
+    h += .38 * n.x * nm; g += .38 * .32 * n.yz * nm;
+    n = noised(p * .9 + 11.); h += .08 * n.x * nm; g += .08 * .9 * n.yz * nm;
+    // the crater: a pit inside a raised lip, its rim broken toward -z where the lava spills out
+    float a = atan(p.x, -p.y), brk = exp(-a * a * 9.);
+    h -= .72 * smoothstep(.8, .2, r);
+    h += (.16 - .2 * brk + .14 * (vn(vec2(a * 2.2 + 3., 1.)) - .5) + .05 * (vn(vec2(a * 9., 2.)) - .5)) * exp(-pow((r - .78) / .2, 2.));
+    h -= .3 * brk * smoothstep(.45, .9, r) * smoothstep(3., .9, r);    // the spillway it has cut
+    // erosion, strongest on the mid slopes; each octave bends with the gullies the larger ones cut
+    float em = smoothstep(.75, 1.7, r) * smoothstep(12., 6., r) * (1. - .7 * brk * smoothstep(3.5, 1., r));
+    vec2 dir = normalize(vec2(g.y, -g.x) + 1e-5) * min(length(g) * 3., 1.);
+    vec3 e = vec3(0); float amp = .16, f = 1.;
+    for (int i = 0; i &lt; 6; i++) {
+      e += erosion(p * 2.2 * f, dir + e.zy * vec2(1, -1) * .9) * amp * vec3(1, f, f);
+      amp *= .42; f *= 2.;
+    }
+    h += (e.x - .06) * em;
+    // fine rubble everywhere, and old hummocky flows on the plain
+    h += .012 * (vn(p * 22.) + .5 * vn(p * 47.)) + .05 * (vn(p * 3.1) - .5) * smoothstep(5., 9., r);
+    float hl = vn(p * .11 + 4.); h += .45 * hl * hl * smoothstep(9., 16., r) + .12 * (vn(p * .6) - .5) * smoothstep(5., 10., r);
+    o = vec4(h, e.x * em, 0, 1);
+  }`);
+  // the simulation's ground: the terrain at each cell, in lava units
+  const groundP = prog(`${SIMC} uniform sampler2D TT;
+  void main() { vec2 w = SIM0 + gl_FragCoord.xy / vec2(N) * SIMW; o = vec4(texture(TT, w / (2. * TER) + .5).x / HU, 0, 0, 1); }`);
   // one step of the flow: thickness and heat, moved between neighbours, cooled (thin lava fastest), fed at the vent
-  const flowP = prog(`${COMMON} uniform float C, COOL, SRC; uniform vec2 VENT;
+  const flowP = prog(`${SIMC} uniform float C, COOL, SRC; uniform vec2 VENT;
   void main() {
     ivec2 c = ivec2(gl_FragCoord.xy); vec4 s = st(c);
     float dh = 0., dE = 0., dA = 0., fast = 0.;
     for (int k = 0; k &lt; 4; k++) {
       ivec2 d = k == 0 ? ivec2(1, 0) : k == 1 ? ivec2(-1, 0) : k == 2 ? ivec2(0, 1) : ivec2(0, -1), n = c + d;
-      if (n.x &lt; 0 || n.x &gt;= N.x || n.y &gt;= N.y) continue;            // closed sides and top
       float q = -flux(c, n, C); dh += q; dE += q * (q &gt; 0. ? st(n).y : s.y); dA += q * (q &gt; 0. ? st(n).z : s.z); fast = max(fast, abs(q));
     }
     float h = max(0., s.x + dh), E = max(0., s.x * s.y + dE), T = h &gt; 1e-5 ? clamp(E / h, 0., 1.) : 0.;
     float age = h &gt; 1e-5 ? max(0., (s.x * s.z + dA) / h) : 0.;
     age = (age + 1.) * (1. - clamp(fast / max(h, .1) * 2. - .03, 0., .08));   // older each step; only fast flow tears the skin
-    vec2 dv = vec2(c) - VENT; float g = exp(-dot(dv, dv) / 18.);
+    vec2 dv = vec2(c) - VENT; float g = exp(-dot(dv, dv) / 30.);
     h += SRC * g; T = mix(T, 1., clamp(SRC * g * 6., 0., 1.)); age *= 1. - clamp(SRC * g * 40., 0., 1.);
     T = max(0., T - COOL * T / (h + .25));
+    h *= 1. - .0004 * smoothstep(.3, .12, T);                   // cold lava sets into rock
     o = vec4(h, T, min(age, 5000.), 1);
   }`);
+  // a lava lake filling the crater to its lip, to start from
+  const fillP = prog(`${SIMC} uniform vec2 VENT;
+  void main() { ivec2 c = ivec2(gl_FragCoord.xy); float lvl = zz(ivec2(VENT - vec2(0, .95 / SIMW * float(N.x)))) + .5;
+    o = vec4(length(vec2(c) - VENT) &lt; .72 / SIMW * float(N.x) ? max(lvl - zz(c), 0.) : 0., 1., 0., 1.); }`);
   // the crust's coordinates, carried by the flow (bare ground and still-molten surface use their own position, so a
   // plate's pattern is fixed where it forms and then drifts with it)
-  const matP = prog(`${COMMON} uniform float C, K; uniform vec2 VENT;
+  const matP = prog(`${SIMC} uniform float C, K; uniform vec2 VENT;
+  vec4 bil(sampler2D t, vec2 c) {
+    vec2 f = c - .5, i = floor(f), w = f - i; ivec2 a = ivec2(i);
+    return mix(mix(texelFetch(t, clamp(a, ivec2(0), N - 1), 0), texelFetch(t, clamp(a + ivec2(1, 0), ivec2(0), N - 1), 0), w.x),
+               mix(texelFetch(t, clamp(a + ivec2(0, 1), ivec2(0), N - 1), 0), texelFetch(t, clamp(a + 1, ivec2(0), N - 1), 0), w.x), w.y);
+  }
   void main() {
     ivec2 c = ivec2(gl_FragCoord.xy); vec4 s = st(c);
     vec2 v = .5 * vec2(flux(c - ivec2(1, 0), c, C) + flux(c, c + ivec2(1, 0), C), flux(c - ivec2(0, 1), c, C) + flux(c, c + ivec2(0, 1), C)) / max(s.x, .1);
-    vec2 m = mix(bil(M, vec2(c) + .5 - v * K).xy, vec2(c), .012);    // drift with the flow, relaxing back: plates can't smear forever
-    if (s.x &lt; .03 || length(vec2(c) - VENT) &lt; 4.) m = vec2(c);
+    vec2 m = mix(bil(M, vec2(c) + .5 - v * K).xy, vec2(c), .02);
+    if (s.x &lt; .03 || length(vec2(c) - VENT) &lt; 6.) m = vec2(c);
     o = vec4(m, 0, 1);
   }`);
-  // what glows, at the simulation's size; its mipmaps make the light it throws on the rock
-  const emitP = prog(`${COMMON}
-  void main() { vec4 s = bil(S, uv * vec2(N)); float hot = smoothstep(.35, 1., s.y) * min(s.x * 2.5, 1.); o = vec4(vec3(1., .35, .06) * hot * hot, 1); }`);
-  const renP = prog(`${COMMON} uniform sampler2D EM; uniform vec2 R; uniform float FADE;
-  float h21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  float n2(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + 1.), f.x), f.y); }
-  vec3 vor(vec2 p) { vec2 i = floor(p), f = fract(p); float d1 = 9., d2 = 9., id = 0.;   // nearest, second nearest, the plate's id
-    for (int y = -1; y &lt;= 1; y++) for (int x = -1; x &lt;= 1; x++) { vec2 g = vec2(x, y), r = g + vec2(h21(i + g), h21(i + g + 3.7)) - f; float d = dot(r, r); if (d &lt; d1) { d2 = d1; d1 = d; id = h21(i + g + 11.); } else if (d &lt; d2) d2 = d; }
-    return vec3(sqrt(d1), sqrt(d2), id); }
-  vec3 heat(float T) { return T &gt; .82 ? mix(vec3(1., .55, .12), vec3(1., .93, .6), (T - .82) / .18) : T &gt; .6 ? mix(vec3(.75, .12, .02), vec3(1., .55, .12), (T - .6) / .22) : mix(vec3(.12, .015, .0), vec3(.75, .12, .02), max(0., T - .35) / .25); }
+  // blackbody light at three wavelengths (610, 550, 465 nm) by Planck's law (Wien's form), scaled to 1 at 1450 K
+  const PLANCK = `
+  vec3 planck(float K) { vec3 l = vec3(.61, .55, .465); return pow(vec3(.61) / l, vec3(5.)) * exp(-14388. / l / K + 14388. / .61 / 1450.); }
+  float kelvin(float T) { return 680. + 790. * T; }            // the simulation's 0..1 heat, in kelvin
+  float crustOf(float T, float age) { return max(smoothstep(6., 40., age), smoothstep(.62, .45, T)); }`;
+  // what the lava gives off, seen from above, with mipmaps: the light it throws on everything near it
+  const emitP = prog(`${SIMC} ${PLANCK}
+  void main() { vec4 s = texelFetch(S, ivec2(gl_FragCoord.xy), 0);
+    float cov = smoothstep(.02, .15, s.x), cr = crustOf(s.y, s.z), K = kelvin(s.y);
+    vec3 e = planck(K) * mix(1., .1, cr) + planck(K - 380. * cr) * cr;
+    o = vec4(e * cov, 1); }`);
+
+  const renP = prog(`${COMMON} ${PLANCK}
+  uniform sampler2D TT, S, M, EM; uniform sampler3D NZ; uniform vec2 R; uniform float T, FOC, PXA; uniform vec3 CP, CF, CR, CU;
+  const vec3 TW = ${'normalize(vec3(-.75, 0., 1.))'};                      // where the sun went down
+  float terr(vec2 xz) {
+    vec2 q = xz / (2. * TER) + .5;
+    float r = length(xz), hl = vn(xz * .11 + 4.), far = .45 * hl * hl * smoothstep(9., 16., r) + .06 * vn(xz * .5) + .03 * vn(xz * 1.7) + max(3.1 - 2.7 * (1. - exp(-r / 3.6)) - .045 * r, -.02);
+    if (any(lessThan(q, vec2(.002))) || any(greaterThan(q, vec2(.998)))) return far;
+    vec2 ed = smoothstep(vec2(.002), vec2(.03), q) * smoothstep(vec2(.998), vec2(.97), q);
+    return mix(far, texture(TT, q).x, ed.x * ed.y);
+  }
+  vec2 simUV(vec2 xz) { return (xz - SIM0) / SIMW; }
+  vec4 lava(vec2 xz) {                                         // thickness (world units), heat, crust age
+    vec2 q = simUV(xz); if (any(lessThan(q, vec2(0))) || any(greaterThan(q, vec2(1)))) return vec4(0);
+    vec4 s = texture(S, q); return vec4(max(s.x - .02, 0.) * HU, s.y, s.z, s.x);
+  }
+  float H(vec2 xz) { return terr(xz) + lava(xz).x; }
+  float n3(vec3 p) { return texture(NZ, p).x; }
   vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
-  void main() {
-    // fill the frame with the simulation (it is 1.6 times wider than tall)
-    vec2 sc = vec2(R.x / R.y, 1.) / vec2(1.6, 1.); vec2 q = (uv - .5) * (sc / max(sc.x, sc.y)) + .5;
-    vec2 c = q * vec2(N);
-    vec4 s = bil(S, c); float h = s.x, T = s.y, age = s.z;
-    // black basalt with a little relief, lit faintly by the sky and strongly by the lava's glow
-    float z0 = bil(Z, c).x, zx = bil(Z, c + vec2(1, 0)).x - z0, zy = bil(Z, c + vec2(0, 1)).x - z0;
-    vec3 nrm = normalize(vec3(-zx * .25, -(zy - .25) * .25, 1.));
-    float rough = n2(c * .7) * .6 + n2(c * 2.3) * .4;
-    vec3 glow = vec3(0); for (int i = 0; i &lt; 9; i++) { vec2 o9 = vec2(i % 3 - 1, i / 3 - 1); glow += textureLod(EM, q + o9 * .012, 2.).rgb + textureLod(EM, q + o9 * .03, 3.5).rgb * .7; } glow *= .11;
-    vec3 col = vec3(.014, .013, .014) * (.6 + .6 * rough) * (.5 + .5 * max(dot(nrm, normalize(vec3(-.4, .5, .8))), 0.)) + vec3(.004, .005, .008) + glow * (.3 + .45 * rough);
-    if (h &gt; .02) {
-      // the crust: plates on the carried coordinates, darker and thicker as the lava cools, cracked open to the heat
-      vec2 m = bil(M, c).xy / 7.5; vec3 v = vor(m), v2 = vor(m * 2.7 + 5.);
-      float crust = max(smoothstep(4., 30., age), smoothstep(.6, .42, T));
-      float live = smoothstep(.3, .6, T) * (1. - .75 * smoothstep(200., 3000., age));       // seams glow brighter near the heat
-      float crack = clamp(smoothstep(.05 + .12 * (1. - crust), .0, v.y - v.x) * (.55 + .45 * h21(vec2(v.z * 91.))) + smoothstep(.03, .0, v2.y - v2.x) * .4, 0., 1.) * live;
-      vec3 plate = vec3(.016, .015, .016) * (.45 + 1.1 * v.z) * (.7 + .5 * n2(m * 9.));   // each plate tilted, catching a little light
-      plate = mix(plate, vec3(.12, .02, .006), 1. - smoothstep(5., 60., age));             // brand-new crust: dull red
-      vec3 lava = heat(min(T, .93)) * (1. + .55 * n2(m * 3.) + .25 * n2(m * 11.));      // the open channel, its surface streaming past
-      vec3 lc = mix(lava, mix(plate + glow * .04, heat(.6 + .28 * live) * 1.3, crack), crust);
-      col = mix(col, lc, smoothstep(.02, .12, h));
+  vec3 vor(vec2 p) { vec2 i = floor(p), f = fract(p); float d1 = 9., d2 = 9., id = 0.;
+    for (int y = -1; y &lt;= 1; y++) for (int x = -1; x &lt;= 1; x++) { vec2 g = vec2(x, y), r = g + h22(i + g) - f; float d = dot(r, r); if (d &lt; d1) { d2 = d1; d1 = d; id = h21(i + g + 11.); } else if (d &lt; d2) d2 = d; }
+    return vec3(sqrt(d1), sqrt(d2), id); }
+
+  // ---- the sky at dusk: the afterglow low where the sun set, deepening to blue above, a few stars, far ridges
+  vec3 sky(vec3 d) {
+    float y = max(d.y, 0.), az = dot(normalize(vec3(d.x, 0., d.z) + 1e-5), TW) * .5 + .5;
+    vec3 c = mix(vec3(.018, .028, .062), vec3(.002, .005, .016), smoothstep(0., .5, y));
+    c += vec3(.6, .2, .05) * pow(az, 5.) * exp(-y * 14.) * .5 + vec3(.03, .036, .07) * exp(-y * 6.) * .4;
+    vec3 sp = d * 200.; vec3 id = floor(sp), rs = vec3(h21(id.xy + id.z), h21(id.yz + 3.1), h21(id.zx + 7.7));
+    c += vec3(.7, .75, .9) * smoothstep(.993, 1., rs.x) * smoothstep(.4, .05, length(fract(sp) - .5)) * smoothstep(.1, .45, y) * .35;
+    return c;
+  }
+  vec3 farRidge(vec3 d, vec3 c) {                              // distant ranges, flat silhouettes in the haze
+    float a = atan(d.x, d.z), rg = vn(vec2(a * 5., 1.)), hr = .012 + .05 * rg * rg + .014 * vn(vec2(a * 17., 4.)) + .005 * vn(vec2(a * 53., 2.));
+    float az = dot(normalize(vec3(d.x, 0., d.z) + 1e-5), TW) * .5 + .5;
+    return d.y &lt; hr ? mix(vec3(.014, .017, .03), vec3(.05, .035, .04), pow(az, 4.)) * (.55 + .45 * smoothstep(hr - .04, hr, d.y)) : c;
+  }
+
+  // ---- the plume: steam and gas boiling up out of the crater and leaning off with the wind, lit from below by the
+  // lava lake and only faintly by the sky; its billows are 3D noise carried upward and swelling as they rise
+  float pden(vec3 p, out float n) {                            // the plume's density, and its noise
+    float y = p.y - 2.45; n = 0.;
+    if (y &lt; 0.) return 0.;
+    vec2 ax = vec2(.1 * pow(y, 1.55), .04 * y);               // the column's axis, bent by the wind
+    float w = .4 + .21 * y + .01 * y * y, dd = length(p.xz - ax) / w;
+    if (dd &gt; 1.6) return 0.;
+    float rise = T * .2;                                       // billows ride up the column, swelling as they go
+    vec3 q = vec3((p.x - ax.x) / w * .8, (y - rise) / (.6 + .12 * y), (p.z - ax.y) / w * .8) * .045;
+    q += vec3(.02, 0, .013) * sin(vec3(q.y * 17., q.y * 13. + 1., 0.));
+    n = texture(NZ, q).x * .55 + texture(NZ, q * 2.3 + .31).x * .3 + texture(NZ, q * 5.1 + .57).x * .15;
+    float b = (n - .5) * 3.4;                                  // puffs: the noise decides the edge, not the cone
+    return smoothstep(-.1, .3, b + (1. - dd) * .8 - .25) * smoothstep(12., 4., y) * smoothstep(0., .5, y) * (1.2 + 2. * smoothstep(2.5, 0., y));
+  }
+  vec4 plume(vec3 ro, vec3 rd, float tmax) {
+    vec3 bmin = vec3(-2.6, 2.3, -3.), bmax = vec3(10., 14., 3.2);
+    vec3 inv = 1. / rd, t0 = (bmin - ro) * inv, t1 = (bmax - ro) * inv;
+    vec3 a = min(t0, t1), b = max(t0, t1);
+    float tn = max(max(a.x, a.y), max(a.z, 0.)), tf = min(min(b.x, b.y), min(b.z, tmax));
+    if (tn &gt;= tf) return vec4(0);
+    const int NST = 34; float dt = (tf - tn) / float(NST), t = tn + dt * h21(gl_FragCoord.xy + fract(T * 7.) * 17.);
+    vec3 acc = vec3(0); float tr = 1.;
+    for (int i = 0; i &lt; NST; i++) {
+      vec3 p = ro + rd * t; float n, den = pden(p, n);
+      if (den &gt; .002) {
+        float nb, below = pden(p - vec3(0, .35, 0), nb);
+        float al = 1. - exp(-den * dt * 1.5), y = p.y - 2.45;
+        // lit from below by the lava lake where there is little smoke beneath, from above by the dusk sky
+        float under = exp(-below * 1.2), top = clamp(1. - (den - below) * .4, .3, 1.);
+        vec3 L = vec3(1., .3, .08) * 1.2 * exp(-y * 1.3) * under
+               + vec3(.024, .024, .03) * (.45 + .8 * smoothstep(.5, 7., y)) * top * (.6 + .8 * n);
+        acc += tr * al * L; tr *= 1. - al;
+      }
+      t += dt; if (tr &lt; .02) break;
     }
-    col *= FADE * (1. - .35 * dot(uv - .5, uv - .5));
-    o = vec4(pow(aces(col * 1.1), vec3(1. / 2.2)), 1);
+    return vec4(acc, 1. - tr);
+  }
+
+  // ---- marching the ground: relaxed steps over the height field, then a short bisection
+  float march(vec3 ro, vec3 rd, out bool hit) {
+    float t = .05; hit = false; float lt = t, lh = 1.;
+    for (int i = 0; i &lt; 180; i++) {
+      vec3 p = ro + rd * t; float h = p.y - H(p.xz);
+      if (h &lt; .0015 * t) { hit = true; break; }
+      lt = t; lh = h;
+      t += max(h * .45, .004 + .003 * t);
+      if (t &gt; 70. || (p.y &gt; 5.5 &amp;&amp; rd.y &gt; 0.)) break;
+    }
+    if (hit) { float a = lt, b = t; for (int i = 0; i &lt; 6; i++) { float m = .5 * (a + b); vec3 p = ro + rd * m; if (p.y - H(p.xz) &lt; 0.) b = m; else a = m; } t = .5 * (a + b); }
+    return t;
+  }
+  vec3 glowAt(vec2 xz) {                                       // the lava's light falling on a point, gathered from above
+    vec2 q = simUV(xz); if (any(lessThan(q, vec2(-.1))) || any(greaterThan(q, vec2(1.1)))) return vec3(0);
+    vec2 ef = smoothstep(vec2(-.1), vec2(.06), q) * smoothstep(vec2(1.1), vec2(.94), q);
+    return (textureLod(EM, q, 2.).rgb * .3 + textureLod(EM, q, 3.5).rgb * .45 + textureLod(EM, q, 5.).rgb * .6) * ef.x * ef.y;
+  }
+  vec3 shade(vec3 p, vec3 rd, float t) {
+    float e = .012 + t * .0012;
+    vec3 n = normalize(vec3(H(p.xz - vec2(e, 0)) - H(p.xz + vec2(e, 0)), 2. * e, H(p.xz - vec2(0, e)) - H(p.xz + vec2(0, e))));
+    vec4 lv = lava(p.xz);
+    vec2 q = p.xz / (2. * TER) + .5; float ero = all(greaterThan(q, vec2(0))) &amp;&amp; all(lessThan(q, vec2(1))) ? texture(TT, q).y : 0.;
+    // rock: dark basalt on the ridges, paler ash and scree in the gullies and on the gentle slopes
+    float fine = n3(vec3(p.xz * 1.7, .5)) * .6 + n3(vec3(p.xz * 6.3, .2)) * .4;
+    vec3 nb = n3(vec3(p.xz * 9., .7)) - vec3(.5) + vec3(0, .5, 0);
+    vec2 nd = vec2(n3(vec3(p.xz * 3.3, .1)), n3(vec3(p.xz * 3.3, .9))) * .5 + vec2(n3(vec3(p.xz * 13., .3)), n3(vec3(p.xz * 13., .6))) * .3
+            + vec2(n3(vec3(p.xz * 41., .4)), n3(vec3(p.xz * 41., .8))) * .2 * smoothstep(5., 1.5, t) - .5;
+    n = normalize(n + .55 * vec3(nd.x, 0., nd.y) * smoothstep(9., 2., t));
+    vec3 alb = mix(vec3(.06, .055, .055), vec3(.13, .115, .1), smoothstep(.02, -.06, ero) * .7 + .3 * fine);
+    alb = mix(alb, vec3(.035, .032, .034), smoothstep(.04, .12, ero));
+    alb *= .8 + .4 * fine;
+    float r = length(p.xz);
+    vec3 amb = mix(vec3(.035, .032, .038), vec3(.06, .07, .11), n.y * .5 + .5) * .65;
+    vec3 twl = vec3(.35, .18, .12) * max(dot(n, normalize(TW + vec3(0, .25, 0))), 0.) * .18;     // the last of the afterglow
+    vec3 gl = glowAt(p.xz) * (.5 + .5 * n.y) * 1.6;
+    vec3 cp = vec3(0., 2.55, 0.) - p; float cd = length(cp);   // the crater's lake, lighting its walls and the rim
+    vec3 cl = vec3(1., .38, .1) * 1.4 * max(dot(n, cp / cd), 0.) / (cd * cd * 1.5 + .25);
+    vec3 col = alb * (amb + twl + gl + cl);
+    if (lv.w &gt; .01) {
+      // the lava's surface: plates of crust on the carried coordinates, cracked open to the glowing interior. The
+      // margins and the crust's edge are broken up with noise so the simulation's cells never show
+      float th = lv.w, Tm = lv.y, age = lv.z, jit = vn(p.xz * 31.) - .5 + .5 * (vn(p.xz * 83.) - .5);
+      vec2 mc = texture(M, simUV(p.xz)).xy / 6.5; vec3 v = vor(mc);
+      float cr = clamp(crustOf(Tm, age) + jit * .35, 0., 1.);
+      float fw = t * PXA / max(abs(dot(n, rd)), .3) / (SIMW / float(N.x) * 6.5);   // one pixel, in plate units
+      float w = .025 + .07 * (1. - cr) * (.4 + .6 * h21(vec2(v.z * 91.)));
+      float open = smoothstep(.28, .6, Tm) * (1. - .85 * smoothstep(200., 2500., age)) * (.3 + .7 * h21(vec2(v.z * 37.)));
+      float crack = smoothstep(w + fw, max(w - fw, 0.), v.y - v.x) * min(1., w / fw) * open;
+      float K = kelvin(Tm);
+      vec3 molten = planck(K * (.96 + .06 * vn(mc * 2.5 + vec2(0, T * .3)))) * (.8 + .4 * vn(mc * 7.));
+      vec3 plate = alb * (.55 + .7 * v.z) * (amb + gl * .7 + cl) + planck(K - 450. * cr) * .7;
+      vec3 lc = mix(molten, plate + planck(K - 40.) * crack * 1.4, smoothstep(.15, .85, cr));
+      col = mix(col, lc * 2., smoothstep(.0, .1, th + jit * .1));
+    }
+    // haze: blue dusk far off, and the lava's light caught in the fumes near the ground
+    vec3 hz = mix(vec3(.014, .02, .036), vec3(.06, .032, .03), pow(dot(normalize(vec3(rd.x, 0, rd.z)), TW) * .5 + .5, 4.));
+    col = mix(col, hz, 1. - exp(-t * .018));
+    return col + glowAt(p.xz) * .06 * (1. - exp(-t * .1));
+  }
+
+  void main() {
+    vec2 q = (uv * 2. - 1.) * vec2(R.x / R.y, 1.);
+    vec3 rd = normalize(CF * FOC + CR * q.x + CU * q.y), ro = CP;
+    bool hit; float t = march(ro, rd, hit);
+    vec3 col;
+    if (hit) col = shade(ro + rd * t, rd, t);
+    else { col = farRidge(rd, sky(rd)); t = 1e4; }
+    vec4 pl = plume(ro, rd, t);
+    col = col * (1. - pl.a) + pl.rgb;
+    o = vec4(col, 1);
+  }`);
+  const compP = prog(`#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform sampler2D SC; uniform vec2 R; uniform float FADE;
+  float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
+  vec3 tap(float l) { vec2 t = exp2(l) / R; vec3 c = textureLod(SC, uv, l).rgb * .25;
+    c += (textureLod(SC, uv + t * vec2(.9, .4), l).rgb + textureLod(SC, uv + t * vec2(-.4, .9), l).rgb + textureLod(SC, uv + t * vec2(-.9, -.4), l).rgb + textureLod(SC, uv + t * vec2(.4, -.9), l).rgb) * .1875;
+    return c; }
+  void main() {
+    vec3 c = textureLod(SC, uv, 0.).rgb;
+    vec3 bl = tap(1.) * .35 + tap(2.5) * .3 + tap(4.) * .2 + tap(5.5) * .15;
+    c += bl * .25;
+    c = aces(c * 1.6) * FADE;
+    vec2 v = uv - .5; c *= 1. - .45 * dot(v, v);
+    o = vec4(pow(c, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy + fract(R.x * .37)) - .5) / 255., 1);
   }`);
 
-  // targets: 32-bit for the simulation (read exactly), 16-bit with mipmaps for the glow
-  const target = (w, h, fmt, mips) =&gt; {
+  // ---- targets
+  const target = (w, h, fmt, filt, mips) =&gt; {
     const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
     const levels = mips ? Math.floor(Math.log2(Math.max(w, h))) + 1 : 1; gl.texStorage2D(gl.TEXTURE_2D, levels, fmt, w, h);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mips ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, mips ? gl.LINEAR : gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mips ? gl.LINEAR_MIPMAP_LINEAR : filt); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filt);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
     return { t, f, w, h };
   };
-  const pair = () =&gt; { let a = target(NX, NY, gl.RGBA32F), b = target(NX, NY, gl.RGBA32F); return { get r() { return a; }, get w() { return b; }, swap() { [a, b] = [b, a]; }, all: () =&gt; [a, b] }; };
-  const S = pair(), M = pair(), Zt = target(NX, NY, gl.RGBA32F), EM = target(NX, NY, gl.RGBA16F, true);
+  const F32 = lin ? gl.LINEAR : gl.NEAREST;
+  const pair = () =&gt; { let a = target(NS, NS, gl.RGBA32F, F32), b = target(NS, NS, gl.RGBA32F, F32); return { get r() { return a; }, get w() { return b; }, swap() { [a, b] = [b, a]; }, all: () =&gt; [a, b] }; };
+  const S = pair(), M = pair(), Zt = target(NS, NS, gl.RGBA32F, gl.NEAREST), EM = target(NS, NS, gl.RGBA16F, gl.LINEAR, true);
+  const TT = target(NT, NT, gl.RGBA32F, F32);
+  // a tiling 3D noise texture for the plume and the rock's grain
+  const NZ = gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D, NZ);
+  { const n = 64, d = new Uint8Array(n * n * n); let s = 1234567; for (let i = 0; i &lt; d.length; i++) { s = (s * 1664525 + 1013904223) &gt;&gt;&gt; 0; d[i] = s &gt;&gt;&gt; 24; }
+    gl.texImage3D(gl.TEXTURE_3D, 0, gl.R8, n, n, n, 0, gl.RED, gl.UNSIGNED_BYTE, d); }
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  for (const w of [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T, gl.TEXTURE_WRAP_R]) gl.texParameteri(gl.TEXTURE_3D, w, gl.REPEAT);
   gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  let W = 1, H = 1;
-  const resize = () =&gt; { const d = Math.min(devicePixelRatio, 2); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
+  let W = 1, H = 1, SC = null;
+  const resize = () =&gt; {
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(520000 / (w * h))));
+    W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0);
+    if (SC) { gl.deleteTexture(SC.t); gl.deleteFramebuffer(SC.f); }
+    SC = target(W, H, gl.RGBA16F, gl.LINEAR, true);
+  };
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
   const run = (pr, out, set) =&gt; {
     gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, out ? out.f : null); gl.viewport(0, 0, out ? out.w : W, out ? out.h : H);
@@ -239,29 +457,46 @@ export default function (stage) {
     set((name, v) =&gt; {
       const loc = pr.u[name]; if (loc == null) return;
       if (v &amp;&amp; v.t) { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, v.t); gl.uniform1i(loc, unit++); }
-      else if (Array.isArray(v)) gl.uniform2f(loc, v[0], v[1]); else gl.uniform1f(loc, v);
+      else if (v === NZ) { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_3D, NZ); gl.uniform1i(loc, unit++); }
+      else if (Array.isArray(v)) (v.length === 3 ? gl.uniform3f(loc, v[0], v[1], v[2]) : gl.uniform2f(loc, v[0], v[1])); else gl.uniform1f(loc, v);
     });
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
-  const VENT = [NX * 0.47, NY * 0.9];
-  const reset = seed =&gt; {
-    for (const t of [...S.all(), ...M.all()]) { gl.bindFramebuffer(gl.FRAMEBUFFER, t.f); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
-    run(groundP, Zt, u =&gt; u('SEED', seed));
-  };
-  let raf, last = performance.now(), t = 0, cycle = -1;
-  function frame(now) {
-    const dt = Math.min(1 / 30, (now - last) / 1000) * PARAMS.speed; last = now; t += dt;
-    // a cycle: the vent pours for 20 s, then stops; what is out there creeps on and darkens; fade, and a new flow
-    const L = 26, c = t % L;
-    if (Math.floor(t / L) !== cycle) { cycle = Math.floor(t / L); reset(cycle * 3.7 + 1.3); }
-    const src = c &lt; 20 ? 0.016 * PARAMS.flow * Math.min(1, c / 0.8) : 0, steps = Math.round(12 * Math.min(2, dt * 60));
-    for (let i = 0; i &lt; steps; i++) {
-      run(flowP, S.w, u =&gt; { u('S', S.r); u('Z', Zt); u('C', 0.06); u('COOL', 0.00003 * PARAMS.cooling); u('SRC', src); u('VENT', VENT); }); S.swap();
+  // the vent: the middle of the crater, in simulation cells
+  const VENT = [(0 - -6) / 12 * NS, (0 - -10.5) / 12 * NS];
+  for (const t of [...S.all(), ...M.all()]) { gl.bindFramebuffer(gl.FRAMEBUFFER, t.f); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+  run(terrainP, TT, u =&gt; u('RES', NT));
+  run(groundP, Zt, u =&gt; u('TT', TT));
+  run(fillP, S.w, u =&gt; { u('Z', Zt); u('VENT', VENT); }); S.swap();                     // the crater starts full
+  const step = n =&gt; {
+    for (let done = 0; done &lt; n;) {
+      const k = Math.min(10, n - done); done += k;
+      for (let i = 0; i &lt; k; i++) {
+        run(flowP, S.w, u =&gt; { u('S', S.r); u('Z', Zt); u('C', 0.1); u('COOL', 0.000015 * PARAMS.cooling); u('SRC', 0.012 * PARAMS.flow); u('VENT', VENT); }); S.swap();
+      }
+      run(matP, M.w, u =&gt; { u('S', S.r); u('Z', Zt); u('M', M.r); u('C', 0.1); u('K', k); u('VENT', VENT); }); M.swap();
     }
-    run(matP, M.w, u =&gt; { u('S', S.r); u('Z', Zt); u('M', M.r); u('C', 0.06); u('K', steps); u('VENT', VENT); }); M.swap();
+  };
+  // the camera stands on the lower flank and drifts slowly along it
+  const cam = t =&gt; {
+    const a = 0.36 + (reduce ? 0 : 0.06 * Math.sin(t * 0.045)), rr = 8.4;
+    const cx = Math.sin(a) * rr, cz = -Math.cos(a) * rr, cy = 2.2 + (reduce ? 0 : 0.08 * Math.sin(t * 0.06 + 1));
+    let fx = -0.5 - cx, fy = 1.45 - cy, fz = -1.2 - cz; const fl = Math.hypot(fx, fy, fz); fx /= fl; fy /= fl; fz /= fl;
+    let rx = fz, rz = -fx; const rl = Math.hypot(rx, rz); rx /= rl; rz /= rl;
+    return { p: [cx, cy, cz], f: [fx, fy, fz], r: [rx, 0, rz], u: [fy * rz, fz * rx - fx * rz, -fy * rx] };
+  };
+  let raf, last = null, t = 0, warm = 0;
+  const WARM = 14000;                                          // steps run before the first frame shows
+  function frame(now) {
+    if (last === null) last = now;
+    const dt = Math.min(1 / 30, (now - last) / 1000) * (reduce ? 0.25 : 1); last = now;
+    if (warm &lt; WARM) { const n = Math.min(1500, WARM - warm); step(n); warm += n; }
+    else { t += dt * PARAMS.speed; step(Math.max(1, Math.round(10 * PARAMS.speed * Math.min(2, dt * 60)))); }
     run(emitP, EM, u =&gt; { u('S', S.r); }); gl.bindTexture(gl.TEXTURE_2D, EM.t); gl.generateMipmap(gl.TEXTURE_2D);
-    const fade = Math.min(1, c / 0.6) * (1 - Math.max(0, (c - 25.2) / 0.8));
-    run(renP, null, u =&gt; { u('S', S.r); u('Z', Zt); u('M', M.r); u('EM', EM); u('R', [W, H]); u('FADE', fade); });
+    const c = cam(t), asp = W / H, foc = 1.85 * Math.max(1, 1.3 / asp);
+    run(renP, SC, u =&gt; { u('TT', TT); u('S', S.r); u('M', M.r); u('EM', EM); u('NZ', NZ); u('R', [W, H]); u('T', t); u('FOC', foc); u('PXA', 2 / (foc * H)); u('CP', c.p); u('CF', c.f); u('CR', c.r); u('CU', c.u); });
+    gl.bindTexture(gl.TEXTURE_2D, SC.t); gl.generateMipmap(gl.TEXTURE_2D);
+    run(compP, null, u =&gt; { u('SC', SC); u('R', [W, H]); u('FADE', warm &lt; WARM ? 0 : Math.min(1, t / 0.6)); });
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);

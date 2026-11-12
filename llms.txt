@@ -44,8 +44,8 @@
 - [Ink fluid](https://ajeckblad.github.io/motion-library/fx/ink-fluid.html): Stable fluids: advect, curl, project, repeat. `npx motion-library add ink-fluid`
 - [Liquid image distortion](https://ajeckblad.github.io/motion-library/fx/liquid-distort.html): Offset texture lookups by flowing noise. `npx motion-library add liquid-distort`
 - [Lava lamp](https://ajeckblad.github.io/motion-library/fx/lava-lamp.html): Metaballs: sum the fields, threshold the sum. `npx motion-library add lava-lamp`
-- [Fire & smoke](https://ajeckblad.github.io/motion-library/fx/fire-smoke.html): Fluid solver with buoyant heat that cools into smoke. `npx motion-library add fire-smoke`
-- [Lava flow](https://ajeckblad.github.io/motion-library/fx/lava-flow.html): Temperature-dependent viscous flow; crust drawn on advected coordinates. `npx motion-library add lava-flow`
+- [Fire & smoke](https://ajeckblad.github.io/motion-library/fx/fire-smoke.html): Combustion simulated: fuel burns out, gas glows as a blackbody. `npx motion-library add fire-smoke`
+- [Lava flow](https://ajeckblad.github.io/motion-library/fx/lava-flow.html): Lava simulated on an eroded volcano, lit by blackbody light. `npx motion-library add lava-flow`
 - [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors. `npx motion-library add ferrofluid`
 - [Paper marbling](https://ajeckblad.github.io/motion-library/fx/marbling.html): Backward lookup through comb and swirl warps; paint never smears. `npx motion-library add marbling`
 - [Rain on glass](https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html): Each drop is a lens showing a sharp, flipped background. `npx motion-library add raindrops-glass`
@@ -76,7 +76,7 @@
 - [Paper fold](https://ajeckblad.github.io/motion-library/fx/paper-fold.html): A tree of CSS 3D hinges: the last crease carries the rest. `npx motion-library add paper-fold`
 - [Menger sponge](https://ajeckblad.github.io/motion-library/fx/menger-sponge.html): Box minus a cross, repeated by folding space each level. `npx motion-library add menger-sponge`
 - [Gyroid fly-through](https://ajeckblad.github.io/motion-library/fx/gyroid.html): Thickened gyroid sheet with a tube carved along the camera path. `npx motion-library add gyroid`
-- [Black hole](https://ajeckblad.github.io/motion-library/fx/black-hole.html): Rays bent toward the hole each step; Doppler-beamed accretion disk. `npx motion-library add black-hole`
+- [Black hole](https://ajeckblad.github.io/motion-library/fx/black-hole.html): Each ray follows the exact light-orbit equation round a spinning hole. `npx motion-library add black-hole`
 - [Tesseract](https://ajeckblad.github.io/motion-library/fx/tesseract.html): Rigid 4D rotation projected to 3D turns the cube inside out. `npx motion-library add tesseract`
 - [Soap bubble](https://ajeckblad.github.io/motion-library/fx/soap-bubble.html): Thin-film interference from a draining, swirling film thickness. `npx motion-library add soap-bubble`
 - [Terrain flyover](https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html): Slope-damped noise layers carve erosion-like ridges. `npx motion-library add terrain-flyover`

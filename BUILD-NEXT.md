@@ -1,4 +1,4 @@
-# Resume here (2026-11-12, late evening): Cloth reveal and Portal finished; everything live
+# Resume here (2026-11-12, night): AJ's list of fixes and rebuilds all shipped; everything live
 
 Live: https://ajeckblad.github.io/motion-library/ (repo AjEckblad/motion-library; gh is logged in, so commit + `git push`
 from here deploys in about a minute). 213 pieces. Checks: `node tools/check.mjs` 82/82, `node tools/motion-check.mjs` 17/17,
@@ -22,7 +22,12 @@ Card hover (AJ, 2026-11-12): the image, its heart and the text under it lift 2px
 (the preview still waits 110 ms), on `translate .25s ease` both ways, so sweeping a row glides; reduced motion: no lift.
 Guarded in tools/motion-check.mjs (18/18).
 
-NEXT: AJ's list (2026-11-12, late). Tick each off here as it ships (commit + push after each).
+DONE: AJ's list (2026-11-12, late), all shipped and live. 212 pieces; check 83/83, motion-check 18/18.
+Helper agents' own reservations (worth AJ's eye): ferrofluid's flat oil shows small hard softbox glints and the trailing
+pool reads as a smooth slug on fast moves; SPH water has ~1 px rest shimmer; shatter's ball reads as dark steel; black
+hole's spin is a per-ray-mass approximation (not a full Kerr integrator) and its disc lacks the film's fine grain; lava
+flows at time-lapse speed with a slightly grainy plume; fire is a 2D slice (often one merged column).
+NEXT for AJ: /review-animations (only AJ can start it); npm 0.3.2 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`).
 - [x] UI demos: the 50 with a pastel ground behind app windows / phones (basics, transitions, micro, springs, morph) get
       a near-black ground; the windows and phones keep their own colours. The 30 full-page designs (text, scroll,
       hover) stay exactly as designed (AJ chose this). Done: one shared ground radial-gradient(120% 100% at 50% 0%,
@@ -36,12 +41,12 @@ the usage limit and resumed (agent 1: black hole nearly done, then volcano, fire
 then shatter). If a new session finds them gone: their files hold uncommitted work; review each piece with
 `node tools/frames.mjs` (whole loop) before finishing it. When committing anything else meanwhile, build static pages
 in a temporary worktree without the agents' files (fx pages and llms-full.txt embed each piece's code and size).
-- [ ] Black hole → Gargantua, the FILM look (AJ chose it): thin disc lensed over the top and under the shadow, photon
+- [x] Black hole → Gargantua, the FILM look (AJ chose it): thin disc lensed over the top and under the shadow, photon
       ring, even warm-white disc, NO Doppler beaming / colour shift. Ground it in the real ray-bending (Kerr-ish
       geodesics as DNGR did), not a 2D trick.
 - [x] Ferrofluid: light grey ground; a magnet under it that the pointer moves (drag left/right), and the fluid follows.
-- [ ] Lava flow: a realistic volcano/mountain with lava that reads as real (crust, glow, cooling).
-- [ ] Fire & smoke: refine to reference quality.
+- [x] Lava flow: a realistic volcano/mountain with lava that reads as real (crust, glow, cooling).
+- [x] Fire & smoke: refine to reference quality (a campfire: combustion sim, Planck colour, sparks).
 - [x] SPH water tank: refine to reference quality (WebGL2 now; Clavet double-density SPH, Gauss-Seidel; pointer tilts).
 - [x] Paper fold: several fold types (letter/tri-fold, sideways gate fold, accordion, map fold...) chosen with a PICKER
       in the detail view (AJ chose a picker over cycling: an explicit exception to "one effect per card, no switcher").
