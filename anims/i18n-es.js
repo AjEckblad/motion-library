@@ -1,5 +1,29 @@
 // Spanish text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ES = {
+ "ocean": {
+  "title": "Mar abierto",
+  "trick": "Océano FFT con espectro JONSWAP; las pendientes no resueltas ensanchan el brillo",
+  "notes": [
+   "Cuatro FFT en la GPU convierten un espectro JONSWAP en olas de Gerstner; la espuma nace donde la superficie se pliega y las pendientes diminutas ensanchan el reflejo del sol.",
+   "El viento fija la altura de las olas y la frecuencia de las crestas blancas, chop afila las crestas y sun es la altura del sol en grados; el puntero lo mueve."
+  ]
+ },
+ "honey-coil": {
+  "title": "Miel vertida",
+  "trick": "Enrollamiento de cuerda líquida: bucles apilados se hunden en un montículo",
+  "notes": [
+   "Cada bucle nuevo es un tubo apoyado en el de abajo; se hunde, se funde en un campo de alturas y se extiende según la ecuación de película delgada.",
+   "Flow fija el grosor del hilo, loops las vueltas por segundo y spread lo rápido que se aplana el montículo; arrastra el puntero para coser bucles."
+  ]
+ },
+ "diff-growth": {
+  "title": "Crecimiento diferencial",
+  "trick": "Repeler, alinear, dividir aristas estiradas: una cresta que crece se pliega",
+  "notes": [
+   "Una cresta crece más de lo que cabe y se pliega en un coral cerebro, luego en el manto brillante de una babosa marina, hasta llenar el cuadro.",
+   "Los nodos repelen a los cercanos, se acercan al punto medio de sus vecinos y dividen las aristas estiradas. Crecimiento fija cuánto se dividen; Separación, el ancho de los pliegues."
+  ]
+ },
  "stained-glass": {
   "title": "Vidriera",
   "trick": "Seguir la luz hasta una función de vidrio: manchas de color y haces con polvo",
@@ -1748,6 +1772,12 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Wind (m/s)": "Viento (m/s)",
+ "Choppiness": "Picado",
+ "Sun height (°)": "Altura del sol (°)",
+ "Loops per second": "Bucles por segundo",
+ "Growth": "Crecimiento",
+ "Fold spacing": "Separación de pliegues",
  "Dust": "Polvo",
  "Sun": "Sol",
  "Population": "Población",

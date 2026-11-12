@@ -1,5 +1,29 @@
 // French text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const FR = {
+ "ocean": {
+  "title": "Pleine mer",
+  "trick": "Océan FFT à spectre JONSWAP ; les pentes non résolues élargissent le scintillement",
+  "notes": [
+   "Quatre FFT sur le GPU transforment un spectre JONSWAP en vagues de Gerstner ; l’écume naît où la surface se replie, les pentes minuscules élargissent le chemin de soleil.",
+   "Le vent règle la hauteur des vagues et la fréquence des moutons, chop affûte les crêtes, sun est la hauteur du soleil en degrés ; le pointeur le déplace."
+  ]
+ },
+ "honey-coil": {
+  "title": "Miel versé",
+  "trick": "Enroulement de corde liquide : boucles empilées qui s’enfoncent dans un dôme",
+  "notes": [
+   "Chaque nouvelle boucle est un tube posé sur celle du dessous ; elle s’enfonce, fond dans un champ de hauteurs et s’étale selon l’équation des films minces.",
+   "Flow règle l’épaisseur du filet, loops les boucles par seconde, spread la vitesse d’affaissement du dôme ; faites glisser le pointeur pour coudre des boucles."
+  ]
+ },
+ "diff-growth": {
+  "title": "Croissance différentielle",
+  "trick": "Repousser, aligner, couper les arêtes étirées : une crête qui pousse se plisse",
+  "notes": [
+   "Une crête pousse plus que sa place ne le permet et se plisse en corail cerveau, puis en manteau luisant de limace de mer, jusqu’à remplir le cadre.",
+   "Les nœuds repoussent leurs voisins proches, rejoignent le milieu de leurs deux voisins et coupent les arêtes étirées. Croissance règle la fréquence ; Espacement, la largeur des plis."
+  ]
+ },
  "stained-glass": {
   "title": "Vitrail",
   "trick": "Remonter la lumière jusqu’à une fonction de verre : taches colorées et rayons de poussière",
@@ -1748,6 +1772,12 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Wind (m/s)": "Vent (m/s)",
+ "Choppiness": "Clapot",
+ "Sun height (°)": "Hauteur du soleil (°)",
+ "Loops per second": "Boucles par seconde",
+ "Growth": "Croissance",
+ "Fold spacing": "Espacement des plis",
  "Dust": "Poussière",
  "Sun": "Soleil",
  "Population": "Population",

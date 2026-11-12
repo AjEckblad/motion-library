@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 218,
+ "count": 221,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -1665,6 +1665,96 @@
      "default": 1,
      "min": 0,
      "max": 1.5,
+     "step": 0.05
+    }
+   ]
+  },
+  {
+   "id": "ocean",
+   "title": "Open ocean",
+   "titleZh": "开阔海洋",
+   "category": "Fluid",
+   "categoryId": "fluid",
+   "renderer": "WebGL",
+   "description": "FFT ocean from a JONSWAP spectrum; unresolved slopes widen the glitter",
+   "descriptionZh": "FFT 海洋：JONSWAP 波谱，未解析的坡度拓宽日光闪烁带",
+   "page": "https://ajeckblad.github.io/motion-library/fx/ocean.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ocean",
+   "npx": "npx motion-library add ocean",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 36050,
+   "settings": [
+    {
+     "key": "wind",
+     "flag": "--wind",
+     "label": "Wind (m/s)",
+     "default": 9,
+     "min": 5,
+     "max": 13,
+     "step": 0.5
+    },
+    {
+     "key": "chop",
+     "flag": "--chop",
+     "label": "Choppiness",
+     "default": 1.5,
+     "min": 0.6,
+     "max": 1.9,
+     "step": 0.05
+    },
+    {
+     "key": "sun",
+     "flag": "--sun",
+     "label": "Sun height (°)",
+     "default": 3.5,
+     "min": 1,
+     "max": 10,
+     "step": 0.5
+    }
+   ]
+  },
+  {
+   "id": "honey-coil",
+   "title": "Honey pour",
+   "titleZh": "倾倒蜂蜜",
+   "category": "Fluid",
+   "categoryId": "fluid",
+   "renderer": "WebGL",
+   "description": "Liquid-rope coiling: stacked tube loops sink into a thin-film mound",
+   "descriptionZh": "液绳盘绕：叠起的管状圈沉入薄膜流动的蜜堆",
+   "page": "https://ajeckblad.github.io/motion-library/fx/honey-coil.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/honey-coil",
+   "npx": "npx motion-library add honey-coil",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 34871,
+   "settings": [
+    {
+     "key": "flow",
+     "flag": "--flow",
+     "label": "Flow",
+     "default": 1,
+     "min": 0.5,
+     "max": 1.5,
+     "step": 0.05
+    },
+    {
+     "key": "loops",
+     "flag": "--loops",
+     "label": "Loops per second",
+     "default": 1.5,
+     "min": 0.8,
+     "max": 2.5,
+     "step": 0.1
+    },
+    {
+     "key": "spread",
+     "flag": "--spread",
+     "label": "Spread",
+     "default": 1,
+     "min": 0.6,
+     "max": 2.5,
      "step": 0.05
     }
    ]
@@ -5218,6 +5308,42 @@
      "min": 0,
      "max": 2,
      "step": 0.1
+    }
+   ]
+  },
+  {
+   "id": "diff-growth",
+   "title": "Differential growth",
+   "titleZh": "差异生长",
+   "category": "Simulation",
+   "categoryId": "simulation",
+   "renderer": "WebGL",
+   "description": "Repel, align, split stretched edges: a growing ridge folds to fit",
+   "descriptionZh": "排斥、对齐、拉长的边一分为二：不断生长的脊只能折叠",
+   "page": "https://ajeckblad.github.io/motion-library/fx/diff-growth.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/diff-growth",
+   "npx": "npx motion-library add diff-growth",
+   "interactive": false,
+   "reducedMotion": true,
+   "bytes": 19822,
+   "settings": [
+    {
+     "key": "growth",
+     "flag": "--growth",
+     "label": "Growth",
+     "default": 1,
+     "min": 0.3,
+     "max": 3,
+     "step": 0.1
+    },
+    {
+     "key": "spacing",
+     "flag": "--spacing",
+     "label": "Fold spacing",
+     "default": 1,
+     "min": 0.6,
+     "max": 1.6,
+     "step": 0.05
     }
    ]
   },

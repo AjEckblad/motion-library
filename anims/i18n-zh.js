@@ -1,5 +1,29 @@
 // Chinese text for each animation: { id: { title, trick, notes } }. Missing ids fall back to English (js/i18n.js).
 export const ZH = {
+ "ocean": {
+  "title": "开阔海洋",
+  "trick": "FFT 海洋：JONSWAP 波谱，未解析的坡度拓宽日光闪烁带",
+  "notes": [
+   "每帧四次 GPU FFT 把 JONSWAP 波谱变成 Gerstner 波；海面折叠处生成泡沫，细小坡度拓宽闪光路径。",
+   "风速决定浪高和白浪频率，chop 让浪峰更尖，sun 是太阳高度（度）；指针可移动太阳。"
+  ]
+ },
+ "honey-coil": {
+  "title": "倾倒蜂蜜",
+  "trick": "液绳盘绕：叠起的管状圈沉入薄膜流动的蜜堆",
+  "notes": [
+   "每个新圈都是一根搭在下层圈上的管子；它下沉、融入高度场，再按薄膜方程摊开。",
+   "flow 决定蜜线粗细，loops 是每秒圈数，spread 是蜜堆塌开的快慢；拖动指针可拉出一串圈。"
+  ]
+ },
+ "diff-growth": {
+  "title": "差异生长",
+  "trick": "排斥、对齐、拉长的边一分为二：不断生长的脊只能折叠",
+  "notes": [
+   "一条脊长得比空间允许的更长，于是折叠成脑珊瑚，再变成光亮的海蛞蝓外套膜，直到填满画面。",
+   "节点推开范围内的其他节点，向两个邻居的中点靠拢，拉长的边会分裂。生长控制有空间的节点分裂的频率；褶皱间距控制褶皱宽度。"
+  ]
+ },
  "stained-glass": {
   "title": "彩色玻璃",
   "trick": "把光线追回到玻璃函数：彩色光斑与带尘的光柱",
@@ -1748,6 +1772,12 @@ export const ZH = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Wind (m/s)": "风速（米/秒）",
+ "Choppiness": "浪尖锐度",
+ "Sun height (°)": "太阳高度（°）",
+ "Loops per second": "每秒圈数",
+ "Growth": "生长",
+ "Fold spacing": "褶皱间距",
  "Dust": "尘埃",
  "Sun": "阳光",
  "Population": "数量",

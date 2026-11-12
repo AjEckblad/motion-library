@@ -1,6 +1,6 @@
 # Motion Library
 
-> 218 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 221 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -454,6 +454,28 @@ SPH with double density relaxation; particles splat into a float field, and each
 
 Settings: --particles 1600 (800 to 2800, step 100; Particles); --slosh 1 (0 to 1.5, step 0.05; Slosh).
 Renderer: WebGL. Size: 26.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/sph-water.html
+
+### Open ocean
+
+Open ocean is a WebGL effect: FFT ocean from a JONSWAP spectrum; unresolved slopes widen the glitter. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
+
+Four GPU FFTs turn a JONSWAP wave spectrum into Gerstner waves each frame; foam forms where the surface folds, tiny slopes widen the glitter.
+
+Wind sets wave height and how often whitecaps break, chop sharpens the crests, sun is its height in degrees; the pointer moves it.
+
+Settings: --wind 9 (5 to 13, step 0.5; Wind (m/s)); --chop 1.5 (0.6 to 1.9, step 0.05; Choppiness); --sun 3.5 (1 to 10, step 0.5; Sun height (°)).
+Renderer: WebGL. Size: 35.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
+
+### Honey pour
+
+Honey pour is a WebGL effect: liquid-rope coiling: stacked tube loops sink into a thin-film mound. One plain JavaScript file with no dependencies; add it with npx motion-library add honey-coil.
+
+Each fresh loop is a tube resting on the loop beneath; it sinks, melts into a height field and spreads by the thin-film equation.
+
+Flow sets the thread thickness, loops the coils per second, spread how fast the mound slumps; drag the pointer to stitch trails of loops.
+
+Settings: --flow 1 (0.5 to 1.5, step 0.05; Flow); --loops 1.5 (0.8 to 2.5, step 0.1; Loops per second); --spread 1 (0.6 to 2.5, step 0.05; Spread).
+Renderer: WebGL. Size: 34.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/honey-coil.html
 
 
 ## Chrome & 3D
@@ -1368,6 +1390,17 @@ Each cell averages its neighbours through a soft ring and grows or fades by a be
 
 Settings: --speed 1 (0.25 to 2, step 0.05; Speed); --population 1 (0.5 to 2, step 0.1; Population); --glow 1 (0 to 2, step 0.1; Glow).
 Renderer: WebGL. Size: 31.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/lenia.html
+
+### Differential growth
+
+Differential growth is a WebGL effect: repel, align, split stretched edges: a growing ridge folds to fit. One plain JavaScript file with no dependencies; add it with npx motion-library add diff-growth.
+
+A ridge grows longer than its space allows and folds into brain coral, then a glossy sea-slug mantle, until it fills the frame.
+
+Nodes push away others in reach, ease toward their neighbours’ midpoint and split stretched edges. Growth sets how often roomy nodes split; Fold spacing sets fold width.
+
+Settings: --growth 1 (0.3 to 3, step 0.1; Growth); --spacing 1 (0.6 to 1.6, step 0.05; Fold spacing).
+Renderer: WebGL. Size: 19.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/diff-growth.html
 
 
 ## Retro & signal
