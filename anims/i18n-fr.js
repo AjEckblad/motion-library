@@ -258,10 +258,10 @@ export const FR = {
  },
  "ferrofluid": {
   "title": "Ferrofluide",
-  "trick": "Goutte en champ de distance avec des pics en cosinus qui cherchent l’aimant",
+  "trick": "Pics de Rosensweig : cônes concaves sur un réseau, miroirs noirs raymarchés",
   "notes": [
-   "Une goutte noire et huileuse se hérisse de pointes du côté tourné vers le pointeur.",
-   "Le contour est un cercle plus des bosses en cosinus élevées à une forte puissance, ce qui transforme des ondes douces en pointes ; la normale du champ de distance donne les reflets."
+   "Des pics noirs, brillants comme des miroirs, se dressent au-dessus d’un aimant sous une vitre ; bougez le pointeur et la flaque le poursuit, s’étire et se reforme.",
+   "Champ de distance en raymarching : une masse sur ressorts qui s’étire, fondue en douceur avec des cônes concaves inclinés sur un réseau hexagonal, éclairée seulement par les reflets du studio."
   ]
  },
  "marbling": {
@@ -314,10 +314,10 @@ export const FR = {
  },
  "sph-water": {
   "title": "Bassin d’eau SPH",
-  "trick": "SPH : les particules mesurent leur propre entassement et repoussent",
+  "trick": "Vraies particules SPH, fondues en une surface, tracées à travers le verre",
   "notes": [
-   "L’eau clapote dans un bassin pendant que la gravité bascule d’un côté à l’autre.",
-   "Hydrodynamique des particules lissées : la densité sommée par noyau crée la pression, la viscosité égalise les vitesses et une grille spatiale accélère la recherche de voisins ; les particules sont projetées puis seuillées en une seule surface."
+   "L’eau ballotte dans un aquarium de verre qui oscille : elle grimpe aux parois, mousse et projette des caustiques ; le pointeur l’incline.",
+   "SPH à double relaxation de densité ; les particules sont projetées dans un champ flottant que chaque pixel parcourt en perspective : absorption, ménisque, surface de Fresnel et caustiques."
   ]
  },
  "portal": {
@@ -562,10 +562,10 @@ export const FR = {
  },
  "shatter": {
   "title": "Éclatement et rembobinage",
-  "trick": "Éclats de Voronoi en trajectoires balistiques ; le temps ralentit, s’arrête, s’inverse",
+  "trick": "Éclats de Voronoi en toile d’araignée ; le temps ralentit, s’arrête, recule",
   "notes": [
-   "Une vitre vole en éclats, se fige en l’air, puis se rembobine et se reconstitue.",
-   "Des éclats de Voronoi issus de germes plus denses près de l’impact, chacun découpé par les médiatrices ; des trajectoires balistiques avec rotation font du temps une simple horloge à parcourir."
+   "Une bille d’acier traverse une vitre dichroïque devant un anneau de lumière ; les éclats s’ouvrent au ralenti, restent suspendus, puis rembobinent et se ressoudent.",
+   "Des germes sur anneaux et secteurs tracent des fissures en toile d’araignée ; chaque éclat biseauté suit une trajectoire balistique exacte, donc le retour arrière est parfait ; un film mince change de couleur selon l’angle."
   ]
  },
  "crt-monitor": {

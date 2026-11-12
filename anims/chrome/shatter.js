@@ -1,8 +1,16 @@
-// Shatter & rewind: a pane of glass takes a hit, cracks into shards and bursts apart, the burst slows to a stop in
-// mid-air as if time were running out, then time runs backwards and the pane puts itself back together. The cracks are a Voronoi diagram: seed points scattered densely near the impact and
-// sparsely far from it, each owning the part of the pane closest to it; every cell is cut out by clipping the pane
-// against the halfway line to each other seed. Each shard then follows a ballistic path with its own spin, which is
-// easy to run in reverse. The glass bends the scene behind it, a little differently for red, green and blue.
+// Shatter & rewind: a pane of dichroic glass hangs in a dark studio in front of a glowing disc of light. A chrome ball
+// comes out of the dark behind it and punches through; time drops into slow motion as the cracks run out from the
+// hit, the pane opens like a flower and its shards tumble toward you, each flashing a different colour as it turns,
+// then hangs in the air, and time runs backwards: the ball returns through the hole and the shards fly home and snap
+// back into one flawless pane. The cracks are a spiderweb: seeds on rings that widen away from the impact, in
+// angular sectors, so their Voronoi cells (each cut out of the pane by clipping it against the halfway line to every
+// other seed) form radial wedges and concentric bands, finest at the hit. Every shard is real geometry: two faces,
+// bevelled edges and the side walls, drawn in one call, its pose read from a float texture. Each one follows a
+// ballistic path that starts when the crack reaches it, hinging outward about its own tangent, so any moment is a
+// closed-form function of time and running it backwards is exact. The glass shows the scene behind it, rendered
+// first and bent per colour by each face's tilt; the coating is a thin film, so what it reflects and what it lets
+// through are complementary colours that slide through the spectrum with the angle of view. The ball is raytraced
+// into the same depth buffer.
 const PARAMS = { shards: 90, force: 1, speed: 1 };
 
 export default function (stage) {
@@ -11,120 +19,315 @@ export default function (stage) {
   stage.append(canvas);
   const gl = canvas.getContext('webgl2', { antialias: true });
   if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
-  const PW = 1.7, PH = 1.1;                                       // half-size of the pane
-  let shards = [];
-  // the Voronoi cell of each seed: the pane, clipped by the halfway line to every other seed
-  function fracture() {
-    const n = Math.max(12, Math.round(PARAMS.shards)), ix = (Math.random() - 0.5) * PW, iy = (Math.random() - 0.5) * PH * 0.8, seeds = [];
-    for (let i = 0; i < n; i++) { const r = Math.pow(Math.random(), 1.8) * 2.6, a = Math.random() * 6.283; seeds.push([ix + Math.cos(a) * r, iy + Math.sin(a) * r * 0.8]); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const floatFB = !!gl.getExtension('EXT_color_buffer_float');
+
+  // ---- the scene: pane, ball, camera
+  const PW = 1.65, PH = 1.08, TK = 0.045, BV = 0.011;              // pane half-size, thickness, bevel
+  const YAW = 0.36, PITCH = -0.05, CAM = [0.15, 0.12, 6.3], FOV = 30 * Math.PI / 180;
+  const cy = Math.cos(YAW), sy = Math.sin(YAW), cp = Math.cos(PITCH), spp = Math.sin(PITCH);
+  const M = [cy, sy * spp, -sy * cp, 0, cp, spp, sy, -cy * spp, cy * cp];   // pane frame -> world (row-major 3x3)
+  const mv = (m, v) => [m[0] * v[0] + m[1] * v[1] + m[2] * v[2], m[3] * v[0] + m[4] * v[1] + m[5] * v[2], m[6] * v[0] + m[7] * v[1] + m[8] * v[2]];
+  const mm = (a, b) => { const r = []; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) r[i * 3 + j] = a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j]; return r; };
+  const rot = (ax, a) => { const [x, y, z] = ax, c = Math.cos(a), s = Math.sin(a), k = 1 - c;
+    return [c + x * x * k, x * y * k - z * s, x * z * k + y * s, y * x * k + z * s, c + y * y * k, y * z * k - x * s, z * x * k - y * s, z * y * k + x * s, c + z * z * k]; };
+  const PN = mv(M, [0, 0, 1]);                                      // the pane's normal, toward the camera
+
+  // seeded random numbers, so a given loop always breaks the same way (posters are repeatable)
+  let seed = 1;
+  const rnd = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+
+  // ---- the fracture
+  let shards = [], impact = [0, 0], ballDir = [0, 0, 1], NV = 0;
+  const vbuf = gl.createBuffer();
+  function fracture(cycle) {
+    seed = 1013 + cycle * 7919;
+    const n = Math.max(20, Math.min(220, Math.round(PARAMS.shards)));
+    const ix = ringHit[0] + (rnd() - 0.5) * 0.18, iy = ringHit[1] + (rnd() - 0.5) * 0.14; impact = [ix, iy];   // through the ring's centre
+    const sectors = Math.max(6, Math.min(16, Math.round(Math.sqrt(n) * 1.15))), rings = Math.max(3, Math.round(n / sectors) - 1);
+    const seeds = [], a0 = rnd() * 6.283, secA = [];
+    for (let s = 0; s < sectors; s++) secA.push(a0 + (s + 0.35 * (rnd() - 0.5)) * 6.283 / sectors);
+    for (let k = 0; k < rings; k++) {
+      const r = 0.07 * Math.pow(3.1 / 0.07, (k + 0.5) / rings);
+      for (let s = 0; s < sectors; s++) { const a = secA[s] + (k & 1) * 0.5 * 6.283 / sectors * 0.3 + 0.12 * (rnd() - 0.5), rr = r * (0.85 + 0.3 * rnd()); seeds.push([ix + Math.cos(a) * rr, iy + Math.sin(a) * rr]); }
+    }
+    for (let k = 0; k < 7; k++) { const a = rnd() * 6.283, r = 0.03 + rnd() * 0.07; seeds.push([ix + Math.cos(a) * r, iy + Math.sin(a) * r]); }   // the pulverised centre
     shards = [];
-    for (let i = 0; i < n; i++) {
-      let poly = [[-PW, -PH], [PW, -PH], [PW, PH], [-PW, PH]]; const [sx, sy] = seeds[i];
-      for (let j = 0; j < n && poly.length; j++) {
+    for (let i = 0; i < seeds.length; i++) {
+      let poly = [[-PW, -PH], [PW, -PH], [PW, PH], [-PW, PH]], edge = [2, 2, 2, 2];   // 2: the pane's own edge, 1: a crack
+      const [sx, sy] = seeds[i];
+      for (let j = 0; j < seeds.length && poly.length; j++) {
         if (j === i) continue; const [tx, ty] = seeds[j], nx = tx - sx, ny = ty - sy, mx = (sx + tx) / 2, my = (sy + ty) / 2;
-        const side = p => (p[0] - mx) * nx + (p[1] - my) * ny, out = [];
+        // keep the near side; each kept edge keeps its kind, the new edge along the cut is a crack
+        const side = p => (p[0] - mx) * nx + (p[1] - my) * ny, out = [], ek = [];
         for (let k = 0; k < poly.length; k++) {
           const a = poly[k], b = poly[(k + 1) % poly.length], da = side(a), db = side(b);
-          if (da <= 0) out.push(a);
-          if (da * db < 0) { const t = da / (da - db); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+          if (da <= 0) {
+            out.push(a);
+            if (db <= 0) ek.push(edge[k]);
+            else { const t = da / (da - db); ek.push(edge[k]); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); ek.push(1); }
+          } else if (db <= 0) { const t = da / (da - db); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); ek.push(edge[k]); }
         }
-        poly = out;
+        poly = out; edge = ek;
       }
       if (poly.length < 3) continue;
-      const cx = poly.reduce((a, p) => a + p[0], 0) / poly.length, cy = poly.reduce((a, p) => a + p[1], 0) / poly.length;
-      const dx = cx - ix, dy = cy - iy, d = Math.hypot(dx, dy) + 0.05, kick = PARAMS.force * (1.4 / (0.4 + d));
-      const ax = Math.random() - 0.5, ay = Math.random() - 0.5, az = Math.random() - 0.5, al = Math.hypot(ax, ay, az);
-      shards.push({ poly: poly.map(([x, y]) => [x - cx, y - cy]), cx, cy, v: [dx / d * kick * 0.9, dy / d * kick * 0.9 + 0.6, -(1.2 + Math.random() * 1.6) * kick], axis: [ax / al, ay / al, az / al], spin: (Math.random() * 6 + 2) * Math.min(2, kick) });
+      let ar = 0, cx = 0, cyy = 0;
+      for (let k = 0; k < poly.length; k++) { const a = poly[k], b = poly[(k + 1) % poly.length], cr = a[0] * b[1] - b[0] * a[1]; ar += cr; cx += (a[0] + b[0]) * cr; cyy += (a[1] + b[1]) * cr; }
+      ar /= 2; if (Math.abs(ar) < 1e-5) continue; cx /= 6 * ar; cyy /= 6 * ar;
+      const d = Math.hypot(cx - ix, cyy - iy), size = Math.sqrt(Math.abs(ar)), F = PARAMS.force;
+      // the shove: outward from the hit and along the ball, both strongest close to it; a hinge about the tangent
+      const rx = (cx - ix) / (d + 1e-4), ry = (cyy - iy) / (d + 1e-4), push = F * 2 / (0.4 + d * 0.7), along = F * 3.6 / (0.4 + d * 1.0);
+      const vl = [rx * push + (rnd() - 0.5) * 0.25, ry * push + (rnd() - 0.5) * 0.25 + 0.15, along * (0.75 + 0.5 * rnd())];
+      const ta = [-ry, rx, 0], ra = [rnd() - 0.5, rnd() - 0.5, rnd() - 0.5], ax = [ta[0] + ra[0] * 0.9, ta[1] + ra[1] * 0.9, ta[2] + ra[2] * 0.9], al = Math.hypot(...ax);
+      shards.push({ poly: poly.map(([x, y]) => [x - cx, y - cyy]), edge, c: [cx, cyy], d, onset: d / 26,
+        v: mv(M, vl), axis: mv(M, ax.map(x => x / al)), spin: F * (7 + 9 * rnd()) / (0.6 + d * 1.2) / (0.5 + size * 1.3) });
     }
-    return [ix, iy];
+    // geometry: faces inset by the bevel, chamfers at 45 degrees, side walls; flat-shaded
+    const V = [], push3 = (p, n, id, k) => V.push(p[0], p[1], p[2], n[0], n[1], n[2], id, k);
+    shards.forEach((s, id) => {
+      const P = s.poly, m = P.length, h = TK / 2;
+      let minEdge = 1e9; for (let k = 0; k < m; k++) minEdge = Math.min(minEdge, Math.hypot(P[(k + 1) % m][0] - P[k][0], P[(k + 1) % m][1] - P[k][1]));
+      const bv = Math.min(BV, minEdge * 0.25);
+      // inset: move each edge inward by bv and intersect neighbours
+      const en = []; for (let k = 0; k < m; k++) { const a = P[k], b = P[(k + 1) % m], ex = b[0] - a[0], ey = b[1] - a[1], l = Math.hypot(ex, ey) || 1; en.push([ey / l, -ex / l]); }
+      const I = P.map((p, k) => { const n0 = en[(k + m - 1) % m], n1 = en[k], bx = n0[0] + n1[0], by = n0[1] + n1[1], dd = 1 + n0[0] * n1[0] + n0[1] * n1[1]; return [p[0] - bx * bv / Math.max(dd, 0.3), p[1] - by * bv / Math.max(dd, 0.3)]; });
+      for (const side of [1, -1]) {
+        const z = side * h, nz = [0, 0, side];
+        for (let k = 1; k < m - 1; k++) { const tri = side > 0 ? [0, k, k + 1] : [0, k + 1, k]; tri.forEach(t => push3([I[t][0], I[t][1], z], nz, id, 0)); }
+        for (let k = 0; k < m; k++) {
+          const k2 = (k + 1) % m, n = [en[k][0] * 0.7071, en[k][1] * 0.7071, side * 0.7071], kind = s.edge[k] === 2 ? 2 : 1;
+          const a = [I[k][0], I[k][1], z], b = [I[k2][0], I[k2][1], z], c = [P[k2][0], P[k2][1], z - side * bv], d = [P[k][0], P[k][1], z - side * bv];
+          [a, b, c, a, c, d].forEach(p => push3(p, n, id, kind));
+        }
+      }
+      for (let k = 0; k < m; k++) {
+        const k2 = (k + 1) % m, n = [en[k][0], en[k][1], 0], kind = s.edge[k] === 2 ? 2 : 1, z = h - bv;
+        const a = [P[k][0], P[k][1], z], b = [P[k2][0], P[k2][1], z], c = [P[k2][0], P[k2][1], -z], d = [P[k][0], P[k][1], -z];
+        [a, b, c, a, c, d].forEach(p => push3(p, n, id, kind + 2));
+      }
+    });
+    const arr = new Float32Array(V); NV = arr.length / 8;
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbuf); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW);
+    const ip = mv(M, [ix, iy, 0]); impactW = ip;
+    ballDir = (() => { const d = [PN[0] * 0.92 - 0.3, PN[1] * 0.92 + 0.06, PN[2] * 0.92 + 0.1], l = Math.hypot(...d); return d.map(x => x / l); })();
   }
-  let impact = fracture();
+  let impactW = [0, 0, 0];
+  // where the line from the camera to the ring's centre crosses the pane, in the pane's own coordinates
+  const ringHit = (() => { const tgt = [0.7, 0.55, -8], d = [tgt[0] - CAM[0], tgt[1] - CAM[1], tgt[2] - CAM[2]];
+    const t = -(PN[0] * CAM[0] + PN[1] * CAM[1] + PN[2] * CAM[2]) / (PN[0] * d[0] + PN[1] * d[1] + PN[2] * d[2]), w = [CAM[0] + d[0] * t, CAM[1] + d[1] * t, CAM[2] + d[2] * t];
+    return [M[0] * w[0] + M[3] * w[1] + M[6] * w[2], M[1] * w[0] + M[4] * w[1] + M[7] * w[2]]; })();
 
+  // ---- shaders
+  const COMMON = `
+  float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  // the studio as mirrored by glass and chrome: a big softbox on the left, a warm strip on the right, a dim ceiling,
+  // the glowing disc and dark wall behind
+  // the ring of light on the far wall, as seen from the origin along d
+  vec3 ring(vec2 w) { float r = length(w); return vec3(2.6, 1.9, 1.25) * exp(-pow((r - 2.1) / .07, 2.)) + vec3(.5, .33, .2) * exp(-abs(r - 2.1) * 2.2) * .55 + vec3(.05, .035, .025) * smoothstep(2.1, 0., r); }
+  // the studio as mirrored by glass and chrome: a softbox high on the left, a warm strip on the right, a big dim
+  // panel behind the camera, the ring and dark wall behind, the floor below
+  vec3 env(vec3 r) {
+    vec3 c = vec3(.008, .009, .013) + vec3(.03, .032, .04) * smoothstep(-.2, .7, r.y);
+    c += vec3(.1, .1, .11) * smoothstep(-.05, -.25, r.y) * smoothstep(-.9, -.4, r.y);                            // the floor's sheen
+    c += 7. * smoothstep(.935, .95, dot(r, normalize(vec3(-.7, .45, .55))));                                      // softbox
+    c += vec3(4., 3., 2.1) * smoothstep(.04, .02, abs(r.x * .8 - r.z * .6 - .55)) * smoothstep(.5, .35, abs(r.y - .1)); // strip
+    c += vec3(.07, .075, .085) * smoothstep(.2, .6, r.z) * smoothstep(.6, .2, abs(r.y));                            // panel behind the camera
+    if (r.z < 0.) c += ring(r.xy / -r.z * 8. - vec2(.7, .55)) * smoothstep(-.1, -.4, r.z);
+    return c;
+  }
+  vec3 wall(vec3 o, vec3 d) {           // what a camera ray sees behind everything: the ring of light on the wall, the floor
+    float tw = (-8. - o.z) / d.z, tf = d.y < 0. ? (-2.4 - o.y) / d.y : 1e9;
+    if (tf < tw) {
+      vec3 p = o + d * tf, rr = vec3(d.x, -d.y, d.z); vec3 q = p + rr * ((-8. - p.z) / rr.z);
+      return vec3(.006, .007, .009) + ring((q.xy - vec2(.7, .55)) * vec2(1., 1.)) * .16 * smoothstep(-14., -5., p.z);
+    }
+    vec3 p = o + d * tw; vec2 w = p.xy - vec2(.7, .55);
+    return vec3(.007, .008, .012) + vec3(.025, .024, .028) * exp(-dot(w, w) * .04) + ring(w);
+  }
+  vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }`;
+  const BALL = `
+  float ball(vec3 o, vec3 d, vec3 c, float r, out vec3 n) { vec3 oc = o - c; float b = dot(oc, d), h = b * b - dot(oc, oc) + r * r; if (h < 0.) return -1.; float t = -b - sqrt(h); n = normalize(oc + d * t);
+    return (o + d * t).z < -7.9 ? -1. : t; }
+  vec3 ballCol(vec3 d, vec3 n) { vec3 r = reflect(d, n); float fr = .7 + .3 * pow(1. - max(dot(n, -d), 0.), 5.); return env(r) * vec3(.85, .86, .9) * fr; }`;
+  const FSQ = `#version 300 es
+  in vec2 p; out vec2 ndc; void main() { ndc = p; gl_Position = vec4(p, .9999, 1); }`;
   const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
-  const prog = (vs, fs) => {
-    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+  const program = (vs, fs) => {
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
     const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i < n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
     return { p, u };
   };
-  const SCENE = `
-  vec3 scene(vec2 s) {                                           // what is behind the glass: a sunset, a sun, bold bands and discs
-    vec3 c = mix(vec3(.98, .55, .32), vec3(.25, .18, .5), smoothstep(-.6, .9, s.y));
-    c = mix(c, vec3(1., .9, .6), smoothstep(.36, .33, length(s - vec2(.35, .05))));
-    c *= .85 + .15 * step(.5, fract(s.y * 7.));
-    c = mix(c, vec3(.1, .08, .2), smoothstep(-.4, -.42, s.y + .08 * sin(s.x * 3.)));
-    c = mix(c, vec3(.2, .7, .75), smoothstep(.2, .18, length(s - vec2(-.75, .35))));
-    return c;
-  }`;
-  const bgP = prog(`#version 300 es
-  layout(location = 0) in vec2 p; out vec2 v; void main() { v = p; gl_Position = vec4(p, .9999, 1); }`, `#version 300 es
-  precision highp float; in vec2 v; out vec4 o; uniform float A; ${SCENE} void main() { o = vec4(scene(v * vec2(A, 1.)), 1); }`);
-  const glassP = prog(`#version 300 es
-  layout(location = 0) in vec2 P; uniform mat3 RT; uniform vec3 C; uniform float A, F; out vec3 n; out vec3 w; out vec2 sp;
+  // 1. the scene behind the glass (with the ball), linear, into a texture
+  const bgP = program(FSQ, `#version 300 es
+  precision highp float; in vec2 ndc; out vec4 o; uniform vec3 CP, CF, CR, CU, BC; uniform float FL, AS, BR, SCL; ${COMMON} ${BALL}
+  void main() { vec3 d = normalize(CF * FL + CR * ndc.x * AS + CU * ndc.y); vec3 n; float tb = ball(CP, d, BC, BR, n);
+    vec3 c = tb > 0. ? ballCol(d, n) : wall(CP, d); o = vec4(c * SCL, 1); }`);
+  // 2. the same, to the screen, with the ball written into the depth buffer and the flash of the hit
+  const scrP = program(FSQ, `#version 300 es
+  precision highp float; in vec2 ndc; out vec4 o; uniform vec3 CP, CF, CR, CU, BC, IP; uniform float FL, AS, BR, FLASH, EXPO; uniform mat4 VP; uniform vec2 R; ${COMMON} ${BALL}
+  void main() { vec3 d = normalize(CF * FL + CR * ndc.x * AS + CU * ndc.y); vec3 n; float tb = ball(CP, d, BC, BR, n);
+    vec3 c; if (tb > 0.) { c = ballCol(d, n); vec4 q = VP * vec4(CP + d * tb, 1); gl_FragDepth = q.z / q.w * .5 + .5; } else { c = wall(CP, d); gl_FragDepth = .9999; }
+    vec4 ic = VP * vec4(IP, 1); vec2 is = (ic.xy / ic.w - ndc) * vec2(AS, 1.);
+    c += vec3(.9, .95, 1.) * FLASH * (exp(-dot(is, is) * 900.) * 3. + exp(-length(is) * 14.) * .25);
+    c = aces(c * EXPO); c *= 1. - .3 * pow(length(ndc * vec2(.8, .9)) * .75, 2.4);
+    o = vec4(pow(c, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy) - .5) / 255., 1); }`);
+  // 3. the shards
+  const glassP = program(`#version 300 es
+  layout(location = 0) in vec3 P; layout(location = 1) in vec3 Nl; layout(location = 2) in float ID; layout(location = 3) in float KD;
+  uniform sampler2D XF; uniform mat4 VP; out vec3 wp; out vec3 wn; out vec3 fn; out float kd; flat out float open; flat out float age;
   void main() {
-    vec3 p = RT * vec3(P, 0.) + C; n = RT * vec3(0, 0, 1); w = p;
-    vec3 c = p - vec3(0, 0, 4.); gl_Position = vec4(c.x * F / (-c.z * A), c.y * F / -c.z, 0, 1); sp = gl_Position.xy;
+    int i = int(ID) * 4; vec4 a = texelFetch(XF, ivec2(i, 0), 0), b = texelFetch(XF, ivec2(i + 1, 0), 0), c = texelFetch(XF, ivec2(i + 2, 0), 0), e = texelFetch(XF, ivec2(i + 3, 0), 0);
+    mat3 Rm = mat3(a.x, b.x, c.x, a.y, b.y, c.y, a.z, b.z, c.z);
+    wp = Rm * P + vec3(a.w, b.w, c.w); wn = Rm * Nl; fn = Rm * vec3(0, 0, 1); kd = KD; open = e.x; age = e.y;
+    gl_Position = VP * vec4(wp, 1);
   }`, `#version 300 es
-  precision highp float; in vec3 n; in vec3 w; in vec2 sp; out vec4 o; uniform float A, EDGE; ${SCENE}
+  precision highp float; in vec3 wp; in vec3 wn; in vec3 fn; in float kd; flat in float open; flat in float age; out vec4 o;
+  uniform sampler2D BG; uniform vec3 CP; uniform vec2 R; uniform float SCL, EXPO, HEAL; uniform mat4 VP; ${COMMON}
   void main() {
-    vec3 N = normalize(n); if (N.z < 0.) N = -N;
-    vec3 V = normalize(vec3(0, 0, 4.) - w);
-    vec2 off = N.xy * .22;                                        // tilted glass shifts what you see through it, per colour
-    vec2 s = sp * vec2(A, 1.);
-    vec3 c = vec3(scene(s + off * 1.06).r, scene(s + off).g, scene(s + off * .94).b) * vec3(.88, .96, .94);   // a faint green, as real glass has
-    float fr = .05 + .95 * pow(1. - max(dot(N, V), 0.), 5.);
-    vec3 refl = mix(vec3(.15, .16, .2), vec3(1.), smoothstep(.2, .9, reflect(-V, N).y * .5 + .5));
-    c = mix(c, refl, .1 + fr * .85) + EDGE;
-    // streaks of a window's reflection, running diagonally; they slide across a shard as it tilts
-    float k = dot(w.xy, vec2(.55, .83)) - .35 * N.x + .2 * N.y;
-    c += vec3(1., 1., .98) * (smoothstep(.1, 0., abs(k - .25)) * .2 + smoothstep(.035, 0., abs(k + .22)) * .14);
-    o = vec4(c, 1);
+    vec3 V = normalize(CP - wp), n = normalize(wn), f = normalize(fn);
+    bool crack = kd > .5 && kd < 1.5 || kd > 2.5 && kd < 3.5;
+    // a crack that has not opened yet is invisible: its bevel is shaded as the face it belongs to
+    if (crack) n = normalize(mix(dot(f, n) > 0. ? f : -f, n, open));
+    bool face = kd < .5 || crack && open < .5, wallF = kd > 2.5;
+    if (dot(n, V) < 0.) n = -n;
+    float ci = max(dot(n, V), 0.);
+    vec2 uv = gl_FragCoord.xy / R;
+    vec4 vn = VP * vec4(wp + n * .06, 1), vp = VP * vec4(wp, 1); vec2 tilt = (vn.xy / vn.w - vp.xy / vp.w) * .5;
+    vec2 off = -tilt * (face ? .55 : 1.6);
+    vec3 bg = vec3(texture(BG, uv + off * 1.06).r, texture(BG, uv + off).g, texture(BG, uv + off * .94).b) / SCL;
+    vec3 rd = reflect(-V, n), e = env(rd);
+    vec3 col;
+    if (face) {
+      // the dichroic coating: a thin film whose reflection colour slides through the spectrum with the angle
+      float ct = sqrt(1. - (1. - ci * ci) / 3.6);
+      vec3 Rf = .5 + .5 * cos(6.2832 * (6.5 * ct + vec3(.0, .33, .67)));
+      Rf = Rf * .22 + .04 + .6 * pow(1. - ci, 5.);
+      col = bg * (1. - Rf) * vec3(.9, .96, .95) + e * Rf * 1.25;
+    } else {
+      // bevels and walls: uncoated ground glass, green from the long path through it, catching every light
+      float fr = .08 + .9 * pow(1. - ci, 4.);
+      float glint = smoothstep(.55, 1., dot(rd, normalize(vec3(-.7, .45, .55)))) * 1.6 + smoothstep(.75, 1., dot(rd, normalize(vec3(.75, .1, .6)))) * vec3(1.2, .9, .6).r;
+      col = bg * vec3(.45, .74, .62) * (wallF ? .65 : .8) + (e + glint) * (wallF ? .5 : .75) * mix(.35, 1., fr) + vec3(.02, .035, .03);
+    }
+    // the crack's flash as it runs, and a gleam along the seams as the pane heals
+    if (crack) col += vec3(.75, .85, 1.) * (exp(-max(age, 0.) * 60.) * step(0., age) * 3. + HEAL * 2.5) * (face ? .0 : 1.);
+    col = aces(col * EXPO);
+    o = vec4(pow(col, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy) - .5) / 255., 1);
   }`);
-  const edgeP = prog(`#version 300 es
-  layout(location = 0) in vec2 P; uniform mat3 RT; uniform vec3 C; uniform float A, F;
-  void main() { vec3 c = RT * vec3(P, 0.) + C - vec3(0, 0, 4.); gl_Position = vec4(c.x * F / (-c.z * A), c.y * F / -c.z, -.001, 1); }`, `#version 300 es
-  precision mediump float; out vec4 o; uniform float K; void main() { o = vec4(vec3(.75, 1., .9) * K, 1); }`);
-  const qv = gl.createVertexArray(); gl.bindVertexArray(qv); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  const sv = gl.createVertexArray(); gl.bindVertexArray(sv); const sb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
 
+  // 4. the glass dust: tiny fragments thrown from the hit, each glinting as it turns
+  const dustP = program(`#version 300 es
+  layout(location = 0) in vec4 A; layout(location = 1) in vec4 B; uniform mat4 VP; uniform vec3 IP, BD; uniform float TAU, H;
+  out float g;
+  void main() {
+    float u = max(TAU - A.w * .02, 0.); vec3 v = A.xyz;
+    vec3 p = IP + v * u + vec3(0, -1.1 * u * u, 0);
+    vec4 q = VP * vec4(p, 1); gl_Position = q;
+    float ph = B.x + B.y * u * 40.; g = pow(.5 + .5 * sin(ph), 10.) * 3. + .2;
+    g *= step(.0005, TAU) * smoothstep(0., .01, u);
+    gl_PointSize = clamp(B.z * H * .006 / q.w, 1.2, 8.);
+  }`, `#version 300 es
+  precision highp float; in float g; out vec4 o;
+  void main() { vec2 c = gl_PointCoord * 2. - 1.; float a = smoothstep(1., .2, length(c)) * g; o = vec4(vec3(.85, .93, 1.) * a, 0.); }`);
+  const ND = 480, dustBuf = gl.createBuffer(), dvao = gl.createVertexArray();
+  gl.bindVertexArray(dvao); gl.bindBuffer(gl.ARRAY_BUFFER, dustBuf); gl.bufferData(gl.ARRAY_BUFFER, ND * 32, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 32, 0); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 32, 16);
+  gl.bindVertexArray(null);
+  const makeDust = () => {
+    const D = new Float32Array(ND * 8);
+    for (let i = 0; i < ND; i++) {
+      // a cone around the ball's path, mostly forward, some spraying back off the far face
+      const fw = rnd() < 0.82 ? 1 : -0.35, sp = (1.5 + 7 * rnd() * rnd()) * PARAMS.force, a = rnd() * 6.283, cone = 0.25 + 0.75 * rnd();
+      const t1 = norm(cross(ballDir, [0, 1, 0])), t2 = cross(t1, ballDir);
+      for (let k = 0; k < 3; k++) D[i * 8 + k] = (ballDir[k] * fw + (t1[k] * Math.cos(a) + t2[k] * Math.sin(a)) * cone) * sp;
+      D[i * 8 + 3] = rnd(); D[i * 8 + 4] = rnd() * 6.283; D[i * 8 + 5] = 0.5 + rnd() * 2; D[i * 8 + 6] = 1 + rnd() * 2.5;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, dustBuf); gl.bufferData(gl.ARRAY_BUFFER, D, gl.STATIC_DRAW);
+  };
+
+  // buffers
+  const qvao = gl.createVertexArray(); gl.bindVertexArray(qvao); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const svao = gl.createVertexArray(); gl.bindVertexArray(svao); gl.bindBuffer(gl.ARRAY_BUFFER, vbuf);
+  [[0, 3, 0], [1, 3, 12], [2, 1, 24], [3, 1, 28]].forEach(([l, n, o]) => { gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, n, gl.FLOAT, false, 32, o); });
+  gl.bindVertexArray(null);
+  const MAXS = 260, xfData = new Float32Array(MAXS * 16);
+  const xfT = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, xfT); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, MAXS * 4, 1, 0, gl.RGBA, gl.FLOAT, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  let bgT = null, bgF = null, bw = 0, bh = 0;
+  const SCL = floatFB ? 1 : 0.25;
+  const makeBG = (w, h) => {
+    if (bgT) { gl.deleteTexture(bgT); gl.deleteFramebuffer(bgF); }
+    bw = w; bh = h; bgT = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, bgT);
+    gl.texImage2D(gl.TEXTURE_2D, 0, floatFB ? gl.RGBA16F : gl.RGBA8, w, h, 0, gl.RGBA, floatFB ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    bgF = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, bgF); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, bgT, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  };
   let W = 1, H = 1;
-  const resize = () => { const d = Math.min(devicePixelRatio, 2); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
+  const resize = () => { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(1300000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); makeBG(Math.max(1, W >> 1), Math.max(1, H >> 1)); };
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
-  const rotm = (ax, a) => { const [x, y, z] = ax, c = Math.cos(a), s = Math.sin(a), k = 1 - c; return new Float32Array([c + x * x * k, y * x * k + z * s, z * x * k - y * s, x * y * k - z * s, c + y * y * k, z * y * k + x * s, x * z * k + y * s, y * z * k - x * s, c + z * z * k]); };
-  let raf, last = performance.now(), t = 0, cycle = 0;
+
+  // the camera
+  const norm = v => { const l = Math.hypot(...v); return v.map(x => x / l); }, cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const CF = norm([-CAM[0] * 0.6, -CAM[1] * 0.8, -CAM[2]]), CR = norm(cross(CF, [0, 1, 0])), CU = cross(CR, CF), FL = 1 / Math.tan(FOV / 2);
+  const viewProj = a => {
+    const n = 0.3, f = 40, P = [FL / a, 0, 0, 0, 0, FL, 0, 0, 0, 0, (f + n) / (n - f), -1, 0, 0, 2 * f * n / (n - f), 0];
+    const Vw = [CR[0], CU[0], -CF[0], 0, CR[1], CU[1], -CF[1], 0, CR[2], CU[2], -CF[2], 0,
+      -(CR[0] * CAM[0] + CR[1] * CAM[1] + CR[2] * CAM[2]), -(CU[0] * CAM[0] + CU[1] * CAM[1] + CU[2] * CAM[2]), CF[0] * CAM[0] + CF[1] * CAM[1] + CF[2] * CAM[2], 1];
+    const o = new Float32Array(16); for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) { let s = 0; for (let k = 0; k < 4; k++) s += P[k * 4 + r] * Vw[c * 4 + k]; o[c * 4 + r] = s; } return o;
+  };
+
+  // ---- time: whole; the ball flies in; slow motion as it breaks; a hang; the rewind, snapping home; whole again.
+  // tau is the scene's own clock: it runs at full speed only for the ball's approach
+  const L = 7.4, TM = 0.2, BALLV = 9, G = -2.2;
+  const sceneTime = c => {
+    if (c < 1.3) return -1;
+    if (c < 1.6) return c - 1.6;
+    if (c < 4.5) return TM * (1 - Math.exp(-(c - 1.6) / 0.55));
+    const th = TM * (1 - Math.exp(-2.9 / 0.55));
+    if (c < 6.05) { const u = (c - 4.5) / 1.55; return th * (1 - Math.pow(u, 2.3)); }
+    return 0;
+  };
+  let raf, last = performance.now(), t = 0, cycle = -1;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt * PARAMS.speed;
-    // whole (1.4 s); the hit, and the burst slowing to a stop (1.2 s); the shards hang, barely drifting (0.5 s); time
-    // runs backwards and they fly home, settling softly into place (1.7 s); whole again (1.6 s)
-    const L = 6.4, c = t % L, TM = 0.6;
-    if (Math.floor(t / L) !== cycle) { cycle = Math.floor(t / L); impact = fracture(); }
-    let tt = 0;
-    if (c >= 1.4 && c < 2.6) tt = TM * (1 - (1 - (c - 1.4) / 1.2) ** 3);
-    else if (c >= 2.6 && c < 3.1) tt = TM + 0.03 * (c - 2.6);
-    else if (c >= 3.1 && c < 4.8) { const u = (c - 3.1) / 1.7; tt = (TM + 0.015) * (1 - u * u * (3 - 2 * u)); }
-    const cracks = c > 1.25 && c < 1.4 ? 1 : 0;
-    const A = W / H, F = 2.6;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
-    gl.useProgram(bgP.p); gl.uniform1f(bgP.u.A, A); gl.bindVertexArray(qv); gl.drawArrays(gl.TRIANGLES, 0, 3);
-    gl.bindVertexArray(sv);
-    for (const s of shards) {
-      const T = tt, pos = [s.cx + s.v[0] * T, s.cy + s.v[1] * T - 2.4 * T * T, s.v[2] * T], R = rotm(s.axis, s.spin * T);
-      const fan = []; s.poly.forEach(p => fan.push(p[0], p[1]));
-      gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(fan), gl.STREAM_DRAW);
-      gl.useProgram(glassP.p); gl.uniformMatrix3fv(glassP.u.RT, false, R); gl.uniform3f(glassP.u.C, ...pos); gl.uniform1f(glassP.u.A, A); gl.uniform1f(glassP.u.F, F); gl.uniform1f(glassP.u.EDGE, 0);
-      gl.drawArrays(gl.TRIANGLE_FAN, 0, s.poly.length);
-      // the edges: bright where the glass is cut (always, once broken; a flash of cracks just before it goes)
-      if (T > 0 || cracks) { gl.useProgram(edgeP.p); gl.uniformMatrix3fv(edgeP.u.RT, false, R); gl.uniform3f(edgeP.u.C, ...pos); gl.uniform1f(edgeP.u.A, A); gl.uniform1f(edgeP.u.F, F); gl.uniform1f(edgeP.u.K, cracks ? 1.4 : 1.05); gl.drawArrays(gl.LINE_LOOP, 0, s.poly.length); }
-    }
-    // the whole pane's rim catches the light, the way the edge of real glass does
-    if (tt === 0 && !cracks) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-PW, -PH, PW, -PH, PW, PH, -PW, PH]), gl.STREAM_DRAW);
-      gl.useProgram(edgeP.p); gl.uniformMatrix3fv(edgeP.u.RT, false, [1, 0, 0, 0, 1, 0, 0, 0, 1]); gl.uniform3f(edgeP.u.C, 0, 0, 0); gl.uniform1f(edgeP.u.A, A); gl.uniform1f(edgeP.u.F, F); gl.uniform1f(edgeP.u.K, 0.85);
-      gl.drawArrays(gl.LINE_LOOP, 0, 4);
-    }
-    gl.bindVertexArray(null); gl.disable(gl.DEPTH_TEST);
+    const cyc = reduce ? 0 : Math.floor(t / L), c = reduce ? 0 : t % L;
+    if (cyc !== cycle) { cycle = cyc; fracture(cyc); makeDust(); }
+    const tau = reduce ? TM * 0.93 + 0.004 * Math.sin(t * 0.4) : sceneTime(c);
+    const heal = reduce ? 0 : Math.exp(-Math.max(0, c - 6.05) / 0.18) * (c >= 6.05 ? 1 : 0) * 0.6;
+    // each shard's pose: still until the crack reaches it, then ballistic, hinging about its tangent
+    shards.forEach((s, i) => {
+      const a = tau - s.onset, u = Math.max(0, a);
+      const Rs = rot(s.axis, s.spin * u), Rw = mm(Rs, M), pc = mv(M, [s.c[0], s.c[1], 0]);
+      const o = i * 16;
+      for (let r = 0; r < 3; r++) { xfData[o + r * 4] = Rw[r * 3]; xfData[o + r * 4 + 1] = Rw[r * 3 + 1]; xfData[o + r * 4 + 2] = Rw[r * 3 + 2]; }
+      xfData[o + 3] = pc[0] + s.v[0] * u; xfData[o + 7] = pc[1] + s.v[1] * u + 0.5 * G * u * u; xfData[o + 11] = pc[2] + s.v[2] * u;
+      xfData[o + 12] = Math.min(1, Math.max(0, a / 0.006)); xfData[o + 13] = tau > -0.5 ? a : -1;
+    });
+    gl.bindTexture(gl.TEXTURE_2D, xfT); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, Math.min(MAXS, shards.length) * 4, 1, gl.RGBA, gl.FLOAT, xfData);
+    // the ball: from the dark behind the pane, through the hit, on toward the camera
+    const back = reduce ? 0 : Math.max(0, c - 6.05), bt = tau < -0.5 ? -3 : back > 0 ? -back * (0.3 + 4 * back) : tau, BC = [impactW[0] + ballDir[0] * BALLV * bt, impactW[1] + ballDir[1] * BALLV * bt, impactW[2] + ballDir[2] * BALLV * bt];
+    const flash = tau >= 0 && tau < 0.5 && c < 4.5 ? Math.exp(-tau / 0.012) : 0;
+    const a = W / H, VPm = viewProj(a), expo = 1.05 + 0.6 * flash;
+    const setCommon = pr => { gl.uniform3f(pr.u.CP, ...CAM); gl.uniform3f(pr.u.CF, ...CF); gl.uniform3f(pr.u.CR, ...CR); gl.uniform3f(pr.u.CU, ...CU); gl.uniform1f(pr.u.FL, FL); gl.uniform1f(pr.u.AS, a); gl.uniform3f(pr.u.BC, ...BC); gl.uniform1f(pr.u.BR, 0.16); };
+    gl.bindVertexArray(qvao);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, bgF); gl.viewport(0, 0, bw, bh); gl.disable(gl.DEPTH_TEST);
+    gl.useProgram(bgP.p); setCommon(bgP); gl.uniform1f(bgP.u.SCL, SCL); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.clear(gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(scrP.p); setCommon(scrP); gl.uniformMatrix4fv(scrP.u.VP, false, VPm); gl.uniform3f(scrP.u.IP, ...impactW); gl.uniform1f(scrP.u.FLASH, flash); gl.uniform1f(scrP.u.EXPO, expo); gl.uniform2f(scrP.u.R, W, H);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.useProgram(glassP.p); gl.bindVertexArray(svao);
+    gl.uniformMatrix4fv(glassP.u.VP, false, VPm); gl.uniform3f(glassP.u.CP, ...CAM); gl.uniform2f(glassP.u.R, W, H); gl.uniform1f(glassP.u.SCL, SCL); gl.uniform1f(glassP.u.EXPO, expo); gl.uniform1f(glassP.u.HEAL, heal);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, xfT); gl.uniform1i(glassP.u.XF, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bgT); gl.uniform1i(glassP.u.BG, 1); gl.activeTexture(gl.TEXTURE0);
+    gl.drawArrays(gl.TRIANGLES, 0, NV);
+    gl.useProgram(dustP.p); gl.bindVertexArray(dvao); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    gl.uniformMatrix4fv(dustP.u.VP, false, VPm); gl.uniform3f(dustP.u.IP, ...impactW); gl.uniform1f(dustP.u.TAU, Math.max(tau, 0)); gl.uniform1f(dustP.u.H, H);
+    gl.drawArrays(gl.POINTS, 0, ND);
+    gl.disable(gl.BLEND); gl.depthMask(true); gl.bindVertexArray(null);
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);

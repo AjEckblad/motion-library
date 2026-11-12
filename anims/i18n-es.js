@@ -258,10 +258,10 @@ export const ES = {
  },
  "ferrofluid": {
   "title": "Ferrofluido",
-  "trick": "Gota de campo de distancia con picos de coseno que buscan el imán",
+  "trick": "Picos de Rosensweig: conos cóncavos en red, trazados como espejos negros",
   "notes": [
-   "Una gota negra y aceitosa saca púas en el lado que mira al puntero.",
-   "El contorno es un círculo más protuberancias de coseno elevadas a una potencia alta, lo que convierte ondas suaves en púas; la normal del campo de distancia da los brillos."
+   "Picos negros, brillantes como espejos, se alzan sobre un imán bajo un cristal; mueve el puntero y el charco lo persigue, se estira y se vuelve a formar.",
+   "Campo de distancias con raymarching: una masa con muelles que se estira, unida suavemente a conos cóncavos inclinados sobre una red hexagonal, sombreada solo con reflejos del estudio."
   ]
  },
  "marbling": {
@@ -314,10 +314,10 @@ export const ES = {
  },
  "sph-water": {
   "title": "Tanque de agua SPH",
-  "trick": "SPH: las partículas miden su propia aglomeración y empujan de vuelta",
+  "trick": "Partículas SPH reales, fundidas en una superficie y trazadas tras el cristal",
   "notes": [
-   "El agua chapotea en un tanque mientras la gravedad oscila de un lado a otro.",
-   "Hidrodinámica de partículas suavizadas: la densidad sumada con un kernel genera la presión, la viscosidad iguala las velocidades y una cuadrícula espacial acelera la búsqueda de vecinos; las partículas se proyectan y se umbralizan en una sola superficie."
+   "El agua se agita en un tanque de cristal que se balancea: trepa por las paredes, hace espuma y proyecta cáusticas; el puntero lo inclina.",
+   "SPH con doble relajación de densidad; las partículas se vuelcan en un campo de coma flotante y cada píxel lo recorre en perspectiva: absorción, menisco, superficie de Fresnel y cáusticas."
   ]
  },
  "portal": {
@@ -562,10 +562,10 @@ export const ES = {
  },
  "shatter": {
   "title": "Estallido y rebobinado",
-  "trick": "Fragmentos de Voronoi en trayectorias balísticas; el tiempo frena, se detiene y retrocede",
+  "trick": "Esquirlas Voronoi en telaraña; el tiempo frena, se detiene y retrocede",
   "notes": [
-   "Un cristal estalla, se congela en el aire y luego se rebobina y se recompone.",
-   "Fragmentos de Voronoi a partir de semillas más densas cerca del impacto, cada uno recortado contra las mediatrices; las trayectorias balísticas con giro hacen del tiempo un simple reloj que se puede arrastrar."
+   "Una bola de acero atraviesa un cristal dicroico ante un anillo de luz; las esquirlas se abren a cámara lenta, quedan suspendidas y se rebobinan hasta encajar enteras.",
+   "Semillas en anillos y sectores dan grietas de telaraña; cada esquirla biselada sigue una trayectoria balística exacta, así que rebobinar es preciso; una capa de película fina cambia de color con el ángulo."
   ]
  },
  "crt-monitor": {

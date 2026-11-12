@@ -46,14 +46,14 @@
 - [Lava lamp](https://ajeckblad.github.io/motion-library/fx/lava-lamp.html): Metaballs: sum the fields, threshold the sum. `npx motion-library add lava-lamp`
 - [Fire & smoke](https://ajeckblad.github.io/motion-library/fx/fire-smoke.html): Fluid solver with buoyant heat that cools into smoke. `npx motion-library add fire-smoke`
 - [Lava flow](https://ajeckblad.github.io/motion-library/fx/lava-flow.html): Temperature-dependent viscous flow; crust drawn on advected coordinates. `npx motion-library add lava-flow`
-- [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Distance-field blob with cosine spikes that reach for the magnet. `npx motion-library add ferrofluid`
+- [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors. `npx motion-library add ferrofluid`
 - [Paper marbling](https://ajeckblad.github.io/motion-library/fx/marbling.html): Backward lookup through comb and swirl warps; paint never smears. `npx motion-library add marbling`
 - [Rain on glass](https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html): Each drop is a lens showing a sharp, flipped background. `npx motion-library add raindrops-glass`
 - [Dripping text](https://ajeckblad.github.io/motion-library/fx/dripping-text.html): Gooey blur-and-threshold filter: drips merge with letters, necks snap. `npx motion-library add dripping-text`
 - [Liquid mercury](https://ajeckblad.github.io/motion-library/fx/mercury.html): Metaball beads that merge, split and mirror an environment. `npx motion-library add mercury`
 - [Kelvin–Helmholtz clouds](https://ajeckblad.github.io/motion-library/fx/billow-clouds.html): Shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself. `npx motion-library add billow-clouds`
 - [Paint swirl](https://ajeckblad.github.io/motion-library/fx/paint-swirl.html): Colour advected around vortices; palette snapping keeps bands crisp. `npx motion-library add paint-swirl`
-- [SPH water tank](https://ajeckblad.github.io/motion-library/fx/sph-water.html): SPH: particles measure their own crowding and push back. `npx motion-library add sph-water`
+- [SPH water tank](https://ajeckblad.github.io/motion-library/fx/sph-water.html): Real SPH particles, splatted into one surface and traced through glass. `npx motion-library add sph-water`
 
 ## Chrome & 3D
 
@@ -87,7 +87,7 @@
 - [Melting chrome logo](https://ajeckblad.github.io/motion-library/fx/melting-logo.html): Distance-field text melted by sampling the field from above. `npx motion-library add melting-logo`
 - [DNA double helix](https://ajeckblad.github.io/motion-library/fx/dna-helix.html): Pre-shaded sphere sprites sorted back to front, no 3D engine. `npx motion-library add dna-helix`
 - [3D fractal tree](https://ajeckblad.github.io/motion-library/fx/fractal-tree.html): Three-way recursive branching around the golden angle, grown level by level. `npx motion-library add fractal-tree`
-- [Shatter & rewind](https://ajeckblad.github.io/motion-library/fx/shatter.html): Voronoi shards on ballistic paths; time slows, stops, reverses. `npx motion-library add shatter`
+- [Shatter & rewind](https://ajeckblad.github.io/motion-library/fx/shatter.html): Spiderweb Voronoi shards on closed-form paths; time slows, stops, reverses. `npx motion-library add shatter`
 
 ## Shaders & glitch
 

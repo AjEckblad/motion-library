@@ -39,16 +39,16 @@ in a temporary worktree without the agents' files (fx pages and llms-full.txt em
 - [ ] Black hole → Gargantua, the FILM look (AJ chose it): thin disc lensed over the top and under the shadow, photon
       ring, even warm-white disc, NO Doppler beaming / colour shift. Ground it in the real ray-bending (Kerr-ish
       geodesics as DNGR did), not a 2D trick.
-- [ ] Ferrofluid: light grey ground; a magnet under it that the pointer moves (drag left/right), and the fluid follows.
+- [x] Ferrofluid: light grey ground; a magnet under it that the pointer moves (drag left/right), and the fluid follows.
 - [ ] Lava flow: a realistic volcano/mountain with lava that reads as real (crust, glow, cooling).
 - [ ] Fire & smoke: refine to reference quality.
-- [ ] SPH water tank: refine to reference quality.
+- [x] SPH water tank: refine to reference quality (WebGL2 now; Clavet double-density SPH, Gauss-Seidel; pointer tilts).
 - [x] Paper fold: several fold types (letter/tri-fold, sideways gate fold, accordion, map fold...) chosen with a PICKER
       in the detail view (AJ chose a picker over cycling: an explicit exception to "one effect per card, no switcher").
       Done: `fold` 0 letter (the card), 1 gate, 2 accordion (a W standing on the table), 3 map (pleat, then in half),
       each with its own printed sheet. Registry helper O(label, ...options) makes a picker (js/detail.js .pick, styled
       like the speed control .seg); the value stays a number for code, links and `--fold 2`. Guarded in check.mjs.
-- [ ] Shatter & rewind: refine to reference quality.
+- [x] Shatter & rewind: refine to reference quality (steel ball through dichroic glass before a ring of light).
 
 WAITING ON AJ
 - npm 0.3.2: `cd ~/Downloads/motion-library/cli && npm login && npm publish` (in their own Terminal)
