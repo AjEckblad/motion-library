@@ -42,10 +42,10 @@ export const FR = {
  },
  "stained-glass": {
   "title": "Vitrail",
-  "trick": "Remonter la lumière jusqu’à une fonction de verre : taches colorées et rayons de poussière",
+  "trick": "Remonter la lumière jusqu’à une fonction de verre : taches colorées et rayons de poussière",
   "notes": [
-   "Le soleil traverse un vitrail au plomb dans une nef sombre : des rayons colorés dans l’air poussiéreux et des taches sur les dalles qui glissent avec lui.",
-   "Le vitrail est une fonction qui renvoie la couleur du verre ou le plomb ; le sol et chaque pas dans l’air la consultent le long de la lumière. Déplacez le pointeur pour bouger le soleil."
+   "Le soleil traverse une rangée de vitraux au plomb enchâssés dans les murs épais de la nef : des rayons colorés dans l’air poussiéreux et des taches sur les dalles polies qui glissent avec lui.",
+   "Le vitrail est une fonction qui renvoie la couleur du verre ou le plomb ; le sol et chaque pas dans l’air la consultent le long de la lumière. Déplacez le pointeur pour bouger le soleil."
   ]
  },
  "lenia": {

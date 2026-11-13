@@ -1,9 +1,12 @@
-// Stained glass: a tall pointed window in a dark stone nave. The sun stands behind it and slowly moves; its light
-// comes through the glass as coloured shafts in the dusty air and lands on the flagstones as pools of colour that
-// drift across the floor, brightening and dimming as clouds pass. Move across it to move the sun.
-// Everything is one fragment shader. The window is a function: given a point on the wall it returns the glass colour
-// there and whether lead is in the way (a ruby border, a rose medallion in the arch, diamond quarries below, each pane
-// with its own streaks and seeds). The floor asks it once per pixel: follow the sunlight back from the floor to the
+// Stained glass: a row of tall pointed windows in a dark stone nave, one to each bay, with clustered piers between
+// them. The glass sits deep in a thick wall behind a splayed stone reveal; the walls are coursed ashlar with a moulded
+// string course under the sills, a plinth, and damp stains below each window. The sun stands behind the windows and
+// slowly moves; its light comes through as coloured shafts in the dusty air and lands on the flagstones as pools of
+// colour that drift across the floor, brightening and dimming as clouds pass; the pools glow faintly back up the wall,
+// and the worn floor's polish holds a soft reflection of the glass. Move across it to move the sun.
+// Everything is one fragment shader. The window is a function: given a point on the glass it returns the glass colour
+// there and whether lead is in the way (a ruby and gold border, a rose medallion in the arch, diamond quarries below,
+// each pane with its own streaks and seeds; the bays repeat it with their own colours). The floor asks it once per pixel: follow the sunlight back from the floor to the
 // wall and look up the glass where it lands, from a few points on the sun's disc for a soft edge. The air asks it at
 // every step of a march from the eye: a step inside a beam adds that pane's colour, scaled by the dust there.
 const PARAMS = { dust: 1, sun: 1, speed: 1 };
@@ -24,41 +27,53 @@ export default function (stage) {
   #define Y0 .9
   #define YS 2.3
   #define SPAN 1.24
+  #define BAY 4.
+  #define DEP .34
+  #define SPL .2
+  #define PR .27
   float h1(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float n2(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h1(i), h1(i + vec2(1, 0)), f.x), mix(h1(i + vec2(0, 1)), h1(i + vec2(1, 1)), f.x), f.y); }
   float n3(vec3 p) { vec3 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); float a = h1(i.xy + i.z * 17.), b = h1(i.xy + vec2(1, 0) + i.z * 17.), c = h1(i.xy + vec2(0, 1) + i.z * 17.), d = h1(i.xy + vec2(1, 1) + i.z * 17.);
     float e = h1(i.xy + (i.z + 1.) * 17.), g = h1(i.xy + vec2(1, 0) + (i.z + 1.) * 17.), k = h1(i.xy + vec2(0, 1) + (i.z + 1.) * 17.), l = h1(i.xy + vec2(1, 1) + (i.z + 1.) * 17.);
     return mix(mix(mix(a, b, f.x), mix(c, d, f.x), f.y), mix(mix(e, g, f.x), mix(k, l, f.x), f.y), f.z); }
-  // the window's outline as a signed distance: a rectangle below the springing line, an equilateral arch above
+  // the nave repeats in bays along the wall: a point's bay, and its x within that bay. Bays -2 to 0 have windows
+  float bay(inout vec2 p) { float id = floor((p.x + BAY * .5) / BAY); p.x -= id * BAY; return id; }
+  bool hasWin(float id) { return id > -2.5 && id < .5; }
+  // a window's outline as a signed distance (bay coordinates): a rectangle below the springing line, an equilateral arch above
   float win(vec2 p) {
     if (p.y < YS) return max(abs(p.x) - HW, Y0 - p.y);
     return max(length(p - vec2(HW, YS)) - SPAN, length(p - vec2(-HW, YS)) - SPAN);
   }
+  // the opening at a wall point: distance to the outline, or a large number in a bay without a window
+  float hole(vec2 p) { float id = bay(p); return hasWin(id) ? win(p) : 9.; }
   // pot-metal colours: mostly blues, with ruby, amber, emerald, violet and a pale gold
   vec3 pal(float h) {
     return h < .34 ? vec3(.05, .16, .62) : h < .5 ? vec3(.12, .32, .85) : h < .62 ? vec3(.75, .05, .07) : h < .74 ? vec3(.95, .55, .08)
          : h < .84 ? vec3(.06, .5, .22) : h < .93 ? vec3(.38, .1, .6) : vec3(.98, .85, .45);
   }
-  // the glass at a point on the wall: rgb transmittance, and a = 1 where light gets through (0 on lead and stone)
+  // the glass at a point on the glass plane: rgb transmittance, and a = 1 where light gets through (0 on lead and stone).
+  // Each bay's window has its own quarries; the near one has an eight-petal rose in the arch, the next a six-lobed one
   vec4 glass(vec2 p) {
+    float id = bay(p);
+    if (!hasWin(id)) return vec4(0.);
     float d = win(p);
     if (d > 0.) return vec4(0.);
     float lead = 0.; vec3 c; vec2 cell;
-    vec2 med = vec2(0., YS + .36); float rm = length(p - med);
-    if (d > -.075) {                                                 // the border: ruby and gold pieces in a band
+    vec2 med = vec2(0., YS + .36); float rm = length(p - med), k = id == 0. ? 8. : 6.;
+    if (d > -.115) {                                                 // the border: ruby and gold pieces in a band
       float s = floor((p.y + atan(p.x, 2.) * 2.) / .2);
-      c = mod(s, 3.) < 1. ? vec3(.95, .6, .1) : vec3(.72, .04, .06); cell = vec2(s, 7.);
-      lead = max(smoothstep(.016, .006, abs(d + .075)), smoothstep(.012, .004, abs(fract((p.y + atan(p.x, 2.) * 2.) / .2) - .5) - .488));
+      c = mod(s, 3.) < 1. ? vec3(.95, .6, .1) : id == 0. ? vec3(.72, .04, .06) : vec3(.06, .45, .2); cell = vec2(s, 7. + id);
+      lead = max(smoothstep(.016, .006, abs(d + .115)), smoothstep(.43, .47, abs(fract((p.y + atan(p.x, 2.) * 2.) / .2) - .5)));   // lead between the pieces
     } else if (rm < .43) {                                           // the rose in the arch
-      float a = atan(p.y - med.y, p.x - med.x), sec = floor((a + 3.14159) / (6.28318 / 8.)), r = rm + .05 * cos(a * 8.);
-      if (rm < .1) { c = vec3(.98, .8, .3); cell = vec2(0, 1); }
-      else if (r < .3) { c = mod(sec, 2.) < 1. ? vec3(.72, .04, .06) : vec3(.95, .55, .08); cell = vec2(sec, 2.); }
-      else { c = vec3(.08, .2, .75); cell = vec2(sec, 3.); }
-      float fa = fract((a + 3.14159) / (6.28318 / 8.));
+      float a = atan(p.y - med.y, p.x - med.x), sec = floor((a + 3.14159) / (6.28318 / k)), r = rm + .05 * cos(a * k);
+      if (rm < .1) { c = vec3(.98, .8, .3); cell = vec2(0, 1. + id); }
+      else if (r < .3) { c = mod(sec, 2.) < 1. ? (id == 0. ? vec3(.72, .04, .06) : vec3(.06, .5, .22)) : vec3(.95, .55, .08); cell = vec2(sec, 2. + id); }
+      else { c = id == 0. ? vec3(.08, .2, .75) : vec3(.38, .1, .6); cell = vec2(sec, 3. + id); }
+      float fa = fract((a + 3.14159) / (6.28318 / k));
       lead = max(max(smoothstep(.014, .004, abs(rm - .1)), smoothstep(.014, .004, abs(r - .3))), max(smoothstep(.014, .004, abs(rm - .43)), smoothstep(.04, .01, min(fa, 1. - fa)) * step(.1, rm)));
     } else {                                                         // diamond quarries with the odd roundel
       vec2 q = mat2(.7071, -.7071, .7071, .7071) * (p - vec2(0., Y0)) / .27;
-      cell = floor(q); vec2 f = fract(q);
+      cell = floor(q) + id * 31.; vec2 f = fract(q);
       float h = h1(cell);
       c = pal(h);
       lead = smoothstep(.06, .02, min(min(f.x, 1. - f.x), min(f.y, 1. - f.y)));
@@ -69,47 +84,106 @@ export default function (stage) {
     float streak = n2(vec2(p.x * 6. + h1(cell) * 9., p.y * 40.)) * .55 + n2(p * 23.) * .45;
     float seed = smoothstep(.92, .96, n2(p * 90. + cell * 3.1));
     c *= .65 + .6 * streak; c += seed * .25;
-    lead = max(lead, smoothstep(.014, .004, -d));                    // the outer lead against the stone
+    lead = max(lead, smoothstep(.032, .018, -d));                    // the outer lead and the stone rebate it sits in
     return vec4(c, 1. - lead);
   }
   vec3 sunDir() { return normalize(vec3(-.22 + SX, -.86, 1.)); }      // the way the light travels (in through the window, down)
-  // light reaching a point in the room through the window: follow the ray back to the wall (z = 0)
+  // light reaching a point in the room through a window: follow the ray back to the glass, set DEP into the wall.
+  // The opening at the wall face is splayed wider than the glass, so it never clips the light
   vec3 through(vec3 p, vec3 L) {
     if (p.z <= 0.) return vec3(0.);
-    vec3 q = p - L * (p.z / L.z);
+    vec3 q = p - L * ((p.z + DEP) / L.z);
     vec4 g = glass(q.xy); return g.rgb * g.a;
+  }
+  // ashlar: courses of blocks, each its own tint, chisel-dressed, with recessed mortar and stains under the sills
+  vec3 ashlar(vec2 p, out float joint) {
+    vec2 b = p * vec2(1.6, 3.2); b.x += floor(b.y) * .5; vec2 f = fract(b), id = floor(b);
+    float e = min(min(f.x, 1. - f.x) / 1.6, min(f.y, 1. - f.y) / 3.2);
+    joint = .45 + .55 * smoothstep(.0, .022, e * 3.) + .12 * smoothstep(.02, .0, abs(f.y - .97));   // a lit lip under each course
+    vec3 tint = mix(vec3(.36, .32, .27), vec3(.42, .37, .3), h1(id * 1.7)) * (.72 + .36 * h1(id * 3.7));
+    tint *= .82 + .3 * n2(p * 14.) + .08 * n2(vec2(p.x * 60., p.y * 9.));   // grain and tooling marks
+    vec2 lp = p; float bid = bay(lp);
+    tint *= 1. - .35 * n2(vec2(lp.x * 7., p.y * .5 + bid * 3.)) * smoothstep(HW + .4, 0., abs(lp.x)) * smoothstep(Y0 + .05, .2, p.y);
+    return tint;
   }
   void main() {
     vec2 uv = (gl_FragCoord.xy - .5 * RES) / RES.y;
     vec3 rd = normalize(FWD * 1.32 + RGT * uv.x + UPV * uv.y), ro = EYE;
     vec3 L = sunDir(), sunC = vec3(1., .9, .72) * SUN * (.55 + .45 * CLOUD);
-    // what the eye hits: the floor (y = 0) or the wall (z = 0)
-    float tf = rd.y < 0. ? -ro.y / rd.y : 1e9, tw = rd.z < 0. ? -ro.z / rd.z : 1e9, t = min(tf, tw);
+    float glow = 2.4 * SUN * (.55 + .45 * CLOUD);
+    vec3 avgGlass = vec3(.22, .24, .55);                             // the windows' mean colour, for light they throw about
+    // what the eye hits: the floor (y = 0), the wall face (z = 0), or a pier between bays (a half-round shaft)
+    float tf = rd.y < 0. ? -ro.y / rd.y : 1e9, tw = rd.z < 0. ? -ro.z / rd.z : 1e9, tp = 1e9; float pcx = 0.;
+    for (int k = 0; k < 3; k++) {
+      float cx = BAY * .5 - float(k) * BAY; vec2 oc = ro.xz - vec2(cx, 0.);
+      float A = dot(rd.xz, rd.xz), B = dot(oc, rd.xz), C = dot(oc, oc) - PR * PR, D = B * B - A * C;
+      if (D > 0.) { float th = (-B - sqrt(D)) / A; vec3 hp = ro + rd * th; if (th > 0. && th < tp && hp.z > 0. && hp.y > 0.) { tp = th; pcx = cx; } }
+    }
+    float t = min(min(tf, tw), tp);
     vec3 p = ro + rd * t, col;
-    if (tw < tf) {
-      vec4 g = glass(p.xy);
-      if (g.a > 0. || win(p.xy) < 0.) {                              // the window itself, lit from behind
-        float glow = 2.4 * SUN * (.55 + .45 * CLOUD);
-        col = pow(g.rgb, vec3(1.35)) * g.a * glow + (1. - g.a) * vec3(.008, .007, .006);   // deep, saturated pot-metal
-        col += vec3(1., .85, .6) * g.a * smoothstep(.5, .0, length(p.xy - vec2(SX * 2.2, 2.4))) * glow * .35;   // the sun behind the glass
-      } else {                                                       // ashlar: courses of blocks
-        vec2 b = p.xy * vec2(1.6, 3.2); b.x += floor(b.y) * .5; vec2 f = fract(b);
-        float joint = .55 + .45 * smoothstep(.0, .025, min(min(f.x, 1. - f.x) / 1.6, min(f.y, 1. - f.y) / 3.2) * 3.);
-        vec3 stone = vec3(.36, .32, .27) * (.7 + .4 * n2(floor(b) * 3.7)) * (.8 + .35 * n2(p.xy * 14.));
-        // a dim nave: only a little light, bounced up from the pool on the floor
-        col = stone * joint * (.02 + .045 * smoothstep(1.8, 0., p.y));
-        col *= 1. - .6 * smoothstep(.0, -.15, win(p.xy)) ;
-        col *= smoothstep(-.02, .1, win(p.xy)) * .8 + .2;            // the window reveal is in shadow
+    if (tp <= t) {                                                   // a pier: clustered shafts, lit by the windows beside it
+      vec3 n = normalize(vec3(p.x - pcx, 0., p.z)); float ang = atan(n.z, n.x);
+      n = normalize(n + vec3(-sin(ang), 0., cos(ang)) * .25 * sin(ang * 9.));
+      vec2 tb = vec2(ang * 2., p.y * 3.); float j; vec3 stone = vec3(.38, .34, .29) * (.8 + .3 * n2(tb * 6. + 3.)) * (.85 + .2 * h1(floor(vec2(0., p.y * 3.2))));
+      float side = clamp(dot(n, normalize(vec3(sign(-pcx) * 1., .3, -.4))), 0., 1.);   // the window's glow wraps round toward it
+      vec3 beam = through(p, L) * sunC * max(dot(n, -L), 0.) * 1.5;
+      col = stone * (.012 + avgGlass * glow * .05 * side * smoothstep(4.5, 1., p.y) + beam);
+      col *= .55 + .45 * smoothstep(.0, .5, p.y);                    // darker at its foot
+    } else if (tw < tf) {
+      vec2 lp = p.xy; float id = bay(lp), dh = hasWin(id) ? win(lp) : 9.;
+      if (dh < SPL) {                                                // inside the splayed opening: the glass, or the stone reveal
+        float tg = (-DEP - ro.z) / rd.z; vec3 q = ro + rd * tg;
+        vec2 lq = q.xy; float idq = bay(lq);
+        if (idq == id && win(lq) < 0.) {
+          vec4 g = glass(q.xy);
+          col = pow(g.rgb, vec3(1.35)) * g.a * glow + (1. - g.a) * vec3(.008, .007, .006);   // deep, saturated pot-metal
+          col += vec3(1., .85, .6) * g.a * smoothstep(.5, .0, length(lq - vec2(SX * 2.2, 2.4))) * glow * .35;   // the sun behind the glass
+        } else {
+          // the reveal: find where the ray meets the splayed jamb, between the wall face and the glass
+          float a = tw, b = tg;
+          for (int i = 0; i < 7; i++) { float m = .5 * (a + b); vec3 s = ro + rd * m; vec2 ls = s.xy; bay(ls); if (win(ls) < SPL * (1. + s.z / DEP)) a = m; else b = m; }
+          vec3 s = ro + rd * a; float depth = -s.z / DEP;
+          float jt; vec3 stone = ashlar(s.xy * 1.3 + vec2(s.z * 3., 0.), jt);
+          col = stone * jt * (.015 + avgGlass * glow * .07 * (.3 + depth));   // lit by the glass it frames, more so near it
+        }
+      } else {
+        float jt; vec3 stone = ashlar(p.xy, jt);
+        // a moulded string course under the sills and a plinth at the foot
+        float sc = smoothstep(.0, .01, p.y - (Y0 - .2)) * smoothstep(.0, .01, (Y0 - .08) - p.y);
+        float plinth = smoothstep(.36, .34, p.y);
+        stone = mix(stone, vec3(.4, .36, .31) * (.85 + .2 * n2(p.xy * vec2(3., 30.))), sc);
+        stone *= 1. - .55 * smoothstep(.02, .0, abs(p.y - (Y0 - .205))) - .4 * smoothstep(.015, .0, abs(p.y - .345));
+        stone *= 1. - .25 * plinth;
+        // light bounced up from the pools on the floor in front, falling off with height, and a halo from each window
+        vec3 bounce = vec3(0.);
+        for (int i = 0; i < 4; i++) { float fi = float(i); bounce += through(vec3(p.x - .5 + (fi - 1.5) * .45, .01, 1.5 + mod(fi, 2.) * 1.1), L); }
+        bounce *= sunC * .25;
+        col = stone * jt * (.016 + .03 * smoothstep(1.8, 0., p.y) + bounce * .14 * exp(-p.y * 1.1) * max(-L.y, 0.));
+        col += stone * avgGlass * glow * .05 * exp(-max(dh, 0.) * 5.) * step(dh, 8.);
+        col *= smoothstep(-.02, .12, dh - SPL) * .7 + .3;           // the arris of the opening in shadow
       }
-    } else {                                                         // flagstones
-      vec2 b = p.xz * vec2(.9, 1.1); vec2 f = fract(b);
-      float joint = .5 + .5 * smoothstep(.0, .02, min(min(f.x, 1. - f.x), min(f.y, 1. - f.y)));
-      vec3 stone = vec3(.42, .38, .33) * (.7 + .4 * h1(floor(b))) * (.85 + .25 * n2(p.xz * 9.));
+    } else {                                                         // flagstones: courses of two widths, worn smooth
+      vec2 fp = p.xz; float row = floor(fp.y / .78); fp.x += h1(vec2(row, 3.)) * 3.; float w = mix(.72, 1.25, h1(vec2(row, 9.)));
+      vec2 b = vec2(fp.x / w, fp.y / .78); vec2 f = fract(b), fid = floor(b);
+      float jn = min(min(f.x, 1. - f.x) * w, min(f.y, 1. - f.y) * .78);
+      float joint = .4 + .6 * smoothstep(.0, .018, jn);
+      vec3 stone = mix(vec3(.42, .38, .33), vec3(.36, .35, .33), h1(fid + 4.)) * (.72 + .36 * h1(fid)) * (.85 + .25 * n2(p.xz * 9.));
+      float wear = smoothstep(.35, .75, n2(p.xz * .6 + 2.)) * smoothstep(.0, .05, jn);   // a polished path, not in the joints
       // the pool: the window's colours, from a few points on the sun's disc for a soft edge
       vec3 pool = vec3(0.);
       for (int i = 0; i < 5; i++) { float a = float(i) * 1.2566; vec3 Lj = normalize(L + vec3(cos(a), 0., sin(a)) * .012 * (i == 0 ? 0. : 1.)); pool += through(p, Lj); }
       pool *= .2;
       col = stone * joint * (.02 + pool * sunC * 1.7 * max(-L.y, 0.));
+      // the polish: a blurred reflection of the glowing windows, strongest at grazing angles
+      vec3 refl = vec3(0.); float fr = .04 + .96 * pow(1. - max(-rd.y, 0.), 5.);
+      for (int i = 0; i < 3; i++) {
+        vec3 rr = reflect(rd, vec3(0., 1., 0.)); rr.xz += (vec2(n2(p.xz * 4. + float(i) * 5.3), n2(p.xz * 4. + 9.1 + float(i) * 2.7)) - .5) * .09; rr = normalize(rr);
+        if (rr.z >= 0.) continue;
+        vec3 w0 = p + rr * (-p.z / rr.z), wg = p + rr * ((-DEP - p.z) / rr.z);
+        vec2 l0 = w0.xy; bay(l0);
+        if (win(l0) < SPL) { vec4 g = glass(wg.xy); refl += pow(g.rgb, vec3(1.35)) * g.a; }
+      }
+      col += refl / 3. * glow * fr * (.03 + .22 * wear) * joint;
     }
     // the air: march from the eye to the surface; dust in a beam scatters that pane's colour toward us
     vec3 fog = vec3(0.); float steps = 56., dt = min(t, 14.) / steps, j = h1(gl_FragCoord.xy + fract(T) * 13.);

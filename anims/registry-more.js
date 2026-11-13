@@ -496,7 +496,7 @@ export const MORE = [
     params: { speed: P(0.25, 2, 0.05, 'Speed'), population: P(0.5, 2, 0.1, 'Population'), glow: P(0, 2, 0.1, 'Glow') } },
   { id: 'stained-glass', cat: 'shaders', title: 'Stained glass', kind: 'webgl', posterAt: 12000, pointer: true,
     trick: 'Trace light back to a glass function: coloured pools and dusty shafts',
-    notes: ['Sun pours through a leaded window into a dark nave: coloured shafts in the dusty air and pools on the flagstones that drift as it moves.', 'The window is a function that returns glass colour or lead; the floor and every step of a march through the air look it up along the sunlight. Move across to move the sun.'],
+    notes: ['Sun pours through a row of leaded windows set deep in a stone nave: coloured shafts in the dusty air, and pools on the polished flagstones that drift as it moves.', 'The window is a function that returns glass colour or lead; the floor and every step of a march through the air look it up along the sunlight. Move across to move the sun.'],
     params: { dust: P(0, 2, 0.05, 'Dust'), sun: P(0.3, 2, 0.05, 'Sun'), speed: P(0, 3, 0.1, 'Speed') } },
   { id: 'ocean', cat: 'fluid', title: 'Open ocean', kind: 'webgl', posterAt: 11000, pointer: true,
     trick: 'FFT ocean from a JONSWAP spectrum; unresolved slopes widen the glitter',

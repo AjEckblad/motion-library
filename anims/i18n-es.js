@@ -44,7 +44,7 @@ export const ES = {
   "title": "Vidriera",
   "trick": "Seguir la luz hasta una función de vidrio: manchas de color y haces con polvo",
   "notes": [
-   "El sol entra por una vidriera emplomada en una nave oscura: haces de color en el aire polvoriento y manchas en las losas que se desplazan con él.",
+   "El sol entra por una hilera de vidrieras emplomadas, hundidas en los muros de piedra de la nave: haces de color en el aire polvoriento y manchas en las losas pulidas que se desplazan con él.",
    "La vidriera es una función que devuelve el color del vidrio o el plomo; el suelo y cada paso por el aire la consultan siguiendo la luz del sol. Mueve el puntero para mover el sol."
   ]
  },
