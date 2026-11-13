@@ -346,10 +346,10 @@ export const ES = {
  },
  "ferrofluid": {
   "title": "Ferrofluido",
-  "trick": "Picos de Rosensweig: conos cóncavos en red, trazados como espejos negros",
+  "trick": "Agujas de Rosensweig sobre un imán de bloque: conos cóncavos en una red hexagonal, con raymarching como espejos negros",
   "notes": [
-   "Picos negros, brillantes como espejos, se alzan sobre un imán bajo un cristal; mueve el puntero y el charco lo persigue, se estira y se vuelve a formar.",
-   "Campo de distancias con raymarching: una masa con muelles que se estira, unida suavemente a conos cóncavos inclinados sobre una red hexagonal, sombreada solo con reflejos del estudio."
+   "Un aceite negro y brillante como un espejo, en una placa de vidrio, trepa por un imán cuadrado niquelado y se eriza en una corona de agujas finas, más altas en los bordes; mueve el puntero para deslizar el imán por el charco, y haz clic o toca para apagarlo y ver cómo se funden las agujas.",
+   "Campo de distancias con raymarching: el charco se une suavemente con una película sobre el bloque y con conos cóncavos en una red hexagonal (cada muestra solo visita el punto de red más cercano y sus seis vecinos), sombreado solo con reflejos de estudio."
   ]
  },
  "marbling": {
@@ -1820,6 +1820,9 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Magnet": "Imán",
+ "On": "Encendido",
+ "Off": "Apagado",
  "Vein density": "Densidad de venas",
  "Backlight": "Contraluz",
  "Plate size": "Tamaño de placa",

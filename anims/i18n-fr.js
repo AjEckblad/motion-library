@@ -346,10 +346,10 @@ export const FR = {
  },
  "ferrofluid": {
   "title": "Ferrofluide",
-  "trick": "Pics de Rosensweig : cônes concaves sur un réseau, miroirs noirs raymarchés",
+  "trick": "Aiguilles de Rosensweig sur un aimant bloc : cônes concaves sur un réseau hexagonal, en ray marching comme des miroirs noirs",
   "notes": [
-   "Des pics noirs, brillants comme des miroirs, se dressent au-dessus d’un aimant sous une vitre ; bougez le pointeur et la flaque le poursuit, s’étire et se reforme.",
-   "Champ de distance en raymarching : une masse sur ressorts qui s’étire, fondue en douceur avec des cônes concaves inclinés sur un réseau hexagonal, éclairée seulement par les reflets du studio."
+   "Une huile noire, brillante comme un miroir, monte dans une boîte de verre le long d’un aimant carré nickelé et se hérisse en une couronne d’aiguilles fines, plus hautes sur les arêtes ; déplacez le pointeur pour faire glisser l’aimant dans le bain, cliquez ou touchez pour l’éteindre et voir les aiguilles fondre.",
+   "Champ de distance en ray marching : le bain se fond en douceur avec un film sur le bloc et des cônes concaves sur un réseau hexagonal (chaque échantillon ne visite que le point du réseau le plus proche et ses six voisins), ombré uniquement par les reflets du studio."
   ]
  },
  "marbling": {
@@ -1820,6 +1820,9 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Magnet": "Aimant",
+ "On": "Allumé",
+ "Off": "Éteint",
  "Vein density": "Densité des nervures",
  "Backlight": "Contre-jour",
  "Plate size": "Taille des plaques",
