@@ -1800,10 +1800,19 @@ export const ES = {
    "Las vecinas solo pueden diferir en un escalón de terreno. Colapsa la celda de menor entropía, sus vecinas pierden lo que ya no pueden ser, y una contradicción se repara disolviendo la zona de alrededor."
   ]
  },
+ "mud-cracks": {
+  "title": "Grietas de barro",
+  "trick": "Paredes de Voronoi deformadas se abren al paso del frente de secado",
+  "notes": [
+   "La arcilla húmeda y brillante se seca de forma desigual y se parte en placas de bordes curvados; las grietas se ensanchan al encogerse. Luego la lluvia la empapa y se cierran. Mantén pulsado y arrastra para mojar una zona.",
+   "Al encoger por igual, la arcilla se rompe en polígonos, así que la red es un diagrama de Voronoi deformado con ruido; cada pared se abre desde el centro cuando se seca su zona, y una transformada de distancia sombrea huecos y bordes."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Plate size": "Tamaño de placa",
  "Cells per frame": "Celdas por fotograma",
  "Land": "Tierra",
  "Speed (1 = real time)": "Velocidad (1 = real)",

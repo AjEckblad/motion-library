@@ -526,4 +526,8 @@ export const MORE = [
     trick: 'Collapse the least certain cell, then propagate what its neighbours may be',
     notes: ['An island map writes itself: unsolved cells hold every terrain at once until the solver picks one, and coastlines, beaches and ridges grow out from there. Press and drag to dissolve a patch and watch it regrow.', 'Neighbours may differ by one terrain step at most. The cell with the lowest entropy collapses, its neighbours lose what they can no longer be, and a contradiction is repaired by dissolving the patch around it.'],
     params: { cell: P(14, 34, 1, 'Cell size'), speed: P(1, 20, 1, 'Cells per frame'), land: P(0.5, 1.6, 0.05, 'Land') } },
+  { id: 'mud-cracks', cat: 'simulation', title: 'Mud cracks', kind: 'canvas', posterAt: 22000, pointer: true,
+    trick: 'Warped Voronoi walls tear open as the drying front passes',
+    notes: ['Wet, glossy clay dries unevenly and tears into curled plates, the cracks widening as it shrinks; then rain soaks it and the cracks close. Press and drag to wet a patch.', 'Even shrinkage breaks clay into polygons, so the network is a noise-warped Voronoi diagram; each wall tears from its middle out when its spot dries, and a distance transform shades the gaps and curled rims.'],
+    params: { spacing: P(0.6, 1.6, 0.05, 'Plate size'), speed: P(0.3, 2, 0.05, 'Speed'), curl: P(0, 2, 0.05, 'Curl') } },
 ];

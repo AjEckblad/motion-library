@@ -1800,10 +1800,19 @@ export const ZH = {
    "相邻格子的地形最多相差一级。熵最低的格子先坍缩，邻格去掉不再可能的地形；出现矛盾时就把周围一片溶回叠加态重解。"
   ]
  },
+ "mud-cracks": {
+  "title": "泥裂",
+  "trick": "扭曲的沃罗诺伊边界随干燥前沿逐一裂开",
+  "notes": [
+   "湿润发亮的黏土干得不均匀，裂成边缘卷起的泥片，越收缩裂缝越宽；随后雨水浸透，裂缝合拢。按住拖动可以打湿一片。",
+   "均匀收缩会让黏土裂成多边形，所以裂缝网络是经噪声扭曲的沃罗诺伊图；每条边在它那里变干时从中点向两端裂开，距离变换给裂缝和卷边上光影。"
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Plate size": "泥片大小",
  "Cells per frame": "每帧格数",
  "Land": "陆地",
  "Speed (1 = real time)": "速度（1 = 真实）",

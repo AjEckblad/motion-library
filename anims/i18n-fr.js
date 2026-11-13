@@ -1800,10 +1800,19 @@ export const FR = {
    "Deux voisines ne diffèrent que d’un palier de terrain au plus. La case d’entropie la plus basse s’effondre, ses voisines perdent ce qu’elles ne peuvent plus être, et une contradiction se répare en dissolvant la zone autour."
   ]
  },
+ "mud-cracks": {
+  "title": "Craquelures de boue",
+  "trick": "Des parois de Voronoï déformées se fendent au passage du front de séchage",
+  "notes": [
+   "L’argile mouillée et brillante sèche inégalement et se fend en plaques aux bords relevés, les fentes s’élargissant à mesure qu’elle rétrécit ; puis la pluie la détrempe et les fentes se referment. Maintenez et glissez pour mouiller une zone.",
+   "Un retrait uniforme casse l’argile en polygones : le réseau est donc un diagramme de Voronoï déformé par du bruit ; chaque paroi s’ouvre depuis son milieu quand sa zone sèche, et une transformée de distance ombre les fentes et les bords relevés."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Plate size": "Taille des plaques",
  "Cells per frame": "Cases par image",
  "Land": "Terre",
  "Speed (1 = real time)": "Vitesse (1 = réel)",
