@@ -1,6 +1,6 @@
 # Motion Library
 
-> 227 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 225 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -209,17 +209,6 @@ Lennard-Jones forces between every pair, with a thermostat steering speeds towar
 
 Settings: --atoms 950 (300 to 1600, step 50; Atoms); --gravity 1 (0 to 3, step 0.1; Gravity); --cycle 1 (0.4 to 2.5, step 0.1; Cycle speed).
 Renderer: Canvas 2D. Size: 7.6 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/states-of-matter.html
-
-### Bonfire embers
-
-Bonfire embers is a Canvas effect: temperature-squared buoyancy swirled by a divergence-free curl field. One plain JavaScript file with no dependencies; add it with npx motion-library add embers.
-
-Embers rise from a bonfire in curling eddies, twinkling and dimming as they cool.
-
-Lift scales with temperature squared, so hot embers shoot up; the swirl is the curl of layered sines, which is divergence-free, so embers never bunch.
-
-Settings: --embers 260 (60 to 600, step 20; Embers); --turbulence 1 (0 to 2.5, step 0.05; Turbulence).
-Renderer: Canvas 2D. Size: 4.7 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/embers.html
 
 ### Calligraphy brush
 
@@ -1310,17 +1299,6 @@ Neighbours may differ by one terrain step at most. The cell with the lowest entr
 
 Settings: --cell 22 (14 to 34, step 1; Cell size); --speed 5 (1 to 20, step 1; Cells per frame); --land 1 (0.5 to 1.6, step 0.05; Land).
 Renderer: Canvas 2D. Size: 14.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/wave-collapse.html
-
-### Leaf venation
-
-Leaf venation is a Canvas effect: space colonisation: auxin points pull the nearest vein tip toward them. One plain JavaScript file with no dependencies; add it with npx motion-library add leaf-venation.
-
-A backlit leaf grows and its veins grow with it: a midrib, secondaries arching out to the margin and a fine net closing into areoles; then it turns to autumn and falls, and a new leaf begins. Move to move the sun behind it.
-
-Auxin points appear along the growing margin; each pulls its nearest vein tip, which steps toward them, and is used up when a vein arrives. Vein width follows the pipe model, r³ of a vein being the sum over its branches.
-
-Settings: --density 1 (0.5 to 2, step 0.05; Vein density); --speed 1 (0.3 to 2.5, step 0.05; Speed); --light 1 (0 to 1.5, step 0.05; Backlight).
-Renderer: Canvas 2D. Size: 13.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/leaf-venation.html
 
 
 ## Simulation

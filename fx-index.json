@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 227,
+ "count": 225,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -766,42 +766,6 @@
      "min": 0.4,
      "max": 2.5,
      "step": 0.1
-    }
-   ]
-  },
-  {
-   "id": "embers",
-   "title": "Bonfire embers",
-   "titleZh": "篝火余烬",
-   "category": "Flow & particles",
-   "categoryId": "flow",
-   "renderer": "Canvas",
-   "description": "Temperature-squared buoyancy swirled by a divergence-free curl field",
-   "descriptionZh": "与温度平方成正比的浮力，由无散度旋度场搅动",
-   "page": "https://ajeckblad.github.io/motion-library/fx/embers.html",
-   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/embers",
-   "npx": "npx motion-library add embers",
-   "interactive": false,
-   "reducedMotion": false,
-   "bytes": 4797,
-   "settings": [
-    {
-     "key": "embers",
-     "flag": "--embers",
-     "label": "Embers",
-     "default": 260,
-     "min": 60,
-     "max": 600,
-     "step": 20
-    },
-    {
-     "key": "turbulence",
-     "flag": "--turbulence",
-     "label": "Turbulence",
-     "default": 1,
-     "min": 0,
-     "max": 2.5,
-     "step": 0.05
     }
    ]
   },
@@ -5014,51 +4978,6 @@
      "default": 1,
      "min": 0.5,
      "max": 1.6,
-     "step": 0.05
-    }
-   ]
-  },
-  {
-   "id": "leaf-venation",
-   "title": "Leaf venation",
-   "titleZh": "叶脉",
-   "category": "Generative & math",
-   "categoryId": "generative",
-   "renderer": "Canvas",
-   "description": "Space colonisation: auxin points pull the nearest vein tip toward them",
-   "descriptionZh": "空间殖民：生长素点把最近的叶脉尖端拉向自己",
-   "page": "https://ajeckblad.github.io/motion-library/fx/leaf-venation.html",
-   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/leaf-venation",
-   "npx": "npx motion-library add leaf-venation",
-   "interactive": true,
-   "reducedMotion": true,
-   "bytes": 13416,
-   "settings": [
-    {
-     "key": "density",
-     "flag": "--density",
-     "label": "Vein density",
-     "default": 1,
-     "min": 0.5,
-     "max": 2,
-     "step": 0.05
-    },
-    {
-     "key": "speed",
-     "flag": "--speed",
-     "label": "Speed",
-     "default": 1,
-     "min": 0.3,
-     "max": 2.5,
-     "step": 0.05
-    },
-    {
-     "key": "light",
-     "flag": "--light",
-     "label": "Backlight",
-     "default": 1,
-     "min": 0,
-     "max": 1.5,
      "step": 0.05
     }
    ]

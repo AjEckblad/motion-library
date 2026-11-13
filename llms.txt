@@ -1,6 +1,6 @@
 # Motion Library
 
-> 227 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 225 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -30,7 +30,6 @@
 - [Roche limit](https://ajeckblad.github.io/motion-library/fx/roche-limit.html): Tidal stretching past the Roche limit shears rubble into a ring. `npx motion-library add roche-limit`
 - [Starling murmuration](https://ajeckblad.github.io/motion-library/fx/murmuration.html): 3D flocking where each bird tracks only seven nearest neighbours. `npx motion-library add murmuration`
 - [States of matter](https://ajeckblad.github.io/motion-library/fx/states-of-matter.html): Lennard-Jones atoms plus a thermostat: gas, liquid, crystal. `npx motion-library add states-of-matter`
-- [Bonfire embers](https://ajeckblad.github.io/motion-library/fx/embers.html): Temperature-squared buoyancy swirled by a divergence-free curl field. `npx motion-library add embers`
 - [Calligraphy brush](https://ajeckblad.github.io/motion-library/fx/calligraphy.html): Bristle-by-bristle brush with per-bristle ink and dry-brush streaks. `npx motion-library add calligraphy`
 - [Harmonograph](https://ajeckblad.github.io/motion-library/fx/harmonograph.html): Summed decaying sines near a simple ratio, slightly detuned. `npx motion-library add harmonograph`
 - [Chladni plate](https://ajeckblad.github.io/motion-library/fx/chladni.html): GPU grains hop by local vibration and settle on nodal lines. `npx motion-library add chladni`
@@ -141,7 +140,6 @@
 - [Heatmap](https://ajeckblad.github.io/motion-library/fx/heatmap.html): A drifting field, sampled per cell, through a perceptual heat palette. `npx motion-library add heatmap`
 - [Julia set](https://ajeckblad.github.io/motion-library/fx/julia-set.html): z → z² + c, with c gliding along the Mandelbrot edge. `npx motion-library add julia-set`
 - [Wave function collapse](https://ajeckblad.github.io/motion-library/fx/wave-collapse.html): Collapse the least certain cell, then propagate what its neighbours may be. `npx motion-library add wave-collapse`
-- [Leaf venation](https://ajeckblad.github.io/motion-library/fx/leaf-venation.html): Space colonisation: auxin points pull the nearest vein tip toward them. `npx motion-library add leaf-venation`
 
 ## Simulation
 
