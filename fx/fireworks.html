@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fireworks: Rocket bursts with gravity, drag and six shell types · Motion Library</title>
-<meta name="description" content="Fireworks is a Canvas effect: rocket bursts with gravity, drag and six shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.">
+<title>Fireworks: Rocket bursts with gravity, drag and five shell types · Motion Library</title>
+<meta name="description" content="Fireworks is a Canvas effect: rocket bursts with gravity, drag and five shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.">
 <link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/fireworks.html">
 <meta name="theme-color" content="#0c0c0e">
 <meta property="og:title" content="Fireworks · Motion Library">
-<meta property="og:description" content="Rocket bursts with gravity, drag and six shell types">
+<meta property="og:description" content="Rocket bursts with gravity, drag and five shell types">
 <meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/fireworks.webp">
 <link rel="stylesheet" href="../css/static.css">
 <script type="application/ld+json">[
@@ -16,7 +16,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Fireworks",
-  "description": "Rocket bursts with gravity, drag and six shell types",
+  "description": "Rocket bursts with gravity, drag and five shell types",
   "programmingLanguage": "JavaScript",
   "runtimePlatform": "Web browser",
   "license": "https://spdx.org/licenses/MIT-0.html",
@@ -61,12 +61,12 @@
 <main class="s-page">
 <article>
 <h1>Fireworks</h1>
-<p class="tldr">Fireworks is a Canvas effect: rocket bursts with gravity, drag and six shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.</p>
-<figure><img src="../posters/fireworks.webp?v=d03d6590" alt="Fireworks: Rocket bursts with gravity, drag and six shell types" width="1120" height="896"></figure>
+<p class="tldr">Fireworks is a Canvas effect: rocket bursts with gravity, drag and five shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.</p>
+<figure><img src="../posters/fireworks.webp?v=f3839e38" alt="Fireworks: Rocket bursts with gravity, drag and five shell types" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/fireworks">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Fireworks?</h2>
-<p>Rockets burst into peonies, rings, willows, crossettes and glitter; click to launch one there.</p>
+<p>Rockets burst into peonies, willows, crossettes, two-tone shells and glitter; click to launch one there.</p>
 
 <h2>How does Fireworks work?</h2>
 <p>Each star has velocity, gravity and drag, with a rule set per shell type; stars keep their last few positions, drawn as tapering additive streaks.</p>
@@ -94,7 +94,7 @@
 <dt>Renderer</dt><dd>Canvas 2D</dd>
 <dt>Category</dt><dd>Flow &amp; particles</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>8.0 KB, unminified</dd>
+<dt>File size</dt><dd>7.5 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -102,11 +102,11 @@
 
 <h2>Source code</h2>
 <p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/flow/fireworks.js">anims/flow/fireworks.js on GitHub</a></p>
-<pre><code>// Fireworks: rockets climb, slow, and burst at the top of their arc into stars that obey gravity and air drag. Six
-// shell types, each a different rule set: peony (a sphere of stars), ring (a tilted circle, so it reads as an
-// ellipse), willow (heavy drag, long-lived gold that droops and leaves trails), crossette (a few stars that each split
-// into four), crackle (glitter that pops into tiny white flashes) and two-tone (an inner core in a second colour).
-// Each star keeps its last few positions and is drawn as a tapering additive streak. Click to launch.
+<pre><code>// Fireworks: rockets climb, slow, and burst at the top of their arc into stars that obey gravity and air drag. Five
+// shell types, each a different rule set: peony (a sphere of stars), willow (heavy drag, long-lived gold that droops
+// and leaves trails), crossette (a few stars that each split into four), crackle (glitter that pops into tiny white
+// flashes) and two-tone (an inner core in a second colour). Each star keeps its last few positions and is drawn as a
+// tapering additive streak. Click to launch.
 const PARAMS = { rate: 1, gravity: 1, drag: 1 };
 
 export default function (stage) {
@@ -131,18 +131,11 @@ export default function (stage) {
   const sphere = n =&gt; { const out = []; for (let i = 0; i &lt; n; i++) { const u = Math.random() * 2 - 1, a = Math.random() * 6.2832, r = Math.sqrt(1 - u * u); out.push([r * Math.cos(a), r * Math.sin(a) * 0.95 + u * 0.05, u]); } return out; };
   const burst = (x, y) =&gt; {
     const s = Math.min(W, H), sp = s * (0.5 + Math.random() * 0.15), hue = HUES[Math.random() * HUES.length | 0];
-    const type = ['peony', 'ring', 'willow', 'crossette', 'crackle', 'twotone'][Math.random() * 6 | 0];
+    const type = ['peony', 'willow', 'crossette', 'crackle', 'twotone'][Math.random() * 5 | 0];
     flashes.push({ x, y, age: 0, r: s * 0.1, hue: type === 'willow' ? 40 : hue });
     if (type === 'peony' || type === 'twotone') {
       for (const [a, b] of sphere(170)) spark(x, y, a * sp, b * sp, { hue, life: 1.5 + Math.random() * 0.5 });
       if (type === 'twotone') { const h2 = (hue + 150) % 360; for (const [a, b] of sphere(60)) spark(x, y, a * sp * 0.45, b * sp * 0.45, { hue: h2, light: 70, life: 1.3 }); }
-    } else if (type === 'ring') {
-      const tilt = Math.random() * 3.14, squash = 0.25 + Math.random() * 0.6, n = 90;
-      for (let i = 0; i &lt; n; i++) {
-        const a = i / n * 6.2832, cx = Math.cos(a), cy = Math.sin(a) * squash, c = Math.cos(tilt), sn = Math.sin(tilt);
-        spark(x, y, (cx * c - cy * sn) * sp, (cx * sn + cy * c) * sp, { hue, light: 66, life: 1.5 });
-      }
-      for (const [a, b] of sphere(24)) spark(x, y, a * sp * 0.25, b * sp * 0.25, { hue: 50, sat: 30, light: 85, life: 0.9 });
     } else if (type === 'willow') {
       for (const [a, b] of sphere(110)) spark(x, y, a * sp * 0.85, b * sp * 0.85, { kind: 'willow', hue: 38, sat: 85, light: 58, life: 3.2 + Math.random(), drag: 0.955, g: 0.5, w: 1.3, tl: 30 });
     } else if (type === 'crossette') {

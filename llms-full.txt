@@ -267,14 +267,14 @@ Renderer: WebGL. Size: 16.3 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Fireworks
 
-Fireworks is a Canvas effect: rocket bursts with gravity, drag and six shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.
+Fireworks is a Canvas effect: rocket bursts with gravity, drag and five shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.
 
-Rockets burst into peonies, rings, willows, crossettes and glitter; click to launch one there.
+Rockets burst into peonies, willows, crossettes, two-tone shells and glitter; click to launch one there.
 
 Each star has velocity, gravity and drag, with a rule set per shell type; stars keep their last few positions, drawn as tapering additive streaks.
 
 Settings: --rate 1 (0 to 3, step 0.1; Launch rate); --gravity 1 (0.2 to 2, step 0.05; Gravity); --drag 1 (0 to 2, step 0.05; Air drag).
-Renderer: Canvas 2D. Size: 8.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/fireworks.html
+Renderer: Canvas 2D. Size: 7.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/fireworks.html
 
 ### Bokeh
 
@@ -1351,12 +1351,12 @@ Renderer: Canvas 2D. Size: 4.6 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 Water ripples is a WebGL effect: height-field wave equation on the GPU, refracting a grid beneath. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.
 
-Raindrops and the pointer send rings across clear water, bending the grid beneath; click for a big drop.
+Now and then a drop falls into clear water and sends a slow ring across it, bending the grid beneath; drag for a wake, click for a big drop.
 
-The wave equation on two ping-pong float textures: new height is half the neighbour sum minus the previous height, damped; the slope refracts the grid and curvature adds caustics.
+The wave equation on two ping-pong float textures: each cell moves toward its neighbours’ average (slower than the fastest stable rate, so rings can be followed) minus its previous height, damped; the slope refracts the grid and curvature adds caustics.
 
-Settings: --damping 0.985 (0.95 to 0.998, step 0.001; Damping); --refraction 1 (0 to 3, step 0.05; Refraction); --rain 1 (0 to 4, step 0.1; Rain).
-Renderer: WebGL. Size: 9.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/water-ripple.html
+Settings: --damping 0.985 (0.95 to 0.998, step 0.001; Damping); --refraction 1 (0 to 3, step 0.05; Refraction); --rain 1 (0 to 4, step 0.1; Rain); --speed 0.55 (0.2 to 1, step 0.05; Ripple speed).
+Renderer: WebGL. Size: 9.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/water-ripple.html
 
 ### Double pendulums
 

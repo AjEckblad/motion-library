@@ -35,7 +35,7 @@
 - [Chladni plate](https://ajeckblad.github.io/motion-library/fx/chladni.html): GPU grains hop by local vibration and settle on nodal lines. `npx motion-library add chladni`
 - [Crystal growth (DLA)](https://ajeckblad.github.io/motion-library/fx/dla-crystal.html): Diffusion-limited aggregation: random walkers stick on contact. `npx motion-library add dla-crystal`
 - [Wind tunnel](https://ajeckblad.github.io/motion-library/fx/wind-tunnel.html): GPU lattice Boltzmann solver shedding a Kármán vortex street. `npx motion-library add wind-tunnel`
-- [Fireworks](https://ajeckblad.github.io/motion-library/fx/fireworks.html): Rocket bursts with gravity, drag and six shell types. `npx motion-library add fireworks`
+- [Fireworks](https://ajeckblad.github.io/motion-library/fx/fireworks.html): Rocket bursts with gravity, drag and five shell types. `npx motion-library add fireworks`
 - [Bokeh](https://ajeckblad.github.io/motion-library/fx/bokeh.html): Circle of confusion: discs grow with distance from the focal plane. `npx motion-library add bokeh`
 - [Nebula](https://ajeckblad.github.io/motion-library/fx/nebula.html): Domain-warped fbm gas, lit toward a star, with dust lanes. `npx motion-library add nebula`
 

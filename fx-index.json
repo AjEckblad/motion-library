@@ -983,14 +983,14 @@
    "category": "Flow & particles",
    "categoryId": "flow",
    "renderer": "Canvas",
-   "description": "Rocket bursts with gravity, drag and six shell types",
-   "descriptionZh": "火箭爆裂，带重力、空气阻力和六种礼花弹",
+   "description": "Rocket bursts with gravity, drag and five shell types",
+   "descriptionZh": "火箭爆裂，带重力、空气阻力和五种礼花弹",
    "page": "https://ajeckblad.github.io/motion-library/fx/fireworks.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/fireworks",
    "npx": "npx motion-library add fireworks",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 8228,
+   "bytes": 7658,
    "settings": [
     {
      "key": "rate",
@@ -5167,7 +5167,7 @@
    "npx": "npx motion-library add water-ripple",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 9217,
+   "bytes": 9645,
    "settings": [
     {
      "key": "damping",
@@ -5195,6 +5195,15 @@
      "min": 0,
      "max": 4,
      "step": 0.1
+    },
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Ripple speed",
+     "default": 0.55,
+     "min": 0.2,
+     "max": 1,
+     "step": 0.05
     }
    ]
   },
