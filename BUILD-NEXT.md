@@ -1,4 +1,27 @@
-# Resume here (2026-11-14 ~01:00): ferrofluid + water ripples SHIPPED (a31b44c); honey agent running; site redesign next
+# Resume here (2026-11-14 morning): ALL SHIPPED (ferrofluid, ripples, honey, front-door redesign 3a99c85); nothing running
+
+Coordinator protocol works (AJ's option 1): the lead hands big chunks to ONE fresh helper agent at a time, reviews its
+screenshots/frames, runs check + motion-check itself, ships via commit/push. Hand off at 40% context as usual.
+- SHIPPED 3a99c85 (helper agent, reviewed): front door on #/: "Showpiece web effects that run in any stack", pitch
+  sentence, 3 differentiators, Browse all 224, npx line (copies, follows the hero sliders); live terrain-flyover hero
+  with Sun height / Flight speed sliders, Pause, See the code (poster first, idle mount, pauses off screen / under
+  previews / detail / hidden tab, frees iframe after 30 s off screen, reduced motion = poster; 8 ms GPU); showpiece row
+  (ferrofluid large; ocean, black hole, snow globe, honey); Bricolage Grotesque 600 for headlines (OFL, 40 KB; Wix
+  Madefor Display deleted), counts as quiet numbers, dial arc drawn as a track with hue dots, phone dial tucks away on
+  scroll down. check 89/89, motion-check 31/31, design-taste inspect --app 0 FAIL. New files js/front.js,
+  js/showpieces.js.
+- AJ to review (agent's judgement calls): hero fixed on terrain flyover (black hole too heavy at 14 ms); hero in the
+  content column left of the dial; 5 showpieces (they also appear in their own categories); differentiators as short
+  phrases with accent dots; phone dial tucks away on scroll (behaviour change to the signature); creatures steer
+  around the hero words (js/critters.js lists only, no motion retune); direction "The product performs".
+- Known issues: poster->live hero handover shows a camera jump (blurred); dial overflows 3px at 320px (old);
+  .impeccable/surfaces/index-html.md still describes the old direction; page-mode inspect has 3 FAILs about the
+  catalogue (14px trick lines, dial column off-centre, catalogue screens "empty").
+- Waiting on AJ: his verdict on everything above; `/review-animations` (hero reveal, handover, row entrance, dial
+  tuck, plus ferrofluid/ripples/honey); npm publish of CLI 0.3.5 (`cd ~/Downloads/motion-library/cli && npm login &&
+  npm publish`).
+
+# Earlier (2026-11-14 ~01:00): ferrofluid + water ripples SHIPPED (a31b44c); honey agent running; site redesign next
 
 AJ is asleep and approved working through the night with **one helper agent at a time** (option 1: the lead coordinates,
 agents do the big chunks, so the lead's context stays under the 400k handoff). AJ cannot type "continue" while asleep.
