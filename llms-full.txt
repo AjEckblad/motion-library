@@ -365,7 +365,7 @@ Glossy black magnetic oil lies in a puddle on a studio table and climbs over a s
 Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a turned, jittered hexagonal lattice (each sample visits its nearest lattice point and six neighbours, looked up with the lean undone), shaded only by studio reflections, the puddle mirroring the crown.
 
 Settings: --spikes 260 (80 to 500, step 10; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength); --magnet 0 (0 to 1, step 1; Magnet).
-Renderer: WebGL. Size: 25.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
+Renderer: WebGL. Size: 28.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 
@@ -1338,14 +1338,14 @@ Renderer: Canvas 2D. Size: 4.6 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Water ripples
 
-Water ripples is a WebGL effect: height-field wave equation on the GPU, refracting a grid beneath. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.
+Water ripples is a WebGL effect: height-field wave equation on the GPU over a sunlit, pebbled pond bed. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.
 
-Now and then a drop falls into clear water and sends a slow ring across it, bending the grid beneath; drag for a wake, click for a big drop.
+A shallow pond on a sunny day: one drop at a time falls into the clear water and sends a ring across it, bending the pebbles below, with sunlight caustics on the bed and the sky on the surface; the slider sets the seconds between drops. Drag for a wake, click for a big drop.
 
-The wave equation on two ping-pong float textures: each cell moves toward its neighbours’ average (slower than the fastest stable rate, so rings can be followed) minus its previous height, damped; the slope refracts the grid and curvature adds caustics.
+The wave equation on two ping-pong float textures: new height is half the neighbour sum minus the previous height, damped; the slope refracts the bed and mirrors the sky, curvature focuses the sunlight, and the sun glints off each ring.
 
-Settings: --damping 0.985 (0.95 to 0.998, step 0.001; Damping); --refraction 1 (0 to 3, step 0.05; Refraction); --rain 1 (0 to 4, step 0.1; Rain); --speed 0.55 (0.2 to 1, step 0.05; Ripple speed).
-Renderer: WebGL. Size: 9.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/water-ripple.html
+Settings: --damping 0.985 (0.95 to 0.998, step 0.001; Damping); --refraction 1 (0 to 3, step 0.05; Refraction); --every 1.25 (0.5 to 4, step 0.05; Seconds between drops).
+Renderer: WebGL. Size: 14.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/water-ripple.html
 
 ### Double pendulums
 

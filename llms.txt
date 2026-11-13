@@ -146,7 +146,7 @@
 - [Langton’s ant](https://ajeckblad.github.io/motion-library/fx/langtons-ant.html): Turn right on empty, left on filled, flip, step: then a highway. `npx motion-library add langtons-ant`
 - [Falling sand](https://ajeckblad.github.io/motion-library/fx/falling-sand.html): Cellular automaton: grains fall, slide diagonally, water spreads sideways. `npx motion-library add falling-sand`
 - [Doom fire](https://ajeckblad.github.io/motion-library/fx/doom-fire.html): The PlayStation Doom fire: copy heat up, jitter sideways, cool randomly. `npx motion-library add doom-fire`
-- [Water ripples](https://ajeckblad.github.io/motion-library/fx/water-ripple.html): Height-field wave equation on the GPU, refracting a grid beneath. `npx motion-library add water-ripple`
+- [Water ripples](https://ajeckblad.github.io/motion-library/fx/water-ripple.html): Height-field wave equation on the GPU over a sunlit, pebbled pond bed. `npx motion-library add water-ripple`
 - [Double pendulums](https://ajeckblad.github.io/motion-library/fx/double-pendulum.html): Chaos: pendulums a fraction of a milliradian apart diverge completely. `npx motion-library add double-pendulum`
 - [N-body orbits](https://ajeckblad.github.io/motion-library/fx/orbits.html): Every body pulls every other; leapfrog integration keeps orbits closed. `npx motion-library add orbits`
 - [Vortex drain](https://ajeckblad.github.io/motion-library/fx/vortex.html): Lamb–Oseen vortex plus inflow; differential rotation winds colour into arms. `npx motion-library add vortex`

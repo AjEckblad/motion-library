@@ -167,6 +167,40 @@ check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT })
   await sp.close();
 }
 
+// 6c. Ferrofluid's switch, frame by frame: a click mid-way never makes the film or the needles jump (they used to pop
+// when the switch was reversed during a transition), and with the magnet off the puddle stays put while the block
+// slides through it (it used to follow the magnet as if the field still pulled it)
+{
+  const sp = await ctx.newPage(); sp.on('pageerror', e => errors.push('ferro switch: ' + e.message));
+  const src = await (await fetch(base + '/anims/fluid/ferrofluid.js')).text();
+  const hook = 'gl.drawArrays(gl.TRIANGLES, 0, 3);\n    raf';
+  await sp.route('**/anims/fluid/ferrofluid.js', r => r.fulfill({ body: src.replace(hook, '(window.__f ||= []).push([CON, SON, S.m, S.pc]); ' + hook), contentType: 'text/javascript' }));
+  await sp.goto(base + '/stage.html?src=anims/fluid/ferrofluid.js&mode=detail&paused=1');
+  await sp.waitForFunction(() => window.__ready === true, null, { timeout: 20000 });
+  const run = (n, act) => sp.evaluate(async ([n, act]) => {
+    const c = document.querySelector('canvas'), b = c.getBoundingClientRect();
+    if (act === 'click') c.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    for (let i = 0; i < n; i++) {
+      if (act) c.dispatchEvent(new PointerEvent('pointermove', { clientX: b.left + b.width * (0.5 + (act === 'drag' ? 0.06 * Math.sin(i * Math.PI / 90) : 0)), clientY: b.top + b.height * 0.55, pointerType: 'mouse', bubbles: true }));
+      window.__clock.step(); if (i % 30 === 29) await new Promise(r => window.__clock.realRAF(r));
+    }
+  }, [n, act]);
+  // off; back on while the oil is a third of the way down (where the old switch popped); off again on the way up
+  await run(360); await run(132, 'click'); await run(60, 'click'); await run(300, 'click');
+  const sw = await sp.evaluate(() => window.__f.slice(360));
+  let jc = 0, js = 0; for (let i = 1; i < sw.length; i++) { jc = Math.max(jc, Math.abs(sw[i][0] - sw[i - 1][0])); js = Math.max(js, Math.abs(sw[i][1] - sw[i - 1][1])); }
+  check('ferrofluid: reversing the switch mid-way never jumps the film or the needles', jc < 0.05 && js < 0.12, { filmStep: +jc.toFixed(3), needleStep: +js.toFixed(3) });
+  // the magnet held over the middle of the puddle with the field on (so the puddle centres under it), switched off,
+  // then slid slowly to and fro, 3 s a swing: the old puddle followed it most of the way
+  await sp.evaluate(() => { document.querySelector('canvas').dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+  await run(300, 'hold'); await run(300, 'click');
+  await run(90, 'drag'); const n0 = await sp.evaluate(() => window.__f.length); await run(360, 'drag');
+  const dr = await sp.evaluate(n0 => window.__f.slice(n0), n0), span = k => Math.max(...dr.map(f => f[k])) - Math.min(...dr.map(f => f[k]));
+  const mag = span(2), pud = span(3);
+  check('ferrofluid: with the magnet off the puddle stays while the block slides', mag > 0.1 && pud < 0.25 * mag, { magnet: +mag.toFixed(3), puddle: +pud.toFixed(3) });
+  await sp.close();
+}
+
 // 7. touch phone: hearts stay visible without hover
 const m = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 const mp = await m.newPage(); mp.on('pageerror', e => errors.push('mobile: ' + e.message));

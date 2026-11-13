@@ -994,10 +994,10 @@ export const ES = {
  },
  "water-ripple": {
   "title": "Ondas en el agua",
-  "trick": "Ecuación de onda de campo de alturas en la GPU, que refracta una cuadrícula",
+  "trick": "Ecuación de ondas de campo de alturas en la GPU sobre el lecho de guijarros de un estanque al sol",
   "notes": [
-   "De vez en cuando cae una gota en el agua clara y envía un anillo lento que dobla la retícula de debajo; arrastra para dejar una estela y haz clic para una gota grande.",
-   "La ecuación de ondas en dos texturas flotantes que se alternan: cada celda se acerca a la media de sus vecinas (más despacio que el máximo estable, para poder seguir los anillos) menos su altura anterior, amortiguada; la pendiente refracta la retícula y la curvatura añade cáusticas."
+   "Un estanque poco profundo en un día de sol: cae una gota cada vez en el agua clara y envía un anillo que dobla los guijarros del fondo, con cáusticas de sol en el lecho y el cielo en la superficie; el control fija los segundos entre gotas. Arrastra para dejar una estela y haz clic para una gota grande.",
+   "La ecuación de ondas en dos texturas flotantes que se alternan: la nueva altura es la mitad de la suma de las vecinas menos la altura anterior, amortiguada; la pendiente refracta el fondo y refleja el cielo, la curvatura concentra la luz del sol y el sol destella en cada anillo."
   ]
  },
  "double-pendulum": {
@@ -1796,7 +1796,7 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
- "Ripple speed": "Velocidad de las ondas",
+ "Seconds between drops": "Segundos entre gotas",
  "Magnet": "Imán",
  "On": "Encendido",
  "Off": "Apagado",

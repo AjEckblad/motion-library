@@ -994,10 +994,10 @@ export const FR = {
  },
  "water-ripple": {
   "title": "Ondes sur l’eau",
-  "trick": "Équation d’onde en champ de hauteurs sur GPU, qui réfracte une grille",
+  "trick": "Équation des ondes en champ de hauteurs sur GPU, au-dessus du lit de galets d’un étang au soleil",
   "notes": [
-   "De temps en temps une goutte tombe dans l’eau claire et envoie un anneau lent qui courbe la grille en dessous ; faites glisser pour un sillage, cliquez pour une grosse goutte.",
-   "L’équation des ondes sur deux textures flottantes en ping-pong : chaque cellule se rapproche de la moyenne de ses voisines (plus lentement que le maximum stable, pour qu’on puisse suivre les anneaux) moins sa hauteur précédente, amortie ; la pente réfracte la grille et la courbure ajoute des caustiques."
+   "Un étang peu profond par une journée ensoleillée : une goutte à la fois tombe dans l’eau claire et envoie un anneau qui courbe les galets du fond, avec des caustiques de soleil sur le lit et le ciel à la surface ; le curseur règle les secondes entre deux gouttes. Faites glisser pour un sillage, cliquez pour une grosse goutte.",
+   "L’équation des ondes sur deux textures flottantes en ping-pong : la nouvelle hauteur est la moitié de la somme des voisines moins la hauteur précédente, amortie ; la pente réfracte le fond et reflète le ciel, la courbure concentre la lumière du soleil et le soleil scintille sur chaque anneau."
   ]
  },
  "double-pendulum": {
@@ -1796,7 +1796,7 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
- "Ripple speed": "Vitesse des ondes",
+ "Seconds between drops": "Secondes entre les gouttes",
  "Magnet": "Aimant",
  "On": "Allumé",
  "Off": "Éteint",

@@ -8,8 +8,14 @@
 // dragged along behind), the needles lean back and shrink while it travels and stand up again with a shiver when it
 // stops. With no pointer it wanders on its own. Click or tap to switch the magnet off: the needles melt, the film opens
 // from the middle of the top and slides down the sides as a smooth edge with a rounded lip and a few rounded tongues,
-// leaving the bare nickel block in a smooth puddle; switch it on and the oil climbs back and the needles rise. The magnet
-// param sets how it starts (a fresh start with it on grows the crown in).
+// leaving the bare nickel block in a smooth puddle; switch it on and the oil climbs back and the needles rise. The field
+// itself comes and goes at once; the oil answers on two time scales, each a spring of its own, so a click mid-way never
+// makes anything jump: the needles collapse within a third of a second, as real Rosensweig spikes do, while the film
+// drains off the block under its weight over about three. With the field off nothing pulls the puddle after the
+// magnet, so the block slides through the oil and only pushes it along near the rim. The magnet param sets how it
+// starts (a fresh start with it on grows the crown in). The needles are fat cones whose feet touch, as in photographs
+// of the instability, and the field draws the puddle up the block in a broad meniscus. Edges are antialiased with a
+// second sample wherever the 2x2 pixel block sees one.
 // The scene is raymarched. The oil is a distance field: the puddle smooth-unioned with the film on the block (the
 // block's own rounded box, inflated by a thickness that is a low dome on top and a skirt down the sides), smooth-
 // unioned with concave cones on a hexagonal lattice, turned 20 degrees to the block and jittered so the needles never
@@ -56,7 +62,9 @@ export default function (stage) {
     vec2 f = (q.xz - CO) / MB.x;
     float e = min(sq(f), 1.);
     // how far the oil has to travel to get here: up the side, then in across the top
-    float w = smoothstep(MB.y - .03, MB.y + .002, q.y), path = mix(q.y, MB.y + (1. - e) * MB.x, w);
+    // (a thinning film breaks where it happens to be thinnest, so the hole opens as an irregular patch, not a square)
+    float w = smoothstep(MB.y - .03, MB.y + .002, q.y), en = e + .3 * (vn(q.xz * 7. + 4.3) - .5) + .1 * (vn(q.xz * 19. - 2.1) - .5);
+    float path = mix(q.y, MB.y + (1. - en) * MB.x, w);
     float tongue = smoothstep(.55, .9, vn(vec2((q.x * 1.7 + q.z * 2.3) * 7., 3.)));
     float d = -MB.y - .06 + CON * (2. * MB.y + MB.x + .16) - .04 * tongue - path;   // > 0: wet
     // (on the sides it thickens towards the foot)
@@ -68,13 +76,13 @@ export default function (stage) {
   float fieldAt(vec2 f, float e) {
     vec2 a = abs(f);
     float corner = smoothstep(.6, 1., a.x) * smoothstep(.6, 1., a.y);
-    return (.42 + .56 * pow(smoothstep(.1, 1.02, e), 1.6) + .34 * corner) * smoothstep(1.06, .96, e);
+    return (.5 + .5 * pow(smoothstep(.1, 1.02, e), 1.6) + .34 * corner) * smoothstep(1.06, .96, e);
   }
   // the needles lean out along the field lines: barely mid-face, far out over the shoulder at the edges, diagonally at the corners
   vec2 leanAt(vec2 f, float e) {
     vec2 w = f * f; w *= w * w; vec2 od = sign(f) * w; od /= length(od) + 1e-6;
     od.y *= od.y > 0. ? .6 : 1.;   // (less towards the camera: a needle pointing at the lens reads as a ring, not a spike)
-    return od * (.04 + .62 * smoothstep(.4, 1.1, e) * (.6 + .4 * SON)) + LN;
+    return od * (.04 + .48 * smoothstep(.4, 1.1, e) * (.6 + .4 * SON)) + LN;
   }
   // where a needle stands: on the film, and a little down the rounded shoulder past the edge
   float baseAt(vec2 f, float e) { return MT + topT(clamp(f, -1., 1.)) - max(e - 1., 0.) * MB.x * .9 - .005; }
@@ -103,7 +111,7 @@ export default function (stage) {
       vec3 l = vec3(q.x - cw.x, p.y - baseAt(fk, ek), q.y - cw.y);
       l.xz -= lean * max(l.y, 0.);
       // a weak needle is a low, nearly straight mound; a strong one a sharp spike on a wide concave flare
-      float pw = mix(1.4, 2.1, smoothstep(.3, 1.1, fd * SON)), rb = LA * (.5 + .24 * SON),   // (narrow while they grow or melt: overlapping flat cones left hexagonal creases)
+      float pw = mix(1.2, 1.65, smoothstep(.3, 1.1, fd * SON)), rb = LA * (.5 + .16 * SON),   // (narrow while they grow or melt: overlapping flat cones left hexagonal creases)
             rr = length(l.xz), yy = clamp(l.y / H, 0., 1.), k0 = rb * pw / H;
       float sl = k0 * pow(1. - yy, pw - 1.);
       // below its base a long foot tapers to a point inside the film, so a needle on a curved surface never shows a ledge,
@@ -121,7 +129,7 @@ export default function (stage) {
   // the puddle: a flat top, a rounded rim, standing on the table
   // (the field draws the oil towards the block: its surface rises gently towards it)
   float poolD(vec3 p) { vec2 d = p.xz - PC; float de = (length(d) - rim(d)) * .88, k = LV * .85;
-    vec2 bq = abs(p.xz - M) - MB.xz; float lv = LV + CON * .004 * exp(-length(max(bq, 0.)) / .06);
+    vec2 bq = abs(p.xz - M) - MB.xz; float bd = length(max(bq, 0.)), lv = LV + CON * (.006 * exp(-bd / .05) + .012 * exp(-bd / .12));
     vec2 w = vec2(de + k, p.y - lv + k); return max(length(max(w, 0.)) + min(max(w.x, w.y), 0.) - k, -p.y); }
   // the magnet and the oil on it (film and needles), without the pool
   vec2 crown(vec3 p) {
@@ -138,13 +146,13 @@ export default function (stage) {
     if (bx > .02) return vec2(min(pool, bx), 0.);
     vec2 c = crown(p);
     // the oil on the block runs down into the pool in a wide concave skirt
-    return vec2(min(smin(pool, c.x, .014 + .022 * CON), c.y), 0.);
+    return vec2(min(smin(pool, c.x, .014 + .04 * CON), c.y), 0.);
   }
   // at a hit: is it bare nickel? (no film there, no needle or fillet near)
   bool bare(vec3 p) {
     if (CON > .999) return false;   // (fully on, the oil covers the block)
     vec3 q = p - vec3(M.x, MY, M.y);
-    return coatT(q) < 3e-4 && spikes(p) * .7 > LA * .32 && poolD(p) > .014 + .022 * CON;
+    return coatT(q) < 3e-4 && spikes(p) * .7 > LA * .32 && poolD(p) > .014 + .04 * CON;
   }
   float solid(vec3 p) { vec2 c = crown(p); return min(c.x, c.y); }   // for the shading probes: exact, and not the pool
   vec3 nrm(vec3 p) { const vec2 e = vec2(.0008, -.0008);
@@ -215,8 +223,7 @@ export default function (stage) {
     vec3 sat = vec3(.5) * (.55 + .45 * n.y) + .35 * max(dot(n, normalize(vec3(-.8, .3, .4))), 0.) + .2 * max(dot(n, normalize(vec3(.9, .2, .3))), 0.);
     return (e * (.62 + .38 * pow(1. - c, 5.)) * .7 + sat * .38) * vec3(.82, .8, .76) * (.92 + .08 * grain) * (.45 + .55 * ao);
   }
-  void main() {
-    vec2 sp = (uv - .5) * vec2(R.x / R.y, 1.);
+  vec3 shade(vec2 sp, bool cheap) {
     vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y), ro = CP, col;
     vec3 h = march(ro, rd);
     float th = h.x > 0. ? h.x : (rd.y < 0. ? -ro.y / rd.y : 1e9);
@@ -230,7 +237,7 @@ export default function (stage) {
       vec3 lo = vec3(M.x + CO.x - MB.x - .17, FL, M.y + CO.y - MB.z - .17), hi = vec3(M.x + CO.x + MB.x + .17, MT + SH * 1.4 + .04, M.y + CO.y + MB.z + .17);
       vec3 iv = 1. / r, ta = (lo - p) * iv, tb = (hi - p) * iv, tn = min(ta, tb), tf = max(ta, tb);
       float a0 = max(max(tn.x, tn.y), max(tn.z, .003)), a1 = min(min(tf.x, tf.y), tf.z);
-      if (a0 < a1) {
+      if (a0 < a1 && !cheap) {
         vec3 o2 = p + n * .002;
         float t2 = pool ? a0 : .006, occ = 1.;
         for (int i = 0; i < 40; i++) {
@@ -253,7 +260,19 @@ export default function (stage) {
       vec3 p = ro + rd * th;
       col = table(p);
     } else col = env(ro, rd);
-    col = aces(col * 1.02);
+    return aces(col * 1.02);
+  }
+  // one ray per pixel, and three more where the 2x2 pixel block says there is an edge (a needle's silhouette, the
+  // line of a highlight): the needles are a few pixels wide, and one sample makes them crawl and stair-step
+  void main() {
+    vec2 sp = (uv - .5) * vec2(R.x / R.y, 1.), px = vec2(1. / R.y);
+    vec3 col = shade(sp, false);
+    float l = dot(col, vec3(.3, .59, .11));
+    if (fwidth(l) > .07) {
+      vec2 j = (vec2(h21(gl_FragCoord.xy), h21(gl_FragCoord.yx + 7.)) - .5) * .12;
+      // (the extra samples leave out the short march along the reflection: at an edge it hardly shows, and it is most of the cost)
+      col = (col + shade(sp + px * (vec2(.5, .5) + j), true)) * .5;
+    }
     col *= 1. - .22 * pow(length(uv - .5) * 1.25, 2.6);
     o = vec4(pow(col, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy) - .5) / 255., 1);
   }`;
@@ -299,16 +318,22 @@ export default function (stage) {
     return [cam.p[0] + d[0] * t, cam.p[2] + d[2] * t];
   };
   // springs: the magnet follows its target; the oil on top follows the magnet a little late and a little bouncy, so
-  // it lags while the magnet travels and overshoots when it stops. on: the switch, eased over a couple of seconds
-  const S = { m: 0, mv: 0, n: 0, nv: 0, pc: 0, pcv: 0, pz: 0, pzv: 0, h: 0, hv: 0, k: 0, kv: 0, exc: 0, on: PARAMS.magnet ? 1 : 0 };
+  // it lags while the magnet travels and overshoots when it stops.
+  // The switch is a field that comes and goes at once, but the oil answers it on two time scales, each its own spring
+  // (so a click mid-way only changes where they head, never where they are): film, the oil coating the block, climbs
+  // in about a second and a half when the field comes on and drains off under its weight in about three when it goes;
+  // spk, the needles, stand up only once the film has closed over the top and collapse within a third of a second
+  // when the field goes, as real Rosensweig spikes do
+  const S = { m: 0, mv: 0, n: 0, nv: 0, pc: 0, pcv: 0, pz: 0, pzv: 0, h: 0, hv: 0, k: 0, kv: 0, exc: 0, film: 0, fv: 0, spk: 0, sv: 0 };
   const spring = (x, v, target, w, z, dt) => { const a = w * w * (target - x) - 2 * z * w * v; v += a * dt; return [x + v * dt, v, a]; };
   const smooth = (a, b, x) => { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
   // the param sets how it starts; a click or tap on the stage switches the magnet on or off
   let onTarget = PARAMS.magnet ? 0 : 1;
   let LIM = 0.3;
-  const onClick = () => { if (travel >= 8) return; onTarget = 1 - onTarget; if (reduce) S.on = onTarget; };
+  const settle = () => { S.film = onTarget; S.spk = onTarget; S.fv = S.sv = 0; };   // (reduced motion: no transition)
+  const onClick = () => { if (travel >= 8) return; onTarget = 1 - onTarget; if (reduce) settle(); };
   canvas.addEventListener('click', onClick);
-  if (reduce) S.on = onTarget;
+  if (reduce) settle();
   let raf, last = performance.now(), t = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
@@ -327,19 +352,28 @@ export default function (stage) {
     for (let i = 0, n = 4, h = dt / n; i < n; i++) {
       [S.m, S.mv] = spring(S.m, S.mv, target[0], 7, 1, h); [S.n, S.nv] = spring(S.n, S.nv, target[1], 7, 1, h);
       let ax, az; [S.h, S.hv, ax] = spring(S.h, S.hv, S.m, 5.5, 0.4, h); [S.k, S.kv, az] = spring(S.k, S.kv, S.n, 5.5, 0.4, h);
-      // the puddle is dragged along behind the magnet, slow and heavy, and never lets it reach the rim
-      [S.pc, S.pcv] = spring(S.pc, S.pcv, S.m, 1.7, 0.9, h); [S.pz, S.pzv] = spring(S.pz, S.pzv, S.n, 1.7, 0.9, h);
-      const ox = S.m - S.pc, oz = S.n - S.pz, ol = Math.hypot(ox, oz); if (ol > 0.15) { S.pc += ox * (1 - 0.15 / ol); S.pz += oz * (1 - 0.15 / ol); }
-      S.exc = Math.min(1, S.exc * Math.exp(-h * 2.2) + Math.hypot(ax, az) * h * 0.05);
-      if (!reduce) S.on += Math.sign(onTarget - S.on) * Math.min(Math.abs(onTarget - S.on), h / 3.2);
+      // the oil on the block, then the needles on it (see S)
+      if (!reduce) {
+        let fa, sa; const up = onTarget > 0.5;
+        [S.film, S.fv] = spring(S.film, S.fv, onTarget, up ? 3.4 : 1.7, 1, h);
+        const st = onTarget * smooth(0.6, 0.97, S.film), rise = st > S.spk;
+        [S.spk, S.sv] = spring(S.spk, S.sv, st, rise ? 7 : 15, rise ? 0.7 : 1, h);
+      }
+      // the puddle: the field draws it after the magnet, slow and heavy; with the field off only the oil's drag on the
+      // block moves it, a little. Either way the block pushes it on before it could reach the rim (a soft push, so the
+      // puddle never jerks)
+      const f = Math.min(1, Math.max(0, S.film)), wp = 0.45 + 1.25 * f, r0 = 0.2 - 0.05 * f;
+      [S.pc, S.pcv] = spring(S.pc, S.pcv, S.m, wp, 0.9, h); [S.pz, S.pzv] = spring(S.pz, S.pzv, S.n, wp, 0.9, h);
+      const ox = S.m - S.pc, oz = S.n - S.pz, ol = Math.hypot(ox, oz);
+      if (ol > r0) { const bx = S.m - ox * r0 / ol, bz = S.n - oz * r0 / ol; [S.pc, S.pcv] = spring(S.pc, S.pcv, bx, 9, 1, h); [S.pz, S.pzv] = spring(S.pz, S.pzv, bz, 9, 1, h); }
+      S.exc = Math.min(1, S.exc * Math.exp(-h * 2.2) + Math.hypot(ax, az) * h * 0.05 * f);
     }
-    // the switch: when it comes on the film climbs first and the needles rise after; switched off, the needles melt first
-    const on = S.on, up = onTarget > 0.5, str = PARAMS.strength;
-    const CON = up ? smooth(0.0, 0.5, on) : smooth(0.0, 0.62, on), SON = up ? smooth(0.42, 1, on) : smooth(0.5, 1, on);
+    const on = Math.min(1, Math.max(0, S.film)), str = PARAMS.strength;
+    const CON = on, SON = Math.min(1.08, Math.max(0, S.spk));
 
     const speed = Math.hypot(S.mv, S.nv), N = Math.max(60, Math.min(600, PARAMS.spikes));
-    const LA = 2 * 0.2 * 1.18 / Math.sqrt(0.866 * N), SHv = LA * 2.3 * Math.min(1.5, str) / (1 + speed * 0.9);
-    const co = [Math.max(-0.035, Math.min(0.035, S.h - S.m)), Math.max(-0.035, Math.min(0.035, S.k - S.n))];
+    const LA = 2 * 0.2 * 1.18 / Math.sqrt(0.866 * N), SHv = LA * 1.9 * Math.min(1.5, str) / (1 + speed * 0.9);
+    const co = [0.035 * Math.tanh((S.h - S.m) / 0.035), 0.035 * Math.tanh((S.k - S.n) / 0.035)];   // (a soft limit: no kink)
     gl.uniform2f(U.R, W, H); gl.uniform1f(U.T, reduce ? 2 : t); gl.uniform1f(U.FOC, FOC);
 
     gl.uniform2f(U.M, S.m, S.n); gl.uniform2f(U.PC, S.pc, S.pz); gl.uniform2f(U.CO, co[0], co[1]); gl.uniform2f(U.LN, -S.hv * 0.25, -S.kv * 0.25);

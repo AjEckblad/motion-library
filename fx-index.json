@@ -1332,7 +1332,7 @@
    "npx": "npx motion-library add ferrofluid",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 26218,
+   "bytes": 28894,
    "settings": [
     {
      "key": "spikes",
@@ -5115,14 +5115,14 @@
    "category": "Simulation",
    "categoryId": "simulation",
    "renderer": "WebGL",
-   "description": "Height-field wave equation on the GPU, refracting a grid beneath",
-   "descriptionZh": "GPU 上的高度场波动方程，折射水下的网格",
+   "description": "Height-field wave equation on the GPU over a sunlit, pebbled pond bed",
+   "descriptionZh": "GPU 上的高度场波动方程，水下是阳光照亮的卵石池底",
    "page": "https://ajeckblad.github.io/motion-library/fx/water-ripple.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/water-ripple",
    "npx": "npx motion-library add water-ripple",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 9645,
+   "bytes": 14647,
    "settings": [
     {
      "key": "damping",
@@ -5143,21 +5143,12 @@
      "step": 0.05
     },
     {
-     "key": "rain",
-     "flag": "--rain",
-     "label": "Rain",
-     "default": 1,
-     "min": 0,
+     "key": "every",
+     "flag": "--every",
+     "label": "Seconds between drops",
+     "default": 1.25,
+     "min": 0.5,
      "max": 4,
-     "step": 0.1
-    },
-    {
-     "key": "speed",
-     "flag": "--speed",
-     "label": "Ripple speed",
-     "default": 0.55,
-     "min": 0.2,
-     "max": 1,
      "step": 0.05
     }
    ]
