@@ -34,9 +34,9 @@ export const ES = {
  },
  "diff-growth": {
   "title": "Crecimiento diferencial",
-  "trick": "Repeler, alinear, dividir aristas estiradas: una cresta que crece se pliega",
+  "trick": "Repeler, alinear, dividir aristas estiradas: una línea que crece se pliega",
   "notes": [
-   "Una cresta crece más de lo que cabe y se pliega en un coral cerebro, luego en el manto brillante de una babosa marina, hasta llenar el cuadro.",
+   "Una fina línea de tinta crece más de lo que cabe en el papel y se pliega hacia fuera en un laberinto ramificado, con contornos anidados dentro; la tinta pasa del azul profundo en el centro antiguo al bermellón en el borde más nuevo.",
    "Los nodos repelen a los cercanos, se acercan al punto medio de sus vecinos y dividen las aristas estiradas. Crecimiento fija cuánto se dividen; Separación, el ancho de los pliegues."
   ]
  },

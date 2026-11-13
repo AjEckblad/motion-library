@@ -34,9 +34,9 @@ export const FR = {
  },
  "diff-growth": {
   "title": "Croissance différentielle",
-  "trick": "Repousser, aligner, couper les arêtes étirées : une crête qui pousse se plisse",
+  "trick": "Repousser, aligner, couper les arêtes étirées : une ligne qui pousse se plisse",
   "notes": [
-   "Une crête pousse plus que sa place ne le permet et se plisse en corail cerveau, puis en manteau luisant de limace de mer, jusqu’à remplir le cadre.",
+   "Une fine ligne d’encre pousse plus que le papier ne le permet et se plisse vers l’extérieur en un labyrinthe ramifié, avec des contours imbriqués à l’intérieur ; l’encre passe du bleu profond au vieux centre au vermillon sur le bord le plus neuf.",
    "Les nœuds repoussent leurs voisins proches, rejoignent le milieu de leurs deux voisins et coupent les arêtes étirées. Croissance règle la fréquence ; Espacement, la largeur des plis."
   ]
  },
