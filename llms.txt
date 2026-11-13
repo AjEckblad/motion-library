@@ -33,7 +33,7 @@
 - [Calligraphy brush](https://ajeckblad.github.io/motion-library/fx/calligraphy.html): Bristle-by-bristle brush with per-bristle ink and dry-brush streaks. `npx motion-library add calligraphy`
 - [Harmonograph](https://ajeckblad.github.io/motion-library/fx/harmonograph.html): Summed decaying sines near a simple ratio, slightly detuned. `npx motion-library add harmonograph`
 - [Chladni plate](https://ajeckblad.github.io/motion-library/fx/chladni.html): GPU grains hop by local vibration and settle on nodal lines. `npx motion-library add chladni`
-- [Crystal growth (DLA)](https://ajeckblad.github.io/motion-library/fx/dla-crystal.html): Diffusion-limited aggregation: random walkers stick on contact. `npx motion-library add dla-crystal`
+- [Crystal growth (DLA)](https://ajeckblad.github.io/motion-library/fx/dla-crystal.html): Diffusion-limited aggregation: manganese oxide grows fern-like dendrites from a crack in limestone. `npx motion-library add dla-crystal`
 - [Wind tunnel](https://ajeckblad.github.io/motion-library/fx/wind-tunnel.html): GPU lattice Boltzmann solver shedding a Kármán vortex street. `npx motion-library add wind-tunnel`
 - [Fireworks](https://ajeckblad.github.io/motion-library/fx/fireworks.html): Rocket bursts with gravity, drag and five shell types. `npx motion-library add fireworks`
 - [Bokeh](https://ajeckblad.github.io/motion-library/fx/bokeh.html): Circle of confusion: discs grow with distance from the focal plane. `npx motion-library add bokeh`

@@ -245,14 +245,14 @@ Renderer: WebGL. Size: 10.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Crystal growth (DLA)
 
-Crystal growth (DLA) is a Canvas effect: diffusion-limited aggregation: random walkers stick on contact. One plain JavaScript file with no dependencies; add it with npx motion-library add dla-crystal.
+Crystal growth (DLA) is a WebGL effect: diffusion-limited aggregation: manganese oxide grows fern-like dendrites from a crack in limestone. One plain JavaScript file with no dependencies; add it with npx motion-library add dla-crystal.
 
-A coral-like crystal branches outward from a seed until it fills the view.
+Black fern-like manganese dendrites creep up a slab of pale limestone from a crack, branching into plumes with a brown halo.
 
-Diffusion-limited aggregation: random walkers stick on first contact, and tips catch more walkers than hollows; walkers start on a circle just outside the crystal.
+Diffusion-limited aggregation: random walkers stick on first contact, so tips outgrow hollows; dense trunks print thick, and the far tips finer and browner.
 
 Settings: --speed 1 (0.2 to 3, step 0.1; Growth speed); --stickiness 1 (0.1 to 1, step 0.05; Stickiness).
-Renderer: Canvas 2D. Size: 3.8 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/dla-crystal.html
+Renderer: WebGL. Size: 12.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/dla-crystal.html
 
 ### Wind tunnel
 

@@ -1,4 +1,4 @@
-# Resume here (2026-11-13 evening): AJ's 17:30 list, two helper agents working
+# Resume here (2026-11-13 evening): AJ's 17:30 list ALL DONE (225 live); npm 0.3.5 waits on AJ
 
 AJ (17:30): fix honey pour; ocean a little too bright + normal wind-sea wave patterns (ref: grey overcast sea,
 whitecaps, foam streaks); ferrofluid bugged, no petri dish; fire & smoke burning on glowing logs, hyperrealistic;
@@ -12,8 +12,9 @@ fewer lines; REMOVE leaf venation; water ripples: slower, much less happening.
   (ring burst removed; "five" shell types in all languages). check 89/89. Agent B (ad136918ab3a25700) finished.
 - ALSO SHIPPED (1b0e4e2): lava-flow (flows down a channel, surges, crust rafts) and honey-coil (reflection now shaded
   rope, no red popping on melt, softer shadow, irregular coiling with folds/reversals). 10 of 11 done.
-- STILL WITH AGENT A (ada12491af339459d): dla-crystal ("make the crystal growth more realistic"). Review its frames,
-  apply its notes (French U+00A0 before : and ;), poster, commit, worktree build, push. If stopped, SendMessage it.
+- dla-crystal SHIPPED: manganese dendrites from a crack in limestone, WebGL, posterAt 12000. All 11 items done.
+- CLI 0.3.5 (0.3.4 is on npm), rebuilt with 225; AJ runs `cd ~/Downloads/motion-library/cli && npm login && npm publish`.
+  check 89/89, motion-check 22/22. Both agents finished. Suggest AJ run /review-animations on the reworked pieces.
 - AFTER ALL: cd cli && node build.mjs (drops removed pieces from its copy); check npm whether 0.3.4 was published
   (npm view motion-library version); if it was, bump to 0.3.5. Run motion-check (22 tests). Final report to AJ:
   list each of his 11 items with what changed, reservations (ocean clouds a bit streaky; iron filings now light paper,
