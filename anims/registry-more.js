@@ -145,7 +145,7 @@ export const MORE = [
     params: { hold: P(0.3, 4, 0.1, 'Hold (s)'), morph: P(0.3, 3, 0.1, 'Morph (s)'), twist: P(0, 3, 0.05, 'Twist') } },
   { id: 'paper-fold', cat: 'chrome', title: 'Paper fold', kind: 'dom', posterAt: 950,
     trick: 'A tree of CSS 3D hinges: the last crease carries the rest',
-    notes: ['A printed sheet folds and opens on a desk: as a letter, a gate fold, an accordion or a map.', 'Each crease is a preserve-3d hinge nested so the last fold carries the others; every face is shaded from its normal turned through its hinges.'],
+    notes: ['A printed sheet folds and opens on a desk: as a letter, a gate fold, an accordion or a map.', 'Each crease is a nested preserve-3d hinge, so the last fold carries the rest; loose flaps are chains of strips that bow as they turn, and every crease follows the minimum-jerk path of a hand.'],
     params: { fold: O('Fold', 'Letter', 'Gate', 'Accordion', 'Map'), cycle: P(4, 20, 0.5, 'Cycle (s)'), tilt: P(0, 70, 1, 'Table tilt (deg)'), crease: P(0, 2, 0.05, 'Crease shading') } },
   // ── Flow & particles, round 3
   { id: 'murmuration', cat: 'flow', title: 'Starling murmuration', kind: 'canvas', posterAt: 4200,

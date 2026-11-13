@@ -4,8 +4,12 @@
 // fold is a tree of hinges: the crease folded last is the outermost hinge and carries everything already folded, so the
 // stack lands the way paper does, its layers in the right order. Every panel is shaded from its true 3D normal, turned
 // through its hinges, against a desk lamp; creases darken on the inside, catch the light on the outside and stay faintly
-// marked; the shadow on the mat follows the folded footprint, and the sheet slides to keep that footprint centred.
-const PARAMS = { fold: 0, cycle: 9, tilt: 46, crease: 1 };
+// marked. The motion is a hand's: every crease turns on a minimum-jerk path, so it leaves and lands with no sudden change
+// of speed; each step starts just before the last one settles; a loose flap (one layer) is a chain of thin strips that
+// bows as it is carried over, edge first, and lies flat when it lands, while a folded stack stays stiff. Each panel
+// casts its own shadow onto the mat along the lamp's direction, and the sheet slides to keep its footprint centred,
+// in step with the folds.
+const PARAMS = { fold: 0, cycle: 10, tilt: 46, crease: 1 };
 
 export default function (stage) {
   const root = document.createElement('div');
@@ -20,11 +24,14 @@ export default function (stage) {
       linear-gradient(90deg,rgba(220,255,240,.11) 1px,transparent 1px) 0 0/calc(var(--g)*5) calc(var(--g)*5),
       linear-gradient(rgba(220,255,240,.045) 1px,transparent 1px) 0 0/var(--g) var(--g),
       linear-gradient(90deg,rgba(220,255,240,.045) 1px,transparent 1px) 0 0/var(--g) var(--g),#1c3633}
-    .pf-shadow{position:absolute;background:rgba(4,10,9,.9);filter:blur(calc(var(--h)*.025));border-radius:2px;transform-origin:0 0}
+    .pf-shs{position:absolute;left:0;top:0;transform:translateZ(-1px);filter:blur(calc(var(--h)*.016));opacity:.55}
+    .pf-sh{position:absolute;left:0;top:0;width:100px;height:100px;background:#030807;transform-origin:0 0}
     .pf-n,.pf-p{position:absolute;transform-style:preserve-3d}
     .pf-face{position:absolute;inset:-.5px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:${paper},#f3efe6}
     .pf-back{transform:rotateY(180deg);background:repeating-linear-gradient(45deg,rgba(60,90,140,.07) 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,rgba(60,90,140,.05) 0 1px,transparent 1px 4px),${paper},#ebe7de}
     .pf-art{position:absolute;width:var(--w);height:var(--h);font-family:"Mona Sans",system-ui,sans-serif;color:#1b2233}
+    .pf-fx{--dk:linear-gradient(transparent,transparent);--lt:var(--dk);background:var(--dk),var(--lt),${paper},#f3efe6}
+    .pf-fx.pf-back{background:var(--dk),var(--lt),repeating-linear-gradient(45deg,rgba(60,90,140,.07) 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,rgba(60,90,140,.05) 0 1px,transparent 1px 4px),${paper},#ebe7de}
     .pf-o{position:absolute;inset:0;opacity:0;pointer-events:none}
     .pf-dk{background:#1a120c}.pf-lt{background:#fff8ec}
     .pf-c{position:absolute;opacity:0;pointer-events:none}
@@ -41,16 +48,16 @@ export default function (stage) {
     .pf-map{position:absolute;inset:0;width:100%;height:100%}
     .pf-lamp{position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 55% at 42% 36%,rgba(255,236,205,.13),transparent 70%),radial-gradient(130% 110% at 50% 45%,transparent 38%,rgba(0,0,0,.62))}
   </style>
-  <div class="pf-scene"><div class="pf-mat"></div><div class="pf-shadow"></div></div><div class="pf-lamp"></div>`;
+  <div class="pf-scene"><div class="pf-mat"></div><div class="pf-shs"></div></div><div class="pf-lamp"></div>`;
   stage.append(root);
-  const scene = root.querySelector('.pf-scene'), mat = root.querySelector('.pf-mat'), shadow = root.querySelector('.pf-shadow');
+  const scene = root.querySelector('.pf-scene'), mat = root.querySelector('.pf-mat'), shadows = root.querySelector('.pf-shs');
 
   // ── the printed side of each sheet: one full-size layout, cropped into every panel
   const sig = `<svg class="pf-sig" viewBox="0 0 120 40" fill="none" stroke="#24304f" stroke-width="1.6" stroke-linecap="round"><path d="M4 28c8-14 14-22 18-20s-6 22-2 22 10-16 14-15-3 13 1 13 7-9 11-9-2 8 2 8 9-12 14-12c4 0-3 11 2 11 6 0 14-9 22-9s14 4 30 2"/></svg>`;
   const ticks = (xs, ys) => xs.map(x => `<i class="pf-tick" style="left:${x}%;top:1.8%;width:1px;height:2.2%"></i><i class="pf-tick" style="left:${x}%;bottom:1.5%;width:1px;height:2.2%"></i>`).join('')
     + ys.map(y => `<i class="pf-tick" style="left:2.5%;top:${y}%;width:3%;height:1px"></i><i class="pf-tick" style="right:2.5%;top:${y}%;width:3%;height:1px"></i>`).join('');
   const LETTER = `<div class="pf-band"></div><div class="pf-kick">Notes on folding</div><div class="pf-title">In thirds, then in half</div><div class="pf-date">9 November</div>
-    <p class="pf-txt" style="top:38.5%">A sheet becomes an envelope of itself. The bottom third lifts and lies flat on the middle, the top third closes over it, and the whole strip folds once more down the centre. Each panel is a flat plane hinged at a crease; nothing bends, so the light has to do the work.</p>
+    <p class="pf-txt" style="top:38.5%">A sheet becomes an envelope of itself. The bottom third lifts and lies flat on the middle, the top third closes over it, and the whole strip folds once more down the centre. A single layer bows as the hand carries it over; a folded stack is stiff and turns as one.</p>
     <p class="pf-txt" style="top:68.5%">Where a panel turns away from the lamp it darkens, and where two panels meet the crease holds a little shadow. Open it again and the creases stay, faintly, like a memory of the shape.</p>
     ${sig}<svg class="pf-diag" viewBox="0 0 60 76" fill="none" stroke="#2e3342" stroke-width="1.2"><rect x="6" y="4" width="48" height="66" rx="1"/><path d="M6 26h48M6 48h48M30 4v66" stroke-dasharray="3 3" stroke="#d8452b"/></svg>
     ${ticks([50], [33.33, 66.67])}`;
@@ -101,21 +108,21 @@ export default function (stage) {
   const zig = (xs, i) => ({ r: [xs[i], 0, 1, 1], h: ['v', xs[i], 0, i % 2 ? -1 : 1, 0, 0.8], p: [[xs[i], 0, xs[i + 1], 1]], k: i + 2 < xs.length ? [zig(xs, i + 1)] : [] });
   const T = 1 / 3, X6 = [0, 1, 2, 3, 4, 5, 6].map(i => i / 6), X4 = [0, 0.25, 0.5, 0.75, 1];
   const FOLDS = [
-    { aspect: 0.773, amount: 1, steps: [[0], [1], [2]], gap: 0.85, art: LETTER,              // bottom up, top down, in half
+    { aspect: 0.773, amount: 1, steps: [[0], [1], [2]], gap: 0.8, art: LETTER, flex: 1,        // bottom up, top down, in half
       root: { r: [0, 0, 1, 1], p: [[0, T, 0.5, 2 * T]], k: [
         { r: [0, 0, 0.5, T], h: ['h', T, 1, 1, 1], p: [[0, 0, 0.5, T]] },
         { r: [0, 2 * T, 0.5, 1], h: ['h', 2 * T, 0, 1, 0.5], p: [[0, 2 * T, 0.5, 1]] },
         { r: [0.5, 0, 1, 1], h: ['v', 0.5, 2, 1, 3], p: [[0.5, T, 1, 2 * T]], k: [
           { r: [0.5, 0, 1, T], h: ['h', T, 1, 1, 1], p: [[0.5, 0, 1, T]] },
           { r: [0.5, 2 * T, 1, 1], h: ['h', 2 * T, 0, 1, 0.5], p: [[0.5, 2 * T, 1, 1]] }] }] } },
-    { aspect: 1.55, amount: 1, steps: [[0], [1], [2]], gap: 0.7, art: GATE,                  // left door, right door, shut
+    { aspect: 1.55, amount: 1, steps: [[0], [1], [2]], gap: 0.78, art: GATE, flex: 1,            // left door, right door, shut
       root: { r: [0, 0, 1, 1], p: [[0.25, 0, 0.5, 1]], k: [
         { r: [0, 0, 0.25, 1], h: ['v', 0.25, 0, 1, 1], p: [[0, 0, 0.25, 1]] },
         { r: [0.5, 0, 1, 1], h: ['v', 0.5, 2, 1, 3], p: [[0.5, 0, 0.75, 1]], k: [
           { r: [0.75, 0, 1, 1], h: ['v', 0.75, 1, 1, 1.6], p: [[0.75, 0, 1, 1]] }] }] } },
     { aspect: 1.85, amount: 1, steps: [[0]], gap: 1, art: ACCORDION,                          // the pleats close up together
       root: { r: [0, 0, 1, 1], h: ['v', 0, 0, 1, 0, 0.4], p: [[0, 0, X6[1], 1]], k: [zig(X6, 1)] } },
-    { aspect: 1.414, amount: 1, steps: [[0, 1, 2], [3]], gap: 1, art: MAP,                    // pleat side to side, then in half
+    { aspect: 1.414, amount: 1, steps: [[0, 1, 2], [3]], gap: 0.85, art: MAP,                    // pleat side to side, then in half
       root: { r: [0, 0, 1, 1], p: [[0, 0, 0.25, 0.5]], k: [pleat(X4, 1, 0, 0.5, [0, 1, 2], [1, -1, 1], 0.8),
         { r: [0, 0.5, 1, 1], h: ['h', 0.5, 3, 1, 6], p: [[0, 0.5, 0.25, 1]], k: [pleat(X4, 1, 0.5, 1, [0, 1, 2], [1, -1, 1], 0.8)] }] } },
   ];
@@ -125,6 +132,21 @@ export default function (stage) {
   const creases = new Map(), key = (ax, v) => ax + v.toFixed(4);
   const amt = h => h[5] ?? F.amount, creaseAmt = [];
   (function walk(nd) { if (nd.h && nd.h[1] > 1e-6 && nd.h[1] < 1 - 1e-6) { creases.set(key(nd.h[0], nd.h[1]), nd.h[2]); creaseAmt[nd.h[2]] = amt(nd.h); } (nd.k || []).forEach(walk); })(F.root);
+  // ── paper lifted by its edge bows: the hand leads and the paper near the crease follows. Each loose flap (one layer,
+  // nothing folded onto it) is cut into NS strips parallel to its crease, each hinged to the one before, and bends by
+  // FLEX radians in all at the middle of its turn, none at either end; a folded stack is stiff and turns flat
+  const FLEX = 0.5, NS = 6;
+  if (F.flex) (function split(nd) {
+    (nd.k || []).forEach(split);
+    if (!nd.h || (nd.k && nd.k.length) || nd.p.length !== 1) return;
+    const [ax, at, id] = nd.h, pr = nd.p[0], vert = ax === 'v', lo = vert ? pr[0] : pr[1], hi = vert ? pr[2] : pr[3], fromLo = Math.abs(lo - at) < 1e-6;
+    const cut = i => fromLo ? lo + (hi - lo) * i / NS : hi - (hi - lo) * i / NS;           // the i-th cut, out from the crease
+    const rect = (a, b) => { const u = Math.min(a, b), w = Math.max(a, b); return vert ? [u, pr[1], w, pr[3]] : [pr[0], u, pr[2], w]; };
+    const sd = vert ? (fromLo ? 'left' : 'right') : (fromLo ? 'top' : 'bottom');
+    const flap = {}; nd.p = [rect(cut(0), cut(1))]; nd.flex = { k: 0, sd, flap };
+    let host = nd;
+    for (let i = 1; i < NS; i++) { const c = { r: rect(cut(i), cut(NS)), h: [ax, cut(i), id, nd.h[3], 0], p: [rect(cut(i), cut(i + 1))], flex: { k: i, sd, flap } }; host.k = [c]; host = c; }
+  })(F.root);
   const NC = Math.max(...F.steps.flat()) + 1, e = new Float32Array(NC), memory = new Float32Array(NC);
   const nodes = [], panels = [], faces = [];
   const edgeFill = { top: 'linear-gradient(to bottom,C,transparent)', bottom: 'linear-gradient(to top,C,transparent)', left: 'linear-gradient(to right,C,transparent)', right: 'linear-gradient(to left,C,transparent)' };
@@ -137,26 +159,39 @@ export default function (stage) {
     for (const pr of nd.p) {
       const p = document.createElement('div'); p.className = 'pf-p'; el.append(p);
       const sides = [];
-      for (const [ax, v, s] of [['h', pr[1], 'top'], ['h', pr[3], 'bottom'], ['v', pr[0], 'left'], ['v', pr[2], 'right']]) { const id = creases.get(key(ax, v)); if (id !== undefined) sides.push([s, id]); }
+      for (const [ax, v, s] of [['h', pr[1], 'top'], ['h', pr[3], 'bottom'], ['v', pr[0], 'left'], ['v', pr[2], 'right']]) { const id = creases.get(key(ax, v)); if (id !== undefined && !(nd.flex && nd.flex.sd === s)) sides.push([s, id]); }
+      if (nd.flex && nd.flex.k / NS < 0.3) sides.push([nd.flex.sd, nd.h[2], nd.flex.k]);
+      // a flex strip reaches 2.5px under the next one, so their soft edges never let what is behind show through the seam
+      const far = nd.flex && nd.flex.k < NS - 1 ? { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }[nd.flex.sd] : '';
       for (const back of [false, true]) {
-        const f = document.createElement('div'); f.className = 'pf-face' + (back ? ' pf-back' : '');
+        const f = document.createElement('div'); f.className = 'pf-face' + (back ? ' pf-back' : ''); if (far) f.style[far] = '-2.5px';
         let art = null; if (!back) { art = document.createElement('div'); art.className = 'pf-art'; art.innerHTML = F.art; f.append(art); }
-        const strips = sides.map(([sd0, id]) => {
+        const strips = sides.map(([sd0, id, k]) => {
           const s = document.createElement('div'); s.className = 'pf-c';
           const sd = back && (sd0 === 'left' || sd0 === 'right') ? (sd0 === 'left' ? 'right' : 'left') : sd0;   // the back is mirrored left to right
           const horiz = sd === 'top' || sd === 'bottom';
-          s.style.cssText = `${sd}:0;${horiz ? 'left:0;right:0;height:26%' : 'top:0;bottom:0;width:30%'};background:${edgeFill[sd].replace('C', back ? 'rgba(255,250,240,.75)' : 'rgba(45,30,18,.6)')}`;
+          const sc = k === undefined ? 1 : NS, off = k === undefined ? 0 : -k * 100;                 // a flex strip shows its share of the flap's gradient
+          s.style.cssText = `${sd}:${off}%;${horiz ? `left:0;right:0;height:${26 * sc}%` : `top:0;bottom:0;width:${30 * sc}%`};background:${edgeFill[sd].replace('C', back ? 'rgba(255,250,240,.75)' : 'rgba(45,30,18,.6)')}`;
           f.append(s); return { s, id };
         });
         const dk = document.createElement('div'); dk.className = 'pf-o pf-dk'; const lt = document.createElement('div'); lt.className = 'pf-o pf-lt'; f.append(dk, lt);
-        p.append(f); faces.push({ back, dk, lt, strips, chain });
+        // a flex strip's shading runs as a gradient from its crease-side edge to its far edge (below), so the bend reads
+        // as one smooth curve; the back is turned over left to right, so its gradient runs the other way
+        const sdf = nd.flex ? (back && (nd.flex.sd === 'left' || nd.flex.sd === 'right') ? (nd.flex.sd === 'left' ? 'right' : 'left') : nd.flex.sd) : '';
+        const to = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }[sdf];
+        // (painted in the face's own background, not by the overlays: a strip is a fractional number of pixels tall,
+        // and an overlay child is clipped to whole pixels, which left a bright hairline of unshaded paper at its edge)
+        if (nd.flex) { f.classList.add('pf-fx'); dk.remove(); lt.remove(); }
+        p.append(f); faces.push({ f, back, dk, lt, strips, chain, flex: nd.flex ? { to, flap: nd.flex.flap, k: nd.flex.k } : null, d: 0 });
       }
-      panels.push({ p, pr, node, chain, art: p.querySelector('.pf-art') });
+      panels.push({ p, pr, node, chain, art: p.querySelector('.pf-art'), dx: far === 'left' ? 2 : 0, dy: far === 'top' ? 2 : 0 });
     }
     (nd.k || []).forEach(c => build(c, el, node));
   }
   build(F.root, scene, null);
   const sheet = nodes[0].el;
+  for (const f of faces) if (f.flex) { const nb = k => faces.find(g => g.flex && g.flex.flap === f.flex.flap && g.back === f.back && g.flex.k === k); f.prev = nb(f.flex.k - 1); f.next = nb(f.flex.k + 1); }
+  for (const pn of panels) { pn.sh = document.createElement('div'); pn.sh.className = 'pf-sh'; shadows.append(pn.sh); }
 
   let W = 0, H = 0, Wp = 0, Hp = 0;
   const resize = () => {
@@ -172,39 +207,72 @@ export default function (stage) {
       Object.assign(n.el.style, { left: (r[0] - pr[0]) * Wp + 'px', top: (r[1] - pr[1]) * Hp + 'px', width: (r[2] - r[0]) * Wp + 'px', height: (r[3] - r[1]) * Hp + 'px' });
       if (n.nd.h) n.el.style.transformOrigin = n.nd.h[0] === 'v' ? `${(n.nd.h[1] - r[0]) * Wp}px 50%` : `50% ${(n.nd.h[1] - r[1]) * Hp}px`;
     }
-    for (const { p, pr, node, art } of panels) {
+    for (const { p, pr, node, art, dx, dy } of panels) {
       const r = node.nd.r;
       Object.assign(p.style, { left: (pr[0] - r[0]) * Wp + 'px', top: (pr[1] - r[1]) * Hp + 'px', width: (pr[2] - pr[0]) * Wp + 'px', height: (pr[3] - pr[1]) * Hp + 'px' });
-      art.style.left = -pr[0] * Wp + 'px'; art.style.top = -pr[1] * Hp + 'px';
+      art.style.left = -pr[0] * Wp + dx + 'px'; art.style.top = -pr[1] * Hp + dy + 'px';
     }
-    Object.assign(shadow.style, { width: Wp + 'px', height: Hp + 'px' });
+    // where the folded sheet's footprint is centred after each step, so the slide that keeps it centred can follow
+    // the steps' own progress instead of the footprint's corners, which race whenever a panel stands on edge
+    const keep = e.slice();
+    for (let k = 0; k <= S; k++) { e.fill(0); F.steps.forEach((ids, j) => { if (j < k) for (const id of ids) e[id] = 1; }); setAngles();
+      const b = footprint(); centre[k] = [(b[0] + b[1]) / 2 - Wp / 2, (b[2] + b[3]) / 2 - Hp / 2]; }
+    e.set(keep); setAngles();
     if (reduce) draw(0.16, 0);
   };
 
-  // strong ease-in-out, cubic-bezier(0.77, 0, 0.175, 1), solved by Newton steps
-  const bez = (x1, y1, x2, y2) => x => { let t = x; for (let i = 0; i < 8; i++) { const fx = 3 * x1 * t * (1 - t) ** 2 + 3 * x2 * t * t * (1 - t) + t ** 3 - x, dx = 3 * x1 * (1 - t) ** 2 + 6 * (x2 - x1) * t * (1 - t) + 3 * (1 - x2) * t * t; if (Math.abs(fx) < 1e-5 || dx < 1e-6) break; t = Math.min(1, Math.max(0, t - fx / dx)); } return 3 * y1 * t * (1 - t) ** 2 + 3 * y2 * t * t * (1 - t) + t ** 3; };
-  const ease = bez(0.77, 0, 0.175, 1), seg = (c, a, b) => ease(Math.min(1, Math.max(0, (c - a) / (b - a))));
+  // A hand moving a thing from one place to another follows a minimum-jerk path (Flash and Hogan, 1985): it sets off
+  // and arrives with no sudden change in speed or in acceleration, and is at its fastest, 1.875 times the average, in
+  // the middle. Every crease turns along that curve, so a flap leaves the table gently, travels, and lands softly.
+  const dark = d => Math.min(0.5, Math.max(0, -d * 0.62)), light = d => Math.min(0.35, Math.max(0, d * 0.9));
+  const mj = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (x * (x * 6 - 15) + 10);
   // rotations in CSS axes (y down, z toward the viewer)
   const rx = (a, v) => [v[0], v[1] * Math.cos(a) - v[2] * Math.sin(a), v[1] * Math.sin(a) + v[2] * Math.cos(a)];
   const ry = (a, v) => [v[0] * Math.cos(a) + v[2] * Math.sin(a), v[1], -v[0] * Math.sin(a) + v[2] * Math.cos(a)];
   const rz = (a, v) => [v[0] * Math.cos(a) - v[1] * Math.sin(a), v[0] * Math.sin(a) + v[1] * Math.cos(a), v[2]];
   const Ll = Math.hypot(-0.35, -0.75, 0.56), L = [-0.35 / Ll, -0.75 / Ll, 0.56 / Ll];
-  // the timetable: the steps fold in one after another over the first half of the cycle, rest, and open in reverse
-  const S = F.steps.length, D = 0.44 / (1 + (S - 1) * F.gap), Du = 0.31 / (1 + (S - 1) * F.gap);
+  // the timetable, in fractions of the cycle: the steps fold one after another from 0.04 to 0.48, each starting just
+  // before the last one has settled (gap), rest folded, open in reverse order from 0.55 to 0.93, and rest flat
+  const S = F.steps.length, Df = 0.44 / (1 + (S - 1) * F.gap), Do = 0.38 / (1 + (S - 1) * F.gap);
+  const sv = new Float32Array(S), centre = [];
+  // every hinge rides a quarter pixel above its parent: as a flap starts to lift it is still almost in the plane of the
+  // panel beside it, and without this the browser can't tell which is in front along their overlap, so the crease
+  // flickers into a dashed line
+  const Z0 = 0.25;
   // a point of the flat sheet (px), carried through a chain of hinges to where it is now
-  const carry = (pt, chain) => { let p = pt; for (const n of chain) { const h = n.nd.h, at = h[1] * (h[0] === 'v' ? Wp : Hp), lift = h[4] * e[h[2]];
+  const carry = (pt, chain) => { let p = pt; for (const n of chain) { const h = n.nd.h, at = h[1] * (h[0] === 'v' ? Wp : Hp), lift = h[4] * e[h[2]] + Z0;
     p = h[0] === 'v' ? ry(n.ang, [p[0] - at, p[1], p[2]]) : rx(n.ang, [p[0], p[1] - at, p[2]]); if (h[0] === 'v') p[0] += at; else p[1] += at; p[2] += lift; } return p; };
+  // a flap's bend leads the way it is moving: folding, its edge is ahead of its crease; opening, behind
+  let dir = 1;
+  function setAngles() {
+    for (const n of nodes) { const h = n.nd.h; if (!h) continue;
+      const m = e[h[2]], turn = Math.PI * amt(h) * m, bow = n.nd.flex ? FLEX * Math.sin(Math.PI * m) * dir : 0;
+      n.ang = h[3] * n.side * (!n.nd.flex ? turn : n.nd.flex.k === 0 ? turn - bow / 2 : bow / (NS - 1));
+    }
+  }
+  function footprint() {
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const { pr, chain } of panels) for (const [u, w] of [[pr[0], pr[1]], [pr[2], pr[1]], [pr[0], pr[3]], [pr[2], pr[3]]]) {
+      const q = carry([u * Wp, w * Hp, 0], chain); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]);
+    }
+    return [x0, x1, y0, y1];
+  }
 
   function draw(c, t) {
-    F.steps.forEach((ids, j) => { const a = 0.07 + j * D * F.gap, u = 0.62 + (S - 1 - j) * Du * F.gap, v = c < 0.565 ? seg(c, a, a + D) : 1 - seg(c, u, u + Du); for (const id of ids) e[id] = v; });
+    F.steps.forEach((ids, j) => {
+      const a = 0.04 + j * Df * F.gap, u = 0.55 + (S - 1 - j) * Do * F.gap;
+      const v = c < 0.515 ? mj((c - a) / Df) : 1 - mj((c - u) / Do);
+      sv[j] = v; for (const id of ids) e[id] = v;
+    });
     for (let i = 0; i < NC; i++) memory[i] = Math.max(memory[i], e[i]);
+    dir = c < 0.515 ? 1 : -1;
     const tilt = (PARAMS.tilt + Math.sin(t * 0.19) * 4) * Math.PI / 180, spin = (-16 + Math.sin(t * 0.23) * 9) * Math.PI / 180;
     scene.style.transform = `rotateX(${tilt}rad) rotateZ(${spin}rad)`;
+    setAngles();
     for (const n of nodes) {
       if (!n.nd.h) { n.tf = ''; continue; }
-      const h = n.nd.h, v = e[h[2]];
-      n.ang = h[3] * n.side * Math.PI * amt(h) * v;
-      n.tf = `translateZ(${(h[4] * v).toFixed(3)}px) ${h[0] === 'v' ? 'rotateY' : 'rotateX'}(${n.ang.toFixed(5)}rad)`;
+      const h = n.nd.h;
+      n.tf = `translateZ(${(h[4] * e[h[2]] + Z0).toFixed(3)}px) ${h[0] === 'v' ? 'rotateY' : 'rotateX'}(${n.ang.toFixed(5)}rad)`;
       if (n !== nodes[0]) n.el.style.transform = n.tf;
     }
     // shading: each face's normal through its hinges and the view tilt, against the lamp
@@ -213,23 +281,32 @@ export default function (stage) {
       let n = [0, 0, f.back ? -1 : 1];
       for (const q of f.chain) n = q.nd.h[0] === 'v' ? ry(q.ang, n) : rx(q.ang, n);
       n = rx(tilt, rz(spin, n));
-      const d = n[0] * L[0] + n[1] * L[1] + n[2] * L[2] - base;
-      f.dk.style.opacity = Math.min(0.62, Math.max(0, -d * 0.75)).toFixed(3); f.lt.style.opacity = Math.min(0.35, Math.max(0, d * 0.9)).toFixed(3);
+      const d = f.d = n[0] * L[0] + n[1] * L[1] + n[2] * L[2] - base;
+      if (!f.flex) { f.dk.style.opacity = dark(d).toFixed(3); f.lt.style.opacity = light(d).toFixed(3); }
       for (const { s, id } of f.strips) {
         const a = creaseAmt[id], v = f.back ? Math.sin(Math.PI * a * e[id] / 2) * 0.55 : Math.sin(Math.PI * a * e[id]) * 0.85;
         s.style.opacity = Math.min(1, K * (v + memory[id] * (f.back ? 0.1 : 0.16))).toFixed(3);
       }
     }
-    // the footprint of the folded sheet on the table: the shadow fills it, and the sheet slides to keep it centred
-    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
-    for (const { pr, chain } of panels) for (const [u, w] of [[pr[0], pr[1]], [pr[2], pr[1]], [pr[0], pr[3]], [pr[2], pr[3]]]) {
-      const q = carry([u * Wp, w * Hp, 0], chain); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]);
+    for (const f of faces) if (f.flex) {
+      const d0 = f.prev ? (f.d + f.prev.d) / 2 : f.d, d1 = f.next ? (f.d + f.next.d) / 2 : f.d;
+      f.f.style.setProperty('--dk', `linear-gradient(to ${f.flex.to},rgba(26,18,12,${dark(d0).toFixed(3)}),rgba(26,18,12,${dark(d1).toFixed(3)}))`);
+      f.f.style.setProperty('--lt', `linear-gradient(to ${f.flex.to},rgba(255,248,236,${light(d0).toFixed(3)}),rgba(255,248,236,${light(d1).toFixed(3)}))`);
     }
-    const sx = -0.7 * ((x0 + x1) / 2 - Wp / 2), sy = -0.7 * ((y0 + y1) / 2 - Hp / 2);
+    // the sheet slides to keep its footprint near the middle of the view, blended step by step
+    let cx = centre[0][0], cy = centre[0][1];
+    for (let j = 0; j < S; j++) { cx += sv[j] * (centre[j + 1][0] - centre[j][0]); cy += sv[j] * (centre[j + 1][1] - centre[j][1]); }
+    const sx = -0.7 * cx, sy = -0.7 * cy;
     sheet.style.transform = `translate3d(${sx.toFixed(2)}px,${sy.toFixed(2)}px,0) ${nodes[0].tf}`;
-    let thick = 0; for (let i = 0; i < NC; i++) thick += e[i]; thick = Math.min(2, thick * 0.5);
-    shadow.style.transform = `translate3d(${(x0 - Wp / 2 + sx + Hp * 0.012 * (1 + thick)).toFixed(2)}px,${(y0 - Hp / 2 + sy + Hp * 0.018 * (1 + thick)).toFixed(2)}px,-1px) scale(${((x1 - x0) / Wp).toFixed(4)},${((y1 - y0) / Hp).toFixed(4)})`;
-    shadow.style.opacity = (0.42 + thick * 0.14).toFixed(3);
+    // shadows: every panel is cast onto the mat along the lamp's direction (a parallel projection, so each shadow is
+    // a parallelogram, one CSS matrix); the union is blurred once. Paper resting on the mat is treated as hovering a
+    // hair above it, so even the flat sheet keeps a soft edge on its shadowed side
+    const Ls = rz(-spin, rx(-tilt, L)), kx = Ls[0] / Math.max(0.2, Ls[2]), ky = Ls[1] / Math.max(0.2, Ls[2]), z0 = Hp * 0.022;
+    const ox = sx - Wp / 2, oy = sy - Hp / 2;
+    for (const { pr, chain, sh } of panels) {
+      const P = [[pr[0], pr[1]], [pr[2], pr[1]], [pr[0], pr[3]]].map(([u, w]) => { const q = carry([u * Wp, w * Hp, 0], chain), z = Math.max(0, q[2]) + z0; return [q[0] - kx * z + ox, q[1] - ky * z + oy]; });
+      sh.style.transform = `matrix(${((P[1][0] - P[0][0]) / 100).toFixed(5)},${((P[1][1] - P[0][1]) / 100).toFixed(5)},${((P[2][0] - P[0][0]) / 100).toFixed(5)},${((P[2][1] - P[0][1]) / 100).toFixed(5)},${P[0][0].toFixed(2)},${P[0][1].toFixed(2)})`;
+    }
   }
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 

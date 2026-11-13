@@ -538,10 +538,10 @@ export const FR = {
  },
  "paper-fold": {
   "title": "Pliage de papier",
-  "trick": "Un arbre de charnières CSS 3D : le dernier pli emporte les autres",
+  "trick": "Un arbre de charnières CSS 3D : le dernier pli emporte les autres",
   "notes": [
-   "Une feuille imprimée se plie et se déplie sur un bureau : en lettre, en fenêtre, en accordéon ou en carte.",
-   "Chaque pli est une charnière preserve-3d imbriquée pour que le dernier emporte les autres ; chaque face est ombrée selon sa normale tournée par ses charnières."
+   "Une feuille imprimée se plie et se déplie sur un bureau : en lettre, en fenêtre, en accordéon ou en carte.",
+   "Chaque pli est une charnière preserve-3d imbriquée, si bien que le dernier emporte les autres ; les rabats libres sont des chaînes de bandes qui se courbent en tournant, et chaque pli suit la trajectoire à secousse minimale d’une main."
   ]
  },
  "menger-sponge": {

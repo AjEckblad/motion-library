@@ -541,7 +541,7 @@ export const ES = {
   "trick": "Un árbol de bisagras CSS 3D: el último pliegue arrastra al resto",
   "notes": [
    "Una hoja impresa se pliega y se abre sobre la mesa: como carta, en ventana, en acordeón o como un mapa.",
-   "Cada pliegue es una bisagra preserve-3d anidada para que el último arrastre a los demás; cada cara se sombrea según su normal girada por sus bisagras."
+   "Cada pliegue es una bisagra preserve-3d anidada, así que el último arrastra al resto; las solapas sueltas son cadenas de tiras que se curvan al girar, y cada pliegue sigue la trayectoria de mínimo tirón de una mano."
   ]
  },
  "menger-sponge": {
