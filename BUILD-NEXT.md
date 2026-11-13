@@ -1,4 +1,4 @@
-# Resume here (2026-11-13 afternoon): AJ's 11:20 list + Animata gaps + new effects; 227 live
+# Resume here (2026-11-13 afternoon): AJ's 11:20 list + Animata gaps + 4 new effects all live (227); npm 0.3.4 waits on AJ
 
 AJ asked (2026-11-13 ~11:20): diff-growth less gross; falling sand more grains + sand coloured; stained glass more
 detailed environment; snow globe much more detailed; paper fold folds smoother ("spend time until perfect");
@@ -20,9 +20,12 @@ DONE and live (commits f430f84 .. f867b15):
   shading), generative/leaf-venation (space colonisation). Dropped: pool caustics (too close to water-ripple).
 - Builds: an agent edits files in the main tree, so the static build runs in a clean worktree of HEAD
   (git worktree add --detach <scratch>/wt HEAD; build + check there; copy the changed outputs back; commit; push).
-STILL OPEN at the time of writing: ferrofluid (agent abf43cac…, square magnet, on/off = remount state: magnet On
-grows spikes in, Off melts them; if internals change, update the ferrofluid test in tools/motion-check.mjs) and
-lava-lamp (agent ae1e7fc4…). Then: CLI 0.3.4 (cli/package.json + cd cli && node build.mjs), AJ publishes it.
+ALSO DONE (00c4214, 239d1b8): lava-lamp (raymarched chrome/glass lamp, heat-driven 3D wax) and ferrofluid (square nickel
+magnet standing in the oil in a petri dish, ~260 needles, Magnet On/Off option O() + click/tap toggle; motion-check
+hooks unchanged, 21/21). CLI is 0.3.4 and rebuilt (227): AJ runs `cd ~/Downloads/motion-library/cli && npm login &&
+npm publish`. Reservations from the agents: lava lamp edges not antialiased at 1x; ferrofluid corner needles a bit
+blobby, pool mirrors only the crown; snow globe icicles/twigs shimmer slightly (1 spp); falling sand stream chunkier
+on phones. AJ should run /review-animations on the search palette and paper fold.
 Animata comparison for AJ: theirs = React+Tailwind UI components (157), shadcn CLI, ⌘K search, New badges, changelog,
 prev/next; ours already had more in the detail view (live tweak sliders, Copy as prompt, Download .html, Share, Embed,
 4 languages, llms.txt). Not added on purpose: shadcn registry (not React), theme toggle, newsletter, testimonials.
