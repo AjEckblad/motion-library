@@ -56,7 +56,7 @@ export const MORE = [
   // ── Fluid
   { id: 'fire-smoke', cat: 'fluid', title: 'Fire & smoke', kind: 'webgl', posterAt: 5000,
     trick: 'Combustion simulated: fuel burns out, gas glows as a blackbody',
-    notes: ['A campfire at night: flames lick up from logs and coals, sparks rise and grey smoke rolls away, lit from below.', 'Fuel burns at a fixed rate, so flame tips are where it runs out; hot gas glows by Planck’s law and cools as T⁴.'],
+    notes: ['A campfire at night burning on stacked logs: flames lick up from the wood and the coals, the logs’ charred skin glows orange in its cracks, and smoke and sparks rise.', 'Fuel gas from the hot wood burns at a fixed rate, so flame tips are where it runs out; everything hot glows by Planck’s law, and the char is Voronoi blocks lit by the fire.'],
     params: { heat: P(0.2, 2, 0.05, 'Heat'), cooling: P(0.85, 0.99, 0.005, 'Heat persistence'), curl: P(0, 50, 1, 'Curl') } },
   { id: 'lava-flow', cat: 'fluid', title: 'Lava flow', kind: 'webgl', posterAt: 6000,
     trick: 'Lava simulated on an eroded volcano, lit by blackbody light',

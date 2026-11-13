@@ -324,8 +324,8 @@ export const FR = {
   "title": "Feu et fumée",
   "trick": "Combustion simulée : le gaz brûle et brille en corps noir",
   "notes": [
-   "Un feu de camp la nuit : les flammes lèchent les bûches et les braises, des étincelles montent et la fumée grise roule, éclairée par-dessous.",
-   "Le combustible brûle à vitesse fixe, donc la pointe de la flamme est là où il s’épuise ; le gaz chaud brille selon Planck et refroidit en T⁴."
+   "Un feu de camp la nuit, sur des bûches empilées : les flammes lèchent le bois et les braises, l’écorce carbonisée rougeoie dans ses fissures, la fumée et les étincelles montent.",
+   "Le gaz du bois chaud brûle à vitesse fixe, donc la pointe des flammes marque l’endroit où il s’épuise ; tout ce qui est chaud brille selon la loi de Planck, et le charbon est fait de blocs de Voronoï éclairés par le feu."
   ]
  },
  "lava-flow": {

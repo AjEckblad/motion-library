@@ -324,8 +324,8 @@ export const ES = {
   "title": "Fuego y humo",
   "trick": "Combustión simulada: el gas arde y brilla como un cuerpo negro",
   "notes": [
-   "Una hoguera de noche: las llamas lamen desde los troncos y las brasas, suben chispas y el humo gris se enrosca, iluminado desde abajo.",
-   "El combustible arde a ritmo fijo, así que la punta de la llama es donde se acaba; el gas caliente brilla según Planck y se enfría como T⁴."
+   "Una fogata de noche ardiendo sobre troncos apilados: las llamas lamen la madera y las brasas, la corteza carbonizada brilla naranja en sus grietas y suben humo y chispas.",
+   "El gas de la madera caliente arde a ritmo fijo, así que las puntas de la llama marcan dónde se agota; todo lo caliente brilla según la ley de Planck, y el carbón son bloques de Voronoi iluminados por el fuego."
   ]
  },
  "lava-flow": {
