@@ -353,20 +353,20 @@
    "category": "Flow & particles",
    "categoryId": "flow",
    "renderer": "Canvas",
-   "description": "Segments align to the field and hop onto flux contours",
-   "descriptionZh": "线段顺着磁场转向，并跳到磁通函数的等值线上",
+   "description": "Segments align to a bar magnet's field and hop onto its flux contours",
+   "descriptionZh": "线段顺着条形磁铁的磁场排列，并跳到它的磁通等值线上",
    "page": "https://ajeckblad.github.io/motion-library/fx/iron-filings.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/iron-filings",
    "npx": "npx motion-library add iron-filings",
    "interactive": true,
-   "reducedMotion": false,
-   "bytes": 8489,
+   "reducedMotion": true,
+   "bytes": 9468,
    "settings": [
     {
      "key": "filings",
      "flag": "--filings",
      "label": "Filings",
-     "default": 9000,
+     "default": 7000,
      "min": 2000,
      "max": 16000,
      "step": 500
@@ -375,19 +375,19 @@
      "key": "lines",
      "flag": "--lines",
      "label": "Field lines",
-     "default": 36,
-     "min": 12,
-     "max": 60,
+     "default": 16,
+     "min": 6,
+     "max": 40,
      "step": 2
     },
     {
      "key": "taps",
      "flag": "--taps",
      "label": "Tap rate",
-     "default": 1,
-     "min": 0.3,
+     "default": 0.45,
+     "min": 0.2,
      "max": 3,
-     "step": 0.1
+     "step": 0.05
     }
    ]
   },
@@ -1242,7 +1242,7 @@
    "npx": "npx motion-library add fire-smoke",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 27803,
+   "bytes": 35069,
    "settings": [
     {
      "key": "heat",
@@ -1332,7 +1332,7 @@
    "npx": "npx motion-library add ferrofluid",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 22297,
+   "bytes": 22990,
    "settings": [
     {
      "key": "spikes",
@@ -1653,20 +1653,20 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "FFT ocean from a JONSWAP spectrum; unresolved slopes widen the glitter",
-   "descriptionZh": "FFT 海洋：JONSWAP 波谱，未解析的坡度拓宽日光闪烁带",
+   "description": "FFT ocean from a JONSWAP spectrum with a broad directional spread; foam where the surface folds",
+   "descriptionZh": "由方向分布很宽的 JONSWAP 波谱生成的 FFT 海洋；海面折叠处生成泡沫",
    "page": "https://ajeckblad.github.io/motion-library/fx/ocean.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ocean",
    "npx": "npx motion-library add ocean",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 36050,
+   "bytes": 36353,
    "settings": [
     {
      "key": "wind",
      "flag": "--wind",
      "label": "Wind (m/s)",
-     "default": 9,
+     "default": 10,
      "min": 5,
      "max": 13,
      "step": 0.5
@@ -1675,7 +1675,7 @@
      "key": "chop",
      "flag": "--chop",
      "label": "Choppiness",
-     "default": 1.5,
+     "default": 1.6,
      "min": 0.6,
      "max": 1.9,
      "step": 0.05
@@ -1684,9 +1684,9 @@
      "key": "sun",
      "flag": "--sun",
      "label": "Sun height (°)",
-     "default": 3.5,
+     "default": 10,
      "min": 1,
-     "max": 10,
+     "max": 20,
      "step": 0.5
     }
    ]

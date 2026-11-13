@@ -102,14 +102,14 @@ Renderer: Canvas 2D. Size: 4.0 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Iron filings
 
-Iron filings is a Canvas effect: segments align to the field and hop onto flux contours. One plain JavaScript file with no dependencies; add it with npx motion-library add iron-filings.
+Iron filings is a Canvas effect: segments align to a bar magnet's field and hop onto its flux contours. One plain JavaScript file with no dependencies; add it with npx motion-library add iron-filings.
 
-Steel filings over two hidden magnets hop on each tap and settle onto field lines; drag a magnet.
+Steel filings on paper over one hidden bar magnet hop on each tap and settle into the classic loops from pole to pole; drag the magnet.
 
-Each filing aligns with the local field and is pulled toward the nearest contour of the flux function, the sum of each pole’s angle times its charge.
+Each filing aligns with the local field and is pulled toward the nearest contour of the bar's flux function, the sum of each pole's charge times the cosine of its angle from the bar's axis.
 
-Settings: --filings 9000 (2000 to 16000, step 500; Filings); --lines 36 (12 to 60, step 2; Field lines); --taps 1 (0.3 to 3, step 0.1; Tap rate).
-Renderer: Canvas 2D. Size: 8.3 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/iron-filings.html
+Settings: --filings 7000 (2000 to 16000, step 500; Filings); --lines 16 (6 to 40, step 2; Field lines); --taps 0.45 (0.2 to 3, step 0.05; Tap rate).
+Renderer: Canvas 2D. Size: 9.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/iron-filings.html
 
 ### Galton board
 
@@ -338,12 +338,12 @@ Renderer: WebGL. Size: 14.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 Fire & smoke is a WebGL effect: combustion simulated: fuel burns out, gas glows as a blackbody. One plain JavaScript file with no dependencies; add it with npx motion-library add fire-smoke.
 
-A campfire at night: flames lick up from logs and coals, sparks rise and grey smoke rolls away, lit from below.
+A campfire at night burning on stacked logs: flames lick up from the wood and the coals, the logs’ charred skin glows orange in its cracks, and smoke and sparks rise.
 
-Fuel burns at a fixed rate, so flame tips are where it runs out; hot gas glows by Planck’s law and cools as T⁴.
+Fuel gas from the hot wood burns at a fixed rate, so flame tips are where it runs out; everything hot glows by Planck’s law, and the char is Voronoi blocks lit by the fire.
 
 Settings: --heat 1 (0.2 to 2, step 0.05; Heat); --cooling 0.95 (0.85 to 0.99, step 0.005; Heat persistence); --curl 22 (0 to 50, step 1; Curl).
-Renderer: WebGL. Size: 27.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/fire-smoke.html
+Renderer: WebGL. Size: 34.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/fire-smoke.html
 
 ### Lava flow
 
@@ -360,12 +360,12 @@ Renderer: WebGL. Size: 27.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 Ferrofluid is a WebGL effect: rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
 
-Black, mirror-glossy oil in a glass dish climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the pool, and click or tap to switch it off and watch the needles melt.
+Black, mirror-glossy oil lies in a puddle on a studio table, climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt.
 
-Raymarched distance field: the pool smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.
+Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.
 
 Settings: --spikes 260 (80 to 500, step 10; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength); --magnet 0 (0 to 1, step 1; Magnet).
-Renderer: WebGL. Size: 21.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
+Renderer: WebGL. Size: 22.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 
@@ -446,14 +446,14 @@ Renderer: WebGL. Size: 26.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Open ocean
 
-Open ocean is a WebGL effect: FFT ocean from a JONSWAP spectrum; unresolved slopes widen the glitter. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
+Open ocean is a WebGL effect: FFT ocean from a JONSWAP spectrum with a broad directional spread; foam where the surface folds. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
 
-Four GPU FFTs turn a JONSWAP wave spectrum into Gerstner waves each frame; foam forms where the surface folds, tiny slopes widen the glitter.
+A grey, windy open sea under an overcast sky: four GPU FFTs turn a JONSWAP wave spectrum with a broad directional spread into Gerstner waves each frame, and foam forms and streaks downwind where the surface folds.
 
-Wind sets wave height and how often whitecaps break, chop sharpens the crests, sun is its height in degrees; the pointer moves it.
+Wind sets wave height and how often whitecaps break, chop sharpens the crests, sun is the height of the hidden sun behind the clouds; the pointer moves its bright patch along the horizon.
 
-Settings: --wind 9 (5 to 13, step 0.5; Wind (m/s)); --chop 1.5 (0.6 to 1.9, step 0.05; Choppiness); --sun 3.5 (1 to 10, step 0.5; Sun height (°)).
-Renderer: WebGL. Size: 35.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
+Settings: --wind 10 (5 to 13, step 0.5; Wind (m/s)); --chop 1.6 (0.6 to 1.9, step 0.05; Choppiness); --sun 10 (1 to 20, step 0.5; Sun height (°)).
+Renderer: WebGL. Size: 35.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
 
 ### Honey pour
 

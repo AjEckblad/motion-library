@@ -20,7 +20,7 @@
 - [Strange attractor](https://ajeckblad.github.io/motion-library/fx/strange-attractor.html): Particles integrating the Aizawa attractor, with fading-canvas trails. `npx motion-library add strange-attractor`
 - [Slime mould maps Tokyo](https://ajeckblad.github.io/motion-library/fx/physarum.html): Sense, turn, step, deposit: agents carve self-reinforcing trail networks. `npx motion-library add physarum`
 - [Lightning arcs](https://ajeckblad.github.io/motion-library/fx/lightning.html): Midpoint displacement, recursive branches, glow and afterimage. `npx motion-library add lightning`
-- [Iron filings](https://ajeckblad.github.io/motion-library/fx/iron-filings.html): Segments align to the field and hop onto flux contours. `npx motion-library add iron-filings`
+- [Iron filings](https://ajeckblad.github.io/motion-library/fx/iron-filings.html): Segments align to a bar magnet's field and hop onto its flux contours. `npx motion-library add iron-filings`
 - [Galton board](https://ajeckblad.github.io/motion-library/fx/galton-board.html): Per-bead coin tosses stack into a binomial bell curve. `npx motion-library add galton-board`
 - [Pin art](https://ajeckblad.github.io/motion-library/fx/pin-art.html): Instanced pins that only slide forward, so imprints persist. `npx motion-library add pin-art`
 - [3D paper confetti](https://ajeckblad.github.io/motion-library/fx/confetti.html): Squash by cos(spin) to fake a 3D tumble, two-sided colour. `npx motion-library add confetti`
@@ -54,7 +54,7 @@
 - [Kelvin–Helmholtz clouds](https://ajeckblad.github.io/motion-library/fx/billow-clouds.html): Shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself. `npx motion-library add billow-clouds`
 - [Paint swirl](https://ajeckblad.github.io/motion-library/fx/paint-swirl.html): Colour advected around vortices; palette snapping keeps bands crisp. `npx motion-library add paint-swirl`
 - [SPH water tank](https://ajeckblad.github.io/motion-library/fx/sph-water.html): Real SPH particles, splatted into one surface and traced through glass. `npx motion-library add sph-water`
-- [Open ocean](https://ajeckblad.github.io/motion-library/fx/ocean.html): FFT ocean from a JONSWAP spectrum; unresolved slopes widen the glitter. `npx motion-library add ocean`
+- [Open ocean](https://ajeckblad.github.io/motion-library/fx/ocean.html): FFT ocean from a JONSWAP spectrum with a broad directional spread; foam where the surface folds. `npx motion-library add ocean`
 - [Honey pour](https://ajeckblad.github.io/motion-library/fx/honey-coil.html): Liquid-rope coiling: stacked tube loops sink into a thin-film mound. `npx motion-library add honey-coil`
 
 ## Chrome & 3D

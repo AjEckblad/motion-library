@@ -62,14 +62,14 @@
 <article>
 <h1>Fire &amp; smoke</h1>
 <p class="tldr">Fire &amp; smoke is a WebGL effect: combustion simulated: fuel burns out, gas glows as a blackbody. One plain JavaScript file with no dependencies; add it with npx motion-library add fire-smoke.</p>
-<figure><img src="../posters/fire-smoke.webp?v=63896fe2" alt="Fire &amp; smoke: Combustion simulated: fuel burns out, gas glows as a blackbody" width="1120" height="896"></figure>
+<figure><img src="../posters/fire-smoke.webp?v=84f40b69" alt="Fire &amp; smoke: Combustion simulated: fuel burns out, gas glows as a blackbody" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/fire-smoke">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Fire &amp; smoke?</h2>
-<p>A campfire at night: flames lick up from logs and coals, sparks rise and grey smoke rolls away, lit from below.</p>
+<p>A campfire at night burning on stacked logs: flames lick up from the wood and the coals, the logs’ charred skin glows orange in its cracks, and smoke and sparks rise.</p>
 
 <h2>How does Fire &amp; smoke work?</h2>
-<p>Fuel burns at a fixed rate, so flame tips are where it runs out; hot gas glows by Planck’s law and cools as T⁴.</p>
+<p>Fuel gas from the hot wood burns at a fixed rate, so flame tips are where it runs out; everything hot glows by Planck’s law, and the char is Voronoi blocks lit by the fire.</p>
 
 <h2>How do I add Fire &amp; smoke to my website?</h2>
 <ol>
@@ -94,7 +94,7 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>27.2 KB, unminified</dd>
+<dt>File size</dt><dd>34.2 KB, unminified</dd>
 <dt>Interactive</dt><dd>No: it plays on its own</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -102,18 +102,23 @@
 
 <h2>Source code</h2>
 <p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/fluid/fire-smoke.js">anims/fluid/fire-smoke.js on GitHub</a></p>
-<pre><code>// Fire &amp; smoke: a campfire at night, two logs burning down into a bed of coals, smoke rolling up and sparks going
-// with it. It is a fluid simulation of combustion on the GPU. The coals and the logs' hot ends give off fuel gas; each bit of fuel burns down at a fixed rate as
-// the flow carries it, so the flame's edge is the place where fuel runs out: it is sharp, and when an eddy pinches
-// off a pocket of fuel, that pocket burns on as a tongue and goes out on its own. While fuel burns it holds the gas
-// at flame temperature; once it is gone the gas cools, fast at first (radiation goes as T⁴), then slowly, and
-// leaves soot behind as smoke. Heat lifts the flow (buoyancy), smoke weighs it down a little, and curl noise plus
-// vorticity confinement keep it turbulent, so the flames lick and the smoke rolls. Colour is light, not a palette: the flame glows as a blackbody,
-// through Planck's law at three wavelengths, so the hot core goes yellow-white and the cooling tips orange and red,
-// and there is a thin blue zone at the root where fresh fuel first ignites. The smoke is lit by the flame through
-// itself (a short march toward the fire through the smoke's own density), with its rolls catching the light on
-// the side that faces it. The coals glow between their lumps, the ground takes the firelight, and sparks are
-// particles carried by the simulated air, cooling from yellow to dull red as they rise.
+<pre><code>// Fire &amp; smoke: a campfire at night, burning on a stack of logs: one lying across at the back, one leaning on it out
+// of the coals, two pushed in from the front corners, over a glowing ember bed. The flames are a fluid simulation of
+// combustion on the GPU. The ember bed and the hot wood give off fuel gas (along the logs' upper sides, hottest where
+// they lie over the coals); each bit of fuel burns down at a fixed rate as the flow carries it, so the flame's edge is
+// the place where fuel runs out: it is sharp, and when an eddy pinches off a pocket of fuel, that pocket burns on as a
+// tongue and goes out on its own. While fuel burns it holds the gas at flame temperature; once it is gone the gas
+// cools, fast at first (radiation goes as T⁴), then slowly, and leaves soot behind as smoke. Heat lifts the flow
+// (buoyancy), smoke weighs it down a little, and curl noise plus vorticity confinement keep it turbulent, so the flames
+// lick and the smoke rolls. Colour is light, not a palette: everything hot glows as a blackbody, through Planck's law at
+// three wavelengths, so the flame's core goes yellow-white and its tips orange and red, with a thin blue zone at the
+// root where fresh fuel first ignites. The logs are shaded cylinders: bark with furrows at their cool ends, and where
+// the fire has reached them, alligator char, blocks of black charcoal split by cracks that glow orange from the heat
+// inside, brightest over the coals, breathing as the air reaches them, with grey ash on the hottest blocks. Each block
+// is a rounded cushion, so the firelight catches its edges. The ember bed is lumps of charcoal: some alive with orange
+// under a cracked skin of ash, some grey, some gone dark, with light coming up through the gaps. The smoke is lit by the
+// flame through itself (a short march toward the fire through its own density), and sparks are particles carried by
+// the simulated air, cooling from yellow to dull red as they rise. On a narrow screen the whole scene shrinks to fit.
 const PARAMS = { heat: 1, cooling: 0.95, curl: 22 };
 
 export default function (stage) {
@@ -135,14 +140,24 @@ export default function (stage) {
   vec3 noised(vec2 p) { vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f), du = 6. * f * (1. - f);
     float a = h21(i), b = h21(i + vec2(1, 0)), c = h21(i + vec2(0, 1)), d = h21(i + 1.), k1 = b - a, k2 = c - a, k4 = a - b - c + d;
     return vec3(a + k1 * u.x + k2 * u.y + k4 * u.x * u.y, du * (vec2(k1, k2) + k4 * u.yx)); }
-  // the coal bed: a low mound, its top edge in screen units (x from the centre, in heights)
-  const float BW = .26, BASE = .15;
-  float bedTop(float x) { float u = x / BW; return u * u &lt; 1. ? BASE + .045 * sqrt(1. - u * u) + .01 * (vn(vec2(x * 26., 1.)) - .5) : 0.; }
-  // two logs pushed into the coals from either side, their inner ends burnt away: (along 0..1, across -1..1, length)
-  const vec2 LA0 = vec2(-.47, .112), LA1 = vec2(-.035, .2), LB0 = vec2(.48, .1), LB1 = vec2(.045, .19);
-  const float LAR = .036, LBR = .041;
-  vec3 logc(vec2 p, vec2 a, vec2 b, float r) { vec2 ab = b - a; float L = length(ab); vec2 d = ab / L; return vec3(dot(p - a, d) / L, dot(p - a, vec2(-d.y, d.x)) / r, L); }
-  vec2 P(vec2 q) { return vec2((q.x - .5) * ASP, q.y); }
+  // the scene is drawn in its own units (the picture's height = 1 on a wide screen); on a narrow one it shrinks and
+  // sits higher, so the whole fire fits: SCN = (scale, lift)
+  uniform vec3 SCN;
+  vec2 P(vec2 q) { return vec2((q.x - .5) * ASP, q.y - SCN.y) / SCN.x; }
+  vec2 Q(vec2 p) { return vec2(p.x * SCN.x / ASP + .5, p.y * SCN.x + SCN.y); }
+  // the ember bed: a low mound under the logs, its top edge (x from the centre)
+  const float BW = .3, BASE = .12;
+  float bedTop(float x) { float u = x / BW; return u * u &lt; 1. ? BASE + .06 * sqrt(1. - u * u) + .012 * (vn(vec2(x * 26., 1.)) - .5) : 0.; }
+  // four logs: one lying across at the back, one leaning on it out of the coals, two pushed in from the front corners.
+  // a is the sawn outer end, b the inner end (burnt away into the coals for all but the back log); LZ is where the
+  // fire sits in depth from each log (in front of the back log, behind the front ones)
+  const vec2 LA[4] = vec2[4](vec2(-.62, .218), vec2(.47, .405), vec2(-.66, .085), vec2(.68, .075));
+  const vec2 LB[4] = vec2[4](vec2(.6, .248), vec2(.02, .175), vec2(-.1, .14), vec2(.11, .134));
+  const float LR[4] = float[4](.054, .042, .062, .058), LZ[4] = float[4](.25, .05, -.22, -.22), LBURN[4] = float[4](0., 1., 1., 1.);
+  // (along 0..1, across -1..1 with + the upper side, length)
+  vec3 logc(vec2 p, vec2 a, vec2 b, float r) { vec2 ab = b - a; float L = length(ab); vec2 d = ab / L, n = vec2(-d.y, d.x); n *= sign(n.y + 1e-6); return vec3(dot(p - a, d) / L, dot(p - a, n) / r, L); }
+  // how hot a point on a log's axis is: hottest where it lies over the coals
+  float logHeat(vec2 q) { return smoothstep(.46, .06, length((q - vec2(0., .2)) * vec2(1., 1.6))); }
   vec3 planck(float K) { vec3 l = vec3(.61, .55, .465); return pow(vec3(.61) / l, vec3(5.)) * exp(-14388. / l / K + 14388. / .61 / 1450.); }`;
   const FS = {
     // velocity carried along by itself
@@ -158,7 +173,7 @@ export default function (stage) {
         v.y += dt * (BUOY * s.x - 1.5 * min(s.y, 2.));
         vec3 a = noised(p * 4.5 + vec2(T * .3, -T * 1.4)), b = noised(p * 9.5 + vec2(3.1, -T * 2.6) + a.yz * .4);
         vec2 cn = vec2(a.z, -a.y) + vec2(b.z, -b.y) * .4;      // curl of the noise: stirring without compressing
-        float root = smoothstep(BASE + .03, BASE + .2, p.y);       // roots stay planted on the logs, the tips lick
+        float root = smoothstep(BASE + .05, BASE + .3, p.y);       // roots stay planted on the logs, the tips lick
         v += dt * cn * (55. * s.x + 14.) * (.6 + .4 * HEAT) * (.25 + .75 * root);
         float bt = bedTop(p.x); v.y += dt * 200. * HEAT * smoothstep(.05, .0, abs(p.y - bt)) * step(.001, bt) * smoothstep(1., .5, abs(p.x) / BW);
         v.x *= 1. - dt * (.7 + 1.3 * (1. - smoothstep(.0, .35, s.x)) + 5. * smoothstep(BASE + .16, BASE + .02, p.y));   // still night air: no wind to lay the flames down
@@ -191,7 +206,7 @@ export default function (stage) {
       void main() {
         vec4 s = texture(SC, uv); float th = s.x, rho = s.y, Y = s.z;
         float burn = smoothstep(0., .04, Y);
-        Y = max(Y - 1.22 * dt, 0.);
+        Y = max(Y - 1.45 * dt, 0.);
         th = max(th, burn * (.6 + .4 * smoothstep(0., .6, Y)));
         rho += dt * 2.6 * burn * smoothstep(.13, .0, Y);
         th = max(th - dt * COOLR * (4.5 * th * th * th * th + .3 * th), 0.);
@@ -203,11 +218,15 @@ export default function (stage) {
           Y = max(Y, min(1., src * (.75 + .35 * HEAT)));
           th = max(th, src * .62);
         }
-        for (int k = 0; k &lt; 2; k++) {
-          vec3 lc = k == 0 ? logc(p, LA0, LA1, LAR) : logc(p, LB0, LB1, LBR);
-          float jl = smoothstep(.42, .75, vn(vec2(p.x * 19. + float(k) * 9., T * 1.6)) * .7 + vn(vec2(p.x * 47., T * 3.1)) * .4);
-          float src = jl * smoothstep(.25, .0, abs(lc.y - 1.05)) * smoothstep(.0, .05, lc.x) * smoothstep(.24, .06, abs(p.x));
-          Y = max(Y, min(1., src * (.7 + .3 * HEAT))); th = max(th, src * .6);
+        // the logs' hot wood gives off gas too, along their upper sides (and both sides of the leaning one), in
+        // jets that wander along the grain
+        for (int k = 0; k &lt; 4; k++) {
+          vec3 lc = logc(p, LA[k], LB[k], LR[k]); if (lc.x &lt; .02 || lc.x &gt; 1.) continue;
+          float h = logHeat(mix(LA[k], LB[k], lc.x)); if (h &lt; .05) continue;
+          float sl = lc.x * lc.z, jl = smoothstep(.4, .75, vn(vec2(sl * 19. + float(k) * 9., T * 1.6)) * .7 + vn(vec2(sl * 47., T * 3.1)) * .4);
+          float side = k == 1 ? abs(lc.y) : lc.y;
+          float src = smoothstep(.2, .55, jl * h) * smoothstep(.3, .0, abs(side - 1.06));
+          Y = max(Y, src * (.6 + .22 * HEAT)); th = max(th, src * .62);
         }
         if (uv.y &gt; 1. - 2. * VT.y) rho *= .9;
         o = all(lessThan(abs(vec3(th, rho, Y)), vec3(1e4))) ? vec4(th, rho, Y, 1) : vec4(0, 0, 0, 1);
@@ -216,93 +235,154 @@ export default function (stage) {
     emit: `uniform sampler2D SC;
       void main() { vec4 s = texture(SC, uv); o = vec4(planck(700. + 880. * s.x) * (.3 + .7 * smoothstep(0., .25, s.z)) * smoothstep(1., .86, s.z), 1); }`,
     // ---- the picture
-    render: `uniform sampler2D SC, EM; uniform float T, EXPO;
+    render: `uniform sampler2D SC, EM; uniform float T, EXPO, PX;
       vec3 vor(vec2 p) { vec2 i = floor(p), f = fract(p); float d1 = 9., d2 = 9., id = 0.;
         for (int y = -1; y &lt;= 1; y++) for (int x = -1; x &lt;= 1; x++) { vec2 g = vec2(x, y), r = g + .15 + .7 * h22(i + g) - f; float d = dot(r, r); if (d &lt; d1) { d2 = d1; d1 = d; id = h21(i + g + 7.); } else if (d &lt; d2) d2 = d; }
         return vec3(sqrt(d1), sqrt(d2), id); }
+      // Voronoi with the true distance to the nearest edge (x), the cell's id (y) and which way that edge lies (zw)
+      vec4 vore(vec2 p) { vec2 i = floor(p), f = fract(p), r1 = vec2(0), r2 = vec2(1); float d1 = 9., d2 = 9., id = 0.;
+        for (int y = -1; y &lt;= 1; y++) for (int x = -1; x &lt;= 1; x++) { vec2 g = vec2(x, y), r = g + .15 + .7 * h22(i + g) - f; float d = dot(r, r);
+          if (d &lt; d1) { d2 = d1; r2 = r1; d1 = d; r1 = r; id = h21(i + g + 7.); } else if (d &lt; d2) { d2 = d; r2 = r; } }
+        vec2 dd = normalize(r2 - r1 + 1e-5); return vec4(dot(.5 * (r1 + r2), dd), id, dd); }
       vec3 glow(vec2 q) { return textureLod(EM, q, 3.).rgb * .25 + textureLod(EM, q, 4.5).rgb * .35 + textureLod(EM, q, 6.).rgb * .4; }
+      // the fire as a light: its average glow from the middle of the flames (it flickers with them), and the ember
+      // bed's steady orange from below
+      vec3 F; const vec2 FC = vec2(0., .3), BC = vec2(0., .16);
+      vec3 E = vec3(0);
+      // one log, painted over col: bark at its cool ends, alligator char where it burns, glowing in its cracks
+      void paintLog(inout vec3 col, vec2 p, vec2 uv, int k) {
+        vec2 a = LA[k], b = LB[k]; float r = LR[k], fk = float(k), burnt = LBURN[k], capk = k == 0 ? .18 : .42;
+        vec3 lc = logc(p, a, b, r); float L = lc.z, sl = lc.x * L;
+        if (abs(lc.y) &gt; 1.1 || sl &lt; -r * capk || sl &gt; L + r * capk) return;
+        float taper = 1. - burnt * smoothstep(.62, 1., lc.x) * (.7 + .3 * vn(vec2(lc.y * 2.5 + fk * 5., sl * 24.)));
+        taper *= 1. + .05 * (vn(vec2(sl * 34., fk * 7.)) - .5);                 // no log is a true cylinder
+        float c = lc.y / max(taper, .05);
+        float ea = sl / (r * capk), eb = (L - sl) / (r * capk), capA = ea * ea + c * c, capB = eb * eb + c * c;
+        bool side = abs(c) &lt; 1. &amp;&amp; sl &gt;= 0. &amp;&amp; sl &lt;= L, endA = sl &lt; 0. &amp;&amp; capA &lt; 1., endB = burnt &lt; .5 &amp;&amp; sl &gt; L &amp;&amp; capB &lt; 1.;
+        if (!(side || endA || endB)) return;
+        vec2 ax = normalize(b - a), nu = vec2(-ax.y, ax.x); nu *= sign(nu.y + 1e-6);
+        float h = logHeat(mix(a, b, clamp(lc.x, 0., 1.))) * (1. + .6 * burnt * smoothstep(.55, 1., lc.x));
+        float pulse = .62 + .38 * vn(vec2(sl * 8. - T * .5, T * .45 + fk * 3.));     // embers breathe as the air reaches them
+        float d2 = dot(p - FC, p - FC), db = dot(p - BC, p - BC);
+        vec3 Fi = F / (1. + d2 * 13.), Bi = E / (1. + db * 60.), Gi = glow(uv) * .4;
+        vec3 lcol;
+        if (!side) {                                     // a sawn end: growth rings, a few radial checks, a charred rim
+          vec2 e = endA ? vec2(ea, c) : vec2(eb, c); float rr = length(e), th = atan(e.y, e.x);
+          float ring = .78 + .22 * sin(rr * 44. + vn(e * 4. + fk) * 5.);
+          float chk = smoothstep(.07, .0, abs(sin(th * 1.5 + fk * 2.1 + vn(vec2(rr * 6., fk)) * .6))) * smoothstep(.15, .7, rr);
+          vec3 wood = vec3(.2, .135, .08) * ring * (.8 + .4 * vn(e * vec2(3., 18.))) * (1. - .7 * chk);
+          float rim = smoothstep(.72, .95, rr + .08 * (vn(vec2(th * 4., fk)) - .5));
+          wood = mix(wood, vec3(.03, .027, .025), rim);
+          lcol = wood * ((Fi + Gi) * .45 + Bi * .2 + .004) + planck(980. + 420. * min(h, 1.) * pulse) * rim * smoothstep(.2, .7, h) * .6;
+          lcol *= .55 + .45 * smoothstep(1., .8, rr);
+        } else {
+          float ang = asin(clamp(c, -1., 1.)), cs = sqrt(max(1. - c * c, 0.));
+          vec3 n0 = vec3(nu * c, cs), ta = vec3(ax, 0), tr = vec3(nu * cs, -c);        // normal, along, around
+          vec3 l = normalize(vec3(FC - p, LZ[k])), lb = normalize(vec3(BC - p, LZ[k] * .5));
+          vec2 su = vec2(sl, ang * r);
+          // how far the char has eaten in: it ends in a ragged front, bark beyond it
+          float charr = smoothstep(-.05, .05, h * 1.6 - .22 + .35 * (vn(su * vec2(22., 34.) + fk * 3.) - .5));
+          // alligator char: blocks split by cracks across and along the grain, each block a rounded cushion
+          // that slopes down into its cracks; finer checks inside each block
+          vec2 w = (vec2(vn(su * 80. + fk), vn(su * 80. + fk + 7.)) - .5) * .5;
+          vec4 v = vore(su * vec2(56., 66.) + w + fk * 13.); vec3 v2 = vor(su * vec2(150., 175.) + fk * 5.);
+          float fs = PX / max(cs, .2), e1 = v.x, e2 = v2.y - v2.x;
+          float line = smoothstep(.03 + fs * 60., .0, e1), bleed = smoothstep(.22, .0, e1), fine = smoothstep(.03 + fs * 170., .0, e2);
+          float dome = smoothstep(.0, .3, e1), slope = smoothstep(.3, .02, e1) * 1.6 * charr;
+          // bark: deep furrows running along the grain, ridges between them
+          vec2 bq = vec2(su.x * 22., su.y * 95.) + vn(su * vec2(40., 60.)) * 1.5; float fu = vn(bq), fu2 = vn(bq + vec2(0., .3)), fuR = 1. - abs(fu * 2. - 1.);
+          float bh = fuR * .65 + .35 * vn(vec2(su.x * 90., su.y * 260.));
+          vec3 n = normalize(n0 + (ta * v.z + tr * v.w) * slope + tr * (fu2 - fu) * 3.5 * (1. - charr));
+          float lit = clamp(dot(n, l) * .9 + .1, 0., 1.), litb = clamp(dot(n, lb) * .8 + .2, 0., 1.);
+          float facing = clamp(dot(n0, l) * .5 + .5, 0., 1.), hot = min(h, 1.2) * (.62 + .38 * facing) * pulse;
+          vec3 bark = mix(vec3(.12, .095, .075), vec3(.15, .14, .13), vn(su * 40. + 4.)) * (.65 + .5 * vn(su * 350.)) * mix(.18, 1., smoothstep(.3, .75, bh));
+          vec3 chr = vec3(.024, .022, .021) * (.55 + .9 * v.y) * (.45 + .55 * dome) * (1. - .45 * fine);
+          float ash = smoothstep(.5, .78, vn(su * 110. + 3.)) * dome * smoothstep(.25, .75, h) * smoothstep(-.2, .8, c);
+          chr = mix(chr, vec3(.36, .34, .32) * (.6 + .4 * v.y), ash * .85);
+          vec3 alb = mix(bark, chr, charr);
+          float sp = pow(max(dot(n, normalize(l + vec3(0, 0, 1))), 0.), 14.) * charr * (1. - ash);   // char's dull silver sheen
+          lcol = alb * (Fi * lit * 3.2 + Bi * litb * 1.6 + Gi * lit * 3.5 + .004) + sp * .14 * (Fi + Gi * 2.);
+          // glowing cracks, hottest deep inside; where the wood is hottest the char's own skin glows dull red
+          float g = charr * smoothstep(.08, .55, hot);
+          float cv = .25 + .95 * smoothstep(.25, .75, vn(su * vec2(24., 30.) + fk * 4.));                 // some cracks open deeper than others
+          lcol += planck(1040. + 430. * hot) * (line * 3.2 * cv + bleed * bleed * .9 + fine * .5 * hot) * g * (1. - .7 * ash);
+          lcol += planck(940. + 380. * hot) * smoothstep(.45, 1., hot) * (1. - ash) * (.25 + .6 * (1. - dome)) * charr;
+          lcol *= .4 + .6 * smoothstep(1.02, .6, abs(c));
+        }
+        float cov = side ? smoothstep(1., .9, abs(c)) : smoothstep(1., .88, sqrt(endA ? capA : capB));
+        col = mix(col, lcol, cov);
+      }
       void main() {
         vec2 p = P(uv); vec4 s = texture(SC, uv); float rho = s.y;
         // the flame is read through a fine warp that rises with it: detail finer than the simulation, so its edges
         // break into small licks and its body into streaks
         vec2 wq = p * vec2(26., 12.) - vec2(0., T * 5.);
         vec2 wp = (vec2(vn(wq), vn(wq + 17.)) - .5) * vec2(.006, .012) + (vec2(vn(wq * 2.3 + 5.), vn(wq * 2.3 + 9.)) - .5) * vec2(.003, .005);
-        vec4 sf = texture(SC, uv + wp * smoothstep(BASE, BASE + .12, p.y)); float th = sf.x, Y = sf.z;
-        // the fire as a light: its average glow (it flickers with the flames), falling off with distance
-        vec3 F = textureLod(EM, vec2(.5, .4), 7.).rgb * 1.3;
-        vec2 fc = vec2(0., BASE + .17); float dl = length(p - fc);
-        vec3 fire = F / (1. + dl * dl * 20.) + glow(uv) * .12;
+        vec4 sf = texture(SC, uv + wp * SCN.x * smoothstep(BASE, BASE + .15, p.y)); float th = sf.x, Y = sf.z;
+        F = textureLod(EM, Q(FC), 7.).rgb * 1.3;
+        E = planck(1150.) * (.55 + .2 * vn(vec2(T * .7, 2.)));
+        float dl = length(p - FC);
+        vec3 fire = F / (1. + dl * dl * 16.) + glow(uv) * .12;
         // the night, and the ground in perspective, both lit by the fire
         vec3 col = vec3(.004, .004, .007) + fire * .025;
-        float hz = BASE + .085;
+        float hz = .33;
         if (p.y &lt; hz) {
           float dz = hz - p.y + .012; vec2 gp = vec2(p.x / dz, 1. / dz) * .045;
           vec3 v = vor(gp * 70.); float stone = step(.8, v.z) * smoothstep(.0, .3, v.y - v.x);
           float grit = vn(gp * 60.) * .5 + vn(gp * 140.) * .3 + vn(gp * 9.) * .4;
           vec3 alb = vec3(.07, .058, .048) * (.5 + .5 * grit) + vec3(.035, .03, .028) * stone * (.6 + .6 * v.y);
-          alb = mix(alb, vec3(.16, .15, .14), smoothstep(.75, .95, vn(gp * 5. + 2.)) * .5 * smoothstep(.6, .2, abs(p.x)));   // pale ash
-          vec3 c = alb * (fire * 1.2 * smoothstep(-.05, .2, p.y) + vec3(.004, .005, .008));
+          float near = smoothstep(.75, .1, length((p - vec2(0., .14)) * vec2(.8, 2.6)));
+          alb = mix(alb, vec3(.17, .16, .15) * (.6 + .5 * vn(gp * 30.)), smoothstep(.45, .8, vn(gp * 6. + 2.)) * .7 * near);   // pale ash
+          alb = mix(alb, vec3(.025, .022, .02), smoothstep(.3, .7, vn(gp * 4. + 9.)) * near * .6);                       // soot-black earth
+          float db = dot(p - BC, p - BC);
+          vec3 c = alb * (fire * 2.2 * smoothstep(-.05, .2, p.y) + E / (1. + db * 30.) * .5 + vec3(.004, .005, .008));
           col = mix(col, c, smoothstep(.0, .02, hz - p.y));
         }
-        // the coals: lumps of charcoal, dark on top, glowing in the gaps between them and through their cracks
+        paintLog(col, p, uv, 0);
+        // the ember bed: charcoal lumps and smaller embers, glowing up through the gaps between them, some lumps alive
+        // with orange under a skin of grey ash, others gone dark
         float bt = bedTop(p.x);
-        if (p.y &lt; bt + .004 &amp;&amp; bt &gt; 0.) {
-          vec2 cp = p * vec2(42., 52.) + vec2(vn(p * 30.), vn(p * 30. + 5.)) * .6; vec3 v = vor(cp), v2 = vor(cp * 2.9 + 3.);
-          float edge = v.y - v.x, dome = smoothstep(.0, .5, edge);
-          float deep = smoothstep(bt, bt - .06, p.y), core = smoothstep(BW, .0, abs(p.x));
-          float pulse = .7 + .3 * sin(T * (1.1 + v.z * 1.7) + v.z * 40.) * vn(vec2(v.z * 9., T * .7));
-          float heat = clamp(.25 + .6 * core + .25 * deep, 0., 1.) * pulse;
-          float ash = smoothstep(.55, .85, vn(cp * 1.7 + 9.)) * dome;          // a skin of pale ash on some coals
-          vec3 lit = mix(vec3(.035, .03, .028), vec3(.2, .19, .18), ash) * (.5 + .6 * v.z) * dome * (fire * 1.6 + .006);
-          float lumpHot = smoothstep(.15, .6, v.z);             // some lumps still burning, some gone dark
-          float seam = (smoothstep(.16, .0, edge) + smoothstep(.09, .0, v2.y - v2.x) * .7 * dome * (1. - ash)) * (.35 + .65 * lumpHot);
-          vec3 c = lit + planck(1000. + 450. * heat) * (seam + .3 * (1. - dome)) * 1.8 + planck(880. + 380. * heat) * dome * (1. - ash) * .5;
-          col = mix(col, c, smoothstep(.004, -.004, p.y - bt) * smoothstep(BASE - .03, BASE - .005, p.y + .02 * (1. - abs(p.x) / BW)));
+        if (bt &gt; 0. &amp;&amp; p.y &lt; bt + .006) {
+          vec2 cp = p * vec2(70., 86.) + (vec2(vn(p * 30.), vn(p * 30. + 5.)) - .5) * 1.4; vec4 v = vore(cp); vec3 v2 = vor(cp * 2.6 + 3.);
+          float e = v.x, dome = smoothstep(.0, .32, e), e2 = v2.y - v2.x;
+          float core = smoothstep(BW, .02, abs(p.x)), deep = smoothstep(bt, bt - .05, p.y);
+          float breath = .55 + .45 * vn(vec2(p.x * 9. - T * .35, T * .5)) * (.6 + .4 * vn(vec2(v.y * 31., T * .8)));
+          float heat = clamp(.25 + .65 * core + .3 * deep, 0., 1.) * breath;
+          // what each lump is: still alive (orange right through, under a cracked skin of ash), grey with ash, or
+          // gone dark; more of them are alive in the middle
+          float kind = v.y + .4 * (core - .55) + .25 * (vn(cp * .4 + 6.) - .5);
+          float live = smoothstep(.56, .64, kind), ashy = smoothstep(.3, .36, kind) * (1. - live);
+          vec3 alb = mix(vec3(.03, .027, .026) * (.6 + .8 * fract(v.y * 7.)), vec3(.34, .32, .3) * (.8 + .3 * vn(cp * 4.)), ashy);
+          // each lump a cushion lit from the flames above, sloping into the gaps
+          vec3 nb = normalize(vec3(v.zw * smoothstep(.32, .02, e) * 1.4, 1.) + vec3(0., .5, 0.));
+          float lt = clamp(dot(nb, normalize(vec3(FC - p, .1))) * .8 + .2, 0., 1.);
+          vec3 c = alb * dome * (fire * 2.6 * lt + E * .06 + .004);
+          float hf = heat * (.6 + .55 * vn(cp * .45 + vec2(T * .06, 0.)));
+          float gw = smoothstep(.3, .0, e); c += planck(1000. + 470. * hf) * gw * gw * (.3 + .9 * core) * 2.2;   // light up through the gaps
+          float film = smoothstep(.05 + PX * 150., .0, e2);
+          vec3 emb = planck(930. + 480. * hf * (.7 + .3 * dome)) * (1. - .6 * film) * (.55 + .45 * dome) * 1.4 + alb * .2 * fire;
+          c = mix(c, emb, live);
+          col = mix(col, c, smoothstep(.006, -.002, p.y - bt) * smoothstep(BASE - .035, BASE - .008, p.y + .025 * (1. - abs(p.x) / BW)));
         }
         // the flame: blackbody light from soot in the burning gas; soot forms a moment after the fuel ignites, and
-        // below that the fresh fuel burns blue
+        // below that the fresh fuel burns blue. It burns in front of the back log and the coals, around the leaning
+        // log and mostly behind the front ones
         float soot = (.3 + .7 * smoothstep(0., .25, Y)) * smoothstep(1., .88, Y);
-        vec3 fl = planck(700. + 880. * th) * soot + vec3(.05, .16, 1.) * smoothstep(.88, .98, Y) * smoothstep(.45, .7, th) * .06 * smoothstep(.0, .02, p.y - bedTop(p.x));
-        // the logs: charred into blocks (alligator char) whose cracks glow near the fire, bark at the cool ends, and
-        // a sawn face at the outer end. The flame burns behind and between them, a little of it in front
-        col += fl * .9;
-        for (int k = 0; k &lt; 2; k++) {
-          vec2 a = k == 0 ? LA0 : LB0, b = k == 0 ? LA1 : LB1; float r = k == 0 ? LAR : LBR;
-          vec3 lc = logc(p, a, b, r); float L = lc.z, sl = lc.x * L;
-          float taper = (1. - smoothstep(.62, 1., lc.x) * (.75 + .25 * vn(vec2(lc.y * 3., float(k))))) * (1. + .06 * (vn(vec2(sl * 45., float(k) * 7.)) - .5));
-          float c = lc.y / max(taper, .05);
-          float cap = (sl / (r * .45)) * (sl / (r * .45)) + c * c;
-          if (abs(c) &lt; 1. &amp;&amp; lc.x &gt; 0. &amp;&amp; lc.x &lt; 1. || sl &lt; 0. &amp;&amp; cap &lt; 1.) {
-            vec2 q = a + (b - a) * clamp(lc.x, 0., 1.);
-            float heat = smoothstep(.34, .02, length(q - vec2(0., BASE + .06))) * (.65 + .35 * vn(vec2(sl * 9., T * .6 + float(k) * 3.)));
-            vec3 lcol;
-            if (sl &lt; 0.) {                                         // the sawn end: rings, charred at the rim
-              float rr = sqrt(cap); vec2 e = vec2(sl / (r * .45), c);
-              lcol = vec3(.09, .065, .045) * (.75 + .25 * sin(rr * 38. + vn(e * 5.) * 4.)) * smoothstep(1., .75, rr) * (fire * .7 + .004);
-              lcol += planck(900. + 380. * heat) * smoothstep(.8, 1., rr) * .6;
-            } else {
-              float ang = asin(clamp(c, -1., 1.)), sh = .25 + .75 * smoothstep(-.6, .9, c) + 1.5 * smoothstep(.75, .97, c);   // lit from above, a rim on top
-              vec3 v = vor(vec2(sl * 30., ang * 3.2 + float(k) * 5.)), v2 = vor(vec2(sl * 80., ang * 8.));
-              float crack = smoothstep(.12, .0, v.y - v.x), fine = smoothstep(.07, .0, v2.y - v2.x);
-              float charr = smoothstep(.0, .35, heat + .15);
-              vec3 bark = vec3(.11, .085, .06) * (.6 + .5 * vn(vec2(sl * 90., ang * 5.))) * (.7 + .3 * sin(ang * 26. + vn(vec2(sl * 12., ang)) * 6.));
-              vec3 chr = vec3(.045, .04, .038) * (.6 + .6 * v.z) * (1. - .7 * crack);
-              lcol = mix(bark, chr, charr) * sh * (fire * .55 + .004) * smoothstep(1., .8, abs(c));
-              lcol += planck(820. + 540. * heat) * (crack * .8 + fine * .2 + .12 * smoothstep(.75, 1., lc.x)) * charr * smoothstep(1., .3, abs(c) - .3 * c);
-            }
-            col = mix(col, lcol, smoothstep(1., .93, max(abs(c), sl &lt; 0. ? sqrt(cap) : 0.)));
-          }
-        }
-        col += fl * .1;
+        vec3 fl = planck(700. + 880. * th) * soot + vec3(.05, .16, 1.) * smoothstep(.88, .98, Y) * smoothstep(.45, .7, th) * .06 * smoothstep(.0, .02, p.y - bt) * smoothstep(.08, .02, p.y - bt);
+        col += fl * .6;
+        paintLog(col, p, uv, 1);
+        col += fl * .35;
+        paintLog(col, p, uv, 2); paintLog(col, p, uv, 3);
+        col += fl * .05;
         // smoke: absorbs what is behind it; lit by the fire through the smoke between, brightest where it faces it
-        vec2 tf = (vec2(fc.x / ASP + .5, fc.y) - uv);
+        vec2 tf = Q(FC) - uv;
         float occ = 0.; for (int i = 0; i &lt; 7; i++) occ += texture(SC, uv + tf * (float(i) + .5) / 7.).y;
         occ *= dl / 7. * 7.;
         vec2 gd = vec2(texture(SC, uv + vec2(VT.x * 2., 0)).y - texture(SC, uv - vec2(VT.x * 2., 0)).y, texture(SC, uv + vec2(0, VT.y * 2.)).y - texture(SC, uv - vec2(0, VT.y * 2.)).y);
-        float face = .55 + .45 * clamp(dot(-normalize(gd + 1e-5), normalize(fc - p)), -1., 1.) * smoothstep(.0, .05, length(gd));
+        float face = .55 + .45 * clamp(dot(-normalize(gd + 1e-5), normalize(FC - p)), -1., 1.) * smoothstep(.0, .05, length(gd));
         float tau = rho * 2.6, tr = exp(-tau);
         vec3 fl2 = fire * 1.1 * exp(-occ) * face; fl2 = mix(vec3(dot(fl2, vec3(.3, .5, .2))), fl2, .55);
-        vec3 sl = fl2 + glow(uv) * .5 + vec3(.012, .014, .02);
+        vec3 sl = fl2 + glow(uv) * .3 + vec3(.012, .014, .02);
         col = col * tr + vec3(.48, .47, .46) * sl * (1. - tr) + fl * (1. - tr) * .85;                   // smoke dims the flame only a little
         o = vec4(col * EXPO, 1);
       }`,
@@ -316,8 +396,8 @@ export default function (stage) {
         q.z -= dt / (1.6 + 2.2 * fract(q.w * 13.7));
         if (q.z &lt;= 0. || q.y &gt; 1.02 || q.x &lt; -.02 || q.x &gt; 1.02) {
           vec2 rr = h22(vec2(gl_FragCoord.x, SEED));
-          float x = (rr.x * 2. - 1.) * BW * .7; float y = bedTop(x) - .005;
-          q = vec4(x / ASP + .5, y, 1., fract(rr.y + SEED * .37));
+          float x = (rr.x * 2. - 1.) * BW * .7;
+          q = vec4(Q(vec2(x, bedTop(x) + .01)), 1., fract(rr.y + SEED * .37));
           if (h21(vec2(SEED, gl_FragCoord.x * .37)) &gt; .0006 + .012 * pow(vn(vec2(T * 1.7, 3.)), 6.)) q.z = -1.;   // a few at a time, in pops
         }
         o = q;
@@ -378,12 +458,12 @@ export default function (stage) {
   };
   const pair = (w, h, fmt, filt) =&gt; { let a = fbo(w, h, fmt, false, filt), b = fbo(w, h, fmt, false, filt); return { get r() { return a; }, get w() { return b; }, swap() { [a, b] = [b, a]; }, all: [a, b] }; };
   const NP = 420;
-  let W = 1, H = 1, VW = 1, VH = 1, vel, prs, div, crl, sca, em, scene, pts, made = [];
+  let W = 1, H = 1, VW = 1, VH = 1, SS = 1, SY = 0, vel, prs, div, crl, sca, em, scene, pts, made = [];
   const resize = () =&gt; {
     const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(820000 / (w * h))));
     W = canvas.width = Math.max(2, (w * d) | 0); H = canvas.height = Math.max(2, (h * d) | 0);
     for (const t of made) { gl.deleteTexture(t.t); gl.deleteFramebuffer(t.f); }
-    const asp = W / H; VH = Math.round(170 * Math.min(1.25, Math.max(0.8, 1 / Math.sqrt(asp)))); VW = Math.max(64, Math.round(VH * asp));
+    const asp = W / H; SS = Math.min(1, asp / 1.5); SY = 0.045 + (1 - SS) * 0.2; VH = Math.round(170 * Math.min(1.25, Math.max(0.8, 1 / Math.sqrt(asp)))); VW = Math.max(64, Math.round(VH * asp));
     vel = pair(VW, VH); prs = pair(VW, VH); div = fbo(VW, VH); crl = fbo(VW, VH);
     sca = pair(VW * 2, VH * 2);
     em = fbo(VW * 2, VH * 2, gl.RGBA16F, true); scene = fbo(W, H, gl.RGBA16F, true);
@@ -395,7 +475,7 @@ export default function (stage) {
   const run = (pr, out, set) =&gt; {
     gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, out ? out.f : null); gl.viewport(0, 0, out ? out.w : W, out ? out.h : H);
     let unit = 0;
-    if (pr.u.VT) gl.uniform2f(pr.u.VT, 1 / VW, 1 / VH); if (pr.u.ASP) gl.uniform1f(pr.u.ASP, W / H);
+    if (pr.u.VT) gl.uniform2f(pr.u.VT, 1 / VW, 1 / VH); if (pr.u.ASP) gl.uniform1f(pr.u.ASP, W / H); if (pr.u.SCN) gl.uniform3f(pr.u.SCN, SS, SY, 0); if (pr.u.PX) gl.uniform1f(pr.u.PX, 1 / (H * SS));
     set((name, v) =&gt; {
       const loc = pr.u[name]; if (loc == null) return;
       if (v &amp;&amp; v.t) { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, v.t); gl.uniform1i(loc, unit++); }
@@ -434,7 +514,7 @@ export default function (stage) {
   };
   // a few seconds of fire are run before anything shows, so it opens burning, with smoke already up
   const WARM = 210; let fade = 0;
-  const ro = new ResizeObserver(() =&gt; { resize(); if (reduce) { while (warm &lt; WARM) { step(1 / 60); warm++; } draw(); } }); ro.observe(stage); resize();
+  const ro = new ResizeObserver(() =&gt; { resize(); if (reduce) { while (warm &lt; WARM * 2) { step(1 / 60); warm++; } draw(); } }); ro.observe(stage); resize();
   let raf, last = null;
   function frame(now) {
     const dt = last === null ? 1 / 60 : Math.min(1 / 30, (now - last) / 1000); last = now;
@@ -443,7 +523,7 @@ export default function (stage) {
     draw();
     raf = requestAnimationFrame(frame);
   }
-  if (reduce) { while (warm &lt; WARM) { step(1 / 60); warm++; } draw(); } else raf = requestAnimationFrame(frame);
+  if (reduce) { while (warm &lt; WARM * 2) { step(1 / 60); warm++; } draw(); } else raf = requestAnimationFrame(frame);
   return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 }
 </code></pre>

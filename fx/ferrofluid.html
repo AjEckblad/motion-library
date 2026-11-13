@@ -62,14 +62,14 @@
 <article>
 <h1>Ferrofluid</h1>
 <p class="tldr">Ferrofluid is a WebGL effect: rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.</p>
-<figure><img src="../posters/ferrofluid.webp?v=38681144" alt="Ferrofluid: Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors" width="1120" height="896"></figure>
+<figure><img src="../posters/ferrofluid.webp?v=7196f9ed" alt="Ferrofluid: Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/ferrofluid">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Ferrofluid?</h2>
-<p>Black, mirror-glossy oil in a glass dish climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the pool, and click or tap to switch it off and watch the needles melt.</p>
+<p>Black, mirror-glossy oil lies in a puddle on a studio table, climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt.</p>
 
 <h2>How does Ferrofluid work?</h2>
-<p>Raymarched distance field: the pool smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.</p>
+<p>Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.</p>
 
 <h2>How do I add Ferrofluid to my website?</h2>
 <ol>
@@ -94,7 +94,7 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>21.8 KB, unminified</dd>
+<dt>File size</dt><dd>22.5 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -102,23 +102,23 @@
 
 <h2>Source code</h2>
 <p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/fluid/ferrofluid.js">anims/fluid/ferrofluid.js on GitHub</a></p>
-<pre><code>// Ferrofluid: a glass petri dish holds a thin pool of glossy black magnetic oil, and a square neodymium block magnet,
+<pre><code>// Ferrofluid: a puddle of glossy black magnetic oil lies on a plain studio table, and a square neodymium block magnet,
 // nickel plated with bevelled edges, stands in it. Its field pulls the oil up the block: a meniscus climbs the sides,
 // a film runs over the top in a low dome, and the dome breaks into the Rosensweig instability, a dense hexagonal
 // field of fine needles. The field of a block is strongest at its edges and corners, so the needles there are the
 // tallest, and they lean out over the shoulder along the field lines; the film thins down the sides in drips, and
 // the bare nickel shows below it. Move the pointer and the magnet slides through the pool after it; the oil on top
-// lags a beat, the needles lean back and shrink while it travels and stand up again with a shiver when it stops.
+// lags a beat (and the puddle is dragged along behind), the needles lean back and shrink while it travels and stand up again with a shiver when it stops.
 // With no pointer it wanders on its own. Click or tap to switch the magnet off: the needles melt, the film slides
 // down the block and the oil relaxes into a smooth puddle round the bare magnet; switch it on and the oil climbs
 // back and the needles rise. The magnet param sets how it starts (a fresh start with it on grows the crown in).
-// The scene is raymarched. The oil is a distance field: the pool, smooth-unioned with the film on the block (the
+// The scene is raymarched. The oil is a distance field: the puddle (an uneven round outline, a rounded rim), smooth-unioned with the film on the block (the
 // block's own rounded box, inflated by a thickness that is a dome on top and fades down the sides), smooth-unioned
 // with concave cones on a hexagonal lattice. A sample only visits its nearest lattice point and the six around it,
 // and everything near the magnet sits in a bounding box the ray only opens when it comes close. The oil is a black
 // mirror: what you see is the studio reflected in it (a soft light overhead, strips either side and behind the
 // camera, a small key up front, a rim light behind), dimmed where a neighbouring needle is in the way; the open pool
-// mirrors the magnet and its crown with a short second march. The dish is thin glass, drawn as Fresnel reflections.
+// mirrors the magnet and its crown with a short second march. The table takes a soft contact shadow round the puddle.
 const PARAMS = { spikes: 260, strength: 1, magnet: 0 };
 
 export default function (stage) {
@@ -130,11 +130,11 @@ export default function (stage) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FS = `#version 300 es
   precision highp float; in vec2 uv; out vec4 o;
-  uniform vec2 R, M, CO, LN; uniform float T, ON, CON, SON, LA, SH, EXC, FOC;
+  uniform vec2 R, M, CO, LN, PC; uniform float T, ON, CON, SON, LA, SH, EXC, FOC;
   uniform vec3 CP, CF, CR, CU;
   const vec3 MB = vec3(.2, .12, .2);                   // the block magnet's half size
-  const float BEV = .016, FL = .012, LV = .042;        // its bevel; the dish's glass floor; the pool's level
-  const float RD = .74, DH = .1;                       // the dish: inner radius, wall height
+  const float BEV = .016, FL = 0., LV = .036;         // its bevel; the table; the puddle's depth
+  const float RP = .56;                                // the puddle's mean radius (its centre PC trails the magnet)
   const float MY = FL + MB.y, MT = FL + 2. * MB.y;     // the magnet's centre and top
   const float S3 = 1.7320508;
   float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
@@ -144,19 +144,20 @@ export default function (stage) {
 
   float magnetD(vec3 p) { return sdRBox(p - vec3(M.x, MY, M.y), MB, BEV); }
   // the film's thickness on the top face: a low dome, a little off centre while the oil lags the magnet
-  float topT(vec2 f) { float e = max(abs(f.x), abs(f.y)), e2 = mix(e * e, dot(f, f) * .5, .6); return .008 + .026 * (1. - e2); }
+  // (a superellipse, so the dome has no crease along the diagonals)
+  float topT(vec2 f) { vec2 a = f * f; float e2 = mix(sqrt(dot(a, a)), dot(f, f) * .5, .5); return .008 + .026 * (1. - e2); }
   // the film on the block: a dome on top, thinning down the sides in drips; its front climbs (or slides) with CON
   float coatT(vec3 q) {
     vec2 f = (q.xz - CO) / MB.x;
     float top = topT(clamp(f, -1., 1.));
-    float u = q.x * 1.7 + q.z * 2.3, drip = vn(vec2(u * 22., 3.)) * .7 + vn(vec2(u * 61., 9.)) * .3;
+    float u = q.x * 1.7 + q.z * 2.3, drip = vn(vec2(u * 22., 3.)) * .7 + vn(vec2(u * 40., 9.)) * .3;
     float side = .0075 * smoothstep(.05 - .11 * drip * drip, .095, q.y);
     // while the switch is moving the sides carry a full sheet of oil, with a thicker lip where it climbs (or slides)
     float moving = CON * (1. - CON) * 4.;
     side = max(side, .009 * moving);
     float t = mix(side, top, smoothstep(MB.y - .04, MB.y + .002, q.y));
     float front = -MB.y - .04 + CON * (2. * MB.y + .12);
-    t += .009 * moving * exp(-pow((q.y - front + .012) / .014, 2.));
+    t += .006 * moving * exp(-pow((q.y - front + .012) / .014, 2.));
     return t * smoothstep(front + .012, front - .03, q.y) * (.4 + .6 * CON);
   }
   // the needles: concave cones on a hexagonal lattice over the top face and its shoulder
@@ -175,7 +176,7 @@ export default function (stage) {
       float corner = smoothstep(.72, 1., abs(f.x)) * smoothstep(.72, 1., abs(f.y));
       float field = (.36 + .68 * smoothstep(.35, 1., e) + .4 * corner) * smoothstep(1.22, .96, e);
       float H = SH * SON * field * (.8 + .4 * hs) * (1. + EXC * .3 * sin(T * 23. + hs * 40.));
-      if (H &lt; .002) continue;
+      if (H &lt; .0065) continue;   // (a needle still buried in the film is skipped: its buried tip left hexagonal seams)
       // the base sits on the film, and past the edge it slides down the shoulder
       float base = MT + topT(clamp(f, -1., 1.)) - max(e - 1., 0.) * MB.x * 1.5 - .006;
       // each leans out along the field: up in the middle, out over the shoulder (to the nearest edge, or the corner)
@@ -183,25 +184,31 @@ export default function (stage) {
       vec2 lean = od * (.06 + .78 * smoothstep(.55, 1.18, e) * (.6 + .4 * SON)) + LN + .035 * vec2(sin(T * 1.3 + hs * 9.), cos(T * 1.1 + hs * 7.));
       vec3 l = p - vec3(M.x + CO.x + cw.x, base, M.y + CO.y + cw.y);
       l.xz -= lean * max(l.y, 0.);
-      float rb = LA * (.68 + .25 * (1. - SON)), rr = length(l.xz), yy = clamp(l.y / H, 0., 1.);
+      float rb = LA * (.46 + .22 * SON),   // (narrow while they grow or melt: overlapping flat cones left hexagonal creases)
+           rr = length(l.xz), yy = clamp(l.y / H, 0., 1.);
       float sl = rb * 1.7 / H * pow(1. - yy, .7);
       // below its base it tapers to a point inside the film, so a needle on a curved surface never shows a ledge
-      float cn = l.y &gt; H ? length(vec2(rr, l.y - H)) : l.y &lt; -.03 ? length(vec2(rr, l.y + .03)) : l.y &lt; 0. ? (rr - rb * (1. + l.y / .03)) * .45 : (rr - rb * pow(1. - yy, 1.7)) / sqrt(1. + sl * sl);
-
-      s = min(s, cn);
+      // (above the tip: a lower bound, so a short, flat needle while they grow or melt never lets the ray step through it)
+      float cn = l.y &gt; H ? max(l.y - H, rr / sqrt(1. + pow(rb * 1.7 / H, 2.))) : l.y &lt; -.03 ? length(vec2(rr, l.y + .03)) : l.y &lt; 0. ? (rr - rb * (1. + l.y / .03)) * .45 : (rr - rb * pow(1. - yy, 1.7)) / sqrt(1. + sl * sl);
+      // the lean shears the cone, which stretches distances: scale back so the ray cannot step through a leaning needle;
+      // and a smooth union, so neighbouring bases meet in a soft fillet, not a sharp hexagonal seam
+      s = smin(s, cn * inversesqrt(1. + dot(lean, lean)), LA * .22);
     }
     return s;
   }
-  // the pool: level, but it climbs the dish wall in a meniscus
-  float poolD(vec3 p) { float r = length(p.xz); return max(p.y - LV - .01 * exp(-(RD - r) / .012), r - RD); }
+  // the puddle's outline: a slowly breathing, uneven circle round PC
+  float rim(vec2 d) { float a = atan(d.y, d.x); return RP * (1. + .03 * sin(a * 3. + 1.3 + T * .11) + .02 * sin(a * 5. - 2.1 - T * .17) + .02 * sin(a * 2. + .4)); }
+  // the puddle: a flat top, a rounded rim, standing on the table
+  float poolD(vec3 p) { vec2 d = p.xz - PC; float de = (length(d) - rim(d)) * .88, k = LV * .85;
+    vec2 w = vec2(de + k, p.y - LV + k); return max(length(max(w, 0.)) + min(max(w.x, w.y), 0.) - k, -p.y); }
   // the magnet and the oil on it (film and needles), without the pool
   vec2 crown(vec3 p) {
     vec3 q = p - vec3(M.x, MY, M.y);
     float mag = sdRBox(q, MB, BEV);
-    float oil = smin((mag - coatT(q)) * .8, spikes(p) * .7, LA * .32);
+    float oil = smin((mag - coatT(q)) * .7, spikes(p) * .7, LA * .32);
     return vec2(oil, mag);
   }
-  // everything inside the dish. m: 0 oil, 1 magnet. Far from the magnet the ray only sees a bounding box round it
+  // the puddle and the magnet. m: 0 oil, 1 magnet. Far from the magnet the ray only sees a bounding box round it
   vec2 inside(vec3 p) {
     float pool = poolD(p);
     vec3 q = p - vec3(M.x, MY, M.y);
@@ -221,7 +228,7 @@ export default function (stage) {
   vec2 cyl(vec3 ro, vec3 rd, float r) { float a = dot(rd.xz, rd.xz), b = dot(ro.xz, rd.xz), c = dot(ro.xz, ro.xz) - r * r, h = b * b - a * c; if (h &lt; 0.) return vec2(1e9, -1e9); h = sqrt(h); return vec2((-b - h) / a, (-b + h) / a); }
   vec3 march(vec3 ro, vec3 rd) {                       // t, material, steps left
     float top = MT + SH * 1.4 + .06;
-    vec2 cy = cyl(ro, rd, RD);
+    vec2 cy = cyl(ro - vec3(PC.x, 0., PC.y), rd, RP * 1.12 + .02);
     float t0 = max(cy.x, 0.), t1 = cy.y;
     if (rd.y &lt; 0.) { t0 = max(t0, (top - ro.y) / rd.y); t1 = min(t1, (FL - ro.y) / rd.y); } else return vec3(-1.);
     if (t0 &gt; t1) return vec3(-1.);
@@ -243,11 +250,10 @@ export default function (stage) {
     vec2 e = min(q - b.xy, b.zw - q); return smoothstep(0., soft, min(e.x, e.y));
   }
   vec3 table(vec3 p) {
-    float r = length(p.xz);
-    vec2 k = p.xz - vec2(-.3, -.4);
-    float lit = .6 + .2 * exp(-dot(k, k) * .12);
-    lit *= 1. - .55 * smoothstep(.45, -.05, r - RD - .1) * smoothstep(-.2, .3, -p.z + .1) - .25 * smoothstep(.25, .0, r - RD);   // the dish and its dark oil shade the table
-    lit += .22 * exp(-pow((r - RD - .05) / .02, 2.)) * smoothstep(-.4, .6, p.z);   // the glass wall focuses a bright line
+    vec2 k = p.xz - vec2(-.3, -.4), d = p.xz - PC, ds = d - vec2(.05, .09);
+    float lit = .6 + .2 * exp(-dot(k, k) * .12), de = length(d) - rim(d);
+    // the dark oil shades the table: a tight contact shadow at the rim and a soft one cast forward, away from the light
+    lit *= (1. - .45 * exp(-max(de, 0.) / .025)) * (1. - .3 * smoothstep(.3, -.05, length(ds) - rim(ds)));
     vec3 c = vec3(lit) * vec3(1., .992, .982);
     return mix(c, vec3(.52, .52, .535), smoothstep(5., 14., length(p.xz)));
   }
@@ -255,7 +261,7 @@ export default function (stage) {
     vec3 c;
     if (r.y &lt; 0.) {
       float tp = (LV - o.y) / r.y; vec3 h = o + r * tp;
-      if (o.y &gt; LV &amp;&amp; length(h.xz) &lt; RD) {                     // the pool: a dark mirror of its own
+      if (o.y &gt; LV &amp;&amp; length(h.xz - PC) &lt; rim(h.xz - PC)) {                     // the pool: a dark mirror of its own
         vec3 rr = vec3(r.x, -r.y, r.z);
         vec2 k = h.xz + rr.xz * ((3.4 - h.y) / rr.y) - vec2(-.6, -3.2);
         c = vec3(.008) + .05 * (2.6 * exp(-dot(k, k * vec2(.5, .22))) + .5);
@@ -317,22 +323,8 @@ export default function (stage) {
       }
     } else if (rd.y &lt; 0.) {
       vec3 p = ro + rd * th;
-      if (length(p.xz) &lt; RD) col = vec3(.01); else col = table(p);
+      col = table(p);
     } else col = env(ro, rd);
-    // the dish's wall: thin glass, a Fresnel reflection where the ray crosses it (front and back), its rim catching the light
-    vec2 w = cyl(ro, rd, RD + .009);
-    for (int k = 0; k &lt; 2; k++) {
-      float t = k == 0 ? w.y : w.x;                                       // the far crossing first, then the near one
-      vec3 p = ro + rd * t;
-      if (t &gt; 0. &amp;&amp; t &lt; th + 1e-4 &amp;&amp; p.y &gt; 0. &amp;&amp; p.y &lt; DH) {
-        vec3 n = normalize(vec3(p.x, 0., p.z)); if (dot(n, rd) &gt; 0.) n = -n;
-        float c = abs(dot(rd, n)), fr = .04 + .96 * pow(1. - c, 5.);
-        vec3 ref = env(p, reflect(rd, n));
-        col = col * (1. - 2. * fr) * mix(vec3(.8, .9, .87), vec3(.97, .99, .98), smoothstep(.0, .35, c)) + ref * 2. * fr;
-        col += vec3(.9) * smoothstep(.006, .0, DH - p.y) * (.4 + .6 * smoothstep(.0, .5, p.z + .3));   // the rim
-        col *= 1. - .25 * smoothstep(.006, .0, p.y);                                                 // the foot
-      }
-    }
     col = aces(col * 1.02);
     col *= 1. - .22 * pow(length(uv - .5) * 1.25, 2.6);
     o = vec4(pow(col, vec3(1. / 2.2)) + (h21(gl_FragCoord.xy) - .5) / 255., 1);
@@ -343,23 +335,23 @@ export default function (stage) {
   const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   gl.useProgram(prog);
-  const U = {}; ['R', 'M', 'CO', 'LN', 'T', 'ON', 'CON', 'SON', 'LA', 'SH', 'EXC', 'FOC', 'CP', 'CF', 'CR', 'CU'].forEach(n =&gt; U[n] = gl.getUniformLocation(prog, n));
+  const U = {}; ['R', 'M', 'CO', 'LN', 'PC', 'T', 'ON', 'CON', 'SON', 'LA', 'SH', 'EXC', 'FOC', 'CP', 'CF', 'CR', 'CU'].forEach(n =&gt; U[n] = gl.getUniformLocation(prog, n));
   gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   let W = 1, H = 1;
   const resize = () =&gt; { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(700000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); gl.viewport(0, 0, W, H); };
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
-  // the camera looks down into the dish; on narrow screens it backs off so the dish stays in frame
+  // the camera looks down at the puddle; on narrow screens it backs off so the puddle stays in frame
   const FOC = 1.8, EL = 0.6, AT = [0, 0.1, 0.13], cam = {};
   const setCam = () =&gt; {
-    const a = W / H, D = Math.max(2.2, 3.4 / a);
+    const a = W / H, D = Math.max(2.2, 2.9 / a);
 
 
     cam.p = [AT[0], AT[1] + Math.sin(EL) * D, AT[2] + Math.cos(EL) * D]; cam.f = [0, -Math.sin(EL), -Math.cos(EL)];
     cam.r = [1, 0, 0]; cam.u = [0, Math.cos(EL), -Math.sin(EL)];
   };
-  // the pointer on the dish: cast its ray onto the plane of the magnet's top
+  // the pointer on the table: cast its ray onto the plane of the magnet's top
   // a resting mouse keeps the magnet where it is; leaving the stage, or a finger lifted for 1.8 s, hands it back to the drift
   let px = 0.5, py = 0.5, lastMove = -1e9, held = false;
   const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
@@ -372,12 +364,12 @@ export default function (stage) {
   };
   // springs: the magnet follows its target; the oil on top follows the magnet a little late and a little bouncy, so
   // it lags while the magnet travels and overshoots when it stops. on: the switch, eased over a couple of seconds
-  const S = { m: 0, mv: 0, n: 0, nv: 0, h: 0, hv: 0, k: 0, kv: 0, exc: 0, on: PARAMS.magnet ? 1 : 0 };
+  const S = { m: 0, mv: 0, n: 0, nv: 0, pc: 0, pcv: 0, pz: 0, pzv: 0, h: 0, hv: 0, k: 0, kv: 0, exc: 0, on: PARAMS.magnet ? 1 : 0 };
   const spring = (x, v, target, w, z, dt) =&gt; { const a = w * w * (target - x) - 2 * z * w * v; v += a * dt; return [x + v * dt, v, a]; };
   const smooth = (a, b, x) =&gt; { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
   // the param sets how it starts; a click or tap on the stage switches the magnet on or off
   let onTarget = PARAMS.magnet ? 0 : 1;
-  const LIM = 0.3;
+  let LIM = 0.3;
   const onClick = () =&gt; { onTarget = 1 - onTarget; if (reduce) S.on = onTarget; };
   canvas.addEventListener('click', onClick);
   if (reduce) S.on = onTarget;
@@ -387,9 +379,10 @@ export default function (stage) {
     setCam();
     // on its own the magnet wanders: it slides, rests long enough for the needles to stand, and slides on
     const ease = x =&gt; Math.tanh(2.4 * Math.sin(x)) / Math.tanh(2.4);
-    // (it holds still at first, so the crown grows in the middle of the dish)
+    // (it holds still at first, so the crown grows in the middle of the puddle)
     const tw = Math.max(0, t - 4.5);
-    const auto = reduce ? [0.04, 0.02] : [0.26 * ease(tw * Math.PI * 2 / 9), 0.04 + 0.1 * ease(tw * Math.PI * 2 / 13)];
+    const nar = Math.min(1, 1.2 * W / H); LIM = 0.3 * nar;   // on a narrow screen it wanders less, so the puddle stays in frame
+    const auto = reduce ? [0.04, 0.02] : [0.26 * nar * ease(tw * Math.PI * 2 / 9), 0.04 + 0.1 * ease(tw * Math.PI * 2 / 13)];
 
 
     const live = held || now - lastMove &lt; 1800;
@@ -398,6 +391,9 @@ export default function (stage) {
     for (let i = 0, n = 4, h = dt / n; i &lt; n; i++) {
       [S.m, S.mv] = spring(S.m, S.mv, target[0], 7, 1, h); [S.n, S.nv] = spring(S.n, S.nv, target[1], 7, 1, h);
       let ax, az; [S.h, S.hv, ax] = spring(S.h, S.hv, S.m, 5.5, 0.4, h); [S.k, S.kv, az] = spring(S.k, S.kv, S.n, 5.5, 0.4, h);
+      // the puddle is dragged along behind the magnet, slow and heavy, and never lets it reach the rim
+      [S.pc, S.pcv] = spring(S.pc, S.pcv, S.m, 1.7, 0.9, h); [S.pz, S.pzv] = spring(S.pz, S.pzv, S.n, 1.7, 0.9, h);
+      const ox = S.m - S.pc, oz = S.n - S.pz, ol = Math.hypot(ox, oz); if (ol &gt; 0.15) { S.pc += ox * (1 - 0.15 / ol); S.pz += oz * (1 - 0.15 / ol); }
       S.exc = Math.min(1, S.exc * Math.exp(-h * 2.2) + Math.hypot(ax, az) * h * 0.05);
       if (!reduce) S.on += Math.sign(onTarget - S.on) * Math.min(Math.abs(onTarget - S.on), h / 3.2);
     }
@@ -410,7 +406,7 @@ export default function (stage) {
     const co = [Math.max(-0.035, Math.min(0.035, S.h - S.m)), Math.max(-0.035, Math.min(0.035, S.k - S.n))];
     gl.uniform2f(U.R, W, H); gl.uniform1f(U.T, reduce ? 2 : t); gl.uniform1f(U.FOC, FOC);
 
-    gl.uniform2f(U.M, S.m, S.n); gl.uniform2f(U.CO, co[0], co[1]); gl.uniform2f(U.LN, -S.hv * 0.25, -S.kv * 0.25);
+    gl.uniform2f(U.M, S.m, S.n); gl.uniform2f(U.PC, S.pc, S.pz); gl.uniform2f(U.CO, co[0], co[1]); gl.uniform2f(U.LN, -S.hv * 0.25, -S.kv * 0.25);
     gl.uniform1f(U.ON, on); gl.uniform1f(U.CON, CON * Math.min(1, 0.3 + str)); gl.uniform1f(U.SON, SON); gl.uniform1f(U.LA, LA); gl.uniform1f(U.SH, SHv); gl.uniform1f(U.EXC, reduce ? 0 : S.exc);
     gl.uniform3f(U.CP, ...cam.p); gl.uniform3f(U.CF, ...cam.f); gl.uniform3f(U.CR, ...cam.r); gl.uniform3f(U.CU, ...cam.u);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
