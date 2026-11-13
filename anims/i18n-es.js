@@ -28,7 +28,7 @@ export const ES = {
   "title": "Miel vertida",
   "trick": "Enrollamiento de cuerda líquida: un hilo que se adelgaza tiende bucles que se funden con un charco de película fina",
   "notes": [
-   "El hilo se adelgaza al caer; cada bucle nuevo se apoya en el de abajo, se hunde, se funde en un campo de alturas y se extiende según la ecuación de película fina; la miel toma color según cuánto recorre la luz en ella: dorado pálido donde es fina, ámbar profundo en el montículo.",
+   "La miel cae de una cuchara quieta en un cuenco de porcelana y se enrolla en una columna de anillos que se hunde en el charco y de vez en cuando se vuelca. Arrastra para mover la cuchara y coser un rastro de bucles.",
    "Flujo fija el grosor del hilo, bucles las vueltas por segundo, extensión lo rápido que se desploma el montículo; arrastra el puntero para coser rastros de bucles."
   ]
  },

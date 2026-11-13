@@ -1705,7 +1705,7 @@
    "npx": "npx motion-library add honey-coil",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 42763,
+   "bytes": 53050,
    "settings": [
     {
      "key": "flow",

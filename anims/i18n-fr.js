@@ -28,7 +28,7 @@ export const FR = {
   "title": "Miel versé",
   "trick": "Enroulement de corde liquide : un filet qui s’affine pose des boucles qui se fondent dans une flaque en film mince",
   "notes": [
-   "Le filet s’affine en tombant ; chaque nouvelle boucle repose sur celle du dessous, s’enfonce, fond dans un champ de hauteurs et s’étale selon l’équation du film mince ; le miel prend sa couleur selon la distance que la lumière y parcourt : or pâle là où il est fin, ambre profond dans le monticule.",
+   "Le miel coule d’une cuillère immobile dans un bol en porcelaine et s’enroule en une colonne d’anneaux qui s’enfonce dans le bain et parfois bascule. Faites glisser pour déplacer la cuillère et piquer une traînée de boucles.",
    "Débit règle l’épaisseur du filet, boucles le nombre de tours par seconde, étalement la vitesse à laquelle le monticule s’affaisse ; faites glisser le pointeur pour coudre des traînées de boucles."
   ]
  },
