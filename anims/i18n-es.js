@@ -258,10 +258,10 @@ export const ES = {
  },
  "dla-crystal": {
   "title": "Crecimiento de cristal (DLA)",
-  "trick": "Agregación limitada por difusión: caminantes aleatorios que se pegan al tocar",
+  "trick": "Agregación limitada por difusión: el óxido de manganeso crece en dendritas como helechos desde una grieta en la caliza",
   "notes": [
-   "Un cristal con aspecto de coral se ramifica desde una semilla hasta llenar la vista.",
-   "Agregación limitada por difusión: los caminantes aleatorios se pegan al primer contacto y las puntas atrapan más caminantes que los huecos; los caminantes parten de un círculo justo fuera del cristal."
+   "Dendritas de manganeso negras, como helechos, trepan por una losa de caliza clara desde una grieta y se ramifican en penachos con un halo marrón.",
+   "Agregación limitada por difusión: los caminantes aleatorios se pegan al primer contacto, así que las puntas crecen más que los huecos; los troncos densos se imprimen gruesos y las puntas lejanas, más finas y pardas."
   ]
  },
  "wind-tunnel": {

@@ -258,10 +258,10 @@ export const FR = {
  },
  "dla-crystal": {
   "title": "Croissance cristalline (DLA)",
-  "trick": "Agrégation limitée par diffusion : des marcheurs aléatoires collent au contact",
+  "trick": "Agrégation limitée par diffusion : l’oxyde de manganèse pousse en dendrites de fougère depuis une fissure du calcaire",
   "notes": [
-   "Un cristal corallien se ramifie à partir d’un germe jusqu’à remplir la vue.",
-   "Agrégation limitée par diffusion : les marcheurs aléatoires collent au premier contact, et les pointes en captent davantage que les creux ; ils partent d’un cercle juste à l’extérieur du cristal."
+   "Des dendrites de manganèse noires, comme des fougères, montent d’une fissure sur une dalle de calcaire clair et se ramifient en panaches entourés d’un halo brun.",
+   "Agrégation limitée par diffusion : les marcheurs aléatoires collent au premier contact, donc les pointes poussent plus vite que les creux ; les troncs denses s’impriment épais, les pointes lointaines plus fines et plus brunes."
   ]
  },
  "wind-tunnel": {

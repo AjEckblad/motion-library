@@ -1,57 +1,175 @@
-// Diffusion-limited aggregation: particles wander at random until they touch the crystal, then stick where they hit.
-// Tips stick out further into the wandering particles than the hollows between them, so they catch more and grow
-// faster: that feedback is what grows the branching, coral-like fractal. Walkers start on a circle just outside the
-// crystal and are dropped if they stray too far. Colour follows the order things stuck, so you can read its growth.
+// Crystal growth: manganese dendrites spreading across a slab of pale limestone, the black fern-like "fossils" that
+// are not fossils at all. Water carrying dissolved manganese seeps along a crack; where it meets the rock, manganese
+// oxide comes out of solution and sticks to what has already been laid down. That is diffusion-limited aggregation:
+// particles wander at random (here on a grid, on the CPU) until they touch the deposit, then stick where they hit.
+// Tips reach further into the wandering particles than the hollows between them, so they catch more and grow faster,
+// and the trees growing up from the crack compete: the tall ones shade the short ones and branch into plumes.
+// Walkers are released just above the tallest tip, drift a little toward the crack with the seeping water, and are
+// dropped if they wander too far, so few steps are wasted. The deposit starts at a few places along the crack. The
+// picture is drawn on the GPU: the stone is fine-grained buff limestone with faint bedding, rusty iron staining along
+// the crack and a little relief in a low light; the deposit is read at several blurs, so dense trunks print thick
+// and black while the tips stay fine, and a soft brown halo bleeds into the stone around them. Fresh deposit darkens
+// in over a moment. When the plumes near the top they fade away and new ones start from the crack. With reduced
+// motion it shows one slab, grown about two-thirds of the way up.
 const PARAMS = { speed: 1, stickiness: 1 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:auto';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
   stage.append(canvas);
-  const ctx = canvas.getContext('2d');
-  let W = 0, H = 0, GW = 0, GH = 0, grid, img, ictx, idata, cx, cy, rmax, count;
-  const CELL = 2;
-  const reset = () => {
-    GW = Math.max(16, Math.ceil(W / CELL)); GH = Math.max(16, Math.ceil(H / CELL));
-    grid = new Uint8Array(GW * GH); img = document.createElement('canvas'); img.width = GW; img.height = GH;
-    ictx = img.getContext('2d'); idata = ictx.createImageData(GW, GH);
-    for (let i = 0; i < GW * GH; i++) { idata.data[i * 4] = 8; idata.data[i * 4 + 1] = 10; idata.data[i * 4 + 2] = 20; idata.data[i * 4 + 3] = 255; }
-    cx = GW >> 1; cy = GH >> 1; rmax = 2; count = 0; stick(cx, cy);
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const VS = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const HEAD = `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o;
+  uniform vec2 R, G; uniform float FADE, SEED, CELL;
+  float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + 1.), f.x), f.y); }
+  float fbm(vec2 p) { float s = 0., a = .5; for (int i = 0; i < 5; i++) { s += a * vn(p); p = p * 2.03 + 17.1; a *= .5; } return s; }
+  // where the crack runs, in grid cells from the bottom (the same curve the simulation seeds along)
+  float seam(float gx) { return 4. + 3. * sin(gx * .021 + SEED) + 2. * sin(gx * .057 + SEED * 2.3) + 1.2 * sin(gx * .13 + SEED * 1.7); }`;
+  // the slab, drawn once for each new one
+  const FS_STONE = HEAD + `
+  void main() {
+    vec2 px = uv * R, gp = px / CELL, s = px / R.y;
+    // limestone: fine grain, faint bedding, cloudy patches of iron stain; a little relief, lit low from the top left
+    vec2 w = vec2(fbm(s * 3. + SEED), fbm(s * 3. + 9. + SEED));
+    float bed = sin((s.y + .06 * w.x) * 70.) * .5 + .5, cloud = fbm(s * 2.2 + w * .8 + SEED * 3.);
+    float grain = h21(floor(px)) - .5, mott = vn(px * .35) - .5;
+    vec3 stone = mix(vec3(.87, .8, .65), vec3(.82, .73, .56), smoothstep(.3, .8, cloud));
+    stone *= 1. + .02 * bed + .03 * grain + .015 * mott;
+    stone = mix(stone, vec3(.74, .55, .32), smoothstep(.6, .85, fbm(s * 1.6 + 4. + SEED)) * .35);
+    float e = 1.5 / R.y, hC = fbm(s * 14.), hX = fbm((s + vec2(e, 0)) * 14.), hY = fbm((s + vec2(0, e)) * 14.);
+    stone *= 1. + ((hC - hX) + (hY - hC)) * 1.2;
+    // the crack: the slab's broken edge, with the rust the seeping water left along it, fading up into the stone
+    float dy = gp.y - seam(gp.x);
+    stone = mix(stone, vec3(.62, .4, .2), exp(-max(dy, 0.) / (9. + 6. * vn(vec2(gp.x * .03, SEED)))) * .45);
+    o = vec4(stone, 1);
+  }`;
+  // each frame: the deposit on the stone, read at several blurs: thick and black where it is dense, fine at the tips,
+  // a brown halo around
+  const FS = HEAD + `
+  uniform sampler2D D, ST;
+  void main() {
+    vec2 px = uv * R, gp = px / CELL; float dy = gp.y - seam(gp.x);
+    vec3 stone = texture(ST, uv).rgb;
+    float d0 = texture(D, uv).r, d1 = textureLod(D, uv, 1.).r, d2 = textureLod(D, uv, 2.2).r, d3 = textureLod(D, uv, 3.6).r;
+    float core = smoothstep(.16, .6, d0 * .95 + d1 * .5 + d2 * .15), halo = clamp(d2 * .9 + d3 * 1., 0., 1.);
+    // less manganese reaches the far tips: they print finer and browner than the trunks by the crack
+    float far = smoothstep(10., G.y * .8, dy);
+    core *= smoothstep(.0, .25, d0 * .95 + d1 * .5 - .3 * far);
+    vec3 ink = mix(vec3(.06, .045, .035), vec3(.25, .18, .12), far * .8) * (.8 + .4 * vn(px * .5));
+    vec3 col = stone * mix(vec3(1), vec3(.72, .6, .46), halo * (.8 - .4 * far));
+    col = mix(col, ink, core * (.94 - .2 * far));
+    // below the edge: shadow down into the crack
+    col = mix(col, vec3(.05, .04, .03), smoothstep(.6, -.8, dy));
+    col = mix(col, col * .55, smoothstep(2.5, .2, dy) * step(-.5, dy));
+    vec2 v = uv - .5; float vg = 1. - .35 * dot(v, v);
+    col = mix(stone * .9, col, FADE) * vg;
+    o = vec4(col + (h21(px + 3.1) - .5) / 255., 1);
+  }`;
+  const sh = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const link = fs => {
+    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    return p;
   };
-  const resize = () => { const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1; canvas.width = W * d; canvas.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); reset(); };
-  // colour along the growth: deep blue at the seed through cyan to a pale ice at the tips
-  const hue = k => { const s = Math.min(1, k); return [40 + 160 * s ** 1.5, 90 + 150 * s, 200 + 55 * s]; };
-  function stick(x, y) {
-    grid[y * GW + x] = 1; count++;
-    const r = Math.hypot(x - cx, y - cy); rmax = Math.max(rmax, r);
-    const [R, G, B] = hue(r / (Math.min(GW, GH) * 0.48)), k = (y * GW + x) * 4;
-    idata.data[k] = R; idata.data[k + 1] = G; idata.data[k + 2] = B;
-  }
-  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
-  const touching = (x, y) => grid[y * GW + x - 1] | grid[y * GW + x + 1] | grid[(y - 1) * GW + x] | grid[(y + 1) * GW + x];
-  let raf, done = 0;
-  function frame() {
-    if (done > 0) { done--; if (!done) reset(); }
-    else {
-      const limit = Math.min(GW, GH) / 2 - 3;
-      // a budget of random-walk steps per frame; each walker is released near the crystal so few steps are wasted
-      let budget = 160000 * PARAMS.speed, x = 0, y = 0, alive = false;
-      while (budget > 0) {
-        if (!alive) { const a = Math.random() * 6.28, r = rmax + 6; x = Math.round(cx + Math.cos(a) * r); y = Math.round(cy + Math.sin(a) * r); alive = true; }
-        const s = Math.random() * 4 | 0; x += s === 0 ? 1 : s === 1 ? -1 : 0; y += s === 2 ? 1 : s === 3 ? -1 : 0; budget--;
-        const d = Math.hypot(x - cx, y - cy);
-        if (d > rmax + 18 || x < 1 || y < 1 || x >= GW - 1 || y >= GH - 1) { alive = false; continue; }   // strayed: drop it
-        if (touching(x, y) && Math.random() < 0.35 + 0.65 * Math.min(1, PARAMS.stickiness)) { stick(x, y); alive = false; if (rmax > limit) { done = 120; break; } }
-      }
-      ictx.putImageData(idata, 0, 0);
+  const pr = link(FS), prS = link(FS_STONE);
+  let stoneT = null, stoneF = null, stoneFor = '';
+  gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+  // ---- the growth, on a grid of CELL-pixel cells (y up from the bottom)
+  const CELL = 2;
+  let W = 1, H = 1, GW = 16, GH = 16, grid, wall, ink, fresh = [], top = 0, seed = Math.random() * 100, fade = 1, hold = 0, seamY;
+  const reset = () => {
+    grid = new Uint8Array(GW * GH); wall = new Uint8Array(GW * GH); ink = new Uint8Array(GW * GH); fresh = [];
+    fade = reduce ? 1 : 0; hold = 0; top = 0;                 // the same slab each time; new dendrites on it
+    seamY = new Int16Array(GW);
+    for (let x = 0; x < GW; x++) {   // the crack (the shader draws the same curve): solid rock below it
+      const y = Math.round(4 + 3 * Math.sin(x * 0.021 + seed) + 2 * Math.sin(x * 0.057 + seed * 2.3) + 1.2 * Math.sin(x * 0.13 + seed * 1.7));
+      seamY[x] = y; for (let k = 0; k <= y; k++) wall[k * GW + x] = 1;
+      top = Math.max(top, y);
     }
-    ctx.fillStyle = '#080a14'; ctx.fillRect(0, 0, W, H);
-    ctx.imageSmoothingEnabled = false; ctx.drawImage(img, 0, 0, GW * CELL, GH * CELL);
-    // a soft bloom: the same image, blurred and added
-    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; ctx.filter = 'blur(4px)'; ctx.drawImage(img, 0, 0, GW * CELL, GH * CELL);
-    ctx.filter = 'none'; ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    // the deposit starts at a few places along the crack, a short run of grains at each, at irregular spacing
+    for (let x = 12 + Math.random() * 40; x < GW - 12; x += 30 + Math.random() * 130) {
+      const run = 2 + Math.random() * 6 | 0;
+      for (let k = 0; k < run; k++) { const xx = Math.min(GW - 2, (x | 0) + k); grid[(seamY[xx] + 1) * GW + xx] = 1; ink[(seamY[xx] + 1) * GW + xx] = 255; }
+    }
+  };
+  const resize = () => {
+    const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
+    canvas.width = Math.max(1, (W * d) | 0); canvas.height = Math.max(1, (H * d) | 0);
+    GW = Math.max(16, Math.ceil(W / CELL)); GH = Math.max(16, Math.ceil(H / CELL));
+    gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, GW, GH, 0, gl.RED, gl.UNSIGNED_BYTE, null);
+    reset();
+    if (reduce) { grow(Infinity, 0.62); for (const k of fresh) ink[k] = 255; fresh = []; draw(); }
+  };
+  // random walkers, released on a line just above the tallest tip; a budget of steps per call
+  const grow = (budget, stopAt, most = Infinity) => {
+    const stick = 0.2 + 0.8 * Math.min(1, Math.max(0.1, PARAMS.stickiness));    // below 1 a walker may brush past first: denser plumes
+    let x = 0, y = 0, alive = false;
+    while (budget > 0) {
+      if (!alive) { x = 1 + (Math.random() * (GW - 2)) | 0; y = Math.min(GH - 2, top + 6); alive = true; }
+      const r = Math.random(), ox = x, oy = y;                       // the seeping water carries it a little toward the crack
+      if (r < 0.25) x++; else if (r < 0.5) x--; else if (r < 0.74) y++; else y--;
+      budget--;
+      if (x < 1 || x > GW - 2) { alive = false; continue; }         // off the edge of the slab: drop it
+      if (y > top + 24 || y > GH - 2) { alive = false; continue; }   // wandered off: drop it
+      let i = y * GW + x;
+      if (wall[i]) { x = ox; y = oy; i = y * GW + x; }                 // the crack's edge is solid: it bounces off
+      if ((grid[i - 1] | grid[i + 1] | grid[i - GW] | grid[i + GW]) && Math.random() < stick) {
+        grid[i] = 1; fresh.push(i); if (y > top) top = y; alive = false;
+        if (top > GH * stopAt) return true;
+        if (--most <= 0) return false;
+      }
+    }
+    return false;
+  };
+  const common = p => {
+    const U = n => gl.getUniformLocation(p, n);
+    gl.uniform2f(U('R'), canvas.width, canvas.height); gl.uniform2f(U('G'), GW, GH);
+    gl.uniform1f(U('CELL'), CELL * canvas.width / W); gl.uniform1f(U('SEED'), seed); gl.uniform1f(U('FADE'), fade);
+    return U;
+  };
+  const draw = () => {
+    const key = canvas.width + 'x' + canvas.height + ':' + seed;
+    if (key !== stoneFor) {                         // a new slab, or a new size: draw the stone once
+      if (stoneT) { gl.deleteTexture(stoneT); gl.deleteFramebuffer(stoneF); }
+      stoneT = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, stoneT); gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, canvas.width, canvas.height);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      stoneF = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, stoneF); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, stoneT, 0);
+      gl.viewport(0, 0, canvas.width, canvas.height); gl.useProgram(prS); common(prS); gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null); stoneFor = key;
+    }
+    gl.viewport(0, 0, canvas.width, canvas.height); gl.useProgram(pr);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, GW, GH, gl.RED, gl.UNSIGNED_BYTE, ink); gl.generateMipmap(gl.TEXTURE_2D);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, stoneT);
+    const U = common(pr); gl.uniform1i(U('D'), 0); gl.uniform1i(U('ST'), 1);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); gl.activeTexture(gl.TEXTURE0);
+  };
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf;
+  function frame() {
+    if (hold > 0) { hold--; fade = Math.max(0, fade - 1 / 50); if (!hold) reset(); }
+    else {
+      fade = Math.min(1, fade + 1 / 40);
+      if (grow(400000, 0.8, Math.max(2, GW * GH * 0.00009 * PARAMS.speed))) hold = 200;   // a few dozen grains a frame
+    }
+    // fresh deposit darkens in over about a third of a second
+    let j = 0;
+    for (let k = 0; k < fresh.length; k++) { const i = fresh[k]; ink[i] = Math.min(255, ink[i] + 14); if (ink[i] < 255) fresh[j++] = i; }
+    fresh.length = j;
+    draw();
     raf = requestAnimationFrame(frame);
   }
-  raf = requestAnimationFrame(frame);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+  if (!reduce) raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 }
