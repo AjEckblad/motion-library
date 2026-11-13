@@ -1,6 +1,6 @@
 # Motion Library
 
-> 225 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 226 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -825,12 +825,12 @@ Renderer: WebGL. Size: 26.7 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 Snow globe is a WebGL effect: a ray-marched scene seen through refracting water, with settling snow. One plain JavaScript file with no dependencies; add it with npx motion-library add snow-globe.
 
-A glass globe on a wooden base, with a cabin and pines inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.
+A water-filled glass globe on a turned walnut base, with a moonlit log cabin, snowy firs, a snowman and a lamp post inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.
 
-Rays bend into the water at the glass, so the scene is magnified and wraps at the rim; the snow rides a swirl that dies away, sinks, and rests where it lands.
+The scene is ray-marched after each ray bends into the water at the glass, so it is magnified and wraps at the rim; the windows throw pools of light traced back through their openings, and each flake is placed by solving for the eye ray that refracts through it, so it hides behind the cabin and trees.
 
 Settings: --flakes 900 (200 to 3000, step 50; Flakes); --shake 1 (0.2 to 2, step 0.05; Shake); --every 9 (4 to 20, step 1; Shake every (s)).
-Renderer: WebGL. Size: 19.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/snow-globe.html
+Renderer: WebGL. Size: 53.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/snow-globe.html
 
 ### Meadow
 
@@ -1445,6 +1445,17 @@ Each loop grows a different crystal from four parameter sets; size zooms the mic
 
 Settings: --size 1 (0.6 to 1.25, step 0.05; Size); --speed 1 (0.6 to 1.4, step 0.05; Speed).
 Renderer: WebGL. Size: 13.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/snowflake.html
+
+### Mud cracks
+
+Mud cracks is a Canvas effect: warped Voronoi walls tear open as the drying front passes. One plain JavaScript file with no dependencies; add it with npx motion-library add mud-cracks.
+
+Wet, glossy clay dries unevenly and tears into curled plates, the cracks widening as it shrinks; then rain soaks it and the cracks close. Press and drag to wet a patch.
+
+Even shrinkage breaks clay into polygons, so the network is a noise-warped Voronoi diagram; each wall tears from its middle out when its spot dries, and a distance transform shades the gaps and curled rims.
+
+Settings: --spacing 1 (0.6 to 1.6, step 0.05; Plate size); --speed 1 (0.3 to 2, step 0.05; Speed); --curl 1 (0 to 2, step 0.05; Curl).
+Renderer: Canvas 2D. Size: 14.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/mud-cracks.html
 
 
 ## Retro & signal

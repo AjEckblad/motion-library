@@ -1,6 +1,6 @@
 # Motion Library
 
-> 225 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 226 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -156,6 +156,7 @@
 - [Lenia](https://ajeckblad.github.io/motion-library/fx/lenia.html): Ring-kernel convolution and a growth bump: Chan’s Lenia, four species. `npx motion-library add lenia`
 - [Differential growth](https://ajeckblad.github.io/motion-library/fx/diff-growth.html): Repel, align, split stretched edges: a growing line folds to fit. `npx motion-library add diff-growth`
 - [Snowflake growth](https://ajeckblad.github.io/motion-library/fx/snowflake.html): Gravner–Griffeath model: vapour diffuses, sites freeze by neighbour rules. `npx motion-library add snowflake`
+- [Mud cracks](https://ajeckblad.github.io/motion-library/fx/mud-cracks.html): Warped Voronoi walls tear open as the drying front passes. `npx motion-library add mud-cracks`
 
 ## Retro & signal
 
