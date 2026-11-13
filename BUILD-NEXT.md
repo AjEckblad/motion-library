@@ -6,13 +6,13 @@ agents do the big chunks, so the lead's context stays under the 400k handoff). A
   puddle stays put with the field off; soft limits; fat cones, meniscus, irregular film rupture, edge AA, GPU ~9.3 ms)
   + 2 motion-check tests (25/25); water ripples (full-speed waves again, one drop at a time, 'Seconds between drops'
   slider default 1.25 s, sunlit pond bed drawn once into a texture, poster at 4.6 s, 4 languages). check 89/89.
-- RUNNING: honey agent (anims/fluid/honey-coil.js only: hyperrealism + physics: coil centred under the nozzle, stacked
-  coil, straight vertical thread, no softbox "setting sun", no pink patch). Lead reviews frames, then ships it in a
-  clean worktree (git worktree add --detach <scratch>/wt HEAD; copy files; posters; SITE_URL build; checks; commit;
-  ff-merge main; push).
-- NEXT: the site redesign per docs/superpowers/specs/2026-11-14-front-door-design.md (AJ approved the plan: front door
+- SHIPPED 35dbc0d: honey pour (helper agent, reviewed by the lead): stacked coil column under a plumb thread, topples
+  now and then, strip softboxes (no "setting sun"), no pink patch, honey absorption, meniscus, rolled rim; GPU 9.8 ms;
+  poster 12 s; new card text in 4 languages. Reservations: thin dark olive lines between loops, slight aliasing on
+  light edges at 1 spp, column a fairly regular spring between topples.
+- RUNNING (started ~01:30): ONE helper agent on the site redesign per docs/superpowers/specs/2026-11-14-front-door-design.md (AJ approved the plan: front door
   with a live showpiece, one-sentence pitch + 3 differentiators, editorial showpiece row, hierarchy fixes, new OFL type
-  pairing). Done by ONE agent end to end (one hand for a coherent design), after the honey agent finishes. The before
+  pairing). The agent edits the shell in the main tree (index.html, css/, js/, fonts/, DESIGN.md, tools/*) and does not commit; the lead reviews its screenshots and ships it via a clean worktree. AJ allowed the lead past 40% context once, only until this coordinator setup runs; after reviewing/shipping, hand off at 40% as usual. The before
   is recorded in .taste-skill/before (design-taste inspect: 0 FAIL, 1 WARN below-fold). Lead's calls to show AJ: keep
   the dial (make its arc legible), no rename, Penpot skipped (AJ's tab not open overnight).
 - Waiting on AJ: npm publish of CLI 0.3.5 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`); his
