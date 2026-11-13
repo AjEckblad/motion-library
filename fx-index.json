@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 223,
+ "count": 225,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -3161,6 +3161,51 @@
    ]
   },
   {
+   "id": "watch-movement",
+   "title": "Watch movement",
+   "titleZh": "机械表机芯",
+   "category": "Chrome & 3D",
+   "categoryId": "chrome",
+   "renderer": "Canvas",
+   "description": "Balance, escapement, gear train: the tick is the escape wheel’s step",
+   "descriptionZh": "摆轮、擒纵、齿轮系：滴答声就是擒纵轮的一步",
+   "page": "https://ajeckblad.github.io/motion-library/fx/watch-movement.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/watch-movement",
+   "npx": "npx motion-library add watch-movement",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 28282,
+   "settings": [
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Speed (1 = real time)",
+     "default": 0.25,
+     "min": 0.05,
+     "max": 1,
+     "step": 0.05
+    },
+    {
+     "key": "amplitude",
+     "flag": "--amplitude",
+     "label": "Amplitude (°)",
+     "default": 270,
+     "min": 180,
+     "max": 310,
+     "step": 5
+    },
+    {
+     "key": "tilt",
+     "flag": "--tilt",
+     "label": "Tilt",
+     "default": 1,
+     "min": 0,
+     "max": 1.5,
+     "step": 0.05
+    }
+   ]
+  },
+  {
    "id": "crt-monitor",
    "title": "CRT monitor",
    "titleZh": "CRT 显示器",
@@ -3714,7 +3759,7 @@
    "npx": "npx motion-library add stained-glass",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 12869,
+   "bytes": 18952,
    "settings": [
     {
      "key": "dust",
@@ -4912,6 +4957,51 @@
      "min": 0.5,
      "max": 3,
      "step": 0.1
+    }
+   ]
+  },
+  {
+   "id": "wave-collapse",
+   "title": "Wave function collapse",
+   "titleZh": "波函数坍缩",
+   "category": "Generative & math",
+   "categoryId": "generative",
+   "renderer": "Canvas",
+   "description": "Collapse the least certain cell, then propagate what its neighbours may be",
+   "descriptionZh": "坍缩最不确定的格子，再传播邻格还能是什么",
+   "page": "https://ajeckblad.github.io/motion-library/fx/wave-collapse.html",
+   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/wave-collapse",
+   "npx": "npx motion-library add wave-collapse",
+   "interactive": true,
+   "reducedMotion": true,
+   "bytes": 15024,
+   "settings": [
+    {
+     "key": "cell",
+     "flag": "--cell",
+     "label": "Cell size",
+     "default": 22,
+     "min": 14,
+     "max": 34,
+     "step": 1
+    },
+    {
+     "key": "speed",
+     "flag": "--speed",
+     "label": "Cells per frame",
+     "default": 5,
+     "min": 1,
+     "max": 20,
+     "step": 1
+    },
+    {
+     "key": "land",
+     "flag": "--land",
+     "label": "Land",
+     "default": 1,
+     "min": 0.5,
+     "max": 1.6,
+     "step": 0.05
     }
    ]
   },

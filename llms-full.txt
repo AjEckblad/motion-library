@@ -1,6 +1,6 @@
 # Motion Library
 
-> 223 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 225 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -843,6 +843,17 @@ Sixty thousand blades share one bending strip; each leans by the wind at its roo
 Settings: --blades 60000 (10000 to 120000, step 5000; Blades); --wind 1 (0 to 2, step 0.05; Wind); --gusts 1 (0 to 2, step 0.05; Gusts).
 Renderer: WebGL. Size: 12.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/meadow.html
 
+### Watch movement
+
+Watch movement is a Canvas effect: balance, escapement, gear train: the tick is the escape wheel’s step. One plain JavaScript file with no dependencies; add it with npx motion-library add watch-movement.
+
+A hand-wound calibre through its caseback: the balance swings, its hairspring breathing, and each pass lets the escape wheel tick on. Hold to wind it; move to tilt it in the light.
+
+Each beat the pallet fork flips and the escape wheel jumps half a tooth; the train turns it down by 16, 7.5 and 8. Speed 1 is real time, 28,800 beats an hour.
+
+Settings: --speed 0.25 (0.05 to 1, step 0.05; Speed (1 = real time)); --amplitude 270 (180 to 310, step 5; Amplitude (°)); --tilt 1 (0 to 1.5, step 0.05; Tilt).
+Renderer: Canvas 2D. Size: 27.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/watch-movement.html
+
 
 ## Shaders & glitch
 
@@ -993,12 +1004,12 @@ Renderer: WebGL. Size: 10.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 Stained glass is a WebGL effect: trace light back to a glass function: coloured pools and dusty shafts. One plain JavaScript file with no dependencies; add it with npx motion-library add stained-glass.
 
-Sun pours through a leaded window into a dark nave: coloured shafts in the dusty air and pools on the flagstones that drift as it moves.
+Sun pours through a row of leaded windows set deep in a stone nave: coloured shafts in the dusty air, and pools on the polished flagstones that drift as it moves.
 
 The window is a function that returns glass colour or lead; the floor and every step of a march through the air look it up along the sunlight. Move across to move the sun.
 
 Settings: --dust 1 (0 to 2, step 0.05; Dust); --sun 1 (0.3 to 2, step 0.05; Sun); --speed 1 (0 to 3, step 0.1; Speed).
-Renderer: WebGL. Size: 12.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/stained-glass.html
+Renderer: WebGL. Size: 18.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/stained-glass.html
 
 
 ## Generative & math
@@ -1288,6 +1299,17 @@ Each pixel iterates z → z² + c while c travels along the Mandelbrot cardioid�
 
 Settings: --speed 1 (0 to 3, step 0.05; Speed); --detail 1 (0.5 to 3, step 0.1; Iterations ×).
 Renderer: WebGL. Size: 8.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/julia-set.html
+
+### Wave function collapse
+
+Wave function collapse is a Canvas effect: collapse the least certain cell, then propagate what its neighbours may be. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-collapse.
+
+An island map writes itself: unsolved cells hold every terrain at once until the solver picks one, and coastlines, beaches and ridges grow out from there. Press and drag to dissolve a patch and watch it regrow.
+
+Neighbours may differ by one terrain step at most. The cell with the lowest entropy collapses, its neighbours lose what they can no longer be, and a contradiction is repaired by dissolving the patch around it.
+
+Settings: --cell 22 (14 to 34, step 1; Cell size); --speed 5 (1 to 20, step 1; Cells per frame); --land 1 (0.5 to 1.6, step 0.05; Land).
+Renderer: Canvas 2D. Size: 14.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/wave-collapse.html
 
 
 ## Simulation

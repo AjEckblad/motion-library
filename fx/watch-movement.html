@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watch movement: Balance, escapement, gear train: the tick is the escape wheel’s step · Motion Library</title>
+<meta name="description" content="Watch movement is a Canvas effect: balance, escapement, gear train: the tick is the escape wheel’s step. One plain JavaScript file with no dependencies; add it with npx motion-library add watch-movement.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/watch-movement.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Watch movement · Motion Library">
+<meta property="og:description" content="Balance, escapement, gear train: the tick is the escape wheel’s step">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/watch-movement.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Watch movement",
+  "description": "Balance, escapement, gear train: the tick is the escape wheel’s step",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Chrome & 3D, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/watch-movement.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/watch-movement.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Chrome & 3D",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/chrome"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Watch movement",
+    "item": "https://ajeckblad.github.io/motion-library/fx/watch-movement.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/chrome">Chrome &amp; 3D</a></header>
+<main class="s-page">
+<article>
+<h1>Watch movement</h1>
+<p class="tldr">Watch movement is a Canvas effect: balance, escapement, gear train: the tick is the escape wheel’s step. One plain JavaScript file with no dependencies; add it with npx motion-library add watch-movement.</p>
+<figure><img src="../posters/watch-movement.webp?v=80db922f" alt="Watch movement: Balance, escapement, gear train: the tick is the escape wheel’s step" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/watch-movement">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Watch movement?</h2>
+<p>A hand-wound calibre through its caseback: the balance swings, its hairspring breathing, and each pass lets the escape wheel tick on. Hold to wind it; move to tilt it in the light.</p>
+
+<h2>How does Watch movement work?</h2>
+<p>Each beat the pallet fork flips and the escape wheel jumps half a tooth; the train turns it down by 16, 7.5 and 8. Speed 1 is real time, 28,800 beats an hour.</p>
+
+<h2>How do I add Watch movement to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add watch-movement</code>. It writes <code>animations/watch-movement.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/watch-movement.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add watch-movement --speed 1</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Speed (1 = real time)</td><td><code>--speed</code></td><td>0.25</td><td>0.05 to 1</td><td>0.05</td></tr>
+<tr><td>Amplitude (°)</td><td><code>--amplitude</code></td><td>270</td><td>180 to 310</td><td>5</td></tr>
+<tr><td>Tilt</td><td><code>--tilt</code></td><td>1</td><td>0 to 1.5</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Chrome &amp; 3D</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>27.6 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/chrome/watch-movement.js">anims/chrome/watch-movement.js on GitHub</a></p>
+<pre><code>// Watch movement: the back of a hand-wound mechanical watch, seen through its sapphire caseback. The balance wheel
+// swings back and forth, its hairspring breathing as it winds and unwinds; every time it passes through the middle the
+// pallet fork flicks across and lets the escape wheel jump forward half a tooth, and that jump is the tick you hear.
+// The escape wheel drives the gear train backwards: fourth wheel, third wheel, centre wheel, each turning more slowly by
+// its gear ratio (16, 7.5 and 8), so the fourth wheel makes one turn a minute in the watch's own time. Hold the pointer
+// down to wind it: the crown wheel spins, the ratchet wheel on the barrel clicks round under its click; move it to tilt
+// the watch in the light, and the Geneva stripes on the bridges and the polished bevels catch it.
+// Real watches beat 8 times a second (28,800 an hour); `speed` 1 is that, and the default shows it in slow motion.
+// Drawn in Canvas 2D. Everything that doesn't move (plate, bridges, jewels, screws, case) is painted once per resize into
+// layers; each wheel is painted once into its own sprite (and a blurred shadow sprite) and only rotated each frame. The
+// escapement is worked out per beat: beat k happens when the balance passes zero, the fork flips and the escape wheel
+// advances 12° over a short, eased impulse, so the whole train is a step function of time that never drifts.
+const PARAMS = { speed: 0.25, amplitude: 270, tilt: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TAU = Math.PI * 2;
+
+  // ── layout, in units of the movement's radius (y down). Positions put each pinion on its driver's pitch circle
+  const B = [0.40, 0.30], P = [0.175, 0.415], E = [-0.02, 0.50], F = [-0.215, 0.405], T = [-0.335, 0.235], C = [0, 0], D = [-0.30, -0.38], K = [-0.63, -0.17];
+  const WHEELS = {
+    centre: { at: C, teeth: 80, r: 0.385, spokes: 5, pin: 10, mat: 'gold' },
+    third: { at: T, teeth: 75, r: 0.17, spokes: 4, pin: 10, mat: 'gold' },
+    fourth: { at: F, teeth: 80, r: 0.19, spokes: 4, pin: 10, mat: 'gold' },
+    escape: { at: E, teeth: 15, r: 0.112, spokes: 5, pin: 7, mat: 'steel', club: true },
+    ratchet: { at: D, teeth: 72, r: 0.255, spokes: 0, pin: 0, mat: 'sun' },
+    crown: { at: K, teeth: 36, r: 0.105, spokes: 0, pin: 0, mat: 'sun' },
+  };
+
+  let W = 1, H = 1, dpr = 1, R = 1, cx = 0, cy = 0;
+  const layers = {}, sprites = {};
+  const mk = (w, h) =&gt; { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
+
+  // ── materials
+  function goldFill(g, r) { const gr = g.createLinearGradient(-r, -r, r, r); gr.addColorStop(0, '#f6dc8f'); gr.addColorStop(0.45, '#c9993f'); gr.addColorStop(0.7, '#e7c06a'); gr.addColorStop(1, '#8c6522'); return gr; }
+  function steelFill(g, r) { const gr = g.createLinearGradient(-r, -r, r, r); gr.addColorStop(0, '#eef1f4'); gr.addColorStop(0.5, '#8d949c'); gr.addColorStop(0.75, '#c9ced4'); gr.addColorStop(1, '#5d636a'); return gr; }
+  function sunFill(g, r) {
+    if (!g.createConicGradient) return steelFill(g, r);
+    const gr = g.createConicGradient(0.6, 0, 0); for (let i = 0; i &lt;= 12; i++) gr.addColorStop(i / 12, i % 2 ? '#7c838b' : '#e2e6ea'); return gr;   // sunray brushing
+  }
+
+  // a gear's outline: rounded (cycloidal-looking) teeth, or the club teeth of an escape wheel
+  function gearPath(g, teeth, rTip, club) {
+    const rRoot = rTip * (club ? 0.72 : 1 - Math.min(0.11, 2.6 / teeth)), step = TAU / teeth;
+    g.beginPath();
+    for (let i = 0; i &lt; teeth; i++) {
+      const a = i * step;
+      if (club) {   // a long raked tooth ending in a broad club
+        const a0 = a, a1 = a + step * 0.32, a2 = a + step * 0.5;
+        g.lineTo(Math.cos(a0) * rRoot, Math.sin(a0) * rRoot);
+        g.lineTo(Math.cos(a0 + step * 0.05) * rTip * 0.97, Math.sin(a0 + step * 0.05) * rTip * 0.97);
+        g.lineTo(Math.cos(a1) * rTip, Math.sin(a1) * rTip);
+        g.lineTo(Math.cos(a2) * rTip * 0.86, Math.sin(a2) * rTip * 0.86);
+        g.arc(0, 0, rRoot, a2 + step * 0.1, a + step, false);
+      } else {
+        const w = step * 0.27;
+        g.arc(0, 0, rRoot, a - step * 0.5 + w * 0.2, a - w * 1.15, false);
+        g.quadraticCurveTo(Math.cos(a - w * 1.05) * rTip * 0.97, Math.sin(a - w * 1.05) * rTip * 0.97, Math.cos(a - w * 0.55) * rTip, Math.sin(a - w * 0.55) * rTip);
+        g.arc(0, 0, rTip, a - w * 0.55, a + w * 0.55, false);
+        g.quadraticCurveTo(Math.cos(a + w * 1.05) * rTip * 0.97, Math.sin(a + w * 1.05) * rTip * 0.97, Math.cos(a + w * 1.15) * rRoot, Math.sin(a + w * 1.15) * rRoot);
+      }
+    }
+    g.closePath();
+    return rRoot;
+  }
+  // the spokes: the rim is cut away between `n` curved arms (even-odd holes inside the gear path)
+  function spokeHoles(g, n, rIn, hub) {
+    for (let i = 0; i &lt; n; i++) {
+      const a0 = i * TAU / n + 0.12, a1 = (i + 1) * TAU / n - 0.12;
+      g.moveTo(Math.cos(a0) * hub, Math.sin(a0) * hub);
+      g.arc(0, 0, rIn, a0 + 0.18, a1, false);
+      g.lineTo(Math.cos(a1 - 0.1) * hub, Math.sin(a1 - 0.1) * hub);
+      g.arc(0, 0, hub, a1 - 0.1, a0, true);
+      g.closePath();
+    }
+  }
+
+  // paint one wheel (and its pinion) into a sprite, plus a blurred silhouette for its shadow
+  function paintWheel(w) {
+    const r = w.r * R, pad = Math.ceil(r * 0.12 + 6), size = (r + pad) * 2;
+    const s = mk(size, size), g = s.getContext('2d'); g.translate(size / 2, size / 2);
+    const rRoot = gearPath(g, w.teeth, r, w.club);
+    if (w.spokes) spokeHoles(g, w.spokes, rRoot * (w.club ? 0.82 : 0.86), r * (w.club ? 0.26 : 0.2));
+    g.fillStyle = w.mat === 'gold' ? goldFill(g, r) : w.mat === 'sun' ? sunFill(g, r) : steelFill(g, r);
+    g.fill('evenodd');
+    // a polished chamfer round the rim and the arms
+    g.lineWidth = Math.max(0.6, r * 0.012); g.strokeStyle = w.mat === 'gold' ? 'rgba(255,240,190,.55)' : 'rgba(255,255,255,.5)'; g.stroke();
+    if (w.mat === 'sun') {   // the ratchet and crown wheels: a polished boss and a little screw
+      g.beginPath(); g.arc(0, 0, r * 0.32, 0, TAU); const hb = g.createRadialGradient(-r * 0.08, -r * 0.08, 0, 0, 0, r * 0.32); hb.addColorStop(0, '#f4f6f8'); hb.addColorStop(1, '#8e959d'); g.fillStyle = hb; g.fill();
+      screw(g, 0, 0, r * 0.16, 0.7);
+    }
+    if (w.pin) {   // the pinion: dark polished steel leaves under the wheel's hub
+      g.save(); gearPath(g, w.pin, r * (w.club ? 0.3 : 0.17)); g.fillStyle = steelFill(g, r * 0.2); g.fill(); g.restore();
+      g.beginPath(); g.arc(0, 0, r * (w.club ? 0.14 : 0.07), 0, TAU); g.fillStyle = '#4a4f55'; g.fill();
+    }
+    const sh = mk(size, size), q = sh.getContext('2d');
+    q.filter = `blur(${Math.max(1, r * 0.04)}px)`; q.drawImage(s, 0, 0); q.globalCompositeOperation = 'source-in'; q.fillStyle = 'rgba(0,0,0,.6)'; q.fillRect(0, 0, size, size);
+    return { s, sh, half: size / 2 };
+  }
+
+  function screw(g, x, y, r, slotA) {
+    const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
+    gr.addColorStop(0, '#6f95ff'); gr.addColorStop(0.55, '#2546a8'); gr.addColorStop(1, '#0c1846');
+    g.beginPath(); g.arc(x, y, r, 0, TAU); g.fillStyle = gr; g.fill();
+    g.lineWidth = Math.max(0.8, r * 0.28); g.strokeStyle = 'rgba(5,10,30,.85)'; g.beginPath();
+    g.moveTo(x - Math.cos(slotA) * r * 0.85, y - Math.sin(slotA) * r * 0.85); g.lineTo(x + Math.cos(slotA) * r * 0.85, y + Math.sin(slotA) * r * 0.85); g.stroke();
+  }
+  function jewel(g, x, y, r) {
+    g.beginPath(); g.arc(x, y, r * 1.75, 0, TAU); const ch = g.createRadialGradient(x - r * 0.5, y - r * 0.5, r * 0.2, x, y, r * 1.75); ch.addColorStop(0, '#fbe6a3'); ch.addColorStop(0.7, '#c49a45'); ch.addColorStop(1, '#7d5a1d'); g.fillStyle = ch; g.fill();   // the gold chaton
+    const jr = g.createRadialGradient(x - r * 0.3, y - r * 0.35, r * 0.05, x, y, r);
+    jr.addColorStop(0, '#ff9fb2'); jr.addColorStop(0.45, '#d61f4b'); jr.addColorStop(1, '#5a0217');
+    g.beginPath(); g.arc(x, y, r, 0, TAU); g.fillStyle = jr; g.fill();
+    g.beginPath(); g.arc(x, y, r * 0.28, 0, TAU); g.fillStyle = '#3a0010'; g.fill();          // the hole, with the pivot in it
+    g.beginPath(); g.arc(x - r * 0.42, y - r * 0.42, r * 0.2, 0, TAU); g.fillStyle = 'rgba(255,255,255,.75)'; g.fill();
+  }
+
+  // a bridge: a thick curved arm with rounded ends, filled with Geneva stripes, a polished bevel and a dark edge
+  function bridge(g, pts, width, pads, shadow = true) {
+    const path = new Path2D(), r = width / 2;
+    // an outline: the stroke of the curve, plus round pads at the pivots
+    const curve = new Path2D(); curve.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i &lt; pts.length - 1; i++) { const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2; curve.quadraticCurveTo(pts[i][0], pts[i][1], mx, my); }
+    curve.lineTo(pts.at(-1)[0], pts.at(-1)[1]);
+    const m = mk(W, H), mg = m.getContext('2d');
+    mg.lineCap = 'round'; mg.lineJoin = 'round'; mg.lineWidth = width; mg.strokeStyle = '#000'; mg.stroke(curve);
+    for (const [x, y, pr] of pads) { mg.beginPath(); mg.arc(x, y, pr, 0, TAU); mg.fill(); }
+    if (shadow) { g.save(); g.filter = `blur(${R * 0.018}px)`; g.globalAlpha = 0.75; g.drawImage(m, R * 0.012, R * 0.02); g.restore(); }
+    // the stripes: broad bands at 30°, alternately bright and dull, each with a soft polished crest
+    const st = mk(W, H), sg = st.getContext('2d');
+    sg.fillStyle = '#aab0b6'; sg.fillRect(0, 0, W, H);
+    sg.save(); sg.translate(cx, cy); sg.rotate(-0.52);
+    const band = R * 0.068;
+    for (let x = -R * 2; x &lt; R * 2; x += band) { const gr = sg.createLinearGradient(x, 0, x + band, 0); gr.addColorStop(0, '#7e858c'); gr.addColorStop(0.3, '#b9bec4'); gr.addColorStop(0.5, '#dde1e5'); gr.addColorStop(0.7, '#b9bec4'); gr.addColorStop(1, '#7e858c'); sg.fillStyle = gr; sg.fillRect(x, -R * 2, band, R * 4); }
+    sg.restore();
+    // a fine brushed grain along each band
+    sg.globalAlpha = 0.08; sg.strokeStyle = '#000'; sg.lineWidth = 1; sg.save(); sg.translate(cx, cy); sg.rotate(-0.52 + Math.PI / 2);
+    for (let y = -R * 2; y &lt; R * 2; y += 2.2) { sg.beginPath(); sg.moveTo(-R * 2, y); sg.lineTo(R * 2, y + (y * 7 % 3)); sg.stroke(); }
+    sg.restore(); sg.globalAlpha = 1;
+    sg.globalCompositeOperation = 'destination-in'; sg.drawImage(m, 0, 0);
+    g.drawImage(st, 0, 0);
+    // the bevel: the outline traced bright, then a thin dark line outside it
+    const e = mk(W, H), eg = e.getContext('2d');
+    eg.drawImage(m, 0, 0); eg.globalCompositeOperation = 'source-in';
+    const bv = eg.createLinearGradient(cx - R, cy - R, cx + R, cy + R); bv.addColorStop(0, '#ffffff'); bv.addColorStop(0.5, '#c4c9ce'); bv.addColorStop(1, '#f2f4f6');
+    eg.fillStyle = bv; eg.fillRect(0, 0, W, H);
+    eg.globalCompositeOperation = 'destination-out';
+    eg.save(); eg.lineCap = 'round'; eg.lineJoin = 'round'; eg.lineWidth = width - R * 0.016; eg.stroke(curve); for (const [x, y, pr] of pads) { eg.beginPath(); eg.arc(x, y, pr - R * 0.008, 0, TAU); eg.fill(); } eg.restore();
+    g.drawImage(e, 0, 0);
+    // the edge where the bevel meets the plate
+    const o = mk(W, H), og = o.getContext('2d'); og.drawImage(m, 0, 0); og.globalCompositeOperation = 'source-in'; og.fillStyle = 'rgba(30,34,40,.9)'; og.fillRect(0, 0, W, H);
+    og.globalCompositeOperation = 'destination-out'; og.save(); og.lineCap = 'round'; og.lineJoin = 'round'; og.lineWidth = width - R * 0.005; og.stroke(curve); for (const [x, y, pr] of pads) { og.beginPath(); og.arc(x, y, pr - R * 0.0025, 0, TAU); og.fill(); } og.restore();
+    g.drawImage(o, 0, 0);
+    return m;
+  }
+
+  function paintStatic() {
+    const P2 = ([x, y]) =&gt; [cx + x * R, cy + y * R];
+    // the plate: rhodium with perlage (overlapping circular graining) and darker sinks under the wheels
+    const plate = layers.plate = mk(W, H), g = plate.getContext('2d');
+    g.fillStyle = '#0d0e10'; g.fillRect(0, 0, W, H);
+    const bg = g.createRadialGradient(cx, cy, R * 0.6, cx, cy, Math.max(W, H) * 0.8); bg.addColorStop(0, '#22252a'); bg.addColorStop(1, '#0a0b0c'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.save(); g.beginPath(); g.arc(cx, cy, R * 0.985, 0, TAU); g.clip();
+    g.fillStyle = '#a9adb2'; g.fillRect(cx - R, cy - R, R * 2, R * 2);
+    const pr = R * 0.032; let sd = 7;
+    const rnd = () =&gt; (sd = (sd * 16807) % 2147483647) / 2147483647;
+    for (let y = -R; y &lt; R + pr; y += pr * 1.1) for (let x = -R + ((y / (pr * 1.1)) &amp; 1) * pr * 0.55; x &lt; R + pr; x += pr * 1.1) {
+      const X = cx + x + (rnd() - 0.5) * pr * 0.25, Y = cy + y + (rnd() - 0.5) * pr * 0.25;
+      const gr = g.createRadialGradient(X - pr * 0.25, Y - pr * 0.3, 0, X, Y, pr);
+      gr.addColorStop(0, 'rgba(236,239,242,.32)'); gr.addColorStop(0.6, 'rgba(170,175,181,.08)'); gr.addColorStop(0.92, 'rgba(95,100,106,.22)'); gr.addColorStop(1, 'rgba(95,100,106,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(X, Y, pr, 0, TAU); g.fill();
+    }
+    for (const [k, w] of Object.entries(WHEELS)) {   // each wheel turns in its own sink, a little darker
+      if (k === 'ratchet' || k === 'crown') continue;
+      const [x, y] = P2(w.at); g.beginPath(); g.arc(x, y, w.r * R * 1.06, 0, TAU); g.fillStyle = 'rgba(25,28,32,.35)'; g.fill();
+    }
+    { const [x, y] = P2(B); g.beginPath(); g.arc(x, y, R * 0.34, 0, TAU); g.fillStyle = 'rgba(25,28,32,.4)'; g.fill(); }
+    // the barrel under its bridge: a toothed drum
+    { const [x, y] = P2(D); g.save(); g.translate(x, y); gearPath(g, 90, R * 0.36); g.fillStyle = goldFill(g, R * 0.36); g.fill(); g.restore(); }
+    g.restore();
+
+    // the bridges over the train, the barrel and the centre wheel, with their jewels and screws
+    const br = layers.bridges = mk(W, H), b = br.getContext('2d');
+    // the train bridge sweeps in from the rim at seven o'clock over the third, fourth and escape pivots and stops there
+    bridge(b, [P2([-0.62, 0.74]), P2([-0.52, 0.42]), P2(T), P2(F), P2(E)], R * 0.12, [[...P2(T), R * 0.08], [...P2(F), R * 0.075], [...P2(E), R * 0.06], [...P2([-0.6, 0.7]), R * 0.085]]);
+    // the barrel bridge: a broad arm from nine o'clock over the barrel to the rim at twelve
+    bridge(b, [P2([-0.9, -0.2]), P2([-0.72, -0.34]), P2(D), P2([-0.1, -0.62]), P2([0.02, -0.9])], R * 0.2, [[...P2(D), R * 0.3], [...P2([-0.86, -0.22]), R * 0.1], [...P2([0.02, -0.86]), R * 0.1]]);
+    // the centre bridge from three o'clock to the centre pivot
+    bridge(b, [P2([0.9, -0.28]), P2([0.5, -0.12]), P2(C)], R * 0.11, [[...P2(C), R * 0.085], [...P2([0.86, -0.27]), R * 0.08]]);
+    for (const at of [T, F, E, C]) jewel(b, ...P2(at), R * 0.026);
+    for (const [x, y, a] of [[-0.6, 0.7, 0.4], [-0.86, -0.22, 2.1], [0.02, -0.86, 0.9], [0.86, -0.27, 2.6]]) screw(b, ...P2([x, y]), R * 0.042, a);
+    // the pallet bridge: a small arm from below holding the fork's arbor, clear of the escape wheel
+    bridge(b, [P2([0.34, 0.86]), P2([0.26, 0.62]), P2(P)], R * 0.07, [[...P2(P), R * 0.045], [...P2([0.33, 0.83]), R * 0.06]]);
+    screw(b, ...P2([0.33, 0.83]), R * 0.034, 1.9);
+    jewel(b, ...P2(P), R * 0.016);
+    // the balance cock: a long arm from the rim to a round end over the balance, with the shock spring and regulator
+    const ck = layers.cock = mk(W, H), k = ck.getContext('2d');
+    bridge(k, [P2([0.95, 0.52]), P2([0.7, 0.42]), P2(B)], R * 0.13, [[...P2(B), R * 0.105], [...P2([0.9, 0.5]), R * 0.09]]);
+    screw(k, ...P2([0.86, 0.49]), R * 0.042, 0.3);
+    { // the regulator: a polished steel index from the cock to a scale of − and +
+      const [x, y] = P2(B); k.save(); k.translate(x, y); k.rotate(-0.95);
+      k.fillStyle = steelFill(k, R * 0.2); k.beginPath(); k.moveTo(-R * 0.03, 0); k.lineTo(R * 0.26, -R * 0.012); k.lineTo(R * 0.26, R * 0.012); k.closePath(); k.fill();
+      k.restore();
+      k.fillStyle = '#4a4f55'; k.font = `600 ${R * 0.045}px system-ui, sans-serif`; k.textAlign = 'center';
+      k.fillText('−', x + R * 0.08, y - R * 0.26); k.fillText('+', x + R * 0.25, y - R * 0.15);
+      // the shock protection: a gold lyre spring over the jewel
+      jewel(k, x, y, R * 0.024);
+      k.strokeStyle = '#e8c56d'; k.lineWidth = R * 0.008; k.beginPath(); k.ellipse(x, y, R * 0.05, R * 0.038, 0.4, 0.3, Math.PI - 0.3); k.stroke(); k.beginPath(); k.ellipse(x, y, R * 0.05, R * 0.038, 0.4, Math.PI + 0.3, TAU - 0.3); k.stroke();
+    }
+    // the case: a brushed steel ring with six screws, and the crown at nine o'clock
+    const cs = layers.cas = mk(W, H), c = cs.getContext('2d');
+    { const [x, y] = [cx - R * 1.2, cy]; const cr = c.createLinearGradient(x, y - R * 0.13, x, y + R * 0.13); cr.addColorStop(0, '#e3e6ea'); cr.addColorStop(0.5, '#7f868e'); cr.addColorStop(1, '#3d4248'); c.fillStyle = cr;
+      c.beginPath(); c.roundRect(x - R * 0.05, y - R * 0.13, R * 0.12, R * 0.26, R * 0.03); c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 1; for (let i = -5; i &lt;= 5; i++) { c.beginPath(); c.moveTo(x - R * 0.05, y + i * R * 0.022); c.lineTo(x + R * 0.07, y + i * R * 0.022); c.stroke(); } }
+    c.save(); c.beginPath(); c.arc(cx, cy, R * 1.17, 0, TAU); c.arc(cx, cy, R * 0.985, 0, TAU, true); c.clip('evenodd');
+    if (c.createConicGradient) { const cg = c.createConicGradient(0.4, cx, cy); for (let i = 0; i &lt;= 24; i++) cg.addColorStop(i / 24, ['#d6dade', '#8b9198', '#b5bac0', '#6a7077'][i % 4]); c.fillStyle = cg; } else c.fillStyle = '#9aa0a7';
+    c.fillRect(cx - R * 1.2, cy - R * 1.2, R * 2.4, R * 2.4);
+    const rim = c.createRadialGradient(cx, cy, R * 0.98, cx, cy, R * 1.17); rim.addColorStop(0, 'rgba(0,0,0,.55)'); rim.addColorStop(0.12, 'rgba(0,0,0,0)'); rim.addColorStop(0.85, 'rgba(0,0,0,0)'); rim.addColorStop(1, 'rgba(0,0,0,.6)'); c.fillStyle = rim; c.fillRect(cx - R * 1.2, cy - R * 1.2, R * 2.4, R * 2.4);
+    c.restore();
+    for (let i = 0; i &lt; 6; i++) { const a = i * TAU / 6 + 0.26; screw(c, cx + Math.cos(a) * R * 1.08, cy + Math.sin(a) * R * 1.08, R * 0.036, a + 0.8); }
+    c.font = `500 ${R * 0.04}px system-ui, sans-serif`; c.fillStyle = 'rgba(30,33,37,.55)'; c.textAlign = 'center';
+    c.save(); c.translate(cx, cy); for (const [txt, a] of [['SAPPHIRE CRYSTAL', -1.57], ['17 JEWELS · 28 800 A/h', 1.57]]) { c.save(); c.rotate(a + (a &gt; 0 ? -Math.PI / 2 : Math.PI / 2)); c.fillText(txt, 0, a &gt; 0 ? R * 1.09 : -R * 1.065); c.restore(); } c.restore();
+
+    for (const [k2, w] of Object.entries(WHEELS)) sprites[k2] = paintWheel(w);
+    sprites.balance = paintBalance(); sprites.fork = paintFork();
+  }
+
+  // the balance wheel: a gold rim on two arms with timing screws round it
+  function paintBalance() {
+    const r = R * 0.3, pad = Math.ceil(r * 0.2 + 6), size = (r + pad) * 2, s = mk(size, size), g = s.getContext('2d'); g.translate(size / 2, size / 2);
+    g.beginPath(); g.arc(0, 0, r, 0, TAU); g.arc(0, 0, r * 0.86, 0, TAU, true);
+    g.rect(-r * 0.88, -r * 0.045, r * 1.76, r * 0.09);
+    g.arc(0, 0, r * 0.13, 0, TAU);
+    g.fillStyle = goldFill(g, r); g.fill('nonzero');
+    g.lineWidth = Math.max(0.6, r * 0.012); g.strokeStyle = 'rgba(255,240,190,.6)'; g.beginPath(); g.arc(0, 0, r * 0.995, 0, TAU); g.stroke();
+    for (let i = 0; i &lt; 16; i++) {   // timing screws
+      const a = i * TAU / 16 + 0.1, x = Math.cos(a) * r * 1.04, y = Math.sin(a) * r * 1.04;
+      const gr = g.createRadialGradient(x - r * 0.01, y - r * 0.01, 0, x, y, r * 0.045); gr.addColorStop(0, '#fff2c4'); gr.addColorStop(1, '#a87d2c');
+      g.beginPath(); g.arc(x, y, r * 0.045, 0, TAU); g.fillStyle = gr; g.fill();
+    }
+    g.beginPath(); g.arc(0, 0, r * 0.07, 0, TAU); g.fillStyle = '#5b6168'; g.fill();          // the roller under the staff
+    g.beginPath(); g.arc(r * 0.055, 0, r * 0.018, 0, TAU); g.fillStyle = '#d61f4b'; g.fill(); // the impulse jewel
+    const sh = mk(size, size), q = sh.getContext('2d'); q.filter = `blur(${r * 0.035}px)`; q.drawImage(s, 0, 0); q.globalCompositeOperation = 'source-in'; q.fillStyle = 'rgba(0,0,0,.6)'; q.fillRect(0, 0, size, size);
+    return { s, sh, half: size / 2 };
+  }
+  // the pallet fork: an anchor with two ruby pallet stones and a forked tail toward the balance
+  function paintFork() {
+    const r = R * 0.16, size = Math.ceil(r * 2.6), s = mk(size, size), g = s.getContext('2d'); g.translate(size / 2, size / 2);
+    const to = Math.atan2(B[1] - P[1], B[0] - P[0]), fromE = Math.atan2(E[1] - P[1], E[0] - P[0]);
+    g.fillStyle = steelFill(g, r);
+    g.save(); g.rotate(to); g.beginPath(); g.moveTo(0, -r * 0.05); g.lineTo(r * 0.92, -r * 0.03); g.lineTo(r, -r * 0.1); g.lineTo(r * 1.08, -r * 0.08); g.lineTo(r * 1.04, 0); g.lineTo(r * 1.08, r * 0.08); g.lineTo(r, r * 0.1); g.lineTo(r * 0.92, r * 0.03); g.lineTo(0, r * 0.05); g.closePath(); g.fill(); g.restore();
+    g.save(); g.rotate(fromE); g.beginPath(); g.moveTo(-r * 0.05, -r * 0.08);
+    g.lineTo(r * 0.55, -r * 0.42); g.lineTo(r * 0.68, -r * 0.33); g.lineTo(r * 0.12, 0); g.lineTo(r * 0.68, r * 0.33); g.lineTo(r * 0.55, r * 0.42); g.lineTo(-r * 0.05, r * 0.08); g.closePath(); g.fill();
+    for (const sgn of [-1, 1]) { g.save(); g.translate(r * 0.62, sgn * r * 0.38); g.rotate(sgn * 0.5); g.fillStyle = '#d61f4b'; g.fillRect(-r * 0.03, -r * 0.09, r * 0.06, r * 0.18); g.restore(); }
+    g.restore();
+    g.beginPath(); g.arc(0, 0, r * 0.07, 0, TAU); g.fillStyle = '#d0d5da'; g.fill();
+    const sh = mk(size, size), q = sh.getContext('2d'); q.filter = `blur(${r * 0.04}px)`; q.drawImage(s, 0, 0); q.globalCompositeOperation = 'source-in'; q.fillStyle = 'rgba(0,0,0,.55)'; q.fillRect(0, 0, size, size);
+    return { s, sh, half: size / 2 };
+  }
+
+  function resize() {
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1;
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = canvas.width = Math.max(1, Math.round(w * dpr)); H = canvas.height = Math.max(1, Math.round(h * dpr));
+    R = Math.min(W * 0.4, H * 0.4); cx = W / 2 + R * 0.05; cy = H / 2;
+    paintStatic();
+    if (reduce) draw(3.3);
+  }
+
+  const put = (sp, at, ang, shadow = true) =&gt; {
+    const x = cx + at[0] * R, y = cy + at[1] * R;
+    if (shadow) { ctx.save(); ctx.translate(x + R * 0.012, y + R * 0.02); ctx.rotate(ang); ctx.drawImage(sp.sh, -sp.half, -sp.half); ctx.restore(); }
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.drawImage(sp.s, -sp.half, -sp.half); ctx.restore();
+  };
+
+  // ── the escapement as a function of time. The balance swings A·sin(2π f t); beat k is its k-th pass through zero
+  const smooth = x =&gt; x &lt;= 0 ? 0 : x &gt;= 1 ? 1 : x * x * (3 - 2 * x);
+  let wound = 0, windV = 0, tiltX = 0, tiltY = 0;
+  function draw(t) {
+    const f = 4 * PARAMS.speed, A = PARAMS.amplitude * Math.PI / 180;
+    const phase = t * f, bal = A * Math.sin(TAU * phase);
+    const beats = Math.floor(phase * 2), into = phase * 2 - beats;                      // how far into the current beat
+    const imp = smooth(into / 0.14);                                                     // the impulse takes the first 14 % of each beat
+    const escA = (beats + imp) * (TAU / 30) - Math.max(0, 0.18 - into) * 0.04 * Math.sin(into * 60);   // half a tooth a beat, with a tiny recoil
+    const forkS = (beats % 2 ? 1 : -1), forkA = forkS * (0.17 * (2 * imp - 1));
+    const fourth = -escA * 7 / 80, third = -fourth * 10 / 75, centre = -third * 10 / 80;   // pinion over wheel, down the train
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(layers.plate, 0, 0);
+    put(sprites.centre, C, centre); put(sprites.third, T, third); put(sprites.fourth, F, fourth); put(sprites.escape, E, escA);
+    ctx.drawImage(layers.bridges, 0, 0);
+    // tilt: a soft light that rides over the stripes and bevels as the watch moves
+    const lx = cx + (tiltX * 0.7 - 0.25) * R, ly = cy + (tiltY * 0.7 - 0.35) * R;
+    ctx.save(); ctx.globalCompositeOperation = 'soft-light'; const lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, R * 1.1); lg.addColorStop(0, 'rgba(255,255,255,.55)'); lg.addColorStop(1, 'rgba(0,0,0,.35)'); ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(cx, cy, R * 0.985, 0, TAU); ctx.fill(); ctx.restore();
+    put(sprites.fork, P, forkA * PARAMS.amplitude / 270);
+    // the hairspring: an Archimedean spiral from the collet to the stud; the balance twists its inner end, so the
+    // coils crowd and open as it swings
+    { const x = cx + B[0] * R, y = cy + B[1] * R, N = 13, r0 = R * 0.035, r1 = R * 0.2, stud = -2.4;
+      ctx.save(); ctx.strokeStyle = 'rgba(40,52,78,.95)'; ctx.lineWidth = Math.max(0.7, R * 0.0045); ctx.beginPath();
+      for (let i = 0; i &lt;= 900; i++) { const s = i / 900, a = stud - TAU * N * (1 - s) + bal * (1 - s) ** 1.2, r = r1 - (r1 - r0) * (1 - s) ** 0.9 * (1 + 0.025 * Math.sin(bal) * s) ; ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); }
+      ctx.stroke(); ctx.restore(); }
+    put(sprites.balance, B, bal + 0.3);
+    ctx.drawImage(layers.cock, 0, 0);
+    put(sprites.ratchet, D, wound * 0.6); put(sprites.crown, K, -wound * 0.6 * 72 / 36);
+    { // the click: a small blued pawl on the ratchet that skips over each tooth as it is wound
+      const [x, y] = [cx + (D[0] + 0.22) * R, cy + (D[1] + 0.2) * R], ph = (wound * 0.6 * 72 / TAU) % 1;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(-0.6 + 0.12 * Math.max(0, 1 - ph * 3)); ctx.fillStyle = steelFill(ctx, R * 0.1);
+      ctx.beginPath(); ctx.moveTo(0, -R * 0.015); ctx.lineTo(-R * 0.09, -R * 0.004); ctx.lineTo(-R * 0.1, R * 0.012); ctx.lineTo(0, R * 0.015); ctx.closePath(); ctx.fill(); ctx.restore();
+      screw(ctx, x, y, R * 0.024, 1.1); }
+    ctx.drawImage(layers.cas, 0, 0);
+    // the sapphire: a broad soft reflection that slides as it tilts, and a thin bright arc at the edge
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R * 0.985, 0, TAU); ctx.clip();
+    const gx = cx + (-0.55 - tiltX * 0.35) * R, gy = cy + (-0.6 - tiltY * 0.35) * R, gl = ctx.createLinearGradient(gx, gy, gx + R * 0.7, gy + R * 0.7);
+    gl.addColorStop(0, 'rgba(255,255,255,0)'); gl.addColorStop(0.45, `rgba(255,255,255,${0.1 * PARAMS.tilt})`); gl.addColorStop(0.55, `rgba(255,255,255,${0.04 * PARAMS.tilt})`); gl.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gl; ctx.fillRect(cx - R, cy - R, R * 2, R * 2); ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = R * 0.006; ctx.beginPath(); ctx.arc(cx, cy, R * 0.975, -2.6 - tiltX * 0.3, -1.3 - tiltX * 0.3); ctx.stroke();
+  }
+
+  // ── pointer: move to tilt it in the light, hold to wind it
+  let px = 0, py = 0, lastMove = -1e9, held = false, down = false;
+  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); px = ((e.clientX - b.left) / b.width) * 2 - 1; py = ((e.clientY - b.top) / b.height) * 2 - 1; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
+  const onDown = e =&gt; { onMove(e); down = true; canvas.setPointerCapture?.(e.pointerId); };
+  const onUp = () =&gt; { down = false; };
+  const onLeave = () =&gt; { held = false; };
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointercancel', onUp); canvas.addEventListener('pointerleave', onLeave);
+
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf = 0, last = performance.now(), t = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+    const live = held || now - lastMove &lt; 1800;
+    const tx = live ? px * PARAMS.tilt : Math.sin(t * 0.21) * 0.45 * PARAMS.tilt, ty = live ? py * PARAMS.tilt : Math.sin(t * 0.17 + 1) * 0.3 * PARAMS.tilt;
+    tiltX += (tx - tiltX) * Math.min(1, dt * 4); tiltY += (ty - tiltY) * Math.min(1, dt * 4);
+    windV += ((down ? 5 : 0) - windV) * Math.min(1, dt * 8); wound += windV * dt;
+    draw(t);
+    raf = requestAnimationFrame(frame);
+  }
+  if (!reduce) raf = requestAnimationFrame(frame);
+  return () =&gt; {
+    cancelAnimationFrame(raf); ro.disconnect();
+    canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp); canvas.removeEventListener('pointerleave', onLeave);
+    canvas.remove();
+  };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>

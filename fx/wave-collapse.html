@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wave function collapse: Collapse the least certain cell, then propagate what its neighbours may be · Motion Library</title>
+<meta name="description" content="Wave function collapse is a Canvas effect: collapse the least certain cell, then propagate what its neighbours may be. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-collapse.">
+<link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/wave-collapse.html">
+<meta name="theme-color" content="#0c0c0e">
+<meta property="og:title" content="Wave function collapse · Motion Library">
+<meta property="og:description" content="Collapse the least certain cell, then propagate what its neighbours may be">
+<meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/wave-collapse.webp">
+<link rel="stylesheet" href="../css/static.css">
+<script type="application/ld+json">[
+ {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Wave function collapse",
+  "description": "Collapse the least certain cell, then propagate what its neighbours may be",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Web browser",
+  "license": "https://spdx.org/licenses/MIT-0.html",
+  "codeSampleType": "full solution",
+  "keywords": "Generative & math, Canvas, web animation, JavaScript",
+  "url": "https://ajeckblad.github.io/motion-library/fx/wave-collapse.html",
+  "image": "https://ajeckblad.github.io/motion-library/posters/wave-collapse.webp",
+  "isPartOf": {
+   "@type": "WebSite",
+   "name": "Motion Library",
+   "url": "https://ajeckblad.github.io/motion-library/index.html"
+  }
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Motion Library",
+    "item": "https://ajeckblad.github.io/motion-library/index.html"
+   },
+   {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Generative & math",
+    "item": "https://ajeckblad.github.io/motion-library/index.html#/c/generative"
+   },
+   {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Wave function collapse",
+    "item": "https://ajeckblad.github.io/motion-library/fx/wave-collapse.html"
+   }
+  ]
+ }
+]</script>
+</head>
+<body>
+<header class="s-bar"><a href="../index.html">Motion Library</a><span>/</span><a href="../index.html#/c/generative">Generative &amp; math</a></header>
+<main class="s-page">
+<article>
+<h1>Wave function collapse</h1>
+<p class="tldr">Wave function collapse is a Canvas effect: collapse the least certain cell, then propagate what its neighbours may be. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-collapse.</p>
+<figure><img src="../posters/wave-collapse.webp?v=5ea9db2d" alt="Wave function collapse: Collapse the least certain cell, then propagate what its neighbours may be" width="1120" height="896"></figure>
+<p><a class="s-btn" href="../index.html#/a/wave-collapse">Open it live, tune it and copy the code</a></p>
+
+<h2>What is Wave function collapse?</h2>
+<p>An island map writes itself: unsolved cells hold every terrain at once until the solver picks one, and coastlines, beaches and ridges grow out from there. Press and drag to dissolve a patch and watch it regrow.</p>
+
+<h2>How does Wave function collapse work?</h2>
+<p>Neighbours may differ by one terrain step at most. The cell with the lowest entropy collapses, its neighbours lose what they can no longer be, and a contradiction is repaired by dissolving the patch around it.</p>
+
+<h2>How do I add Wave function collapse to my website?</h2>
+<ol>
+<li>In your project folder, run <code>npx motion-library add wave-collapse</code>. It writes <code>animations/wave-collapse.js</code>. Needs Node 18 or newer.</li>
+<li>Import it and call it with a container element that has a size: <code>import fx from './animations/wave-collapse.js'; const stop = fx(document.querySelector('#hero'));</code></li>
+<li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
+</ol>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add wave-collapse --cell 34</code>.</p>
+
+<h2>What settings can I tweak?</h2>
+<table>
+<thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
+<tbody>
+<tr><td>Cell size</td><td><code>--cell</code></td><td>22</td><td>14 to 34</td><td>1</td></tr>
+<tr><td>Cells per frame</td><td><code>--speed</code></td><td>5</td><td>1 to 20</td><td>1</td></tr>
+<tr><td>Land</td><td><code>--land</code></td><td>1</td><td>0.5 to 1.6</td><td>0.05</td></tr>
+</tbody>
+</table>
+
+<h2>Specifications</h2>
+<dl>
+<dt>Renderer</dt><dd>Canvas 2D</dd>
+<dt>Category</dt><dd>Generative &amp; math</dd>
+<dt>Dependencies</dt><dd>None</dd>
+<dt>File size</dt><dd>14.7 KB, unminified</dd>
+<dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
+<dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
+<dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
+</dl>
+
+<h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/generative/wave-collapse.js">anims/generative/wave-collapse.js on GitHub</a></p>
+<pre><code>// Wave function collapse: an island map that writes itself, one cell at a time. Every cell starts as a superposition of
+// seven terrains, from deep water up through shallows, sand, grass, forest and hills to snow, and the only rule is that
+// neighbours may differ by one step at most. The solver keeps collapsing the cell with the least uncertainty left
+// (lowest Shannon entropy over the terrains it can still be, weighted by how common each is) to one terrain, then
+// propagates: each neighbour can now only be what that terrain allows, and so on outward, which is why the map grows
+// as a coherent frontier with coastlines, beaches and ridges. A contradiction (a cell left with no possible terrain)
+// is repaired locally: the patch around it dissolves back into superposition and is solved again. The frame is fixed to
+// deep water, so the land comes out as islands. Finished, it holds, dissolves and starts again from a new seed.
+// Press and drag to dissolve a patch yourself and watch it regrow to fit everything around it.
+// Drawn as pixel art: the collapsed cells form a height field that is interpolated between cell centres and banded by
+// terrain, so coastlines are smooth contours rather than squares; unsolved cells show their remaining options.
+const PARAMS = { cell: 22, speed: 5, land: 1 };
+
+export default function (stage) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;image-rendering:pixelated';
+  stage.append(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const NL = 7, FULL = (1 &lt;&lt; NL) - 1, ART = 6;                        // terrains, the all-possible mask, art pixels per cell
+  const COL = [[22, 52, 92], [44, 104, 150], [222, 204, 150], [104, 160, 72], [48, 104, 56], [128, 120, 104], [238, 242, 246]];
+  const DARK = [[14, 34, 66], [30, 78, 118], [188, 168, 116], [78, 128, 52], [30, 74, 40], [96, 90, 78], [196, 204, 214]];
+  let gw = 0, gh = 0, cs = 22, mask, lvl, flash, bias, seed = 1, state = 'solve', holdT = 0, dissolveOrder = [], dIdx = 0;
+  let art, artData, ox = 0, oy = 0;
+  const rnd = () =&gt; (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const W8 = () =&gt; { const k = PARAMS.land; return [3.2 / k, 1.4, 1 * k, 2.2 * k, 1.7 * k, 0.9 * k, 0.45 * k]; };
+  const pop = m =&gt; { let c = 0; while (m) { c += m &amp; 1; m &gt;&gt;= 1; } return c; };
+  const spread = m =&gt; (m | (m &lt;&lt; 1) | (m &gt;&gt; 1)) &amp; FULL;              // what a neighbour may be, given this cell's options
+
+  function reset(newSeed) {
+    if (newSeed) seed = 1 + Math.floor(Math.random() * 2147483646);
+    mask = new Uint8Array(gw * gh).fill(FULL); lvl = new Int8Array(gw * gh).fill(-1); flash = new Float32Array(gw * gh);
+    // a soft preference per cell from low-frequency noise (falling off toward the frame): it only tilts the odds of
+    // each terrain, the adjacency rule still decides, so the land comes out as a few continents rather than confetti
+    bias = new Float32Array(gw * gh);
+    const s0 = rnd() * 100, s1 = rnd() * 100;
+    const vn = (x, y) =&gt; { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+      const h = (a, b) =&gt; { const k = Math.sin(a * 127.1 + b * 311.7 + s0) * 43758.5453; return k - Math.floor(k); };
+      return (h(xi, yi) * (1 - u) + h(xi + 1, yi) * u) * (1 - v) + (h(xi, yi + 1) * (1 - u) + h(xi + 1, yi + 1) * u) * v; };
+    for (let y = 0; y &lt; gh; y++) for (let x = 0; x &lt; gw; x++) {
+      const nx = x / gw, ny = y / gh, n = vn(nx * 3.2 + s1, ny * 3.2 * gh / gw * 1.6) * 0.65 + vn(nx * 7 + 9, ny * 7 * gh / gw * 1.6 + s1) * 0.35;
+      const edge = Math.min(nx, 1 - nx, ny, 1 - ny) * 2;
+      bias[y * gw + x] = Math.max(0, Math.min(NL - 1, (n * 1.45 - 0.24) * (NL - 0.5) * Math.min(1, edge * 2.6) * PARAMS.land));
+    }
+    for (let x = 0; x &lt; gw; x++) for (const y of [0, gh - 1]) fix(x, y, 0);
+    for (let y = 0; y &lt; gh; y++) for (const x of [0, gw - 1]) fix(x, y, 0);
+    // a few peaks somewhere inside, so the islands have somewhere to rise from (they must sit far enough from the frame)
+    const peaks = 2 + Math.floor(rnd() * 3);
+    for (let k = 0, tries = 0; k &lt; peaks &amp;&amp; tries &lt; 40; tries++) {
+      const l = 4 + Math.floor(rnd() * 3), x = l + 1 + Math.floor(rnd() * Math.max(1, gw - 2 * l - 2)), y = l + 1 + Math.floor(rnd() * Math.max(1, gh - 2 * l - 2));
+      if (x &gt;= gw - l - 1 || y &gt;= gh - l - 1 || bias[y * gw + x] &lt; 3.2) continue;
+      const keep = mask.slice(), keepL = lvl.slice(); fix(x, y, l);
+      if (propagate([y * gw + x]) &gt;= 0) { mask.set(keep); lvl.set(keepL); continue; }
+      k++;
+    }
+    propagateAll();
+    state = 'solve';
+  }
+  function fix(x, y, l) { const i = y * gw + x; mask[i] = 1 &lt;&lt; l; lvl[i] = l; }
+  // arc consistency: shrink every neighbour to what its cell allows, until nothing changes
+  function propagate(stack) {
+    while (stack.length) {
+      const i = stack.pop(), x = i % gw, y = (i / gw) | 0, allow = spread(mask[i]);
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy; if (nx &lt; 0 || ny &lt; 0 || nx &gt;= gw || ny &gt;= gh) continue;
+        const j = ny * gw + nx, m = mask[j] &amp; allow;
+        if (m === mask[j]) continue;
+        if (!m) return j;                                              // a contradiction at j
+        mask[j] = m; stack.push(j);
+      }
+    }
+    return -1;
+  }
+  function propagateAll() { const st = []; for (let i = 0; i &lt; gw * gh; i++) if (mask[i] !== FULL) st.push(i); return propagate(st); }
+  // entropy of every possible option set, recomputed once per solving step (the weights follow the land slider)
+  const ENT = new Float32Array(FULL + 1);
+  function entropies() { const w = W8(); for (let m = 1; m &lt;= FULL; m++) { let s = 0, sl = 0; for (let l = 0; l &lt; NL; l++) if (m &gt;&gt; l &amp; 1) { s += w[l]; sl += w[l] * Math.log(w[l]); } ENT[m] = Math.log(s) - sl / s; } }
+  // dissolve a patch back into superposition (a repair, or the pointer), then make it consistent with what surrounds it
+  function dissolve(cx0, cy0, r) {
+    for (let y = Math.max(1, cy0 - r); y &lt;= Math.min(gh - 2, cy0 + r); y++) for (let x = Math.max(1, cx0 - r); x &lt;= Math.min(gw - 2, cx0 + r); x++) {
+      if ((x - cx0) ** 2 + (y - cy0) ** 2 &gt; r * r + 0.5) continue;
+      const i = y * gw + x; mask[i] = FULL; lvl[i] = -1;
+    }
+    // re-derive every open cell's options from the solved cells around it
+    for (let i = 0; i &lt; gw * gh; i++) if (lvl[i] &lt; 0) mask[i] = FULL;
+    const bad = propagateAll(); if (bad &gt;= 0) dissolve(bad % gw, (bad / gw) | 0, r + 1);
+  }
+  function step() {
+    entropies();
+    let best = -1, be = 1e9;
+    for (let i = 0; i &lt; gw * gh; i++) {
+      if (lvl[i] &gt;= 0) continue;
+      const m = mask[i];
+      if (pop(m) === 1) { lvl[i] = 31 - Math.clz32(m); flash[i] = 1; continue; }   // already decided by its neighbours
+      const e = ENT[m] + rnd() * 0.02;
+      if (e &lt; be) { be = e; best = i; }
+    }
+    if (best &lt; 0) return false;
+    // collapse: pick one of its terrains by weight, favouring what its solved neighbours already are (so regions come
+    // out coherent instead of speckled)
+    const w = W8().slice(), m = mask[best], bx = best % gw, by = (best / gw) | 0, bb = bias[best];
+    for (let l = 0; l &lt; NL; l++) w[l] *= Math.exp(-((l - bb) ** 2) / 1.6);
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) { const nx = bx + dx, ny = by + dy; if (nx &lt; 0 || ny &lt; 0 || nx &gt;= gw || ny &gt;= gh) continue; const l = lvl[ny * gw + nx]; if (l &gt;= 0) w[l] *= 2.2; }
+    let tot = 0; for (let l = 0; l &lt; NL; l++) if (m &gt;&gt; l &amp; 1) tot += w[l];
+    let r = rnd() * tot, pick = 0; for (let l = 0; l &lt; NL; l++) if (m &gt;&gt; l &amp; 1) { r -= w[l]; if (r &lt;= 0) { pick = l; break; } pick = l; }
+    mask[best] = 1 &lt;&lt; pick; lvl[best] = pick; flash[best] = 1;
+    const bad = propagate([best]);
+    if (bad &gt;= 0) dissolve(bad % gw, (bad / gw) | 0, 3);
+    return true;
+  }
+
+  function resize() {
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1;
+    cs = Math.max(12, Math.round(PARAMS.cell * Math.min(1, Math.sqrt(w * h / (1280 * 760)) * 1.15)));
+    gw = Math.max(8, Math.floor(w / cs)); gh = Math.max(6, Math.floor(h / cs));
+    canvas.width = gw * ART; canvas.height = gh * ART;
+    // the art buffer is gw*ART by gh*ART pixels, shown scaled up with crisp pixels and centred (cover)
+    const scale = Math.max(w / (gw * ART), h / (gh * ART));
+    canvas.style.inset = ''; canvas.style.width = gw * ART * scale + 'px'; canvas.style.height = gh * ART * scale + 'px';
+    canvas.style.left = (w - gw * ART * scale) / 2 + 'px'; canvas.style.top = (h - gh * ART * scale) / 2 + 'px';
+    art = ctx.createImageData(gw * ART, gh * ART); artData = art.data;
+    seed = 12345; reset(false);
+    if (reduce) { while (step()); flash.fill(0); state = 'hold'; render(0); }   // a finished map, with no just-solved flashes
+  }
+
+  // ── drawing: interpolate the solved levels between cell centres, band them into terrains, add texture
+  const hash = (x, y) =&gt; { let h = (x * 374761393 + y * 668265263) ^ seed; h = (h ^ (h &gt;&gt;&gt; 13)) * 1274126177; return ((h ^ (h &gt;&gt;&gt; 16)) &gt;&gt;&gt; 0) / 4294967296; };
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v =&gt; v / 16 - 0.47);
+  function render(t) {
+    const AW = gw * ART, d = artData;
+    for (let py = 0; py &lt; gh * ART; py++) {
+      const fy = (py + 0.5) / ART - 0.5, y0 = Math.max(0, Math.min(gh - 1, Math.floor(fy))), y1 = Math.min(gh - 1, y0 + 1), ty = Math.max(0, Math.min(1, fy - y0));
+      for (let px = 0; px &lt; AW; px++) {
+        const fx = (px + 0.5) / ART - 0.5, x0 = Math.max(0, Math.min(gw - 1, Math.floor(fx))), x1 = Math.min(gw - 1, x0 + 1), tx = Math.max(0, Math.min(1, fx - x0));
+        const own = ((py / ART) | 0) * gw + ((px / ART) | 0), o = (py * AW + px) * 4;
+        const a = lvl[y0 * gw + x0], b = lvl[y0 * gw + x1], c = lvl[y1 * gw + x0], e = lvl[y1 * gw + x1];
+        let r, g, bl;
+        if (lvl[own] &lt; 0) {
+          // unsolved: a dark blueprint, its options shown as faint stripes of their colours, flickering at the frontier
+          const m = mask[own], n = pop(m), lx = px % ART, ly = py % ART;
+          const opt = (lx + ly + ((t * 6) | 0)) % NL; let l = opt; while (!(m &gt;&gt; l &amp; 1)) l = (l + 1) % NL;
+          const k = n === NL ? 0.1 : 0.32 - n * 0.03;
+          r = 13 + COL[l][0] * k; g = 17 + COL[l][1] * k; bl = 24 + COL[l][2] * k;
+          if (lx === 0 || ly === 0) { r += 10; g += 12; bl += 16; }
+        } else {
+          // solved: blend the neighbouring levels (treating unsolved ones as this cell's own) and band the result
+          const s = lvl[own], A = a &lt; 0 ? s : a, B2 = b &lt; 0 ? s : b, C = c &lt; 0 ? s : c, E2 = e &lt; 0 ? s : e;
+          const h = (A * (1 - tx) + B2 * tx) * (1 - ty) + (C * (1 - tx) + E2 * tx) * ty + BAYER[(py &amp; 3) * 4 + (px &amp; 3)] * 0.22;
+          const L = Math.max(0, Math.min(NL - 1, Math.round(h))), f = h - L;
+          const nz = hash(px, py);
+          let base = COL[L], dk = DARK[L];
+          r = base[0]; g = base[1]; bl = base[2];
+          if (L &lt;= 1) {   // water: deeper toward the middle of its band, with moving wave glints
+            const wv = Math.sin(px * 0.35 + py * 0.9 - t * 2.2) * Math.sin(py * 0.5 - t * 1.3 + px * 0.1);
+            if (wv &gt; 0.9 &amp;&amp; nz &gt; 0.55 &amp;&amp; hash(px &gt;&gt; 3, py &gt;&gt; 2) &gt; 0.5) { r += 34; g += 44; bl += 44; }
+            if (L === 1 &amp;&amp; f &gt; 0.3) { r += 40; g += 40; bl += 30; }   // surf at the beach
+          } else if (L === 4) {   // forest: tree crowns with a shadow underneath
+            const tx2 = px % 4, ty2 = py % 4, crown = hash(px &gt;&gt; 2, py &gt;&gt; 2) &gt; 0.3;
+            if (crown &amp;&amp; tx2 &gt; 0 &amp;&amp; ty2 &gt; 0 &amp;&amp; tx2 + ty2 &lt; 6) { if (ty2 === 3 || tx2 === 3) { r = dk[0]; g = dk[1]; bl = dk[2]; } else if (tx2 === 1 &amp;&amp; ty2 === 1) { r += 30; g += 40; bl += 20; } }
+          } else if (L === 5) {   // hills: lit from the upper left by their slope
+            const sl = (B2 - A) * 0.6 + (C - A) * 0.6; if (sl &gt; 0.2) { r = dk[0]; g = dk[1]; bl = dk[2]; } else if (sl &lt; -0.2) { r += 26; g += 26; bl += 22; }
+          } else if (L === 2 || L === 3) {   // sand and grass: speckle
+            if (nz &gt; 0.86) { r = dk[0]; g = dk[1]; bl = dk[2]; } else if (L === 3 &amp;&amp; nz &lt; 0.03) { r = 240; g = 220; bl = 120; }   // the odd flower
+          }
+          if (f &lt; -0.38 &amp;&amp; L &gt; 1) { r *= 0.82; g *= 0.82; bl *= 0.82; }   // a darker rim at each step down
+          const fl = flash[own]; if (fl &gt; 0) { r += (255 - r) * fl * 0.7; g += (255 - g) * fl * 0.7; bl += (255 - bl) * fl * 0.7; }
+        }
+        d[o] = r; d[o + 1] = g; d[o + 2] = bl; d[o + 3] = 255;
+      }
+    }
+    ctx.putImageData(art, 0, 0);
+  }
+
+  // ── pointer: press and drag to dissolve a patch
+  let down = false;
+  const cellAt = e =&gt; { const b = canvas.getBoundingClientRect(); return [Math.floor((e.clientX - b.left) / b.width * gw), Math.floor((e.clientY - b.top) / b.height * gh)]; };
+  const onDown = e =&gt; { down = true; canvas.setPointerCapture?.(e.pointerId); const [x, y] = cellAt(e); dissolve(x, y, 3); if (state !== 'solve') state = 'solve'; };
+  const onMove = e =&gt; { if (!down) return; const [x, y] = cellAt(e); dissolve(x, y, 3); state = 'solve'; };
+  const onUp = () =&gt; { down = false; };
+  canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointercancel', onUp);
+
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf = 0, last = performance.now(), t = 0, acc = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+    for (let i = 0; i &lt; flash.length; i++) if (flash[i] &gt; 0) flash[i] = Math.max(0, flash[i] - dt * 3);
+    if (state === 'solve') {
+      acc += PARAMS.speed * dt * 60;
+      while (acc &gt;= 1) { acc -= 1; if (!step()) { state = 'hold'; holdT = 0; break; } }
+    } else if (state === 'hold') {
+      holdT += dt;
+      if (holdT &gt; 4.5) { state = 'dissolve'; dissolveOrder = [...Array(gw * gh).keys()].filter(i =&gt; { const x = i % gw, y = (i / gw) | 0; return x &gt; 0 &amp;&amp; y &gt; 0 &amp;&amp; x &lt; gw - 1 &amp;&amp; y &lt; gh - 1; }).sort(() =&gt; Math.random() - 0.5); dIdx = 0; }
+    } else if (state === 'dissolve') {
+      const n = Math.ceil(dissolveOrder.length * dt / 0.9);
+      for (let k = 0; k &lt; n &amp;&amp; dIdx &lt; dissolveOrder.length; k++, dIdx++) { const i = dissolveOrder[dIdx]; mask[i] = FULL; lvl[i] = -1; }
+      if (dIdx &gt;= dissolveOrder.length) reset(true);
+    }
+    render(t);
+    raf = requestAnimationFrame(frame);
+  }
+  if (!reduce) raf = requestAnimationFrame(frame);
+  return () =&gt; {
+    cancelAnimationFrame(raf); ro.disconnect();
+    canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp);
+    canvas.remove();
+  };
+}
+</code></pre>
+</article>
+</main>
+</body>
+</html>
