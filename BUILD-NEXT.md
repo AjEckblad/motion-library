@@ -5,13 +5,24 @@ whitecaps, foam streaks); ferrofluid bugged, no petri dish; fire & smoke burning
 lava flow: spend time on visuals, red-hot lava must FLOW down, not stay at the top; fireworks: remove the "O"/ring
 bursts; crystal growth (dla-crystal) more realistic; REMOVE bonfire embers; iron filings: one + and one − pole, far
 fewer lines; REMOVE leaf venation; water ripples: slower, much less happening.
-- Done by lead: embers and leaf-venation moved to _cut/ and removed (f605611), 225 live. check 89/89.
-- Agent A (ada12491af339459d): fire-smoke, lava-flow, honey-coil, dla-crystal. Agent B (ad136918ab3a25700):
-  ferrofluid, ocean, iron-filings, water-ripple, fireworks. They edit only those files, report each piece by
-  SendMessage; lead reviews (tools/frames.mjs sheets), applies registry/i18n/poster, commits, and builds in a clean
-  worktree while agents still edit (see the afternoon notes). After all land: rebuild CLI (cd cli && node build.mjs;
-  it clears its anims/ copy, dropping the removed pieces), CLI version stays 0.3.4 if unpublished (check npm),
-  motion-check (ferrofluid test hooks frame(now) and S.m), final report to AJ.
+- SHIPPED and live (reviewed, registry/i18n/posters applied, built in a worktree, pushed; last e71fd3b): embers and
+  leaf-venation removed (225 live); ferrofluid (no dish, puddle on the table, 3 bugs fixed); ocean (overcast grey wind
+  sea; sun slider now 1-20); fire-smoke (campfire on 4 logs, glowing alligator char, ember bed); iron-filings (one bar
+  magnet, 16 lines, light paper); water-ripple (speed param 0.2-1 default 0.55, 'Ripple speed' labels added); fireworks
+  (ring burst removed; "five" shell types in all languages). check 89/89. Agent B (ad136918ab3a25700) finished.
+- WAITING TO REVIEW: lava-flow (agent A reported it done; lava now flows down a channel, vent surges, crust rafts;
+  posterAt 6000, PARAMS unchanged). Its new notes are in agent A's message; in short:
+  EN1 'A volcano at dusk: red-hot lava pours from the crater and runs down the gullies in glowing channels, dark rafts of
+  crust drifting on it, its light on the slopes and plume.' EN2 'A thickness-and-heat simulation runs on the raymarched
+  mountain; the vent surges, crust plates set at their own age and ride the flow, and colour is Planck’s law.'
+  (zh/es/fr: ask agent A to resend, or translate; French needs U+00A0 before : and ;)
+- STILL WITH AGENT A (ada12491af339459d): honey-coil ("fix honey pour"), then dla-crystal ("more realistic"). If it
+  stopped on a usage limit, SendMessage it to continue.
+- AFTER ALL: cd cli && node build.mjs (drops removed pieces from its copy); check npm whether 0.3.4 was published
+  (npm view motion-library version); if it was, bump to 0.3.5. Run motion-check (22 tests). Final report to AJ:
+  list each of his 11 items with what changed, reservations (ocean clouds a bit streaky; iron filings now light paper,
+  easy to revert; ferrofluid edge needles slightly jagged; lava may pool a bright blob on the right flank briefly).
+
 
 # Earlier (2026-11-13 afternoon): AJ's 11:20 list + Animata gaps + 4 new effects all live (227); npm 0.3.4 waits on AJ
 
