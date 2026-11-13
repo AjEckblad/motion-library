@@ -1808,10 +1808,20 @@ export const ES = {
    "Al encoger por igual, la arcilla se rompe en polígonos, así que la red es un diagrama de Voronoi deformado con ruido; cada pared se abre desde el centro cuando se seca su zona, y una transformada de distancia sombrea huecos y bordes."
   ]
  },
+ "leaf-venation": {
+  "title": "Nervadura de hoja",
+  "trick": "Colonización del espacio: puntos de auxina atraen la punta de vena más cercana",
+  "notes": [
+   "Una hoja a contraluz crece y sus venas crecen con ella: un nervio central, nervios secundarios que se arquean hacia el borde y una red fina que se cierra en aréolas; luego se vuelve otoñal, cae y empieza una hoja nueva. Mueve el puntero para mover el sol detrás.",
+   "Los puntos de auxina aparecen en el borde que crece; cada uno atrae la punta de vena más cercana, que avanza hacia ellos, y se consume cuando llega una vena. El grosor sigue el modelo de tuberías: r³ de una vena es la suma de sus ramas."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Vein density": "Densidad de venas",
+ "Backlight": "Contraluz",
  "Plate size": "Tamaño de placa",
  "Cells per frame": "Celdas por fotograma",
  "Land": "Tierra",

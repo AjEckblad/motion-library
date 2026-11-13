@@ -530,4 +530,8 @@ export const MORE = [
     trick: 'Warped Voronoi walls tear open as the drying front passes',
     notes: ['Wet, glossy clay dries unevenly and tears into curled plates, the cracks widening as it shrinks; then rain soaks it and the cracks close. Press and drag to wet a patch.', 'Even shrinkage breaks clay into polygons, so the network is a noise-warped Voronoi diagram; each wall tears from its middle out when its spot dries, and a distance transform shades the gaps and curled rims.'],
     params: { spacing: P(0.6, 1.6, 0.05, 'Plate size'), speed: P(0.3, 2, 0.05, 'Speed'), curl: P(0, 2, 0.05, 'Curl') } },
+  { id: 'leaf-venation', cat: 'generative', title: 'Leaf venation', kind: 'canvas', posterAt: 11000, pointer: true,
+    trick: 'Space colonisation: auxin points pull the nearest vein tip toward them',
+    notes: ['A backlit leaf grows and its veins grow with it: a midrib, secondaries arching out to the margin and a fine net closing into areoles; then it turns to autumn and falls, and a new leaf begins. Move to move the sun behind it.', 'Auxin points appear along the growing margin; each pulls its nearest vein tip, which steps toward them, and is used up when a vein arrives. Vein width follows the pipe model, r³ of a vein being the sum over its branches.'],
+    params: { density: P(0.5, 2, 0.05, 'Vein density'), speed: P(0.3, 2.5, 0.05, 'Speed'), light: P(0, 1.5, 0.05, 'Backlight') } },
 ];

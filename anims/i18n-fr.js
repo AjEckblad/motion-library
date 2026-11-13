@@ -1808,10 +1808,20 @@ export const FR = {
    "Un retrait uniforme casse l’argile en polygones : le réseau est donc un diagramme de Voronoï déformé par du bruit ; chaque paroi s’ouvre depuis son milieu quand sa zone sèche, et une transformée de distance ombre les fentes et les bords relevés."
   ]
  },
+ "leaf-venation": {
+  "title": "Nervation de feuille",
+  "trick": "Colonisation de l’espace : des points d’auxine attirent la pointe de nervure la plus proche",
+  "notes": [
+   "Une feuille à contre-jour pousse et ses nervures avec elle : une nervure centrale, des secondaires qui s’arquent vers le bord et un fin réseau qui se referme en aréoles ; puis elle prend ses couleurs d’automne, tombe, et une nouvelle feuille commence. Bougez pour déplacer le soleil derrière elle.",
+   "Les points d’auxine apparaissent le long du bord qui grandit ; chacun attire la pointe de nervure la plus proche, qui avance vers eux, et disparaît quand une nervure l’atteint. L’épaisseur suit le modèle des tuyaux : le r³ d’une nervure est la somme de ses branches."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Vein density": "Densité des nervures",
+ "Backlight": "Contre-jour",
  "Plate size": "Taille des plaques",
  "Cells per frame": "Cases par image",
  "Land": "Terre",

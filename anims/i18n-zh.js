@@ -1808,10 +1808,20 @@ export const ZH = {
    "均匀收缩会让黏土裂成多边形，所以裂缝网络是经噪声扭曲的沃罗诺伊图；每条边在它那里变干时从中点向两端裂开，距离变换给裂缝和卷边上光影。"
   ]
  },
+ "leaf-venation": {
+  "title": "叶脉",
+  "trick": "空间殖民：生长素点把最近的叶脉尖端拉向自己",
+  "notes": [
+   "一片逆光的叶子生长，叶脉随之长出：主脉、向叶缘弯出的侧脉，以及闭合成网眼的细脉；随后转为秋色、飘落，新叶又开始生长。移动可以挪动它背后的太阳。",
+   "生长素点出现在不断扩大的叶缘；每个点拉动离它最近的叶脉尖端向它生长，叶脉到达后就消耗掉。叶脉粗细遵循管道模型：一条叶脉半径的立方等于其各分支之和。"
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Vein density": "叶脉密度",
+ "Backlight": "逆光",
  "Plate size": "泥片大小",
  "Cells per frame": "每帧格数",
  "Land": "陆地",
