@@ -2497,7 +2497,7 @@
    "npx": "npx motion-library add paper-fold",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 30905,
+   "bytes": 31920,
    "settings": [
     {
      "key": "fold",

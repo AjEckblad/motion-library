@@ -173,6 +173,17 @@ await mp.goto(base + '/index.html#/'); await mp.waitForSelector('.card'); await 
 const mob = await mp.evaluate(() => ({ fine: matchMedia('(hover: hover) and (pointer: fine)').matches, op: getComputedStyle(document.querySelector('.card .heart')).opacity, tf: getComputedStyle(document.querySelector('.card .heart')).transform }));
 check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && mob.tf === 'none', mob);
 
+// previous / next: a keyboard step (Enter on the focused pager link) swaps the detail view at once; a click softens it
+{
+  await page.evaluate(() => { location.hash = '#/a/ferrofluid'; }); await page.waitForTimeout(1200);
+  await page.focus('.d-next'); await page.keyboard.press('Enter'); await page.waitForTimeout(30);
+  const kb = await page.evaluate(() => document.getAnimations().filter(a => a.effect?.target?.classList?.contains('d-body')).length);
+  await page.waitForTimeout(600);
+  await page.click('.d-next'); await page.waitForTimeout(30);
+  const ptr = await page.evaluate(() => document.getAnimations().filter(a => a.effect?.target?.classList?.contains('d-body')).map(a => a.effect.getTiming().duration));
+  check('detail previous/next: keyboard steps swap instantly, clicks fade ≤120 ms', kb === 0 && ptr.length === 1 && ptr[0] <= 120, { keyboard: kb, pointer: ptr });
+  await page.keyboard.press('Escape'); await page.waitForTimeout(600);
+}
 check('no page errors', errors.length === 0, errors);
 const fails = results.filter(r => !r.ok).length;
 console.log(`\n${results.length - fails}/${results.length} passed`);

@@ -14,6 +14,10 @@ const drawer = 'cubic-bezier(0.32, 0.72, 0, 1)';
 const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';   // the --ease-out token; the built-in ease-out is too weak
 // previous / next follow the full list's order (category by category) and wrap round at the ends
 const ORDER = CATEGORIES.flatMap(c => ANIMS.filter(a => a.cat === c.id));
+// whether the last input was a key (then a swap doesn't animate) or the pointer
+let keyed = false;
+addEventListener('keydown', () => { keyed = true; }, true);
+addEventListener('pointerdown', () => { keyed = false; }, true);
 const REPO = 'https://github.com/AjEckblad/motion-library/blob/main/';
 
 export function createDetail({ celebrate, toast, onClose }) {
@@ -230,7 +234,8 @@ export function createDetail({ celebrate, toast, onClose }) {
     const media = swapping ? null : visibleRect(card?.querySelector('.card-media'));
     const box = root.querySelector('.d-stage');
     if (swapping) {
-      if (!reduce.matches) root.querySelector('.d-body').animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 180, easing: easeOut });
+      // a clicked step softens the swap a touch; a keyboard step (Enter on the pager, or search) swaps at once
+      if (!reduce.matches && !keyed) root.querySelector('.d-body').animate([{ opacity: 0.7 }, { opacity: 1 }], { duration: 120, easing: easeOut });
       mountStage();
     } else if (media && !reduce.matches) {
       box.style.visibility = 'hidden';

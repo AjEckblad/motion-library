@@ -24,8 +24,7 @@ export default function (stage) {
       linear-gradient(90deg,rgba(220,255,240,.11) 1px,transparent 1px) 0 0/calc(var(--g)*5) calc(var(--g)*5),
       linear-gradient(rgba(220,255,240,.045) 1px,transparent 1px) 0 0/var(--g) var(--g),
       linear-gradient(90deg,rgba(220,255,240,.045) 1px,transparent 1px) 0 0/var(--g) var(--g),#1c3633}
-    .pf-shs{position:absolute;left:0;top:0;transform:translateZ(-1px);filter:blur(calc(var(--h)*.016));opacity:.55}
-    .pf-sh{position:absolute;left:0;top:0;width:100px;height:100px;background:#030807;transform-origin:0 0}
+    .pf-shc{position:absolute;transform:translateZ(-1px);opacity:.55}
     .pf-n,.pf-p{position:absolute;transform-style:preserve-3d}
     .pf-face{position:absolute;inset:-.5px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:${paper},#f3efe6}
     .pf-back{transform:rotateY(180deg);background:repeating-linear-gradient(45deg,rgba(60,90,140,.07) 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,rgba(60,90,140,.05) 0 1px,transparent 1px 4px),${paper},#ebe7de}
@@ -48,9 +47,15 @@ export default function (stage) {
     .pf-map{position:absolute;inset:0;width:100%;height:100%}
     .pf-lamp{position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 55% at 42% 36%,rgba(255,236,205,.13),transparent 70%),radial-gradient(130% 110% at 50% 45%,transparent 38%,rgba(0,0,0,.62))}
   </style>
-  <div class="pf-scene"><div class="pf-mat"></div><div class="pf-shs"></div></div><div class="pf-lamp"></div>`;
+  <div class="pf-scene"><div class="pf-mat"></div><canvas class="pf-shc"></canvas></div><div class="pf-lamp"></div>`;
   stage.append(root);
-  const scene = root.querySelector('.pf-scene'), mat = root.querySelector('.pf-mat'), shadows = root.querySelector('.pf-shs');
+  const scene = root.querySelector('.pf-scene'), mat = root.querySelector('.pf-mat'), shCanvas = root.querySelector('.pf-shc');
+  // the shadows are drawn small into one canvas, blurred there once, and scaled up by the compositor: the union of every
+  // panel's shadow with soft edges, at almost no cost (a CSS blur filter would re-blur a large layer every frame)
+  const shX = shCanvas.getContext('2d'), shRaw = document.createElement('canvas'), shRawX = shRaw.getContext('2d'), SHK = 1 / 8;
+  let shW = 1, shH = 1;
+  // style writes only when the value changed: the sheet often rests, and the slow sway changes shading only a little
+  const put = (el, prop, v) => { const c = el._pf || (el._pf = {}); if (c[prop] !== v) { c[prop] = v; if (prop[0] === '-') el.style.setProperty(prop, v); else el.style[prop] = v; } };
 
   // ── the printed side of each sheet: one full-size layout, cropped into every panel
   const sig = `<svg class="pf-sig" viewBox="0 0 120 40" fill="none" stroke="#24304f" stroke-width="1.6" stroke-linecap="round"><path d="M4 28c8-14 14-22 18-20s-6 22-2 22 10-16 14-15-3 13 1 13 7-9 11-9-2 8 2 8 9-12 14-12c4 0-3 11 2 11 6 0 14-9 22-9s14 4 30 2"/></svg>`;
@@ -191,7 +196,6 @@ export default function (stage) {
   build(F.root, scene, null);
   const sheet = nodes[0].el;
   for (const f of faces) if (f.flex) { const nb = k => faces.find(g => g.flex && g.flex.flap === f.flex.flap && g.back === f.back && g.flex.k === k); f.prev = nb(f.flex.k - 1); f.next = nb(f.flex.k + 1); }
-  for (const pn of panels) { pn.sh = document.createElement('div'); pn.sh.className = 'pf-sh'; shadows.append(pn.sh); }
 
   let W = 0, H = 0, Wp = 0, Hp = 0;
   const resize = () => {
@@ -202,6 +206,9 @@ export default function (stage) {
     root.style.setProperty('--g', (Math.min(H * 0.8, W * 0.66 / 0.773) / 26).toFixed(2) + 'px');   // the same mat for every fold
     root.style.perspective = Math.max(W, H) * 1.5 + 'px'; root.style.perspectiveOrigin = '50% 30%';
     Object.assign(mat.style, { width: M + 'px', height: M + 'px', left: -M / 2 + 'px', top: -M / 2 + 'px' });
+    shW = Math.max(Wp, Hp) * 3; shH = shW;
+    shRaw.width = shCanvas.width = Math.ceil(shW * SHK); shRaw.height = shCanvas.height = Math.ceil(shH * SHK);
+    Object.assign(shCanvas.style, { width: shW + 'px', height: shH + 'px', left: -shW / 2 + 'px', top: -shH / 2 + 'px' });
     for (const n of nodes) {
       const r = n.nd.r, pr = n.parent ? n.parent.nd.r : [r[0] + 0.5, r[1] + 0.5];
       Object.assign(n.el.style, { left: (r[0] - pr[0]) * Wp + 'px', top: (r[1] - pr[1]) * Hp + 'px', width: (r[2] - r[0]) * Wp + 'px', height: (r[3] - r[1]) * Hp + 'px' });
@@ -273,7 +280,7 @@ export default function (stage) {
       if (!n.nd.h) { n.tf = ''; continue; }
       const h = n.nd.h;
       n.tf = `translateZ(${(h[4] * e[h[2]] + Z0).toFixed(3)}px) ${h[0] === 'v' ? 'rotateY' : 'rotateX'}(${n.ang.toFixed(5)}rad)`;
-      if (n !== nodes[0]) n.el.style.transform = n.tf;
+      if (n !== nodes[0]) put(n.el, 'transform', n.tf);
     }
     // shading: each face's normal through its hinges and the view tilt, against the lamp
     const flat = rx(tilt, [0, 0, 1]), base = flat[0] * L[0] + flat[1] * L[1] + flat[2] * L[2], K = PARAMS.crease;
@@ -282,31 +289,35 @@ export default function (stage) {
       for (const q of f.chain) n = q.nd.h[0] === 'v' ? ry(q.ang, n) : rx(q.ang, n);
       n = rx(tilt, rz(spin, n));
       const d = f.d = n[0] * L[0] + n[1] * L[1] + n[2] * L[2] - base;
-      if (!f.flex) { f.dk.style.opacity = dark(d).toFixed(3); f.lt.style.opacity = light(d).toFixed(3); }
+      if (!f.flex) { put(f.dk, 'opacity', dark(d).toFixed(2)); put(f.lt, 'opacity', light(d).toFixed(2)); }
       for (const { s, id } of f.strips) {
         const a = creaseAmt[id], v = f.back ? Math.sin(Math.PI * a * e[id] / 2) * 0.55 : Math.sin(Math.PI * a * e[id]) * 0.85;
-        s.style.opacity = Math.min(1, K * (v + memory[id] * (f.back ? 0.1 : 0.16))).toFixed(3);
+        put(s, 'opacity', Math.min(1, K * (v + memory[id] * (f.back ? 0.1 : 0.16))).toFixed(2));
       }
     }
     for (const f of faces) if (f.flex) {
       const d0 = f.prev ? (f.d + f.prev.d) / 2 : f.d, d1 = f.next ? (f.d + f.next.d) / 2 : f.d;
-      f.f.style.setProperty('--dk', `linear-gradient(to ${f.flex.to},rgba(26,18,12,${dark(d0).toFixed(3)}),rgba(26,18,12,${dark(d1).toFixed(3)}))`);
-      f.f.style.setProperty('--lt', `linear-gradient(to ${f.flex.to},rgba(255,248,236,${light(d0).toFixed(3)}),rgba(255,248,236,${light(d1).toFixed(3)}))`);
+      put(f.f, '--dk', `linear-gradient(to ${f.flex.to},rgba(26,18,12,${dark(d0).toFixed(2)}),rgba(26,18,12,${dark(d1).toFixed(2)}))`);
+      put(f.f, '--lt', `linear-gradient(to ${f.flex.to},rgba(255,248,236,${light(d0).toFixed(2)}),rgba(255,248,236,${light(d1).toFixed(2)}))`);
     }
     // the sheet slides to keep its footprint near the middle of the view, blended step by step
     let cx = centre[0][0], cy = centre[0][1];
     for (let j = 0; j < S; j++) { cx += sv[j] * (centre[j + 1][0] - centre[j][0]); cy += sv[j] * (centre[j + 1][1] - centre[j][1]); }
     const sx = -0.7 * cx, sy = -0.7 * cy;
-    sheet.style.transform = `translate3d(${sx.toFixed(2)}px,${sy.toFixed(2)}px,0) ${nodes[0].tf}`;
+    put(sheet, 'transform', `translate3d(${sx.toFixed(2)}px,${sy.toFixed(2)}px,0) ${nodes[0].tf}`);
     // shadows: every panel is cast onto the mat along the lamp's direction (a parallel projection, so each shadow is
-    // a parallelogram, one CSS matrix); the union is blurred once. Paper resting on the mat is treated as hovering a
+    // a parallelogram), filled together into the small shadow canvas and blurred there once. Paper resting on the mat is treated as hovering a
     // hair above it, so even the flat sheet keeps a soft edge on its shadowed side
     const Ls = rz(-spin, rx(-tilt, L)), kx = Ls[0] / Math.max(0.2, Ls[2]), ky = Ls[1] / Math.max(0.2, Ls[2]), z0 = Hp * 0.022;
     const ox = sx - Wp / 2, oy = sy - Hp / 2;
-    for (const { pr, chain, sh } of panels) {
-      const P = [[pr[0], pr[1]], [pr[2], pr[1]], [pr[0], pr[3]]].map(([u, w]) => { const q = carry([u * Wp, w * Hp, 0], chain), z = Math.max(0, q[2]) + z0; return [q[0] - kx * z + ox, q[1] - ky * z + oy]; });
-      sh.style.transform = `matrix(${((P[1][0] - P[0][0]) / 100).toFixed(5)},${((P[1][1] - P[0][1]) / 100).toFixed(5)},${((P[2][0] - P[0][0]) / 100).toFixed(5)},${((P[2][1] - P[0][1]) / 100).toFixed(5)},${P[0][0].toFixed(2)},${P[0][1].toFixed(2)})`;
+    shRawX.setTransform(1, 0, 0, 1, 0, 0); shRawX.clearRect(0, 0, shRaw.width, shRaw.height);
+    shRawX.setTransform(SHK, 0, 0, SHK, shRaw.width / 2, shRaw.height / 2); shRawX.fillStyle = '#030807'; shRawX.beginPath();
+    for (const { pr, chain } of panels) {
+      const P = [[pr[0], pr[1]], [pr[2], pr[1]], [pr[2], pr[3]], [pr[0], pr[3]]].map(([u, w]) => { const q = carry([u * Wp, w * Hp, 0], chain), z = Math.max(0, q[2]) + z0; return [q[0] - kx * z + ox, q[1] - ky * z + oy]; });
+      shRawX.moveTo(P[0][0], P[0][1]); for (let k = 1; k < 4; k++) shRawX.lineTo(P[k][0], P[k][1]); shRawX.closePath();
     }
+    shRawX.fill('nonzero');
+    shX.clearRect(0, 0, shCanvas.width, shCanvas.height); shX.filter = `blur(${Math.max(0.6, Hp * 0.016 * SHK).toFixed(2)}px)`; shX.drawImage(shRaw, 0, 0); shX.filter = 'none';
   }
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 

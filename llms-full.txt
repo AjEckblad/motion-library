@@ -665,7 +665,7 @@ A printed sheet folds and opens on a desk: as a letter, a gate fold, an accordio
 Each crease is a nested preserve-3d hinge, so the last fold carries the rest; loose flaps are chains of strips that bow as they turn, and every crease follows the minimum-jerk path of a hand.
 
 Settings: --fold 0 (0 to 3, step 1; Fold); --cycle 10 (4 to 20, step 0.5; Cycle (s)); --tilt 46 (0 to 70, step 1; Table tilt (deg)); --crease 1 (0 to 2, step 0.05; Crease shading).
-Renderer: DOM (CSS and the Web Animations API). Size: 30.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/paper-fold.html
+Renderer: DOM (CSS and the Web Animations API). Size: 31.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/paper-fold.html
 
 ### Menger sponge
 
