@@ -20,8 +20,8 @@ export const ES = {
   "title": "Mar abierto",
   "trick": "Océano FFT con espectro JONSWAP; las pendientes no resueltas ensanchan el brillo",
   "notes": [
-   "Cuatro FFT en la GPU convierten un espectro JONSWAP en olas de Gerstner; la espuma nace donde la superficie se pliega y las pendientes diminutas ensanchan el reflejo del sol.",
-   "El viento fija la altura de las olas y la frecuencia de las crestas blancas, chop afila las crestas y sun es la altura del sol en grados; el puntero lo mueve."
+   "Un mar abierto, gris y con viento, bajo un cielo cubierto: cuatro FFT en la GPU convierten cada fotograma un espectro JONSWAP con una amplia dispersión direccional en olas de Gerstner, y la espuma se forma donde la superficie se pliega y se estira en vetas a favor del viento.",
+   "El viento fija la altura de las olas y la frecuencia de las rompientes, el oleaje afila las crestas y el sol es la altura del sol oculto tras las nubes; el puntero mueve su zona luminosa a lo largo del horizonte."
   ]
  },
  "honey-coil": {

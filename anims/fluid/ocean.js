@@ -1,16 +1,16 @@
-// Open ocean: the open sea at golden hour, seen from a few metres above the water, looking toward a low sun. Long
-// swell rolls in from one side while a wind sea rides on top of it: peaked crests and broad troughs, short chop
-// crossing the big waves, whitecaps that break on the steepest crests and leave pale foam drifting behind. The sun
-// lays a glitter path that breaks into separate sparkles near you and melts into one golden column toward the
-// horizon; thin crests in front of the sun glow green where its light shines through the water; the far sea fades
-// into haze under a sky worked out from real scattering. Move the pointer and the sun follows it along the horizon.
+// Open ocean: the open sea on a grey, windy day, seen from a few metres above the water. A wind sea of many sizes and
+// directions (a broad directional spread over a low, short swell): peaked crests and broad troughs, short chop
+// crossing the big waves, whitecaps that break on the steepest crests and leave pale foam streaking downwind. An
+// overcast deck of stratocumulus hides the sun; where it is thinner the sky brightens and the water under it carries
+// a soft silver sheen, and the far sea fades into a misty horizon under a sky worked out from real scattering. Move
+// the pointer and the bright patch (the hidden sun) follows it along the horizon.
 // The trick: the surface is an FFT ocean (Tessendorf). A JONSWAP wind-sea spectrum plus a narrow swell, with a
 // directional spread, gives a random amplitude to every wave vector; each frame those 196,000 waves are advanced in
 // time and turned into heights, sideways (Gerstner) shifts, slopes and stretch by inverse FFTs on the GPU, in three
 // tiles of different sizes so nothing visibly repeats. Where the sideways shifts fold the surface (the Jacobian dips
 // below a threshold) foam is injected and then fades. Slopes too small to see in a pixel are not lost: their spread
-// is kept as roughness (LEAN mapping), so the sun's reflection widens into the glitter path, as it does on real water.
-const PARAMS = { wind: 9, chop: 1.5, sun: 3.5 };
+// is kept as roughness (LEAN mapping), so the veiled sun's reflection widens into a soft sheen, as it does on real water.
+const PARAMS = { wind: 10, chop: 1.6, sun: 10 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
@@ -78,7 +78,7 @@ export default function (stage) {
     oG = vec4(b.x, b.y, b.z * CH, b.w * CH);
     float J = (1. + oG.z) * (1. + oG.w) - oD.w * oD.w;
     float f = texelFetch(MP, p, 0).z;
-    f = f * exp(-DT * .24) + FI * DT * 6. * clamp((FT - J) * 6., 0., 1.);
+    f = f * exp(-DT * .2) + FI * DT * 6. * clamp((FT - J) * 6., 0., 1.);
     oM = vec4(b.x * b.x, b.y * b.y, min(f, 1.6), J);
   }`;
 
@@ -122,19 +122,20 @@ export default function (stage) {
     return mix(mix(hsh(i), hsh(i + vec2(1, 0)), f.x), mix(hsh(i + vec2(0, 1)), hsh(i + 1.), f.x), f.y); }
   float fbm(vec2 p, int oc) { float s = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
     for (int i = 0; i < 7; i++) { if (i >= oc) break; s += a * vn(p); p = m * p; a *= .5; } return s; }
-  // a thin, broken layer of altocumulus two and a half kilometres up, stretched by the wind
+  // an overcast deck of stratocumulus a kilometre and a half up, lumpy underneath and stretched by the wind; it hides
+  // the sun, which only shows as a pale, brighter patch where the deck is thinner
   vec4 clouds(vec3 rd, int oc) {
     if (rd.y < .004) return vec4(0);
-    float t = 2600. / rd.y; vec2 p = rd.xz * t;
-    vec2 q = vec2(p.x * .00022 + CT * .004, p.y * .00055 - CT * .0015);
-    float cov = .56, d = fbm(q, oc), ds = fbm(q + SD.xz * .12 / max(length(SD.xz), 1e-3), max(oc - 2, 2));
-    float a = smoothstep(cov, cov + .22, d) * exp(-t / 70000.);
+    float t = 1500. / rd.y; vec2 p = rd.xz * t;
+    vec2 q = vec2(p.x * .00034 + CT * .006, p.y * .0005 - CT * .0025);
+    float cov = .2, d = fbm(q, oc), ds = fbm(q + SD.xz * .12 / max(length(SD.xz), 1e-3), max(oc - 2, 2));
+    float a = smoothstep(cov, cov + .3, d) * (.9 + .1 * smoothstep(.3, .7, d)) * exp(-t / 140000.);
     if (a < .001) return vec4(0);
     float mu = dot(rd, SD), thick = smoothstep(cov, cov + .35, d);
     float lit = clamp(.5 + (d - ds) * 3., 0., 1.);
-    vec3 amb = vec3(.012, .013, .022) * SUNI;
-    vec3 sun = SC * SUNI * (.05 + 1.1 * pow(max(mu, 0.), 14.) * (1. - thick * .8)) * (.3 + .7 * lit);
-    vec3 c = amb * (1. - .4 * thick) + sun;
+    vec3 amb = vec3(.021, .023, .027) * SUNI * (.62 + .38 * lit) * (1. - .45 * smoothstep(.45, .9, d));
+    vec3 sun = mix(SC, vec3(dot(SC, vec3(.33))), .6) * SUNI * .5 * pow(max(mu, 0.), 10.) * (1. - thick * .75) * (.4 + .6 * lit);
+    vec3 c = amb + sun;
     return vec4(c * a, a);
   }
   `;
@@ -199,7 +200,7 @@ export default function (stage) {
     float sv = sqrt(dot(vd * vd, vr)), sl = sqrt(dot(ld * ld, vr));
     float Gs = 1. / (1. + lam(max(V.y, .01), sv) + lam(max(SD.y, .01), sl));
     float Fh = .02 + .98 * pow(1. - max(dot(V, Hh), 0.), 5.);
-    vec3 spec = SC * SUNI * .75 * Fh * D * Gs / (4. * nv) * step(0., SD.y);
+    vec3 spec = SC * SUNI * .035 * Fh * D * Gs / (4. * nv) * step(0., SD.y);
     // light from inside the water: a dark sea, and thin crests in front of the sun lit green from behind
     vec3 amb = textureLod(LA, vec2(.5, .6), 6.).rgb;
     float hgt = d0.y + d1.y;
@@ -210,8 +211,8 @@ export default function (stage) {
     float back = pow(clamp(dot(normalize(-V.xz), ld), 0., 1.), 16.);
     float face = clamp(dot(-s01, -ld) * 6., 0., 1.);
     float thin = smoothstep(.15, 1.2, hgt) * smoothstep(1.02, .7, J01);
-    vec3 body = vec3(.004, .02, .036) * (amb * 2.5 + SC * SUNI * .004);
-    vec3 sss = vec3(.15, .75, .45) * SC * SUNI * .9 * back * face * thin;
+    vec3 body = vec3(.006, .024, .026) * (amb * 2.5 + SC * SUNI * .004);   // dark slate blue-green
+    vec3 sss = vec3(.15, .75, .45) * SC * SUNI * .25 * back * face * thin;
     vec3 col = refl * F + (body + sss) * (1. - F) + spec;
     // foam: whitecaps folded into the texture, broken up by a lacy pattern
     float fm = .6 * m0.z + .85 * m1.z + smoothstep(.6, .2, Jt) * 1.2;
@@ -233,7 +234,7 @@ export default function (stage) {
     }
     // haze toward the horizon
     vec3 hz = textureLod(LA, lutUV(vec3(-V.x, .012, -V.z)), 0.).rgb;
-    float tr = exp(-dist / 14000.);
+    float tr = exp(-dist / 6000.);   // a misty horizon
     col = col * tr + hz * (1. - tr);
     o = vec4(col, 1);
   }`;
@@ -243,8 +244,7 @@ export default function (stage) {
     vec2 sp = (gl_FragCoord.xy / R - .5) * vec2(R.x / R.y, 1.);
     vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y);
     vec3 c = textureLod(LA, lutUV(rd), 0.).rgb;
-    float mu = dot(rd, SD), rs = .0062, r = acos(clamp(mu, -1., 1.)) / rs;
-    if (r < 1.2) c += SC * SUNI * 180. * (1. - .6 * (1. - sqrt(max(1. - r * r, 0.)))) * smoothstep(1.05, .95, r);
+    // (no sun disc: the deck hides it; it shows only as the brighter patch the clouds scatter forward)
     vec4 k = clouds(rd, 6);
     c = c * (1. - k.a) + k.rgb;
     o = vec4(c, 1);
@@ -275,6 +275,7 @@ export default function (stage) {
     vec2 uv = gl_FragCoord.xy / R;
     vec3 c = texture(S, uv).rgb + texture(B, uv).rgb * .06;
     c = aces(c * EX);
+    c = mix(c, vec3(dot(c, vec3(.3, .59, .11))), .22);   // an overcast day: colours a little muted
     c *= 1. - .2 * pow(length(uv - .5) * 1.2, 2.5);
     o = vec4(pow(c, vec3(1. / 2.2)) + (hsh(gl_FragCoord.xy) - .5) / 255., 1);
   }`;
@@ -331,14 +332,14 @@ export default function (stage) {
   const swellWp = 2 * Math.PI / 11.5;
   // the swell's level: scaled so its significant height is about a metre (a little more in stronger wind)
   let m0 = 0; for (let w = 0.2; w < 4; w += 0.002) m0 += jonswap(w, swellWp, 1, 6) * 0.002;
-  const swellAl = (Math.min(1.5, 0.55 + U10 * 0.05) / 4) ** 2 / m0;
+  const swellAl = (Math.min(0.8, 0.25 + U10 * 0.03) / 4) ** 2 / m0;
   const spread = (th, s) => Math.sqrt(s + 0.25) / (2 * Math.sqrt(Math.PI)) * Math.pow(Math.abs(Math.cos(th / 2)), 2 * s);
   const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return d; };
   const E = (kx, kz) => {
     const k = Math.hypot(kx, kz), w = Math.sqrt(G * k), dwdk = G / (2 * w), th = Math.atan2(kz, kx);
     const s = w < wp ? sp * Math.pow(w / wp, 5) : sp * Math.pow(w / wp, -2.5);
-    const wind = jonswap(w, wp, alpha, 3.3) * spread(angDiff(th, windDir), Math.max(0.6, s));
-    const swell = jonswap(w, swellWp, swellAl, 6) * spread(angDiff(th, swellDir), 38);
+    const wind = jonswap(w, wp, alpha, 3.3) * spread(angDiff(th, windDir), Math.max(0.6, s * 0.4));   // a broad spread: short-crested, irregular
+    const swell = jonswap(w, swellWp, swellAl, 6) * spread(angDiff(th, swellDir), 9);
     return (wind + swell) * dwdk / k * Math.exp(-(k * k) / 32000);
   };
     const h0tex = CASC.map(c => {
@@ -390,7 +391,7 @@ export default function (stage) {
       const c = casc[ci], w = 1 - c.w;
       u = use(P.asm); gl.bindFramebuffer(gl.FRAMEBUFFER, c.f[w]);
       bindTex(u.A, 0, ping[cur].a); bindTex(u.B, 1, ping[cur].b); bindTex(u.MP, 2, c.m[c.w]);
-      gl.uniform1f(u.CH, Math.max(0.6, Math.min(1.9, PARAMS.chop))); gl.uniform1f(u.DT, dt); gl.uniform1f(u.FI, ci >= 2 ? 0 : foamOn); gl.uniform1f(u.FT, ci === 0 ? 0.69 : 0.74); gl.uniform1f(u.Z, 0); quad();
+      gl.uniform1f(u.CH, Math.max(0.6, Math.min(1.9, PARAMS.chop))); gl.uniform1f(u.DT, dt); gl.uniform1f(u.FI, ci >= 2 ? 0 : foamOn); gl.uniform1f(u.FT, ci === 0 ? 0.71 : 0.755); gl.uniform1f(u.Z, 0); quad();
       c.w = w;
     });
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -531,7 +532,7 @@ export default function (stage) {
     }
     gl.disable(gl.BLEND);
     u = use(P.comp); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
-    bindTex(u.S, 0, scene); bindTex(u.B, 1, bloom[0].t); gl.uniform2f(u.R, W, H); gl.uniform1f(u.EX, 0.66); gl.uniform1f(u.Z, 0); quad();
+    bindTex(u.S, 0, scene); bindTex(u.B, 1, bloom[0].t); gl.uniform2f(u.R, W, H); gl.uniform1f(u.EX, 0.56); gl.uniform1f(u.Z, 0); quad();
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
