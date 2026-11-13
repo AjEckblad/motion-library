@@ -1,4 +1,26 @@
-# Resume here (2026-11-13 evening): AJ's 17:30 list ALL DONE (225 live); npm 0.3.5 waits on AJ
+# Resume here (2026-11-13 night): run /review-animations FIRST on 4 pieces, then fix them; terrain flyover pending
+
+AJ, verbatim: "have the waves move in a general direction because of the wind right have a higher amplitude and a
+longer crest deeper trough too, the side to side on the water tank force the max speed that the cage can wobble lower
+make it waves more gradual, fix the honey pour its not as realistic as it needs to be, ferrofluid is also not as it
+should be ill run the animation check do the animation check on the current ones before you fix them so you know
+what im talking about /review-animations"
+Plan for the new session:
+1. Invoke the review-animations skill and review the CURRENT versions (render frame sequences with tools/frames.mjs,
+   read the motion code) of: fluid/ocean.js, fluid/sph-water.js (the "water tank": the side-to-side tank shake/force),
+   fluid/honey-coil.js, fluid/ferrofluid.js. Report the findings table to AJ before changing anything.
+2. Then fix: ocean = waves travel in one clear wind direction (narrow directional spread around the wind), higher
+   amplitude, longer crests and deeper troughs (more swell energy, less short-crested chop than the 17:30 round);
+   sph-water = cap the max speed/accel of the tank's side-to-side motion and ease it, so the sloshing waves build
+   gradually; honey-coil = more realistic (look at real honey pour references: thin glossy stream, rope coiling,
+   translucent amber with refraction, viscous spreading); ferrofluid = AJ says not as it should be (compare with his
+   earlier reference photo: a dense dome of fine spikes on a magnet, black glossy; review first to find what's off).
+   Use two helper agents if the batch is big (memory: big-batches-two-agents); lead reviews frames and ships.
+Also pending: a helper agent (aefb980f6d89a70b9) was making terrain-flyover smoother when this session ended. Its edit
+is uncommitted in the working tree (anims/*/terrain-flyover.js). Review it (frames + fps), then ship or revert.
+State: 224 effects live (watch-movement removed, a3c48ad). CLI 0.3.5 built (224), unpublished; AJ publishes.
+
+# Earlier (2026-11-13 evening): AJ's 17:30 list ALL DONE (225 live); npm 0.3.5 waits on AJ
 
 AJ (17:30): fix honey pour; ocean a little too bright + normal wind-sea wave patterns (ref: grey overcast sea,
 whitecaps, foam streaks); ferrofluid bugged, no petri dish; fire & smoke burning on glowing logs, hyperrealistic;
