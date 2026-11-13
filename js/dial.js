@@ -25,6 +25,12 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
     list.append(b);
     return { el: b, lbl: b.querySelector('.lbl'), dot: b.querySelector('.dot'), s: 1, v: 0, y: 0, tf: '' };
   });
+  // the arc itself, drawn: a hairline track through every entry, with each entry's hue dot (its .dot, the same one the
+  // phone dial shows) sitting on it, so the curve reads as a gauge (the brand mark's) rather than a ragged column of words
+  const NS = 'http://www.w3.org/2000/svg';
+  const arc = document.createElementNS(NS, 'svg'); arc.setAttribute('class', 'dial-arc'); arc.setAttribute('aria-hidden', 'true');
+  const track = document.createElementNS(NS, 'path'); track.setAttribute('class', 'dial-track'); arc.append(track);
+  root.prepend(arc);
   const caption = document.createElement('div'); caption.className = 'dial-caption'; caption.setAttribute('aria-hidden', 'true'); root.append(caption);
   let counts = {};
   const syncCaption = () => { const e = entries.find(x => x.id === selected); caption.replaceChildren(e.name); const sp = document.createElement('span'); sp.textContent = counts[e.id] ?? ''; caption.append(sp); };
@@ -39,11 +45,13 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
         const a = (12 + (156 * i) / (items.length - 1)) * Math.PI / 180;
         it.el.style.right = ''; it.el.style.left = (cx - Rx * Math.cos(a)) + 'px'; it.el.style.top = (cy - Ry * Math.sin(a)) + 'px';
       });
+      const pts = []; for (let d = 6; d <= 174; d += 3) { const a = d * Math.PI / 180; pts.push(`${(cx - Rx * Math.cos(a)).toFixed(1)},${(cy - Ry * Math.sin(a)).toFixed(1)}`); }
+      track.setAttribute('d', 'M' + pts.join('L'));
       syncCaption(); kick(); onLayout?.(); return;
     }
     // desktop: the words' right edges follow a circular arc that bulges toward the grid in the middle
     const top = Math.max(36, h * 0.06), bottom = h - Math.max(90, h * 0.14), mid = (top + bottom) / 2, half = (bottom - top) / 2;
-    const padR = 26;
+    const padR = 40;                                              // room on the right for the arc and its dots
     // the arc bulges up to 80px toward the grid in the middle, but never so far that a word sticks out of the column at
     // rest: longer translations (Generativo y matemáticas) flatten it just enough to fit, 4px inside the edge
     const ys = items.map((_, i) => top + (bottom - top) * (i / (items.length - 1)));
@@ -59,6 +67,10 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
       it.el.style.left = ''; it.el.style.right = right + 'px'; it.el.style.top = (it.y - 18) + 'px';
       it.right = right; it.wd = it.lbl.offsetWidth * 1.04;          // at the chosen (500) weight, a little wider than at rest
     });
+    // the track: the same circle the words follow, 17px to their right, a little past the first and last entries
+    const pts = [];
+    for (let y = top - 22; y <= bottom + 22; y += 6) { const k = Math.max(-1, Math.min(1, (y - mid) / half)); pts.push(`${(w - padR - depth * Math.sqrt(Math.max(0, 1 - k * k)) + 17).toFixed(1)},${y.toFixed(1)}`); }
+    track.setAttribute('d', 'M' + pts.join('L'));
     // Every word swells and moves left by the same fisheye; how strong it is depends on the room the tightest word has.
     // A word grows leftward from its right edge and shifts 34px per unit of scale, so at the peak (1 + 0.38·amp) its left
     // edge travels 0.38·amp·(width + 34). It may cross the sheet’s right padding (the gap before the cards) but stops
@@ -117,6 +129,18 @@ export function createDial({ root, list, entries, onSelect, onLayout }) {
     const b = root.getBoundingClientRect();
     return items.map(it => { const r = it.lbl.getBoundingClientRect(); return { x1: r.left - b.left + 2, x2: r.right - b.left - 2, y: r.top - b.top + r.height * 0.16 }; });
   }
+
+  // phones: the half-dial strip tucks below the screen while you scroll down through the cards and comes back on any
+  // scroll up, near the top or bottom of the page, or when it takes keyboard focus (as a browser's own toolbar does)
+  let lastY = scrollY;
+  addEventListener('scroll', () => {
+    const y = scrollY, dy = y - lastY; lastY = y;
+    if (!narrow.matches) { root.classList.remove('is-tucked'); return; }
+    const end = y + innerHeight >= document.documentElement.scrollHeight - 160;
+    if (y < 120 || end || dy < -4) root.classList.remove('is-tucked');
+    else if (dy > 4) root.classList.add('is-tucked');
+  }, { passive: true });
+  root.addEventListener('focusin', () => root.classList.remove('is-tucked'));
 
   new ResizeObserver(layout).observe(root);
   document.fonts?.ready.then(layout);                              // the caps depend on the real word widths

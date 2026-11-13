@@ -36,7 +36,9 @@ const RANGE = 36;      // px over which a word's push builds up
 const BASE = 30;       // px/s cruising pace of an 80 px creature
 const FACE = { l: 0.235, t: 0.13, w: 0.47, h: 0.235 };   // the face canvas around the body centre, units of S
 // the category section headings and the FAQ count as words too (they came with the scroll-through catalogue)
-const PAGE_WORDS = '.sheet-head h1, .sheet-head .count, .head-tools > *, .group-name, .group-count, .group-actions > *, .group-empty, .empty h2, .empty p, .empty .btn, .empty canvas, .cat-head h2, .cat-count, .faq h2, .faq-item';
+const PAGE_WORDS = '.sheet-head h1, .sheet-head .count, .head-tools > *, .group-name, .group-count, .group-actions > *, .group-empty, .empty h2, .empty p, .empty .btn, .empty canvas, .cat-head h2, .cat-count, .faq h2, .faq-item, .front-title, .front-lede, .front-points li, .front-actions > *, .front-name, .front-trick, .front-ctl > *, .sp-head h2, .sp-note';
+// the front page's live hero counts as a picture, like a card image: they may pass behind it but never rest on it
+const PAGE_PICTURES = '.front-media';
 const CARD_WORDS = '.card-title span, .kind, .trick';
 
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -181,6 +183,7 @@ export function createCrew({ bar, dial, sheet, grid, covered = () => false }) {
     pageWords = [];
     const add = o => { if (o) pageWords.push(o); };
     for (const e of sheet.querySelectorAll(PAGE_WORDS)) add(box(e.getBoundingClientRect(), false));
+    for (const e of sheet.querySelectorAll(PAGE_PICTURES)) add(box(e.getBoundingClientRect(), false, true));
     for (const card of sheet.querySelectorAll('.card')) {
       const r = card.getBoundingClientRect();
       if (r.bottom < -H || r.top > 2 * H) continue;                // far off screen: measured once it comes near

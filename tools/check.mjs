@@ -284,7 +284,8 @@ await pf.context().close();
 const ph = await newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 await ph.goto(`${base}/index.html`); await ph.waitForTimeout(1200);
 check('phone: no horizontal overflow', await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-await ph.evaluate(() => scrollTo(0, 400)); await ph.waitForTimeout(900);
+// the full list opens on the live hero, so scroll into the catalogue first
+await ph.evaluate(() => scrollTo(0, document.querySelector('#sec-flow').getBoundingClientRect().top + scrollY + 200)); await ph.waitForTimeout(900);
 check('phone: the centred card plays without hover', await ph.locator('#grid iframe').count() === 1);
 await ph.context().close();
 

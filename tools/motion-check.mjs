@@ -12,7 +12,7 @@ await ctx.addInitScript(() => {
   window.__anims = [];
   const orig = Element.prototype.animate;
   Element.prototype.animate = function (k, o) {
-    if (this.closest?.('#grid')) window.__anims.push({ d: o?.duration, delay: o?.delay ?? 0, easing: o?.easing });
+    if (this.closest?.('#grid, #showpieces, #front')) window.__anims.push({ d: o?.duration, delay: o?.delay ?? 0, easing: o?.easing });
     return orig.call(this, k, o);
   };
 });
@@ -58,7 +58,9 @@ await page.waitForTimeout(400);
 }
 // 1c. the fisheye is transform-only: a hover sweep over the dial causes (almost) no layout
 {
-  await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(300);
+  // the live hero mounts after load, when the page is idle: let it settle first, it is not the dial's layout
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.waitForSelector('#front-media iframe.live', { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(1800);
   const cdp = await page.context().newCDPSession(page); await cdp.send('Performance.enable');
   const lc = async () => (await cdp.send('Performance.getMetrics')).metrics.find(x => x.name === 'LayoutCount').value;
   const b = await (await page.$('#dial')).boundingBox(), before = await lc();
@@ -89,11 +91,12 @@ check('exit uses the strong ease-out token', ex.every(a => a.easing === 'cubic-b
 check('exit leaves all at once (no stagger holding the new view back)', ex.every(a => !a.delay), { exitDelays: [...new Set(ex.map(a => a.delay))] });
 // 2b. All: every card on the first screen gets an entrance, none below it
 const all = ent;
-const firstScreen = await page.evaluate(() => [...document.querySelectorAll('#grid .card')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight).length);
+const firstScreen = await page.evaluate(() => [...document.querySelectorAll('#front-title, .front-lede, .front-side, #front-stage, #showpieces .card, #grid .card')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight).length);
 check('All: each first-screen card animates, none below', all.length === firstScreen && Math.max(...all.map(a => a.delay)) === Math.min(firstScreen - 1, 7) * 30, { entrances: all.length, firstScreen, maxDelay: Math.max(...all.map(a => a.delay)) });
 
 // 4. pressing a card heart with the mouse shows the press
-const heart = await page.$('.card .heart');
+const heart = await page.$('#grid .card .heart');
+await heart.scrollIntoViewIfNeeded(); await page.waitForTimeout(200);
 const hb = await heart.boundingBox();
 await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2);
 await page.waitForTimeout(300);
@@ -234,6 +237,58 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   const ptr = await page.evaluate(() => document.getAnimations().filter(a => a.effect?.target?.classList?.contains('d-body')).map(a => a.effect.getTiming().duration));
   check('detail previous/next: keyboard steps swap instantly, clicks fade ≤120 ms', kb === 0 && ptr.length === 1 && ptr[0] <= 120, { keyboard: kb, pointer: ptr });
   await page.keyboard.press('Escape'); await page.waitForTimeout(600);
+}
+// the front page's live hero (js/front.js): it never delays first paint, runs only while it is on screen and nothing
+// else plays, stays its poster under reduced motion, and deep links go straight to their target without it
+{
+  const hp = await ctx.newPage();
+  await hp.addInitScript(() => {
+    window.__heroAt = 0;
+    new MutationObserver(() => { if (!window.__heroAt && document.querySelector('#front-media iframe')) window.__heroAt = performance.now(); })
+      .observe(document, { childList: true, subtree: true });
+  });
+  await hp.goto(base + '/index.html#/');
+  await hp.waitForSelector('#front-media iframe.live', { timeout: 10000 }).catch(() => {});
+  const t = await hp.evaluate(() => ({ at: Math.round(window.__heroAt), load: Math.round(performance.getEntriesByType('navigation')[0].loadEventEnd), fcp: Math.round(performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 0) }));
+  check('hero: the live stage mounts after load and first paint, over a poster that is plain HTML', t.at > t.load && t.at > t.fcp && t.fcp > 0
+    && await hp.evaluate(() => !!document.querySelector('#front-media img[fetchpriority="high"]')), t);
+  const clock = () => hp.evaluate(() => ({ paused: document.querySelector('#front-media iframe')?.contentWindow?.__clock?.paused ?? null, state: document.querySelector('#front-stage').dataset.state }));
+  const on = await clock();
+  await hp.evaluate(() => document.querySelector('#sec-chrome').scrollIntoView()); await hp.waitForTimeout(600);
+  const off = await clock();
+  await hp.evaluate(() => scrollTo(0, 0)); await hp.waitForTimeout(600);
+  const back = await clock();
+  check('hero: runs in view, pauses off screen, resumes on return', on.paused === false && off.paused === true && off.state === 'paused' && back.paused === false, { on, off, back });
+  // a card preview takes over: the hero waits while it plays (one live WebGL picture at a time)
+  await hp.evaluate(() => scrollTo(0, 420)); await hp.waitForTimeout(500);
+  const sp = hp.locator('#showpieces .card').nth(1); await sp.hover(); await hp.waitForTimeout(900);
+  const during = await clock(), previews = await hp.locator('#showpieces iframe').count();
+  await hp.mouse.move(5, 300); await hp.waitForTimeout(600);
+  const after = await clock();
+  check('hero: pauses while a card preview plays, then picks up again', previews === 1 && during.paused === true && after.paused === false, { previews, during, after });
+  // the detail view covers it: paused under it
+  await hp.evaluate(() => { location.hash = '#/a/ocean'; }); await hp.waitForTimeout(900);
+  const under = await clock();
+  await hp.keyboard.press('Escape'); await hp.waitForTimeout(700);
+  check('hero: paused under the detail view', under.paused === true, under);
+  await hp.close();
+
+  // reduced motion: the poster, no live stage, no reveal, no sliders
+  const rc = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const rp = await rc.newPage(); await rp.goto(base + '/index.html#/'); await rp.waitForTimeout(3000);
+  const r = await rp.evaluate(() => ({ frames: document.querySelectorAll('#front-media iframe').length, poster: document.querySelector('#front-media img').complete, state: document.querySelector('#front-stage').dataset.state,
+    knobs: [...document.querySelectorAll('.front-ctl .knob')].filter(k => k.offsetParent).length, lines: document.querySelectorAll('.front-line').length }));
+  check('hero: reduced motion shows the poster (no live stage, no reveal, no sliders)', r.frames === 0 && r.poster && r.state === 'poster' && r.knobs === 0 && r.lines === 0, r);
+  await rc.close();
+
+  // deep links: straight to the target, the hero neither reveals nor runs
+  const dc = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const dp = await dc.newPage(); await dp.goto(base + '/index.html#/c/text'); await dp.waitForTimeout(3000);
+  const d1 = await dp.evaluate(() => ({ top: Math.round(document.querySelector('#sec-text').getBoundingClientRect().top), frames: document.querySelectorAll('#front-media iframe').length, lines: document.querySelectorAll('.front-line').length }));
+  await dp.goto(base + '/index.html?x=1#/a/ferrofluid'); await dp.waitForTimeout(3000);
+  const d2 = await dp.evaluate(() => ({ open: !document.querySelector('#detail').hidden, frames: document.querySelectorAll('#front-media iframe').length, lines: document.querySelectorAll('.front-line').length }));
+  check('deep links skip the hero: a category lands on its section, an effect opens, the hero stays still', d1.top >= 0 && d1.top < 140 && d1.frames === 0 && d1.lines === 0 && d2.open && d2.frames === 0 && d2.lines === 0, { d1, d2 });
+  await dc.close();
 }
 check('no page errors', errors.length === 0, errors);
 const fails = results.filter(r => !r.ok).length;

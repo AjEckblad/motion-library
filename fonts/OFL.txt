@@ -1,7 +1,8 @@
 The fonts in this folder are not covered by the repository's MIT-0 licence. Each is licensed under the SIL Open Font
 License, Version 1.1 (full text below), as published on Google Fonts:
 
-- wix-madefor-text-latin.woff2, wix-madefor-display-latin.woff2: Copyright 2023 The Wix Madefor Project Authors (https://github.com/wix/wixmadefor)
+- bricolage-grotesque-latin.woff2: Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)
+- wix-madefor-text-latin.woff2: Copyright 2023 The Wix Madefor Project Authors (https://github.com/wix/wixmadefor)
 - jetbrains-mono-latin.woff2: Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
 - mona-sans-latin.woff2 (used by the demo pieces): Copyright 2022 The Mona Sans Project Authors (https://github.com/github/mona-sans), with Reserved Font Name "Mona"
 

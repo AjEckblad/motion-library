@@ -1,6 +1,6 @@
 ---
 name: Motion Library
-description: A dark catalogue of live web effects you scroll and dial through, in English and Chinese.
+description: A dark catalogue of live web effects that opens on one showpiece running live, then a row of showpieces, then the full list you scroll and dial through; in English, 中文, Español and Français.
 colors:
   frame: "#0c0c0e"
   sheet: "#141416"
@@ -33,24 +33,35 @@ colors:
   cat-simulation: "#c2410c"
   cat-retro: "#16a34a"
 typography:
+  hero:
+    fontFamily: "Bricolage Grotesque, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontSize: "clamp(34px, 3.8vw, 64px)"
+    fontWeight: 600
+    lineHeight: 1.02
+    letterSpacing: "-0.02em"
   display:
-    fontFamily: "Wix Madefor Display, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
-    fontSize: "28px"
+    fontFamily: "Bricolage Grotesque, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontSize: "32px"
     fontWeight: 600
     lineHeight: 1.1
     letterSpacing: "-0.02em"
   headline:
-    fontFamily: "Wix Madefor Display, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
-    fontSize: "24px"
+    fontFamily: "Bricolage Grotesque, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontSize: "clamp(26px, 2.1vw, 32px)"
     fontWeight: 600
-    lineHeight: 1.2
-    letterSpacing: "-0.015em"
+    lineHeight: 1.15
+    letterSpacing: "-0.02em"
   subhead:
-    fontFamily: "Wix Madefor Display, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontFamily: "Bricolage Grotesque, Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "20px"
     fontWeight: 600
-    lineHeight: 1.25
-    letterSpacing: "-0.01em"
+    lineHeight: 1.15
+    letterSpacing: "-0.02em"
+  lede:
+    fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
+    fontSize: "18px"
+    fontWeight: 400
+    lineHeight: 1.5
   title:
     fontFamily: "Wix Madefor Text, PingFang SC, Noto Sans SC, system-ui, sans-serif"
     fontSize: "16px"
@@ -172,7 +183,9 @@ components:
 
 **Creative North Star: "The Dial and the Window Wall"**
 
-A near-black frame holds two things: one long scroll of category sections, three large preview windows across, and a narrow arc of category words on the right edge that follows the scroll and jumps to a section when chosen. The interface is deliberately colourless so the effects, which are the content, carry all the colour and motion; on black they read the way they would in a real hero. Chrome is near-white ink on near-black, surfaces separated by a step in tone. The one accent, a light sky blue, marks the chosen category (a 1px line under its word) and the chosen language.
+The full list opens on a front door (2026-11-14): a two-line headline in Bricolage Grotesque saying what this is ("Showpiece web effects that run in any stack"), one sentence, three plain differentiators and two next steps (Browse all, and the npx line), then one showpiece running live across the content column with two of its real sliders under it. Below it, a row of five showpieces at a larger size (one large, four smaller), then the catalogue. Deep links skip all of it.
+
+Under the front door, a near-black frame holds two things: one long scroll of category sections, three large preview windows across, and a narrow arc of category words on the right edge that follows the scroll and jumps to a section when chosen. The interface is deliberately colourless so the effects, which are the content, carry all the colour and motion; on black they read the way they would in a real hero. Chrome is near-white ink on near-black, surfaces separated by a step in tone. The one accent, a light sky blue, marks the chosen category (a 1px line under its word) and the chosen language.
 
 Personality comes from two code-drawn signatures, not from decoration. The dial magnifies the entry under the pointer fisheye-style, swelling the scale of the words, while a needle springs to the chosen entry with a little overshoot. Fluffy creatures, painted from thousands of fur strands, perch on the dial and sheet edges, breathe, blink and watch the cursor. Everything else stays calm and dense: a desk tool for one designer-developer, tuned for finding an effect in seconds.
 
@@ -182,7 +195,7 @@ The build refuses the default catalogue look: no left sidebar, no glowing cards,
 - Near-black frame (#0c0c0e), sheets one tone step lighter; dark only.
 - Near-white ink for all chrome; colour lives only in category dots, the heart, the one accent and the content.
 - Three across: flat 5:4 preview windows with 8px corners and no shadow, posters rendered at 1120x896 WebP.
-- One superfamily, Wix Madefor (Text for every UI word, Display for headings of 20px and up), plus JetBrains Mono for code and the npx command; self-hosted woff2, with system CJK faces for 中文.
+- Bricolage Grotesque (one weight, 600, on its optical-size axis) for every headline, Wix Madefor Text for every UI word and the reading text, JetBrains Mono for code and the npx command; self-hosted woff2, with system CJK faces for 中文.
 - Motion is springy and short; the needle, the grid swap and the FLIP expand are the system's voice.
 - No raster imagery except generated poster frames of the animations themselves.
 
@@ -223,17 +236,19 @@ A near-black monochrome system with fifteen small category hues, one light sky-b
 
 ## Typography
 
-**Display Font:** Wix Madefor Display (SIL OFL), the same superfamily's cut for large sizes, on the page title, the section and FAQ headings, the detail title, group names and the empty state (every heading of 20px and up). Self-hosted variable woff2, weight 400 to 800, latin subset, 20 KB.
+**Display Font:** Bricolage Grotesque (SIL OFL, Mathieu Triay / Atelier Triay), on the front headline, the section, showpiece and FAQ headings, the large showpiece title, the detail title, group names and the empty state (every heading of 20px and up). Self-hosted woff2, weight 600 only, optical size 12 to 96 (the browser picks the cut per size: tighter and more characterful at 64px, more open at 20px), latin subset, 40 KB. Chosen 2026-11-14 after eight faces were rendered on the real hero, section head and detail title (Wix Madefor Display, Bricolage Grotesque, Archivo Expanded, Schibsted Grotesk, Familjen Grotesk, Funnel Display, Fraunces, Mona Sans Expanded): Wix Display read as SaaS dashboard type, the expanded faces broke the headline into three lines, Fraunces pulled the site toward a magazine; Bricolage has the ink traps and the tight display cut that make a showcase feel made, and it sits well beside the neutral Text face.
 **Body Font:** Wix Madefor Text (SIL OFL), self-hosted variable woff2 (weight 400 to 800, latin subset, 20 KB), then PingFang SC / Noto Sans SC for Chinese, then system-ui. Chosen 2026-11-13: AJ disliked IBM Plex and asked for a better-looking, more professional face. Fifteen faces were rendered on the real catalogue (dial, cards, FAQ, detail view): Switzer looked closest to a premium Swiss grotesque but its Fontshare licence is murky for files in a public repo; Wix Madefor matched it among the OFL faces, a neutral, crisp neo-grotesk with a Text and a Display cut, and the impeccable detector does not flag it as overused (it flags Inter, Geist and Instrument Sans).
 **Mono Font:** JetBrains Mono (SIL OFL), variable 400 to 600, latin subset, 31 KB, used only for code, the file path and the npx command: tall x-height and open shapes that stay clear at 13px on Code Paper.
 Licences and copyright lines: `fonts/OFL.txt`.
 
-**Character:** One neutral, precise grotesque with clear size steps; the Display cut tightens the headings. Hierarchy comes from six sizes and three weights; nothing in between.
+**Character:** A characterful display grotesque for the voice, a neutral precise grotesque for the work. Hierarchy comes from size, weight and the change of face; counts are small and muted so they never read as a second heading.
 
 ### Hierarchy (tokens in `css/app.css` `:root`, `--fs-*`)
-- **Display** (`--fs-display`, 28px, 600, 1.1, -0.02em, Display cut): the page title ("All animations").
-- **Headline** (`--fs-h1`, 24px, 600, 1.2, -0.015em, Display cut): category section headings and the FAQ heading.
-- **Subhead** (`--fs-h2`, 20px, 600, -0.01em, Display cut): the detail title, Hearted group names, the empty state.
+- **Hero** (`--fs-hero`, clamp(34px, 3.8vw, 64px), Bricolage 600, 1.02, -0.02em): the front headline, always two lines (French at 92%; phones 25 to 40px). Its lines rise from behind their own baselines on a fresh visit.
+- **Display** (`--fs-display`, 32px, Bricolage 600): the title of the other views (Hearted, New, a group).
+- **Headline** (`--fs-h1`, clamp(26px, 2.1vw, 32px), Bricolage 600, 1.15, -0.02em): Showpieces, every category section, the FAQ. The count after it is a bare number at 13px in Muted Slate (its aria-label says "26 animations").
+- **Subhead** (`--fs-h2`, 20px, Bricolage 600): the detail title, the large showpiece's title, Hearted group names, the empty state.
+- **Lede** (`--fs-lede`, 18px, 400, 1.5, Ink Two): the front page's one sentence.
 - **Title** (`--fs-title`, 16px): card titles and FAQ questions at 500; panel headings ("How it works", "Install", "Tweak", "Code") at 600.
 - **Body** (`--fs-body`, 16px, 400, 1.6): notes (62ch) and FAQ answers (68ch), `text-wrap: pretty`.
 - **Label** (`--fs-label`, 14px, 500): top-bar buttons, link buttons, toast, popover items; the line under each card title is 14px 400 in Muted Slate; the dial is 14px 400, the chosen entry 500 in ink.
@@ -247,6 +262,8 @@ Licences and copyright lines: `fonts/OFL.txt`.
 **The Tabular Numbers Rule.** Every count, timecode, clock, slider value and speed option uses tabular figures.
 
 **The Sentence Case Rule.** No uppercase labels or tracked-out small caps anywhere in the shell.
+
+**The Two Lines Rule.** The front headline is two lines at every width and in every language; when a translation runs long, shorten the words first, then step the size (French sets at 92%).
 
 ## Layout
 
@@ -308,13 +325,20 @@ Calm pill controls with a tactile press.
 The dial is the navigation (see below). The top bar carries the brand mark (a gauge glyph whose needle rotates -38 degrees on hover), Surprise me, a GitHub button (the repo) and the language menu. The page closes with a quiet footer under the FAQ: the licence, then GitHub, npm, llms.txt and llms-full.txt (the plain-text guides AI agents read). The detail view uses a breadcrumb: category dot and name in Muted Slate, a slash, then the title.
 
 ### The Dial (signature)
-A semicircle on the right edge carrying All, Hearted, the categories and, last, FAQ (it glides to the questions under the full list and lights while they are in view), with horizontal labels set to the left of the arc, a hue dot on the arc and a count beyond it. Entries are fixed on the arc; a Slate Ink needle (3px, round cap) points from the hub to the chosen entry.
+A shallow arc down the right edge carrying All, New, Hearted, the categories and, last, FAQ (it glides to the questions under the full list and lights while they are in view). The words' right edges follow a circle; since 2026-11-14 the circle itself is drawn (a 1.5px track in Hairline Edge, a little past the first and last entries) with each entry's 8px hue dot sitting on it 17px right of its word, so the curve reads as a gauge (the brand mark's) instead of a ragged column. The chosen entry's dot becomes a ring (1.5×, frame-coloured centre, 1.75px hue edge) and its word gets the 1px accent line.
 - **Radius:** clamped between 150 and 380px from the available height and width; the arc spans plus and minus 64 degrees.
 - **Fisheye:** under the pointer each label swells on a Gaussian falloff and shifts left, in transform only (the UI face has no width axis, so nothing relayouts). Its strength is set from the room the tightest word has: every word moves left the same way, and the longest stops 10px short of the cards (about 1.14× in English, the full 1.38× for the shorter 中文 labels). A slightly underdamped spring carries each label to its target; keyboard moves and reduced motion land at once. (Two rejected approaches: capping each long word's scale made the hovered word smaller than its neighbours; sliding long words right broke the shared leftward motion.)
 - **Needle spring:** stiffness 170, damping ratio about 0.62, so it overshoots slightly and settles; a soft tick sounds each time it passes an entry.
 - **Selection:** active label 500 weight in ink, scaled up by 0.16 of the same strength, with a 1px accent line under the word; the Hearted word stays soft pink.
 - **Grid swap** (All ↔ Hearted): the old cards leave all at once (120ms, 6px drop, no stagger, so the new view is never held back) and the first screen comes in at 240ms with a 30ms stagger capped at the 8th card, from 12px below at 98.5% scale. Categories inside All glide to their section instead; keyboard moves swap and scroll instantly.
-- **Phones:** a half-dial along the bottom edge; every entry stays visible as a 12px dot with a 44px hit area, and the chosen entry is named in a caption under the arc.
+- **Phones:** a half-dial along the bottom edge on a Sheet-tone strip (no top rule); every entry stays visible as a 12px dot with a 44px hit area, the track drawn through them, and the chosen entry is named in a caption under the arc. The strip tucks below the screen (280ms, drawer curve) while you scroll down through the cards and comes back on any scroll up, near the top or the end of the page, or when it takes focus.
+
+### Front page (js/front.js, js/showpieces.js)
+- **Head:** two columns over the stage: left the headline and the lede, right the three differentiators (a 5px accent dot each, Ink Two, 16px) and the two next steps: Browse all N (the ink pill, 44px, goes to the first category) and the npx line (a Code Paper pill in JetBrains Mono; a click copies it; it gains --flags as the hero's sliders move). Under 860px: headline, the stage, the lede, then the rest.
+- **Stage:** the hero effect (HERO in js/showpieces.js: Terrain flyover) runs live in a 12px-cornered window across the content column, clamp(300px, 100dvh - bar - 400px, 640px) tall (4:3 on phones). The poster is plain HTML with fetchpriority high; the live stage mounts after load when the browser is idle, fades in over 400ms while the poster softens to a 2px blur, pauses whenever it is under 15% visible, while a card preview plays, under the detail view, on other views and in hidden tabs, and gives its iframe back after 30s off screen. Reduced motion: the poster only, no sliders, no pause button.
+- **Caption:** category dot, name and trick on the left; on the right two real sliders of the effect (Sun height, Flight speed), a Pause / Play button and See the code (opens the detail view with the tuned values). A slider mounts a retuned stage under the running one and crossfades once it has drawn two frames, so the picture never blanks while the shader compiles.
+- **Showpiece row:** a heading and a one-line note, then a 4-column grid: the first piece spans two columns and two rows (its title at Subhead size in Bricolage, its trick at 16px in Ink Two), four more fill the right. Two columns under 1100px (the large one full width at 16:9), one under 560px. The tiles are ordinary cards (hover plays, hearts, click opens), and the row rises in once when first scrolled to (heading, note, tiles, 60ms apart, 16px, 420ms).
+- **Rhythm:** 120px between the hero, the showpieces and the catalogue (80px on phones); 112px between categories.
 
 ### Creatures (signature)
 Fluffy round creatures drawn in canvas from a few thousand fur strands in three-tone palettes (mist blue-grey, peach, mint), with dark eyes and a small pink accent. They perch on the dial, peek from the frame, sit on the sheet's edge, keep the empty state company and sit in the detail notes. They breathe, hop, blink every 2 to 6 seconds and follow the cursor with their eyes. They are decoration only and never carry information.

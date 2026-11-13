@@ -13,6 +13,7 @@ import { ANIMS, CATEGORIES, catById, srcOf } from '../anims/registry.js';
 import { ZH } from '../anims/i18n-zh.js';
 import { FAQ } from '../js/faq.js';
 import { readParams, formatValue } from '../js/code.js';
+import { HERO, SHOWPIECES } from '../js/showpieces.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = (process.env.SITE_URL || '').replace(/\/$/, '');
@@ -146,7 +147,7 @@ ${rows}
 /* ───────── index.html: the catalogue and the FAQ as real HTML, plus JSON-LD ───────── */
 const sections = CATEGORIES.map(c => {
   const items = fx.filter(f => f.a.cat === c.id); if (!items.length) return '';
-  return `<section class="cat-sec" id="sec-${c.id}" data-cat="${c.id}" style="--hue:${c.hue}"><div class="cat-head"><h2>${esc(c.name)}</h2><span class="cat-count">${items.length} animations</span></div><div class="grid">
+  return `<section class="cat-sec" id="sec-${c.id}" data-cat="${c.id}" style="--hue:${c.hue}"><div class="cat-head"><h2>${esc(c.name)}</h2><span class="cat-count" aria-label="${items.length} animations">${items.length}</span></div><div class="grid">
 ${items.map(f => `<article class="card" style="--hue:${c.hue}"><a class="card-link" href="${f.page}"><div class="card-media"><img src="${posterUrl(f.a.id)}" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>${esc(f.a.title)}</span></h3><span class="kind">${KIND_SHORT[f.a.kind]}</span><p class="trick">${esc(f.a.trick)}</p></div></a></article>`).join('\n')}
 </div></section>`;
 }).join('\n');
@@ -162,6 +163,20 @@ const siteLd = [
     mainEntity: FAQ.en.map(([q, ans]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: ans } })) },
 ];
 let index = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+// the front page: the hero's poster and caption, and the showpiece row (the first tile is the large one)
+const cardHtml = (f, cls = '') => `<article class="card${cls}" style="--hue:${catById[f.a.cat].hue}"><a class="card-link" href="${f.page}"><div class="card-media"><img src="${posterUrl(f.a.id)}" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>${esc(f.a.title)}</span></h3><span class="kind">${KIND_SHORT[f.a.kind]}</span><p class="trick">${esc(f.a.trick)}</p></div></a></article>`;
+const spFx = SHOWPIECES.map(id => fx.find(f => f.a.id === id)).filter(Boolean);
+index = replaceBetween(index, '<!--static:showpieces-->', '<!--/static:showpieces-->', `<div class="sp-head"><h2 id="sp-title">Showpieces</h2><p class="sp-note">Real-time simulations and renders. Each one is still a single file.</p></div><div class="sp-grid">
+${spFx.map((f, i) => cardHtml(f, i ? ' sp-card' : ' sp-card sp-big')).join('\n')}
+</div>`);
+{
+  const h = fx.find(f => f.a.id === HERO);
+  index = index.replace(/<span data-count>\d+<\/span>/g, `<span data-count>${ANIMS.length}</span>`)
+    .replace(/(<a class="front-media" id="front-media" href=")[^"]*(">)<img src="[^"]*"/, `$1${h.page}$2<img src="${posterUrl(HERO)}"`)
+    .replace(/(<span id="front-name">)[^<]*/, `$1${esc(h.a.title)}`).replace(/(<span class="front-trick" id="front-trick">)[^<]*/, `$1${esc(h.a.trick)}`)
+    .replace(/(<button class="front-npx" id="front-npx" type="button"><code>)[^<]*/, `$1npx motion-library add ${HERO}`)
+    .replace(/(class="cat-dot" aria-hidden="true" style="--hue:)[^"]*("><\/i><span id="front-name">)/, `$1${catById[h.a.cat].hue}$2`);
+}
 index = replaceBetween(index, '<!--static:grid-->', '<!--/static:grid-->', `\n${sections}\n`);
 index = replaceBetween(index, '<!--static:faq-->', '<!--/static:faq-->', faqHtml);
 index = replaceBetween(index, '<!--static:ld-->', '<!--/static:ld-->', `<script type="application/ld+json">${json(siteLd)}</script>`);

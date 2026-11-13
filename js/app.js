@@ -13,9 +13,11 @@ import { createDetail } from './detail.js';
 import { exportGroup } from './export.js';
 import { LANG, LANGS, setLang, t, tr, catName, countText, FAQ } from './i18n.js';
 import { createSearch } from './search.js';
+import { createFront } from './front.js';
+import { SHOWPIECES } from './showpieces.js';
 
 const $ = s => document.querySelector(s);
-const grid = $('#grid'), emptyEl = $('#empty'), titleEl = $('#view-title'), countEl = $('#count'), toolsEl = $('#head-tools');
+const grid = $('#grid'), spEl = $('#showpieces'), headEl = $('.sheet-head'), emptyEl = $('#empty'), titleEl = $('#view-title'), countEl = $('#count'), toolsEl = $('#head-tools');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const canHover = matchMedia('(hover: hover) and (pointer: fine)');
 const KIND = { dom: 'DOM', canvas: 'Canvas', webgl: 'WebGL' };
@@ -108,18 +110,48 @@ async function render(animate = true) {
   else list.forEach(a => grid.append(cardEl(a)));
   grid.style.display = view === 'hearted' || sectioned ? 'block' : '';
   faqEl.hidden = !sectioned;
+  // the full list opens with the front page: the live hero and the showpiece row take the title's place
+  headEl.hidden = sectioned; front.show(sectioned); spEl.hidden = !sectioned;
+  if (sectioned) renderShowpieces();
   watchSections();
   crew?.refresh();                                                // new words on the page: the crew re-reads where they are
   if (animate && !reduce.matches) {
     // the first screen settles in reading order, 30 ms apart. The stagger stops growing at the 8th card, so the whole
     // screen has landed by 450 ms and nothing pops in ahead of the cards above it. Cards below the first screen don't animate.
-    const first = [...grid.querySelectorAll('.card, .group-head')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight);
+    // the full list's own first screen is the front page: a fresh visit gets its headline reveal, a swap back from
+    // another view brings the hero in with the cards
+    const lead = sectioned ? front.enter(!rendered) : [];
+    const first = [...lead, ...spEl.querySelectorAll('.card'), ...grid.querySelectorAll('.card, .group-head')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight);
     first.forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(12px) scale(.985)' }, { opacity: 1, transform: 'none' }],
       { duration: 240, delay: Math.min(i, 7) * 30, easing: ease, fill: 'backwards' }));
   }
   if (!canHover.matches) watchCentre();
+  rendered = true;
 }
+let rendered = false;
 
+// the editorial row above the catalogue: the hardest pieces, the first one large (js/showpieces.js)
+function renderShowpieces() {
+  spEl.innerHTML = `<div class="sp-head"><h2 id="sp-title"></h2><p class="sp-note"></p></div><div class="sp-grid"></div>`;
+  spEl.querySelector('h2').textContent = t('Showpieces');
+  spEl.querySelector('.sp-note').textContent = t('Real-time simulations and renders. Each one is still a single file.');
+  const g = spEl.querySelector('.sp-grid');
+  SHOWPIECES.map(id => animById[id]).filter(Boolean).forEach((a, i) => { const c = cardEl(a); c.classList.add('sp-card'); if (!i) c.classList.add('sp-big'); g.append(c); });
+  // scrolled to from the hero (once per visit), the row arrives in reading order: heading, note, then the tiles, 60 ms
+  // apart, rising 16 px. Already on screen (a short window), it came in with the first screen instead. Under reduced
+  // motion it is simply there.
+  spIO?.disconnect();
+  if (reduce.matches || spEl.getBoundingClientRect().top < innerHeight) return;
+  spIO = new IntersectionObserver(([en]) => {
+    if (!en.isIntersecting) return;
+    spIO.disconnect();
+    [spEl.querySelector('h2'), spEl.querySelector('.sp-note'), ...g.children].forEach((el, i) => el.animate(
+      [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 420, delay: Math.min(i, 6) * 60, easing: ease, fill: 'backwards' }));
+  });
+  spIO.observe(spEl);
+}
+let spIO = null;
 // the full list: one section per category, in dial order, each with its own heading; the dial follows the scroll
 function renderSections(list) {
   for (const c of CATEGORIES) {
@@ -128,7 +160,8 @@ function renderSections(list) {
     sec.style.setProperty('--hue', c.hue);
     sec.innerHTML = `<div class="cat-head"><h2></h2><span class="cat-count"></span></div><div class="grid"></div>`;
     sec.querySelector('h2').textContent = catName(c);
-    sec.querySelector('.cat-count').textContent = countText(items.length);
+    // the count is a quiet number after the heading, not a second heading: the words name it for screen readers
+    const cc = sec.querySelector('.cat-count'); cc.textContent = items.length; cc.setAttribute('aria-label', countText(items.length));
     const g = sec.querySelector('.grid'); items.forEach(a => g.append(cardEl(a)));
     grid.append(sec);
   }
@@ -224,6 +257,7 @@ function startPreview(card) {
   live = { card, iframe: f, t0: 0 };
   card.classList.add('is-live');
   crew?.hush(true);
+  front.setBusy('preview', true);                                // one live WebGL picture at a time: the hero waits
   tickTimecode();
 }
 function stopPreview() {
@@ -233,6 +267,7 @@ function stopPreview() {
   crew?.hush(false);
   card.classList.remove('is-live');
   iframe.classList.remove('live');
+  front.setBusy('preview', false);
   setTimeout(() => iframe.remove(), 170);
 }
 function tickTimecode() {
@@ -243,25 +278,29 @@ function tickTimecode() {
 }
 addEventListener('message', e => {
   if (e.data?.type === 'stage-ready' && live && e.source === live.iframe.contentWindow) { live.iframe.classList.add('live'); live.t0 = performance.now(); }
-  if (e.data?.type === 'stage-click' && live && e.source === live.iframe.contentWindow) openAnim(live.card.dataset.id);
+  if (e.data?.type === 'stage-click' && live && e.source === live.iframe.contentWindow) { lastCard = live.card; openAnim(live.card.dataset.id); }
 });
-grid.addEventListener('pointerover', e => {
+for (const host of [grid, spEl]) {
+host.addEventListener('pointerover', e => {
   const card = e.target.closest('.card'); if (!card || !canHover.matches || live?.card === card) return;
   clearTimeout(intent); intent = setTimeout(() => startPreview(card), 110);
 });
-grid.addEventListener('pointerout', e => {
+host.addEventListener('pointerout', e => {
   const card = e.target.closest('.card'); if (!card || card.contains(e.relatedTarget)) return;
   clearTimeout(intent); if (live?.card === card) stopPreview();
 });
 // keyboard focus plays the card (hover does it for the mouse). A mouse press also focuses the button, but it must not start a
 // preview mid-click: the playing preview sits above the button, so the release would land inside it and the click would be lost
-grid.addEventListener('focusin', e => { const card = e.target.closest('.card'); if (card && e.target.matches('.card-hit:focus-visible')) startPreview(card); });
-grid.addEventListener('focusout', e => { const card = e.target.closest('.card'); if (card && !card.contains(e.relatedTarget) && live?.card === card) stopPreview(); });
-grid.addEventListener('click', e => {
+host.addEventListener('focusin', e => { const card = e.target.closest('.card'); if (card && e.target.matches('.card-hit:focus-visible')) startPreview(card); });
+host.addEventListener('focusout', e => { const card = e.target.closest('.card'); if (card && !card.contains(e.relatedTarget) && live?.card === card) stopPreview(); });
+host.addEventListener('click', e => {
   const heart = e.target.closest('.heart'); const card = e.target.closest('.card');
   if (heart && card) { onHeartPress(heart, card.dataset.id, celebrate); return; }
-  if (e.target.closest('.card-hit') && card) openAnim(card.dataset.id);
+  if (e.target.closest('.card-hit') && card) { lastCard = card; openAnim(card.dataset.id); }
 });
+}
+// the same effect can sit in the showpiece row and in its category: the detail view grows out of the one that was clicked
+let lastCard = null;
 
 // Phones have no hover: play the card nearest the middle of the screen once scrolling settles.
 let centreT;
@@ -270,7 +309,7 @@ function watchCentre() {
   centreT = setTimeout(() => {
     if (canHover.matches) return;
     const mid = innerHeight / 2; let best = null, bd = Infinity;
-    for (const c of grid.querySelectorAll('.card')) { const r = c.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = c; } }
+    for (const c of [...spEl.querySelectorAll('.card'), ...grid.querySelectorAll('.card')]) { const r = c.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = c; } }
     if (best && bd < innerHeight / 2) startPreview(best);
   }, 260);
 }
@@ -283,7 +322,7 @@ function celebrate(btn) {
 }
 store.onChange(() => {
   refreshCounts();
-  document.querySelectorAll('.card').forEach(c => c.querySelector('.heart')?.setAttribute('aria-pressed', String(store.isHearted(c.dataset.id))));
+  document.querySelectorAll('.card[data-id]').forEach(c => c.querySelector('.heart')?.setAttribute('aria-pressed', String(store.isHearted(c.dataset.id))));
   detail.syncHeart();
   if (view === 'hearted' && !detail.isOpen) render(false);
 });
@@ -311,6 +350,9 @@ $('#surprise').addEventListener('click', () => {
 
 /* ───────── detail ───────── */
 function openAnim(id) { location.hash = `#/a/${id}`; }
+
+/* ───────── front page: the live hero (js/front.js) ───────── */
+const front = createFront({ toast, onOpen: href => { lastCard = null; location.hash = href; } });
 
 /* ───────── search ───────── */
 // a palette over the page (js/search.js): the Search button, ⌘K / Ctrl+K, or "/"
@@ -345,11 +387,14 @@ function route() {
   if (kind === 'a' && animById[arg]) {
     if (!viewReady) setView(animById[arg].cat, false);
     stopPreview();
-    const card = grid.querySelector(`.card[data-id="${arg}"]`);
+    front.setBusy('detail', true);
+    const card = lastCard?.dataset.id === arg && lastCard.isConnected ? lastCard : grid.querySelector(`.card[data-id="${arg}"]`);
+    lastCard = null;
     detail.open(animById[arg], card, query);
     return;
   }
   detail.close(kbClose); kbClose = false;
+  front.setBusy('detail', false);
   if ((kind === 'c' && catById[arg]) || kind === 'faq') {
     // coming from another view (Hearted): swap to the full list at once, so the section exists to glide to
     setView('all', false, false);
