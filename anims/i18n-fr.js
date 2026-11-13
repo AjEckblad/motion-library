@@ -18,7 +18,7 @@ export const FR = {
  },
  "ocean": {
   "title": "Pleine mer",
-  "trick": "Océan FFT à spectre JONSWAP ; les pentes non résolues élargissent le scintillement",
+  "trick": "Océan FFT issu d’un spectre JONSWAP à large dispersion directionnelle ; écume là où la surface se replie",
   "notes": [
    "Une mer ouverte, grise et ventée, sous un ciel couvert : quatre FFT sur le GPU transforment à chaque image un spectre JONSWAP à large dispersion directionnelle en vagues de Gerstner, et l’écume naît là où la surface se replie et s’étire en traînées sous le vent.",
    "Le vent règle la hauteur des vagues et la fréquence des moutons, le clapot affûte les crêtes, le soleil est la hauteur du soleil caché derrière les nuages ; le pointeur déplace sa tache claire le long de l’horizon."
