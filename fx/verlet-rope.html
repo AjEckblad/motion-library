@@ -101,6 +101,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/springs/verlet-rope.js">anims/springs/verlet-rope.js on GitHub</a></p>
 <pre><code>// Verlet rope: in a smart-home app the living-room lamp has a pull cord. A finger tugs it and the light clicks on, flicks it sideways so it swings, then tugs again to switch it off.
 // Each point of the cord moves by its last motion plus gravity, then neighbours are pulled back to their rest length a few times per frame, so the cord sways, whips and settles on its own. The switch at the top gives on a stiff spring, and the light toggles when it bottoms out, like the real thing.
 const PARAMS = { segments: 24, gravity: 900, iterations: 8 };

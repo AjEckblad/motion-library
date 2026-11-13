@@ -100,6 +100,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/springs/rubber-band.js">anims/springs/rubber-band.js on GitHub</a></p>
 <pre><code>// Rubber-band: in a photo viewer a finger swipes to the last photo, then keeps pulling. Past the end the photo follows less and less, and on release it springs back carrying the speed your hand had.
 // Inside the album the photo tracks the finger 1:1. Past the edge Apple's rubber-band curve (offset × d × c / (d + c × offset)) gives rising resistance, so the edge says &quot;that's all&quot; without a wall: it never stops dead and never jumps.
 const PARAMS = { constant: 0.55, stiffness: 200 };

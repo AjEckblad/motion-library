@@ -100,6 +100,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/scroll/reading-progress.js">anims/scroll/reading-progress.js on GitHub</a></p>
 <pre><code>// Reading progress, on a long explainer article: a thin bar under the header fills as you read, and an estimate of the minutes left counts down, swapping each number with a short slide.
 // The bar is one element scaled on the x axis (never resized), eased toward the true position so small scroll jitters don't make it twitch. Minutes left are counted from the words still below the fold, which is more honest than a percentage. The page scrolls itself at a reading pace; a real wheel or swipe takes over.
 const PARAMS = { follow: 0.18, swap: 220 };

@@ -23,11 +23,12 @@ await page.waitForSelector('.card');
 await page.waitForTimeout(1500);
 const take = () => page.evaluate(() => { const a = window.__anims; window.__anims = []; return a; });
 
-// 1. arrow keys on the dial: All -> Hearted swaps instantly to the top; Hearted -> first category jumps straight to its section
+// 1. arrow keys on the dial: New -> Hearted swaps instantly to the top; Hearted -> first category jumps straight to its section
+//    (starts on New when the dial has it: All, New, Hearted, categories)
 await take();
 await page.evaluate(() => scrollTo(0, 0));
 await page.waitForTimeout(150);
-await page.focus('.dial-item[data-id="all"]');
+await page.focus(await page.$('.dial-item[data-id="new"]') ? '.dial-item[data-id="new"]' : '.dial-item[data-id="all"]');
 const h0 = await page.evaluate(() => location.hash);
 await page.keyboard.press('ArrowDown');
 await page.waitForTimeout(40);

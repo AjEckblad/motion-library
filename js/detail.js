@@ -1,6 +1,6 @@
 // The detail view: the card grows into a large live stage, with playback controls, tweak sliders,
 // the notes, and the code (highlighted, with Copy and Download).
-import { catById, srcOf } from '../anims/registry.js';
+import { ANIMS, CATEGORIES, catById, srcOf } from '../anims/registry.js';
 import { source, readParams, writeParams, paramsLineIndex, formatValue, standalone, download, encodeParams, parseParams, promptFor } from './code.js';
 import { highlightLines } from './highlight.js';
 import { heartIcon, onHeartPress } from './hearts.js';
@@ -12,6 +12,9 @@ import { t, tr, tl, catName } from './i18n.js';
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const drawer = 'cubic-bezier(0.32, 0.72, 0, 1)';
 const easeOut = 'cubic-bezier(0.23, 1, 0.32, 1)';   // the --ease-out token; the built-in ease-out is too weak
+// previous / next follow the full list's order (category by category) and wrap round at the ends
+const ORDER = CATEGORIES.flatMap(c => ANIMS.filter(a => a.cat === c.id));
+const REPO = 'https://github.com/AjEckblad/motion-library/blob/main/';
 
 export function createDetail({ celebrate, toast, onClose }) {
   const root = document.getElementById('detail');
@@ -45,17 +48,35 @@ export function createDetail({ celebrate, toast, onClose }) {
           <div class="notes"><h2>${t('How it works')}</h2><canvas class="creature creature-detail" aria-hidden="true"></canvas></div>
           <div class="npx"><h2>${t('Install')}</h2><code class="npx-cmd"></code>
             <button class="pb-btn d-npx" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><rect class="stroke" x="5" y="5" width="8.5" height="8.5" rx="1.6"/><path class="stroke" d="M3 10.5V3.6A1.1 1.1 0 014.1 2.5H11"/></svg><span>${t('Copy')}</span></button></div>
-          <div class="code-head"><h2>${t('Code')}</h2><span class="file"></span><span class="sp"></span>
+          <div class="code-head"><h2>${t('Code')}</h2><a class="file" target="_blank" rel="noopener"></a><span class="sp"></span>
             <button class="pb-btn d-copy" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><rect class="stroke" x="5" y="5" width="8.5" height="8.5" rx="1.6"/><path class="stroke" d="M3 10.5V3.6A1.1 1.1 0 014.1 2.5H11"/></svg><span>${t('Copy')}</span></button>
             <button class="pb-btn d-prompt" type="button" title="Copy as a prompt for an AI coding assistant: the notes, the settings and the code"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="stroke" d="M2.5 4.2c0-.9.7-1.7 1.7-1.7h7.6c.9 0 1.7.8 1.7 1.7v5.1c0 .9-.8 1.7-1.7 1.7H7.2L4.4 13.4v-2.4h-.2c-1 0-1.7-.8-1.7-1.7z"/></svg><span>${t('Prompt')}</span></button>
             <button class="pb-btn d-dl" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="stroke" d="M8 2.5v7.5M5 7.2l3 3 3-3M3 13h10"/></svg><span>${t('Download .html')}</span></button>
           </div>
           <pre class="code" tabindex="0" aria-label="Source code"><code></code></pre>
+          <nav class="d-pager" aria-label="${t('Effects')}">
+            <a class="d-prev"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg><span><small>${t('Previous')}</small><b></b></span></a>
+            <a class="d-next"><span><small>${t('Next')}</small><b></b></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5"/></svg></a>
+          </nav>
         </div>
       </div>`;
     root.querySelector('.cat').append(catName(cat));
     root.querySelector('#d-title').textContent = tr(a, 'title');
-    root.querySelector('.file').textContent = srcOf(a);
+    const file = root.querySelector('.file');
+    file.textContent = srcOf(a); file.href = REPO + srcOf(a); file.title = t('View source on GitHub');
+    // previous / next swap the effect in place: the link replaces this history entry, so closing still goes straight
+    // back to the list (and keeps the "came from the list" state that lets close use history.back())
+    const at = ORDER.indexOf(a);
+    for (const [cls, d] of [['.d-prev', -1], ['.d-next', 1]]) {
+      const n = ORDER[(at + d + ORDER.length) % ORDER.length], link = root.querySelector(cls);
+      link.href = `#/a/${n.id}`; link.querySelector('b').textContent = tr(n, 'title');
+      link.addEventListener('click', e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;                 // a new tab works as usual
+        e.preventDefault();
+        const oldURL = location.href; history.replaceState(history.state, '', `#/a/${n.id}`);
+        dispatchEvent(new HashChangeEvent('hashchange', { oldURL, newURL: location.href }));
+      });
+    }
     root.querySelector('.d-stage img').src = `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`;
     const notes = root.querySelector('.notes');
     tr(a, 'notes').forEach(n => { const p = document.createElement('p'); p.textContent = n; notes.append(p); });
@@ -197,15 +218,21 @@ export function createDetail({ celebrate, toast, onClose }) {
       if (Object.keys(defaults).length && q !== query(values)) { values = { ...defaults, ...parseParams(q, a.params) }; syncKnobs(); update(); }
       return;
     }
+    // already open on another effect (previous / next, or search): swap in place, with no flight from a grid card
+    const swapping = !root.hidden && !!cur && !closeAnim;
     // reopening while the close fade runs: cancel it, or its finish would hide the new view (cancel skips onfinish)
     closeAnim?.cancel(); closeAnim = null;
     teardown(); cur = a; card = fromCard; busy = false; defaults = {}; values = {}; shared = parseParams(q, a.params);
-    lastFocus = document.activeElement;
+    const pagerFocus = swapping && document.activeElement?.closest?.('.d-prev, .d-next')?.className;
+    if (!swapping) lastFocus = document.activeElement;                // a swap keeps the card the view was opened from
     build(a);
     root.hidden = false; document.documentElement.style.overflow = 'hidden';
-    const media = visibleRect(card?.querySelector('.card-media'));
+    const media = swapping ? null : visibleRect(card?.querySelector('.card-media'));
     const box = root.querySelector('.d-stage');
-    if (media && !reduce.matches) {
+    if (swapping) {
+      if (!reduce.matches) root.querySelector('.d-body').animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 180, easing: easeOut });
+      mountStage();
+    } else if (media && !reduce.matches) {
       box.style.visibility = 'hidden';
       root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: easeOut });
       flip(media, box.getBoundingClientRect(), `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`, () => { box.style.visibility = ''; mountStage(); });
@@ -214,7 +241,9 @@ export function createDetail({ celebrate, toast, onClose }) {
       mountStage();
     }
     loadCode(a).catch(err => { root.querySelector('.code code').textContent = String(err.message || err); });
-    root.tabIndex = -1; root.focus({ preventScroll: true });
+    root.tabIndex = -1;
+    // stepping with the keyboard keeps focus on the same pager link, so Enter can keep going
+    (pagerFocus && root.querySelector('.' + pagerFocus.split(' ')[0]) || root).focus({ preventScroll: true });
   }
 
   function close(instant = false) {

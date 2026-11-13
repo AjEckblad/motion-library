@@ -100,6 +100,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/springs/ball-collisions.js">anims/springs/ball-collisions.js on GitHub</a></p>
 <pre><code>// Ball collisions: on an app's &quot;Pick your interests&quot; step, topic bubbles huddle together, bumping and settling. Tap one and it grows on a spring and shoulders the others aside; they collide, pass the push along and settle into a new arrangement.
 // Each bubble is pulled gently toward the middle; overlapping bubbles are separated by mass and exchange velocity along the line between their centres, with restitution taking a little energy each hit. Because the push travels through real contacts, the cluster feels like a handful of soft objects, not a grid redrawing.
 const PARAMS = { count: 18, restitution: 0.6 };

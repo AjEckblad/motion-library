@@ -1,7 +1,9 @@
 import { CATEGORIES, ANIMS, catById, animById, srcOf } from '../anims/registry.js';
-import { V, PV } from './versions.js';
-// content hashes ride on each effect (js/versions.js): its file and poster URLs change whenever they do, so no stale copies
-for (const a of ANIMS) { a.v = V[a.id] || ''; a.pv = PV[a.id] || ''; }
+import { V, PV, NEW } from './versions.js';
+// content hashes ride on each effect (js/versions.js): its file and poster URLs change whenever they do, so no stale copies.
+// NEW lists the effects added in the last few weeks, newest first: they get a badge and their own entry on the dial
+const NEW_SET = new Set(NEW || []);
+for (const a of ANIMS) { a.v = V[a.id] || ''; a.pv = PV[a.id] || ''; a.isNew = NEW_SET.has(a.id); }
 import { store } from './store.js';
 import { createDial } from './dial.js';
 import { Creature, PALETTES } from './creatures.js';
@@ -10,6 +12,7 @@ import { onHeartPress, heartIcon, closePicker } from './hearts.js';
 import { createDetail } from './detail.js';
 import { exportGroup } from './export.js';
 import { LANG, LANGS, setLang, t, tr, catName, countText, FAQ } from './i18n.js';
+import { createSearch } from './search.js';
 
 const $ = s => document.querySelector(s);
 const grid = $('#grid'), emptyEl = $('#empty'), titleEl = $('#view-title'), countEl = $('#count'), toolsEl = $('#head-tools');
@@ -31,6 +34,7 @@ let crew = null;
 /* ───────── dial ───────── */
 const entries = [
   { id: 'all', name: t('All'), hue: '#f2f2f3' },
+  ...(NEW_SET.size ? [{ id: 'new', name: t('New'), hue: '#7cc0ff' }] : []),
   { id: 'hearted', name: t('Hearted'), hue: '#ffb3c8' },
   ...CATEGORIES.map(c => ({ id: c.id, name: catName(c), hue: c.hue })),
   { id: 'faq', name: t('FAQ'), hue: '#9aa3ad' },                 // last on the dial: jumps to the questions under the full list
@@ -38,7 +42,7 @@ const entries = [
 const dial = createDial({
   root: $('#dial'), list: $('#dial-items'), entries,
   onSelect: (id, kb) => {
-    const hash = id === 'all' ? '#/' : id === 'hearted' ? '#/hearted' : id === 'faq' ? '#/faq' : `#/c/${id}`;
+    const hash = id === 'all' ? '#/' : id === 'hearted' ? '#/hearted' : id === 'new' ? '#/new' : id === 'faq' ? '#/faq' : `#/c/${id}`;
     // already on the full list: a category (or the FAQ) just scrolls to its section (the hash follows without a history entry)
     if ((catById[id] || id === 'faq') && view === 'all') { history.replaceState(history.state, '', hash); scrollToCat(id, kb); return; }
     if (id === 'all' && view === 'all') { history.replaceState(history.state, '', hash); scrollTo({ top: 0, behavior: kb || reduce.matches ? 'instant' : 'smooth' }); return; }
@@ -51,7 +55,7 @@ crew = createCrew({
   bar: $('.bar'), dial: $('#dial'), sheet: $('.sheet'), grid,
   covered: () => !detailEl.hidden,                               // paused under the detail view
 });
-const refreshCounts = () => dial.setCounts({ all: ANIMS.length, hearted: store.count(), ...Object.fromEntries(CATEGORIES.map(c => [c.id, ANIMS.filter(a => a.cat === c.id).length])) });
+const refreshCounts = () => dial.setCounts({ all: ANIMS.length, new: NEW_SET.size, hearted: store.count(), ...Object.fromEntries(CATEGORIES.map(c => [c.id, ANIMS.filter(a => a.cat === c.id).length])) });
 refreshCounts();
 
 /* ───────── cards ───────── */
@@ -66,6 +70,7 @@ function cardEl(a) {
   el.querySelector('img').src = `posters/${a.id}.webp${a.pv ? '?v=' + a.pv : ''}`;
   el.querySelector('.card-title span').textContent = tr(a, 'title');
   el.querySelector('.kind').textContent = KIND[a.kind];
+  if (a.isNew) { const b = document.createElement('b'); b.className = 'new-chip'; b.textContent = t('New'); el.querySelector('.kind').prepend(b); }
   el.querySelector('.trick').textContent = tr(a, 'trick');
   el.querySelector('.card-hit').setAttribute('aria-label', tr(a, 'title'));
   const h = el.querySelector('.heart');
@@ -76,6 +81,7 @@ function cardEl(a) {
 
 function listFor(v) {
   if (v === 'hearted') return ANIMS.filter(a => store.isHearted(a.id));
+  if (v === 'new') return NEW.map(id => animById[id]).filter(Boolean);
   return v === 'all' ? ANIMS : ANIMS.filter(a => a.cat === v);
 }
 
@@ -90,7 +96,7 @@ async function render(animate = true) {
       { duration: 120, easing: ease, fill: 'forwards' }).finished.catch(() => {})));
     if (token !== swapToken) return;
   }
-  const name = view === 'all' ? t('All animations') : view === 'hearted' ? t('Hearted') : catName(catById[view]);
+  const name = view === 'all' ? t('All animations') : view === 'hearted' ? t('Hearted') : view === 'new' ? t('New') : catName(catById[view]);
   titleEl.textContent = name;
   document.title = view === 'all' ? 'Motion Library' : `${name} · Motion Library`;
   grid.replaceChildren(); toolsEl.replaceChildren(); emptyEl.hidden = true;
@@ -305,7 +311,18 @@ $('#surprise').addEventListener('click', () => {
 
 /* ───────── detail ───────── */
 function openAnim(id) { location.hash = `#/a/${id}`; }
-const listHash = () => view === 'all' ? '#/' : view === 'hearted' ? '#/hearted' : `#/c/${view}`;
+
+/* ───────── search ───────── */
+// a palette over the page (js/search.js): the Search button, ⌘K / Ctrl+K, or "/"
+const search = createSearch({ onOpen: openAnim, newIds: NEW || [] });
+{
+  const b = $('#search-btn');
+  b.querySelector('.lbl').textContent = t('Search');
+  b.querySelector('kbd').textContent = search.shortcut;
+  b.setAttribute('aria-keyshortcuts', 'Meta+K Control+K /');
+  b.addEventListener('click', e => search.open(e.detail > 0));     // a real click fades in; Enter or Space on the button doesn't
+}
+const listHash = () => view === 'all' ? '#/' : view === 'hearted' ? '#/hearted' : view === 'new' ? '#/new' : `#/c/${view}`;
 const detail = createDetail({
   celebrate, toast,
   onClose: () => { if (history.state?.fromList) history.back(); else location.hash = listHash(); },
@@ -340,7 +357,7 @@ function route() {
     viewReadyOnce = true; return;
   }
   viewReadyOnce = true;
-  setView(kind === 'hearted' ? 'hearted' : 'all', !instant, true);
+  setView(kind === 'hearted' ? 'hearted' : kind === 'new' && NEW_SET.size ? 'new' : 'all', !instant, true);
 }
 // remember when a detail view was opened from the list, so closing can go back in history
 addEventListener('hashchange', e => {

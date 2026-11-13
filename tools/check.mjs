@@ -333,6 +333,29 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   await lp.locator('.dial-item[data-id="faq"]').click(); await lp.waitForTimeout(1300);
   const fq = await lp.evaluate(() => ({ top: Math.round(document.querySelector('#faq').getBoundingClientRect().top), on: document.querySelector('.dial-item[data-id="faq"]').getAttribute('aria-checked'), hash: location.hash, last: document.querySelector('#faq .faq-item:last-child h3').textContent }));
   check('the dial’s FAQ jumps to the questions', fq.top >= 0 && fq.top < 200 && fq.on === 'true' && fq.hash === '#/faq' && fq.last === 'Is this really free?', JSON.stringify(fq));
+  // search: ⌘K opens the palette from anywhere, typing ranks title matches first, Enter opens the effect, Esc closes it
+  await lp.keyboard.press('Meta+k'); await lp.waitForTimeout(150);
+  await lp.keyboard.type('ferro'); await lp.waitForTimeout(100);
+  const sr = await lp.evaluate(() => ({ open: !document.querySelector('.pal').hidden, focus: document.activeElement?.classList.contains('pal-input'), first: document.querySelector('.pal-list li .pal-title')?.textContent }));
+  await lp.keyboard.press('Enter'); await lp.waitForTimeout(900);
+  const so = await lp.evaluate(() => ({ hash: location.hash, closed: document.querySelector('.pal').hidden }));
+  check('⌘K search finds an effect and Enter opens it', sr.open && sr.focus && sr.first === 'Ferrofluid' && so.hash === '#/a/ferrofluid' && so.closed, JSON.stringify({ ...sr, ...so }));
+  // previous / next swap the effect in place and closing still returns to the list
+  await lp.locator('.d-next').click(); await lp.waitForTimeout(900);
+  const nx = await lp.evaluate(() => ({ hash: location.hash, title: document.querySelector('#d-title')?.textContent, src: document.querySelector('.code-head a.file')?.href }));
+  await lp.keyboard.press('Escape'); await lp.waitForTimeout(700);
+  const back = await lp.evaluate(() => ({ hash: location.hash, hidden: document.getElementById('detail').hidden }));
+  check('next swaps the detail view in place, the path links to GitHub, Esc returns to the list', nx.hash !== '#/a/ferrofluid' && /^#\/a\//.test(nx.hash) && nx.src?.startsWith('https://github.com/AjEckblad/motion-library/blob/main/anims/') && back.hidden && !/^#\/a\//.test(back.hash), JSON.stringify({ ...nx, ...back }));
+  // New: the dial lists the effects js/versions.js marks as new, and their cards carry the chip
+  {
+    const { NEW } = await import(pathToFileURL(path.join(ROOT, 'js/versions.js')).href + '?n=' + Date.now());
+    if (NEW.length) {
+      await lp.evaluate(() => { location.hash = '#/new'; }); await lp.waitForTimeout(900);
+      const nw = await lp.evaluate(() => ({ cards: [...document.querySelectorAll('#grid .card')].map(c => c.dataset.id), chips: document.querySelectorAll('#grid .card .new-chip').length }));
+      check('New lists the newest effects, each with its chip', nw.cards.join() === NEW.join() && nw.chips === NEW.length, `${nw.cards.length} cards, ${nw.chips} chips`);
+      await lp.evaluate(() => { location.hash = '#/'; }); await lp.waitForTimeout(700);
+    }
+  }
   await lp.evaluate(() => scrollTo(0, 0)); await lp.waitForTimeout(400);
   // the language menu: closed at rest, opens from the globe button with four languages, the current one ticked
   check('the language menu is closed until opened', await lp.locator('#lang-menu').isHidden());

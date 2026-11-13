@@ -431,3 +431,63 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 .sheet-head h1, .empty h2 { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 /* the whole install command stays visible, wrapping at the flags rather than scrolling */
 .npx-cmd { white-space: normal; overflow-wrap: anywhere; overflow-x: visible; }
+
+/* ───────── search: a pill in the bar and a palette over the page (js/search.js) ───────── */
+.search-btn { color: var(--ink-2); padding: 0 7px 0 14px; }
+.search-btn kbd, .pal-esc, .pal-foot kbd { font: 500 var(--fs-meta)/1 var(--font); color: var(--muted); border: 1px solid var(--edge); border-radius: 6px; background: var(--raised); }
+.search-btn kbd { padding: 5px 6px; margin-left: 4px; }
+@media (hover: hover) and (pointer: fine) { .search-btn:hover { background: var(--raised); color: var(--ink); } }
+.pal { position: fixed; inset: 0; z-index: 80; display: flex; justify-content: center; align-items: flex-start; padding: min(14vh, 120px) 16px 16px; }
+.pal[hidden] { display: none; }
+.pal-scrim { position: absolute; inset: 0; background: rgba(4, 4, 6, .66); }
+.pal-box { position: relative; width: min(640px, 100%); max-height: calc(100dvh - min(14vh, 120px) - 16px); display: flex; flex-direction: column; background: var(--sheet); border: 1px solid var(--edge); border-radius: var(--r-sheet); box-shadow: 0 24px 64px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .35); overflow: hidden; transform-origin: 50% 0; }
+.pal-field { flex: none; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 12px 0 18px; border-bottom: 1px solid var(--line); }
+.pal-field svg { width: 18px; height: 18px; fill: none; stroke: var(--muted); stroke-width: 1.7; stroke-linecap: round; flex: none; }
+.pal-input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; background: none; color: var(--ink); font: 400 var(--fs-body)/1 var(--font); }
+.pal-input::placeholder { color: var(--muted); }
+.pal-esc { flex: none; padding: 5px 7px; cursor: pointer; }
+.pal-sub { flex: none; padding: 12px 18px 2px; font-size: var(--fs-meta); color: var(--muted); }
+.pal-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; }
+.pal-list:empty { display: none; }
+.pal-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 6px 10px 6px 6px; border-radius: var(--r-control); cursor: pointer; }
+.pal-list li[aria-selected="true"] { background: var(--raised); }
+.pal-list img { width: 56px; height: 42px; object-fit: cover; border-radius: 6px; background: var(--raised); display: block; }
+.pal-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pal-title { font-size: var(--fs-label); font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pal-title mark { background: none; color: var(--accent); }
+.pal-trick { font-size: var(--fs-meta); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pal-cat { display: flex; align-items: center; gap: 7px; font-size: var(--fs-meta); color: var(--muted); white-space: nowrap; }
+.pal-empty { margin: 0; padding: 28px 18px 32px; color: var(--muted); font-size: var(--fs-label); text-align: center; overflow-wrap: anywhere; }
+.pal-foot { flex: none; display: flex; gap: 18px; padding: 10px 18px; border-top: 1px solid var(--line); font-size: var(--fs-meta); color: var(--muted); }
+.pal-foot kbd { display: inline-block; min-width: 20px; padding: 3px 5px; margin-right: 3px; text-align: center; color: var(--ink-2); }
+@media (hover: none), (pointer: coarse) { .search-btn kbd, .pal-foot, .pal-esc { display: none; } }
+@media (max-width: 640px) {
+  .search-btn { width: 38px; padding: 0; justify-content: center; }
+  .search-btn .lbl, .search-btn kbd { display: none; }
+  .pal { padding-top: 10px; }
+  .pal-cat { display: none; }
+  .pal-list li { grid-template-columns: 48px minmax(0, 1fr); }
+  .pal-list img { width: 48px; height: 36px; }
+}
+
+/* ───────── new: a small chip before the kind label on effects added in the last few weeks ───────── */
+.new-chip { display: inline-block; margin-right: 8px; padding: 0 6px; border-radius: 6px; font: 500 var(--fs-meta)/18px var(--font); color: var(--accent); background: rgba(124, 192, 255, .12); }
+
+/* ───────── detail: the file path links to the source on GitHub; previous / next sit under the code ───────── */
+.code-head a.file { text-decoration: none; text-underline-offset: 3px; border-radius: 4px; }
+@media (hover: hover) and (pointer: fine) { .code-head a.file:hover { color: var(--ink-2); text-decoration: underline; } }
+.d-pager { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 10px; border-top: 1px solid var(--line); background: var(--sheet); }
+.d-pager a { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 12px; border-radius: var(--r-control); border: 1px solid var(--edge); color: var(--ink); text-decoration: none; transition: background-color .15s ease; }
+.d-pager .d-next { justify-content: flex-end; text-align: right; }
+.d-pager span { display: flex; flex-direction: column; min-width: 0; }
+.d-pager small { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; }
+.d-pager b { font-weight: 500; font-size: var(--fs-label); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.d-pager svg { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) and (pointer: fine) { .d-pager a:hover { background: var(--raised); } }
+/* narrow phones: with Search in the bar the brand needs the language button's chevron space to stay on one line */
+.brand span { white-space: nowrap; }
+@media (max-width: 420px) { .lang-chev { display: none; } .lang-btn { padding: 0 9px; } }
+/* the bar needs 383px with all five controls: below that GitHub steps out of it (it is in the footer too), and on the
+   narrowest phones Surprise me does as well */
+@media (max-width: 382px) { .bar .gh-btn { display: none; } }
+@media (max-width: 338px) { .bar #surprise { display: none; } }

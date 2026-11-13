@@ -100,6 +100,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/scroll/sequence-scrub.js">anims/scroll/sequence-scrub.js on GitHub</a></p>
 <pre><code>// Image-sequence scrub, on a running shoe's product page: the shoe turns a full circle as you scroll, one pre-rendered frame at a time, while the feature callouts change beside it.
 // This is how big product pages spin objects: render the turntable once as a stack of frames, then let scroll position pick the frame. Here the frames are drawn in code (a small 3D mesh, flat-shaded) and cached on first use; fewer frames step visibly, more frames look like video. The page scrolls itself; a real wheel or swipe takes over.
 const PARAMS = { frames: 48, turns: 1 };

@@ -100,6 +100,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/scroll/sticky-stack.js">anims/scroll/sticky-stack.js on GitHub</a></p>
 <pre><code>// Sticky card stack, on a budgeting app's &quot;how it works&quot; section: each step card sticks a little lower than the last, and as the next card slides up over it, the one underneath scales back and dims, so the steps pile up like a deck.
 // position: sticky does the stacking; the only scripted part is the depth of each card, read from how far the cards after it have travelled, which drives a small scale and a shade. Scaling from the top edge keeps a sliver of every earlier card visible, so you always see how many steps are behind you.
 const PARAMS = { shrink: 0.05, shade: 0.12 };

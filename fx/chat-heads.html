@@ -100,6 +100,7 @@
 </dl>
 
 <h2>Source code</h2>
+<p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/springs/chat-heads.js">anims/springs/chat-heads.js on GitHub</a></p>
 <pre><code>// Chat heads: three floating conversation bubbles on a phone. A finger drags the front one around the screen and the others trail behind it, each one chasing the bubble in front on its own spring; let go and the stack flies to the nearest edge.
 // Chaining springs gives the trail for free: every bubble lags a little more than the one ahead, so the group stretches out when you move fast and bunches up when you stop. The throw carries into the dock spring, so a flick decides which side it lands on.
 const PARAMS = { stiffness: 260, damping: 0.68 };
