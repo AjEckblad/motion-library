@@ -522,4 +522,8 @@ export const MORE = [
     trick: 'Balance, escapement, gear train: the tick is the escape wheel’s step',
     notes: ['A hand-wound calibre through its caseback: the balance swings, its hairspring breathing, and each pass lets the escape wheel tick on. Hold to wind it; move to tilt it in the light.', 'Each beat the pallet fork flips and the escape wheel jumps half a tooth; the train turns it down by 16, 7.5 and 8. Speed 1 is real time, 28,800 beats an hour.'],
     params: { speed: P(0.05, 1, 0.05, 'Speed (1 = real time)'), amplitude: P(180, 310, 5, 'Amplitude (°)'), tilt: P(0, 1.5, 0.05, 'Tilt') } },
+  { id: 'wave-collapse', cat: 'generative', title: 'Wave function collapse', kind: 'canvas', posterAt: 6000, pointer: true,
+    trick: 'Collapse the least certain cell, then propagate what its neighbours may be',
+    notes: ['An island map writes itself: unsolved cells hold every terrain at once until the solver picks one, and coastlines, beaches and ridges grow out from there. Press and drag to dissolve a patch and watch it regrow.', 'Neighbours may differ by one terrain step at most. The cell with the lowest entropy collapses, its neighbours lose what they can no longer be, and a contradiction is repaired by dissolving the patch around it.'],
+    params: { cell: P(14, 34, 1, 'Cell size'), speed: P(1, 20, 1, 'Cells per frame'), land: P(0.5, 1.6, 0.05, 'Land') } },
 ];

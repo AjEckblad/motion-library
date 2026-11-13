@@ -1792,10 +1792,20 @@ export const ES = {
    "En cada batido el áncora cambia de lado y la rueda de escape avanza medio diente; el tren lo reduce por 16, 7,5 y 8. Velocidad 1 es tiempo real: 28 800 batidos por hora."
   ]
  },
+ "wave-collapse": {
+  "title": "Colapso de función de onda",
+  "trick": "Colapsa la celda más incierta y propaga lo que pueden ser sus vecinas",
+  "notes": [
+   "Un mapa de islas se escribe solo: las celdas sin resolver son todos los terrenos a la vez hasta que el algoritmo elige uno, y de ahí crecen costas, playas y crestas. Mantén pulsado y arrastra para disolver una zona y verla rehacerse.",
+   "Las vecinas solo pueden diferir en un escalón de terreno. Colapsa la celda de menor entropía, sus vecinas pierden lo que ya no pueden ser, y una contradicción se repara disolviendo la zona de alrededor."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Cells per frame": "Celdas por fotograma",
+ "Land": "Tierra",
  "Speed (1 = real time)": "Velocidad (1 = real)",
  "Amplitude (°)": "Amplitud (°)",
  "Size": "Tamaño",

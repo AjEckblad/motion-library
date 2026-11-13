@@ -1792,10 +1792,20 @@ export const FR = {
    "À chaque alternance l’ancre bascule et la roue d’échappement avance d’une demi-dent ; le rouage démultiplie par 16, 7,5 et 8. Vitesse 1 = temps réel, 28 800 alternances par heure."
   ]
  },
+ "wave-collapse": {
+  "title": "Effondrement de fonction d’onde",
+  "trick": "Effondrer la case la plus incertaine, puis propager ce que ses voisines peuvent être",
+  "notes": [
+   "Une carte d’îles s’écrit toute seule : les cases non résolues sont tous les terrains à la fois jusqu’à ce que le solveur en choisisse un, et côtes, plages et crêtes poussent de là. Maintenez et glissez pour dissoudre une zone et la regarder repousser.",
+   "Deux voisines ne diffèrent que d’un palier de terrain au plus. La case d’entropie la plus basse s’effondre, ses voisines perdent ce qu’elles ne peuvent plus être, et une contradiction se répare en dissolvant la zone autour."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Cells per frame": "Cases par image",
+ "Land": "Terre",
  "Speed (1 = real time)": "Vitesse (1 = réel)",
  "Amplitude (°)": "Amplitude (°)",
  "Size": "Taille",

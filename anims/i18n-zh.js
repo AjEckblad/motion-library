@@ -1792,10 +1792,20 @@ export const ZH = {
    "每一拍擒纵叉翻转一次，擒纵轮跳半个齿；齿轮系再依次以 16、7.5、8 的比例减速。速度 1 即真实时间，每小时 28,800 拍。"
   ]
  },
+ "wave-collapse": {
+  "title": "波函数坍缩",
+  "trick": "坍缩最不确定的格子，再传播邻格还能是什么",
+  "notes": [
+   "一张岛屿地图自己写出来：未解的格子同时是所有地形，直到求解器选定一种，海岸、沙滩和山脊由此长出。按住拖动可以溶掉一块，看它重新长回来。",
+   "相邻格子的地形最多相差一级。熵最低的格子先坍缩，邻格去掉不再可能的地形；出现矛盾时就把周围一片溶回叠加态重解。"
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Cells per frame": "每帧格数",
+ "Land": "陆地",
  "Speed (1 = real time)": "速度（1 = 真实）",
  "Amplitude (°)": "摆幅（°）",
  "Size": "大小",
