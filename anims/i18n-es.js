@@ -1776,14 +1776,6 @@ export const ES = {
    "Un clip-path inset con esquinas redondeadas muestra solo la esquina del tamaño del botón y luego se abre al menú completo; los elementos siguen con un breve escalonado y son los primeros en irse."
   ]
  },
- "watch-movement": {
-  "title": "Mecanismo de reloj",
-  "trick": "Volante, escape, tren de engranajes: el tic es el paso de la rueda de escape",
-  "notes": [
-   "Un calibre de carga manual visto por su fondo: el volante oscila, su espiral respira, y en cada paso suelta un diente de la rueda de escape. Mantén pulsado para darle cuerda; mueve el puntero para inclinarlo a la luz.",
-   "En cada batido el áncora cambia de lado y la rueda de escape avanza medio diente; el tren lo reduce por 16, 7,5 y 8. Velocidad 1 es tiempo real: 28 800 batidos por hora."
-  ]
- },
  "wave-collapse": {
   "title": "Colapso de función de onda",
   "trick": "Colapsa la celda más incierta y propaga lo que pueden ser sus vecinas",

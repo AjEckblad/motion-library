@@ -1776,14 +1776,6 @@ export const FR = {
    "Un clip-path inset aux coins arrondis ne montre que le coin de la taille du bouton, puis s’ouvre sur le menu complet ; les éléments suivent avec un court décalage et partent en premier."
   ]
  },
- "watch-movement": {
-  "title": "Mouvement de montre",
-  "trick": "Balancier, échappement, rouage : le tic est le pas de la roue d’échappement",
-  "notes": [
-   "Un calibre à remontage manuel vu par son fond : le balancier oscille, son spiral respire, et chaque passage libère la roue d’échappement d’un cran. Maintenez appuyé pour le remonter ; bougez pour l’incliner dans la lumière.",
-   "À chaque alternance l’ancre bascule et la roue d’échappement avance d’une demi-dent ; le rouage démultiplie par 16, 7,5 et 8. Vitesse 1 = temps réel, 28 800 alternances par heure."
-  ]
- },
  "wave-collapse": {
   "title": "Effondrement de fonction d’onde",
   "trick": "Effondrer la case la plus incertaine, puis propager ce que ses voisines peuvent être",

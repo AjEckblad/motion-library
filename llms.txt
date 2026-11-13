@@ -1,6 +1,6 @@
 # Motion Library
 
-> 225 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 224 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -92,7 +92,6 @@
 - [Shatter & rewind](https://ajeckblad.github.io/motion-library/fx/shatter.html): Spiderweb Voronoi shards on closed-form paths; time slows, stops, reverses. `npx motion-library add shatter`
 - [Snow globe](https://ajeckblad.github.io/motion-library/fx/snow-globe.html): A ray-marched scene seen through refracting water, with settling snow. `npx motion-library add snow-globe`
 - [Meadow](https://ajeckblad.github.io/motion-library/fx/meadow.html): Instanced blades bent by gust bands carried downwind across the field. `npx motion-library add meadow`
-- [Watch movement](https://ajeckblad.github.io/motion-library/fx/watch-movement.html): Balance, escapement, gear train: the tick is the escape wheel’s step. `npx motion-library add watch-movement`
 
 ## Shaders & glitch
 
