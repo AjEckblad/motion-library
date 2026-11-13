@@ -1,6 +1,6 @@
 # Motion Library
 
-> 226 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 227 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -1311,6 +1311,17 @@ Neighbours may differ by one terrain step at most. The cell with the lowest entr
 Settings: --cell 22 (14 to 34, step 1; Cell size); --speed 5 (1 to 20, step 1; Cells per frame); --land 1 (0.5 to 1.6, step 0.05; Land).
 Renderer: Canvas 2D. Size: 14.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/wave-collapse.html
 
+### Leaf venation
+
+Leaf venation is a Canvas effect: space colonisation: auxin points pull the nearest vein tip toward them. One plain JavaScript file with no dependencies; add it with npx motion-library add leaf-venation.
+
+A backlit leaf grows and its veins grow with it: a midrib, secondaries arching out to the margin and a fine net closing into areoles; then it turns to autumn and falls, and a new leaf begins. Move to move the sun behind it.
+
+Auxin points appear along the growing margin; each pulls its nearest vein tip, which steps toward them, and is used up when a vein arrives. Vein width follows the pipe model, r³ of a vein being the sum over its branches.
+
+Settings: --density 1 (0.5 to 2, step 0.05; Vein density); --speed 1 (0.3 to 2.5, step 0.05; Speed); --light 1 (0 to 1.5, step 0.05; Backlight).
+Renderer: Canvas 2D. Size: 13.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/leaf-venation.html
+
 
 ## Simulation
 
@@ -1340,12 +1351,12 @@ Renderer: Canvas 2D. Size: 4.6 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 Falling sand is a Canvas effect: cellular automaton: grains fall, slide diagonally, water spreads sideways. One plain JavaScript file with no dependencies; add it with npx motion-library add falling-sand.
 
-Coloured sand pours from the cursor, piles on ledges and settles into striped dunes, with water pooling between.
+Fine desert sand pours from the cursor, piles on the ledges and settles into layered dunes; now and then a burst of water runs down, pools in the hollows and darkens the sand it soaks.
 
-A cellular grid scanned bottom-up: grains fall or slide diagonally, water also spreads sideways, and a per-cell stamp stops anything moving twice in one step.
+A grid of grains scanned bottom-up: each falls, gaining speed, or slides diagonally, water also spreads sideways and soaks in, and 32-cell chunks where nothing moved go to sleep.
 
-Settings: --rate 30 (2 to 80, step 1; Pour rate); --water 0.12 (0 to 1, step 0.05; Water share); --cell 3 (2 to 6, step 1; Grain size).
-Renderer: Canvas 2D. Size: 7.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/falling-sand.html
+Settings: --rate 200 (40 to 600, step 10; Pour rate); --water 0.08 (0 to 0.5, step 0.02; Water share); --cell 1.5 (1 to 4, step 0.5; Grain size).
+Renderer: Canvas 2D. Size: 15.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/falling-sand.html
 
 ### Doom fire
 

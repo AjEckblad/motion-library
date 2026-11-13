@@ -1,6 +1,6 @@
 # Motion Library
 
-> 226 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 227 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -141,6 +141,7 @@
 - [Heatmap](https://ajeckblad.github.io/motion-library/fx/heatmap.html): A drifting field, sampled per cell, through a perceptual heat palette. `npx motion-library add heatmap`
 - [Julia set](https://ajeckblad.github.io/motion-library/fx/julia-set.html): z → z² + c, with c gliding along the Mandelbrot edge. `npx motion-library add julia-set`
 - [Wave function collapse](https://ajeckblad.github.io/motion-library/fx/wave-collapse.html): Collapse the least certain cell, then propagate what its neighbours may be. `npx motion-library add wave-collapse`
+- [Leaf venation](https://ajeckblad.github.io/motion-library/fx/leaf-venation.html): Space colonisation: auxin points pull the nearest vein tip toward them. `npx motion-library add leaf-venation`
 
 ## Simulation
 
