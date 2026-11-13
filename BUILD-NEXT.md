@@ -10,14 +10,10 @@ fewer lines; REMOVE leaf venation; water ripples: slower, much less happening.
   sea; sun slider now 1-20); fire-smoke (campfire on 4 logs, glowing alligator char, ember bed); iron-filings (one bar
   magnet, 16 lines, light paper); water-ripple (speed param 0.2-1 default 0.55, 'Ripple speed' labels added); fireworks
   (ring burst removed; "five" shell types in all languages). check 89/89. Agent B (ad136918ab3a25700) finished.
-- WAITING TO REVIEW: lava-flow (agent A reported it done; lava now flows down a channel, vent surges, crust rafts;
-  posterAt 6000, PARAMS unchanged). Its new notes are in agent A's message; in short:
-  EN1 'A volcano at dusk: red-hot lava pours from the crater and runs down the gullies in glowing channels, dark rafts of
-  crust drifting on it, its light on the slopes and plume.' EN2 'A thickness-and-heat simulation runs on the raymarched
-  mountain; the vent surges, crust plates set at their own age and ride the flow, and colour is Planck’s law.'
-  (zh/es/fr: ask agent A to resend, or translate; French needs U+00A0 before : and ;)
-- STILL WITH AGENT A (ada12491af339459d): honey-coil ("fix honey pour"), then dla-crystal ("more realistic"). If it
-  stopped on a usage limit, SendMessage it to continue.
+- ALSO SHIPPED (1b0e4e2): lava-flow (flows down a channel, surges, crust rafts) and honey-coil (reflection now shaded
+  rope, no red popping on melt, softer shadow, irregular coiling with folds/reversals). 10 of 11 done.
+- STILL WITH AGENT A (ada12491af339459d): dla-crystal ("make the crystal growth more realistic"). Review its frames,
+  apply its notes (French U+00A0 before : and ;), poster, commit, worktree build, push. If stopped, SendMessage it.
 - AFTER ALL: cd cli && node build.mjs (drops removed pieces from its copy); check npm whether 0.3.4 was published
   (npm view motion-library version); if it was, bump to 0.3.5. Run motion-check (22 tests). Final report to AJ:
   list each of his 11 items with what changed, reservations (ocean clouds a bit streaky; iron filings now light paper,
