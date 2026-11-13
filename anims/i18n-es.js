@@ -1783,11 +1783,21 @@ export const ES = {
    "Un botón Compartir se abre en su menú como una única superficie oscura y luego se cierra de nuevo en el botón.",
    "Un clip-path inset con esquinas redondeadas muestra solo la esquina del tamaño del botón y luego se abre al menú completo; los elementos siguen con un breve escalonado y son los primeros en irse."
   ]
- }
+ },
+ "watch-movement": {
+  "title": "Mecanismo de reloj",
+  "trick": "Volante, escape, tren de engranajes: el tic es el paso de la rueda de escape",
+  "notes": [
+   "Un calibre de carga manual visto por su fondo: el volante oscila, su espiral respira, y en cada paso suelta un diente de la rueda de escape. Mantén pulsado para darle cuerda; mueve el puntero para inclinarlo a la luz.",
+   "En cada batido el áncora cambia de lado y la rueda de escape avanza medio diente; el tren lo reduce por 16, 7,5 y 8. Velocidad 1 es tiempo real: 28 800 batidos por hora."
+  ]
+ },
 };
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Speed (1 = real time)": "Velocidad (1 = real)",
+ "Amplitude (°)": "Amplitud (°)",
  "Size": "Tamaño",
  "Blades": "Briznas",
  "Gusts": "Ráfagas",

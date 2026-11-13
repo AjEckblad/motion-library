@@ -518,4 +518,8 @@ export const MORE = [
     trick: 'Instanced blades bent by gust bands carried downwind across the field',
     notes: ['A hillside of long grass at golden hour: gusts roll across it in waves you can follow, and the blades glow where the low sun shines through them. Move across it to turn the wind.', 'Sixty thousand blades share one bending strip; each leans by the wind at its root, a steady push plus bands of noise that travel downwind, so every gust crosses the field.'],
     params: { blades: P(10000, 120000, 5000, 'Blades'), wind: P(0, 2, 0.05, 'Wind'), gusts: P(0, 2, 0.05, 'Gusts') } },
+  { id: 'watch-movement', cat: 'chrome', title: 'Watch movement', kind: 'canvas', posterAt: 2100, pointer: true,
+    trick: 'Balance, escapement, gear train: the tick is the escape wheel’s step',
+    notes: ['A hand-wound calibre through its caseback: the balance swings, its hairspring breathing, and each pass lets the escape wheel tick on. Hold to wind it; move to tilt it in the light.', 'Each beat the pallet fork flips and the escape wheel jumps half a tooth; the train turns it down by 16, 7.5 and 8. Speed 1 is real time, 28,800 beats an hour.'],
+    params: { speed: P(0.05, 1, 0.05, 'Speed (1 = real time)'), amplitude: P(180, 310, 5, 'Amplitude (°)'), tilt: P(0, 1.5, 0.05, 'Tilt') } },
 ];
