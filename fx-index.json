@@ -1325,14 +1325,14 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors",
-   "descriptionZh": "方形磁铁上的罗森斯维格尖刺：六边形格点上的凹锥，以光线步进渲染成黑色镜面",
+   "description": "Rosensweig cones on a magnet inside the oil: a graded hex lattice, raymarched as a black mirror",
+   "descriptionZh": "油中磁铁上的罗森斯维格尖锥：渐变六边形阵列，光线步进渲染成黑色镜面",
    "page": "https://ajeckblad.github.io/motion-library/fx/ferrofluid.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ferrofluid",
    "npx": "npx motion-library add ferrofluid",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 22990,
+   "bytes": 25596,
    "settings": [
     {
      "key": "spikes",
@@ -1624,7 +1624,7 @@
    "npx": "npx motion-library add sph-water",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 27401,
+   "bytes": 28045,
    "settings": [
     {
      "key": "particles",
@@ -1653,14 +1653,14 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "FFT ocean from a JONSWAP spectrum with a broad directional spread; foam where the surface folds",
-   "descriptionZh": "由方向分布很宽的 JONSWAP 波谱生成的 FFT 海洋；海面折叠处生成泡沫",
+   "description": "FFT ocean from a wind-aligned JONSWAP spectrum: long crests, deep troughs, foam where the surface folds",
+   "descriptionZh": "由顺风的 JONSWAP 波谱生成的 FFT 海洋：长浪峰、深浪谷，海面折叠处生成泡沫",
    "page": "https://ajeckblad.github.io/motion-library/fx/ocean.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ocean",
    "npx": "npx motion-library add ocean",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 36353,
+   "bytes": 36781,
    "settings": [
     {
      "key": "wind",
@@ -1675,7 +1675,7 @@
      "key": "chop",
      "flag": "--chop",
      "label": "Choppiness",
-     "default": 1.6,
+     "default": 1.15,
      "min": 0.6,
      "max": 1.9,
      "step": 0.05
@@ -1698,14 +1698,14 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "Liquid-rope coiling: stacked tube loops sink into a thin-film mound",
-   "descriptionZh": "液绳盘绕：叠起的管状圈沉入薄膜流动的蜜堆",
+   "description": "Liquid-rope coiling: a tapering thread lays rope loops that fillet into a thin-film pool",
+   "descriptionZh": "液绳盘绕：逐渐变细的蜂蜜细流盘成绳圈，圆滑地融入薄膜蜜池",
    "page": "https://ajeckblad.github.io/motion-library/fx/honey-coil.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/honey-coil",
    "npx": "npx motion-library add honey-coil",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 37222,
+   "bytes": 42763,
    "settings": [
     {
      "key": "flow",

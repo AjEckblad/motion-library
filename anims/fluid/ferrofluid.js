@@ -1,20 +1,24 @@
-// Ferrofluid: a puddle of glossy black magnetic oil lies on a plain studio table, and a square neodymium block magnet,
-// nickel plated with bevelled edges, stands in it. Its field pulls the oil up the block: a meniscus climbs the sides,
-// a film runs over the top in a low dome, and the dome breaks into the Rosensweig instability, a dense hexagonal
-// field of fine needles. The field of a block is strongest at its edges and corners, so the needles there are the
-// tallest, and they lean out over the shoulder along the field lines; the film thins down the sides in drips, and
-// the bare nickel shows below it. Move the pointer and the magnet slides through the pool after it; the oil on top
-// lags a beat (and the puddle is dragged along behind), the needles lean back and shrink while it travels and stand up again with a shiver when it stops.
-// With no pointer it wanders on its own. Click or tap to switch the magnet off: the needles melt, the film slides
-// down the block and the oil relaxes into a smooth puddle round the bare magnet; switch it on and the oil climbs
-// back and the needles rise. The magnet param sets how it starts (a fresh start with it on grows the crown in).
-// The scene is raymarched. The oil is a distance field: the puddle (an uneven round outline, a rounded rim), smooth-unioned with the film on the block (the
-// block's own rounded box, inflated by a thickness that is a dome on top and fades down the sides), smooth-unioned
-// with concave cones on a hexagonal lattice. A sample only visits its nearest lattice point and the six around it,
-// and everything near the magnet sits in a bounding box the ray only opens when it comes close. The oil is a black
-// mirror: what you see is the studio reflected in it (a soft light overhead, strips either side and behind the
-// camera, a small key up front, a rim light behind), dimmed where a neighbouring needle is in the way; the open pool
-// mirrors the magnet and its crown with a short second march. The table takes a soft contact shadow round the puddle.
+// Ferrofluid: a puddle of glossy black magnetic oil lies on a plain studio table, and a square neodymium block magnet
+// stands in it, inside the oil. Its field draws the oil up and over the block: a smooth skirt climbs out of the puddle
+// in a short meniscus, the block's square shoulders read through a glossy film, and on top the film breaks into the
+// Rosensweig instability, a dense hexagonal field of sharp cones joined by smooth concave valleys. The field of a block
+// is strongest at its edges and corners, so the cones are graded: short mid-face, tallest along the edges and at the
+// corners, where they lean out over the shoulder along the field lines. The puddle mirrors the crown.
+// Move the pointer and the magnet slides through the pool after it; the oil on top lags a beat (and the puddle is
+// dragged along behind), the needles lean back and shrink while it travels and stand up again with a shiver when it
+// stops. With no pointer it wanders on its own. Click or tap to switch the magnet off: the needles melt, the film opens
+// from the middle of the top and slides down the sides as a smooth edge with a rounded lip and a few rounded tongues,
+// leaving the bare nickel block in a smooth puddle; switch it on and the oil climbs back and the needles rise. The magnet
+// param sets how it starts (a fresh start with it on grows the crown in).
+// The scene is raymarched. The oil is a distance field: the puddle smooth-unioned with the film on the block (the
+// block's own rounded box, inflated by a thickness that is a low dome on top and a skirt down the sides), smooth-
+// unioned with concave cones on a hexagonal lattice, turned 20 degrees to the block and jittered so the needles never
+// stand in rows from the camera. A sample only visits its nearest lattice point and the six around it, looked up where
+// its needle has its foot (the lean undone), so a leaning needle is found from its tip too; everything near the magnet
+// sits in a bounding box the ray only opens when it comes close. The oil is a black mirror: what you see is the studio
+// reflected in it (a soft light overhead, strips either side and behind the camera, a small key up front, a rim light
+// behind), with a short soft march along each reflection for the needles in the way; the pool's reflection is marched
+// into the crown and shaded the same way. The table takes a soft contact shadow round the puddle.
 const PARAMS = { spikes: 260, strength: 1, magnet: 0 };
 
 export default function (stage) {
@@ -28,75 +32,97 @@ export default function (stage) {
   precision highp float; in vec2 uv; out vec4 o;
   uniform vec2 R, M, CO, LN, PC; uniform float T, ON, CON, SON, LA, SH, EXC, FOC;
   uniform vec3 CP, CF, CR, CU;
-  const vec3 MB = vec3(.2, .12, .2);                   // the block magnet's half size
+  const vec3 MB = vec3(.2, .1, .2);                    // the block magnet's half size
   const float BEV = .016, FL = 0., LV = .036;         // its bevel; the table; the puddle's depth
   const float RP = .56;                                // the puddle's mean radius (its centre PC trails the magnet)
   const float MY = FL + MB.y, MT = FL + 2. * MB.y;     // the magnet's centre and top
   const float S3 = 1.7320508;
+  const mat2 RL = mat2(.9396926, -.3420201, .3420201, .9396926);   // the block's frame to the lattice's, turned 20 degrees
   float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
   float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + vec2(1, 1)), f.x), f.y); }
   float smin(float a, float b, float k) { float h = max(k - abs(a - b), 0.) / k; return min(a, b) - h * h * k * .25; }
   float sdRBox(vec3 p, vec3 b, float r) { vec3 q = abs(p) - b + r; return length(max(q, 0.)) + min(max(q.x, max(q.y, q.z)), 0.) - r; }
 
+  // a rounded square radius over the top face: 1 on the block's outline, with no crease along the diagonals
+  float sq(vec2 f) { vec2 a = f * f; a *= a; a *= a; return pow(a.x + a.y, .125); }
   float magnetD(vec3 p) { return sdRBox(p - vec3(M.x, MY, M.y), MB, BEV); }
   // the film's thickness on the top face: a low dome, a little off centre while the oil lags the magnet
   // (a superellipse, so the dome has no crease along the diagonals)
   float topT(vec2 f) { vec2 a = f * f; float e2 = mix(sqrt(dot(a, a)), dot(f, f) * .5, .5); return .008 + .026 * (1. - e2); }
-  // the film on the block: a dome on top, thinning down the sides in drips; its front climbs (or slides) with CON
+  // the film on the block. With the magnet on it covers the block, thickening towards the foot; while the switch moves
+  // its edge climbs the sides and closes over the top towards the middle (or opens and slides back down), a smooth
+  // line with a rounded lip and a few rounded tongues running ahead of it
   float coatT(vec3 q) {
     vec2 f = (q.xz - CO) / MB.x;
-    float top = topT(clamp(f, -1., 1.));
-    float u = q.x * 1.7 + q.z * 2.3, drip = vn(vec2(u * 22., 3.)) * .7 + vn(vec2(u * 40., 9.)) * .3;
-    float side = .0075 * smoothstep(.05 - .11 * drip * drip, .095, q.y);
-    // while the switch is moving the sides carry a full sheet of oil, with a thicker lip where it climbs (or slides)
-    float moving = CON * (1. - CON) * 4.;
-    side = max(side, .009 * moving);
-    float t = mix(side, top, smoothstep(MB.y - .04, MB.y + .002, q.y));
-    float front = -MB.y - .04 + CON * (2. * MB.y + .12);
-    t += .006 * moving * exp(-pow((q.y - front + .012) / .014, 2.));
-    return t * smoothstep(front + .012, front - .03, q.y) * (.4 + .6 * CON);
+    float e = min(sq(f), 1.);
+    // how far the oil has to travel to get here: up the side, then in across the top
+    float w = smoothstep(MB.y - .03, MB.y + .002, q.y), path = mix(q.y, MB.y + (1. - e) * MB.x, w);
+    float tongue = smoothstep(.55, .9, vn(vec2((q.x * 1.7 + q.z * 2.3) * 7., 3.)));
+    float d = -MB.y - .06 + CON * (2. * MB.y + MB.x + .16) - .04 * tongue - path;   // > 0: wet
+    // (on the sides it thickens towards the foot)
+    float sk = clamp((MB.y - q.y) / (2. * MB.y), 0., 1.), t = mix(.011 + .05 * sk * sk, topT(clamp(f, -1., 1.)), w);
+    return t * smoothstep(0., .03, d) + .0045 * smoothstep(0., .006, d) * smoothstep(.03, .012, d);
   }
-  // the needles: concave cones on a hexagonal lattice over the top face and its shoulder
+  // the field over the top face as the needles feel it: weakest mid-face, rising to the edges, strongest at the
+  // corners, dying away just past the shoulder
+  float fieldAt(vec2 f, float e) {
+    vec2 a = abs(f);
+    float corner = smoothstep(.6, 1., a.x) * smoothstep(.6, 1., a.y);
+    return (.42 + .56 * pow(smoothstep(.1, 1.02, e), 1.6) + .34 * corner) * smoothstep(1.06, .96, e);
+  }
+  // the needles lean out along the field lines: barely mid-face, far out over the shoulder at the edges, diagonally at the corners
+  vec2 leanAt(vec2 f, float e) {
+    vec2 w = f * f; w *= w * w; vec2 od = sign(f) * w; od /= length(od) + 1e-6;
+    od.y *= od.y > 0. ? .6 : 1.;   // (less towards the camera: a needle pointing at the lens reads as a ring, not a spike)
+    return od * (.04 + .62 * smoothstep(.4, 1.1, e) * (.6 + .4 * SON)) + LN;
+  }
+  // where a needle stands: on the film, and a little down the rounded shoulder past the edge
+  float baseAt(vec2 f, float e) { return MT + topT(clamp(f, -1., 1.)) - max(e - 1., 0.) * MB.x * .9 - .005; }
+  // the needles: concave cones on a hexagonal lattice over the top face, turned 20 degrees to the block and jittered,
+  // so from the camera they never stand in rows
   float spikes(vec3 p) {
-    vec2 q = p.xz - (M + CO), g = vec2(q.x - q.y / S3, 2. * q.y / S3) / LA;
+    vec2 q = p.xz - (M + CO), f = q / MB.x;
+    float e = sq(f);
+    // look the lattice up where this point's needle has its foot: undo the lean, so a leaning needle is found from its tip
+    vec2 fc = f * min(1., 1.1 / max(e, 1e-4));
+    vec2 u = q - leanAt(fc, min(e, 1.1)) * max(p.y - MT - topT(clamp(fc, -1., 1.)), 0.);
+    vec2 g0 = RL * u, g = vec2(g0.x - g0.y / S3, 2. * g0.y / S3) / LA;
     vec3 cu = vec3(g.x, -g.x - g.y, g.y), rc = floor(cu + .5), df = abs(rc - cu);
     if (df.x > df.y && df.x > df.z) rc.x = -rc.y - rc.z; else if (df.y > df.z) rc.y = -rc.x - rc.z; else rc.z = -rc.x - rc.y;
     float s = 1e5;
     for (int k = 0; k < 7; k++) {
       vec2 c = rc.xz + (k == 0 ? vec2(0) : k == 1 ? vec2(1, 0) : k == 2 ? vec2(-1, 0) : k == 3 ? vec2(0, 1) : k == 4 ? vec2(0, -1) : k == 5 ? vec2(1, -1) : vec2(-1, 1));
-      vec2 cw = LA * vec2(c.x + .5 * c.y, .5 * S3 * c.y), f = cw / MB.x;
-      float e = max(abs(f.x), abs(f.y));
-      if (e > 1.22) continue;
-      float hs = h21(c + 17.3);
-      // the field over a block: strongest along the edges, most of all at the corners; it falls away past the shoulder
-      float corner = smoothstep(.72, 1., abs(f.x)) * smoothstep(.72, 1., abs(f.y));
-      float field = (.36 + .68 * smoothstep(.35, 1., e) + .4 * corner) * smoothstep(1.22, .96, e);
-      float H = SH * SON * field * (.8 + .4 * hs) * (1. + EXC * .3 * sin(T * 23. + hs * 40.));
+      vec2 cw = LA * (vec2(c.x + .5 * c.y, .5 * S3 * c.y) + (vec2(h21(c + 3.1), h21(c + 7.7)) - .5) * .4) * RL;
+      vec2 fk = cw / MB.x;
+      float ek = sq(fk);
+      if (ek > 1.04) continue;
+      float hs = h21(c + 17.3), fd = fieldAt(fk, ek);
+      float H = SH * SON * fd * (.86 + .28 * hs) * (1. + EXC * .3 * sin(T * 23. + hs * 40.));
       if (H < .0065) continue;   // (a needle still buried in the film is skipped: its buried tip left hexagonal seams)
-      // the base sits on the film, and past the edge it slides down the shoulder
-      float base = MT + topT(clamp(f, -1., 1.)) - max(e - 1., 0.) * MB.x * 1.5 - .006;
-      // each leans out along the field: up in the middle, out over the shoulder (to the nearest edge, or the corner)
-      vec2 od = vec2(sign(f.x) * pow(abs(f.x), 6.), sign(f.y) * pow(abs(f.y), 6.)); od /= max(length(od), 1e-4);
-      vec2 lean = od * (.06 + .78 * smoothstep(.55, 1.18, e) * (.6 + .4 * SON)) + LN + .035 * vec2(sin(T * 1.3 + hs * 9.), cos(T * 1.1 + hs * 7.));
-      vec3 l = p - vec3(M.x + CO.x + cw.x, base, M.y + CO.y + cw.y);
+      vec2 lean = leanAt(fk, ek) + .03 * vec2(sin(T * 1.3 + hs * 9.), cos(T * 1.1 + hs * 7.));
+      vec3 l = vec3(q.x - cw.x, p.y - baseAt(fk, ek), q.y - cw.y);
       l.xz -= lean * max(l.y, 0.);
-      float rb = LA * (.46 + .22 * SON),   // (narrow while they grow or melt: overlapping flat cones left hexagonal creases)
-           rr = length(l.xz), yy = clamp(l.y / H, 0., 1.);
-      float sl = rb * 1.7 / H * pow(1. - yy, .7);
-      // below its base it tapers to a point inside the film, so a needle on a curved surface never shows a ledge
+      // a weak needle is a low, nearly straight mound; a strong one a sharp spike on a wide concave flare
+      float pw = mix(1.4, 2.1, smoothstep(.3, 1.1, fd * SON)), rb = LA * (.5 + .24 * SON),   // (narrow while they grow or melt: overlapping flat cones left hexagonal creases)
+            rr = length(l.xz), yy = clamp(l.y / H, 0., 1.), k0 = rb * pw / H;
+      float sl = k0 * pow(1. - yy, pw - 1.);
+      // below its base a long foot tapers to a point inside the film, so a needle on a curved surface never shows a ledge,
+      // and the flare of a needle at the edge drapes down into the film on the side
       // (above the tip: a lower bound, so a short, flat needle while they grow or melt never lets the ray step through it)
-      float cn = l.y > H ? max(l.y - H, rr / sqrt(1. + pow(rb * 1.7 / H, 2.))) : l.y < -.03 ? length(vec2(rr, l.y + .03)) : l.y < 0. ? (rr - rb * (1. + l.y / .03)) * .45 : (rr - rb * pow(1. - yy, 1.7)) / sqrt(1. + sl * sl);
+      float cn = l.y > H ? max(l.y - H, rr / sqrt(1. + k0 * k0)) : l.y < -.07 ? length(vec2(rr, l.y + .07)) : l.y < 0. ? (rr - rb * (1. + l.y / .07)) * .9 : (rr - rb * pow(1. - yy, pw)) / sqrt(1. + sl * sl);
       // the lean shears the cone, which stretches distances: scale back so the ray cannot step through a leaning needle;
-      // and a smooth union, so neighbouring bases meet in a soft fillet, not a sharp hexagonal seam
-      s = smin(s, cn * inversesqrt(1. + dot(lean, lean)), LA * .22);
+      // and a smooth union, so neighbouring flares meet in a curved valley, not a seam
+      s = smin(s, cn * inversesqrt(1. + dot(lean, lean)), LA * .26);
     }
     return s;
   }
   // the puddle's outline: a slowly breathing, uneven circle round PC
   float rim(vec2 d) { float a = atan(d.y, d.x); return RP * (1. + .03 * sin(a * 3. + 1.3 + T * .11) + .02 * sin(a * 5. - 2.1 - T * .17) + .02 * sin(a * 2. + .4)); }
   // the puddle: a flat top, a rounded rim, standing on the table
+  // (the field draws the oil towards the block: its surface rises gently towards it)
   float poolD(vec3 p) { vec2 d = p.xz - PC; float de = (length(d) - rim(d)) * .88, k = LV * .85;
-    vec2 w = vec2(de + k, p.y - LV + k); return max(length(max(w, 0.)) + min(max(w.x, w.y), 0.) - k, -p.y); }
+    vec2 bq = abs(p.xz - M) - MB.xz; float lv = LV + CON * .004 * exp(-length(max(bq, 0.)) / .06);
+    vec2 w = vec2(de + k, p.y - lv + k); return max(length(max(w, 0.)) + min(max(w.x, w.y), 0.) - k, -p.y); }
   // the magnet and the oil on it (film and needles), without the pool
   vec2 crown(vec3 p) {
     vec3 q = p - vec3(M.x, MY, M.y);
@@ -108,15 +134,17 @@ export default function (stage) {
   vec2 inside(vec3 p) {
     float pool = poolD(p);
     vec3 q = p - vec3(M.x, MY, M.y);
-    float bx = sdRBox(q - vec3(CO.x, MB.y * .5 + SH * .6, CO.y), vec3(MB.x + .14, MB.y * 1.5 + SH * .6 + .08, MB.z + .14), .02);
+    float bx = sdRBox(q - vec3(CO.x, MB.y * .5 + SH * .6, CO.y), vec3(MB.x + .17, MB.y * 1.5 + SH * .6 + .08, MB.z + .17), .02);
     if (bx > .02) return vec2(min(pool, bx), 0.);
     vec2 c = crown(p);
-    return vec2(min(smin(pool, c.x, .016 + .022 * CON), c.y), 0.);
+    // the oil on the block runs down into the pool in a wide concave skirt
+    return vec2(min(smin(pool, c.x, .014 + .022 * CON), c.y), 0.);
   }
   // at a hit: is it bare nickel? (no film there, no needle or fillet near)
   bool bare(vec3 p) {
+    if (CON > .999) return false;   // (fully on, the oil covers the block)
     vec3 q = p - vec3(M.x, MY, M.y);
-    return coatT(q) < 3e-4 && spikes(p) * .7 > LA * .32 && poolD(p) > .016 + .022 * CON;
+    return coatT(q) < 3e-4 && spikes(p) * .7 > LA * .32 && poolD(p) > .014 + .022 * CON;
   }
   float solid(vec3 p) { vec2 c = crown(p); return min(c.x, c.y); }   // for the shading probes: exact, and not the pool
   vec3 nrm(vec3 p) { const vec2 e = vec2(.0008, -.0008);
@@ -131,7 +159,7 @@ export default function (stage) {
     float t = t0;
     for (int i = 0; i < 160; i++) {
       vec2 h = inside(ro + rd * t);
-      if (h.x < .0004 * (1. + t)) return vec3(t, h.y, 0.);
+      if (h.x < .0006 * (1. + t)) return vec3(t, h.y, 0.);
       t += max(h.x, .0006);
       if (t > t1) break;
     }
@@ -167,15 +195,26 @@ export default function (stage) {
     c += 16. * rect(o, r, 0, -3.2, vec4(-.5, -.4, .7, 2.6), .1);        // a tall strip on the left
     c += 10. * rect(o, r, 0, 3.4, vec4(-.9, -.4, -.1, 2.4), .1);        // a narrower strip on the right
     c += 8. * rect(o, r, 2, -3.6, vec4(-.7, .5, .5, 1.6), .12);         // a rim light behind
-    c += 30. * rect(o, r, 2, 4.5, vec4(-2.6, -1., -1.1, 3.6), .12);     // two tall strips behind the camera: each needle
-    c += 14. * rect(o, r, 2, 4.5, vec4(1., -1., 1.9, 3.6), .12);        // carries their reflections as vertical lines
+    c += 30. * rect(o, r, 2, 4.5, vec4(-2.6, .5, -1.1, 3.6), .12);     // two tall strips behind the camera: each needle
+    c += 14. * rect(o, r, 2, 4.5, vec4(1., .5, 1.9, 3.6), .12);        // carries their reflections as vertical lines
     c += 40. * rect(o, r, 1, 3.4, vec4(-1.5, .7, -.5, 1.7), .08);       // a compact key up front: a glint on every tip
-
-    c += 2.5 * rect(o, r, 2, 4.6, vec4(-3., -.5, 3., 2.5), .6);         // and a broad white card between them
+    c += 1.6 * rect(o, r, 2, 4.6, vec4(-3., 1.2, 3., 3.), .8);          // and a broad white card between them, up high
 
     return c;
   }
   vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
+  vec3 nrmS(vec3 p) { const vec2 e = vec2(.0008, -.0008);
+    return normalize(e.xyy * solid(p + e.xyy) + e.yyx * solid(p + e.yyx) + e.yxy * solid(p + e.yxy) + e.xxx * solid(p + e.xxx)); }
+  // the surface's own colour, given what it reflects (e). The oil: a black mirror. The bare block: nickel plating,
+  // a bright, slightly warm mirror, a little satin, with a faint polish grain
+  vec3 surf(vec3 p, vec3 n, vec3 rd, vec3 e, float ao) {
+    float c = max(dot(n, -rd), 0.);
+    if (!bare(p)) return vec3(.0035, .003, .0028) * ao + e * (.045 + .955 * pow(1. - c, 5.)) * (.4 + .6 * ao);
+    vec3 q = p - vec3(M.x, MY, M.y);
+    float grain = vn(vec2((q.x + q.z) * 300., q.y * 20.));
+    vec3 sat = vec3(.5) * (.55 + .45 * n.y) + .35 * max(dot(n, normalize(vec3(-.8, .3, .4))), 0.) + .2 * max(dot(n, normalize(vec3(.9, .2, .3))), 0.);
+    return (e * (.62 + .38 * pow(1. - c, 5.)) * .7 + sat * .38) * vec3(.82, .8, .76) * (.92 + .08 * grain) * (.45 + .55 * ao);
+  }
   void main() {
     vec2 sp = (uv - .5) * vec2(R.x / R.y, 1.);
     vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y), ro = CP, col;
@@ -183,40 +222,33 @@ export default function (stage) {
     float th = h.x > 0. ? h.x : (rd.y < 0. ? -ro.y / rd.y : 1e9);
     if (h.x > 0.) {
       vec3 p = ro + rd * h.x, n = nrm(p), r = reflect(rd, n);
-      float c = max(dot(n, -rd), 0.);
-      // ambient occlusion along the normal, and how much of the reflection a neighbouring needle blocks
       float ao = clamp(.3 + .7 * solid(p + n * .03) / .03, 0., 1.);
-      float occ = 1.;
-      vec3 e;
-      if (p.y < LV + .012 && solid(p) > .03) {
-        // the open pool mirrors the magnet and its crown: a short second march, only if the reflection heads for them
-        e = env(p, r);
-        vec3 lo = vec3(M.x + CO.x - MB.x - .08, FL, M.y + CO.y - MB.z - .08), hi = vec3(M.x + CO.x + MB.x + .08, MT + SH * 1.4 + .04, M.y + CO.y + MB.z + .08);
-        vec3 iv = 1. / r, ta = (lo - p) * iv, tb = (hi - p) * iv, tn = min(ta, tb), tf = max(ta, tb);
-        float a0 = max(max(tn.x, tn.y), max(tn.z, .003)), a1 = min(min(tf.x, tf.y), tf.z);
-        if (a0 < a1) {
-          float t2 = a0;
-          for (int i = 0; i < 56; i++) {
-            vec3 q2 = p + r * t2; float d = solid(q2);
-            if (d < .0012) { e = bare(q2) ? vec3(.52, .5, .47) * (.35 + .9 * smoothstep(FL, MT, q2.y)) : vec3(.012) + .25 * smoothstep(MT - .02, MT + SH, q2.y); break; }
-            t2 += d; if (t2 > a1) break;
+      vec3 e = env(p + n * .002, r);
+      // the reflection, marched a little way towards the crown. Seen from the pool (or its skirt) it shows the crown,
+      // shaded as the eye would see it; on the crown a hit is a neighbouring needle in the way, so it only darkens
+      bool pool = solid(p) > .004;
+      vec3 lo = vec3(M.x + CO.x - MB.x - .17, FL, M.y + CO.y - MB.z - .17), hi = vec3(M.x + CO.x + MB.x + .17, MT + SH * 1.4 + .04, M.y + CO.y + MB.z + .17);
+      vec3 iv = 1. / r, ta = (lo - p) * iv, tb = (hi - p) * iv, tn = min(ta, tb), tf = max(ta, tb);
+      float a0 = max(max(tn.x, tn.y), max(tn.z, .003)), a1 = min(min(tf.x, tf.y), tf.z);
+      if (a0 < a1) {
+        vec3 o2 = p + n * .002;
+        float t2 = pool ? a0 : .006, occ = 1.;
+        for (int i = 0; i < 40; i++) {
+          vec3 q2 = o2 + r * t2; float d = solid(q2);
+          if (pool) {
+            // (a grazing ray along the skirt can run out of steps: by then it is as good as there)
+            if (d < .0015 || i == 39) { vec3 n2 = nrmS(q2); e = surf(q2, n2, r, env(q2 + n2 * .002, reflect(r, n2)), .8); break; }
+            t2 += max(d, .0015);
+          } else {
+            occ = min(occ, 5. * d / t2);
+            if (occ < .02 || i > 8) break;
+            t2 += clamp(d, .008, .05);
           }
+          if (t2 > a1) break;
         }
-      } else {
-        for (int i = 1; i <= 3; i++) { float s = .012 * float(i * i); occ = min(occ, clamp(solid(p + r * s) / s * 1.4, 0., 1.)); }
-        e = env(p + n * .002, r) * mix(.03, 1., occ);
+        if (!pool) e *= mix(.03, 1., clamp(occ, 0., 1.));
       }
-      if (!bare(p)) {
-        float fr = .045 + .955 * pow(1. - c, 5.);
-        col = vec3(.0035, .003, .0028) * ao + e * fr * (.4 + .6 * ao);
-      } else {
-        // nickel plating: a bright, slightly warm mirror, a little satin, with a faint polish grain
-        vec3 q = p - vec3(M.x, MY, M.y);
-        float grain = vn(vec2((q.x + q.z) * 300., q.y * 20.));
-        float fr = .62 + .38 * pow(1. - c, 5.);
-        vec3 sat = vec3(.5) * (.55 + .45 * n.y) + .35 * max(dot(n, normalize(vec3(-.8, .3, .4))), 0.) + .2 * max(dot(n, normalize(vec3(.9, .2, .3))), 0.);
-        col = (e * fr * .7 + sat * .38) * vec3(.82, .8, .76) * (.92 + .08 * grain) * (.45 + .55 * ao);
-      }
+      col = surf(p, n, rd, e, ao);
     } else if (rd.y < 0.) {
       vec3 p = ro + rd * th;
       col = table(p);
@@ -241,7 +273,7 @@ export default function (stage) {
   // the camera looks down at the puddle; on narrow screens it backs off so the puddle stays in frame
   const FOC = 1.8, EL = 0.6, AT = [0, 0.1, 0.13], cam = {};
   const setCam = () => {
-    const a = W / H, D = Math.max(2.2, 2.9 / a);
+    const a = W / H, D = Math.max(2.05, 2.72 / a);
 
 
     cam.p = [AT[0], AT[1] + Math.sin(EL) * D, AT[2] + Math.cos(EL) * D]; cam.f = [0, -Math.sin(EL), -Math.cos(EL)];

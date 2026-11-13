@@ -26,10 +26,10 @@ export const ES = {
  },
  "honey-coil": {
   "title": "Miel vertida",
-  "trick": "Enrollamiento de cuerda líquida: bucles apilados se hunden en un montículo",
+  "trick": "Enrollamiento de cuerda líquida: un hilo que se adelgaza tiende bucles que se funden con un charco de película fina",
   "notes": [
-   "Cada bucle nuevo es un tubo apoyado en el de abajo; se hunde, se funde en un campo de alturas y se extiende según la ecuación de película delgada.",
-   "Flow fija el grosor del hilo, loops las vueltas por segundo y spread lo rápido que se aplana el montículo; arrastra el puntero para coser bucles."
+   "El hilo se adelgaza al caer; cada bucle nuevo se apoya en el de abajo, se hunde, se funde en un campo de alturas y se extiende según la ecuación de película fina; la miel toma color según cuánto recorre la luz en ella: dorado pálido donde es fina, ámbar profundo en el montículo.",
+   "Flujo fija el grosor del hilo, bucles las vueltas por segundo, extensión lo rápido que se desploma el montículo; arrastra el puntero para coser rastros de bucles."
   ]
  },
  "diff-growth": {
@@ -338,10 +338,10 @@ export const ES = {
  },
  "ferrofluid": {
   "title": "Ferrofluido",
-  "trick": "Agujas de Rosensweig sobre un imán de bloque: conos cóncavos en una red hexagonal, con raymarching como espejos negros",
+  "trick": "Conos de Rosensweig sobre un imán dentro del aceite: red hexagonal graduada, con raymarching como espejo negro",
   "notes": [
-   "Un aceite negro, brillante como un espejo, forma un charco sobre una mesa de estudio, trepa por un imán cuadrado niquelado y se eriza en una corona de agujas finas, más altas en los bordes; mueve el puntero para deslizar el imán por el charco (arrastra el aceite consigo) y haz clic o toca para apagarlo y ver cómo se derriten las agujas.",
-   "Campo de distancias con raymarching: el charco unido suavemente con una película sobre el bloque y conos cóncavos en una retícula hexagonal (cada muestra solo visita su punto más cercano y sus seis vecinos), sombreado solo con reflejos de estudio."
+   "Un aceite magnético negro y brillante forma un charco sobre una mesa de estudio y trepa por un imán cuadrado que está dentro, rompiéndose en una corona de agujas afiladas unidas por valles suaves, más altas e inclinadas hacia fuera en bordes y esquinas; mueve el puntero para deslizar el imán por el charco (arrastra el aceite) y haz clic o toca para apagarlo y ver cómo las agujas se funden y el aceite resbala.",
+   "Campo de distancias con raymarching: el charco unido suavemente con una película sobre el bloque y conos cóncavos en una red hexagonal girada y desplazada al azar (cada muestra visita su punto más cercano y sus seis vecinos, buscados deshaciendo la inclinación), sombreado solo con reflejos de estudio; el charco refleja la corona."
   ]
  },
  "marbling": {

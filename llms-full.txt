@@ -358,14 +358,14 @@ Renderer: WebGL. Size: 30.3 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Ferrofluid
 
-Ferrofluid is a WebGL effect: rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
+Ferrofluid is a WebGL effect: rosensweig cones on a magnet inside the oil: a graded hex lattice, raymarched as a black mirror. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
 
-Black, mirror-glossy oil lies in a puddle on a studio table, climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt.
+Glossy black magnetic oil lies in a puddle on a studio table and climbs over a square magnet standing in it, breaking into a crown of sharp needles joined by smooth valleys, tallest and leaning out at the edges and corners; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt and the oil slide off.
 
-Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.
+Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a turned, jittered hexagonal lattice (each sample visits its nearest lattice point and six neighbours, looked up with the lean undone), shaded only by studio reflections, the puddle mirroring the crown.
 
 Settings: --spikes 260 (80 to 500, step 10; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength); --magnet 0 (0 to 1, step 1; Magnet).
-Renderer: WebGL. Size: 22.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
+Renderer: WebGL. Size: 25.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 
@@ -437,34 +437,34 @@ Renderer: WebGL. Size: 10.2 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 SPH water tank is a WebGL effect: real SPH particles, splatted into one surface and traced through glass. One plain JavaScript file with no dependencies; add it with npx motion-library add sph-water.
 
-Water sloshes in a rocking glass tank, climbing the walls, foaming and casting caustics; the pointer tilts it.
+A heavy glass tank leans slowly side to side and the water rolls from end to end in long, gradual waves, casting caustics; the pointer tilts it.
 
 SPH with double density relaxation; particles splat into a float field, and each pixel traces it in perspective for absorption, meniscus, Fresnel surface and caustics.
 
 Settings: --particles 1600 (800 to 2800, step 100; Particles); --slosh 1 (0 to 1.5, step 0.05; Slosh).
-Renderer: WebGL. Size: 26.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/sph-water.html
+Renderer: WebGL. Size: 27.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/sph-water.html
 
 ### Open ocean
 
-Open ocean is a WebGL effect: FFT ocean from a JONSWAP spectrum with a broad directional spread; foam where the surface folds. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
+Open ocean is a WebGL effect: FFT ocean from a wind-aligned JONSWAP spectrum: long crests, deep troughs, foam where the surface folds. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
 
-A grey, windy open sea under an overcast sky: four GPU FFTs turn a JONSWAP wave spectrum with a broad directional spread into Gerstner waves each frame, and foam forms and streaks downwind where the surface folds.
+A grey, windy open sea under an overcast sky: four GPU FFTs turn a JONSWAP wave spectrum, held in a narrow fan round the wind, into long-crested Gerstner waves that roll toward you, and foam forms and streaks downwind where the surface folds.
 
 Wind sets wave height and how often whitecaps break, chop sharpens the crests, sun is the height of the hidden sun behind the clouds; the pointer moves its bright patch along the horizon.
 
-Settings: --wind 10 (5 to 13, step 0.5; Wind (m/s)); --chop 1.6 (0.6 to 1.9, step 0.05; Choppiness); --sun 10 (1 to 20, step 0.5; Sun height (°)).
-Renderer: WebGL. Size: 35.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
+Settings: --wind 10 (5 to 13, step 0.5; Wind (m/s)); --chop 1.15 (0.6 to 1.9, step 0.05; Choppiness); --sun 10 (1 to 20, step 0.5; Sun height (°)).
+Renderer: WebGL. Size: 35.9 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
 
 ### Honey pour
 
-Honey pour is a WebGL effect: liquid-rope coiling: stacked tube loops sink into a thin-film mound. One plain JavaScript file with no dependencies; add it with npx motion-library add honey-coil.
+Honey pour is a WebGL effect: liquid-rope coiling: a tapering thread lays rope loops that fillet into a thin-film pool. One plain JavaScript file with no dependencies; add it with npx motion-library add honey-coil.
 
-Each fresh loop is a tube resting on the loop beneath; it sinks, melts into a height field and spreads by the thin-film equation.
+The thread thins as it falls, then each fresh loop rests on the one beneath, sinks, melts into a height field and spreads by the thin-film equation; honey is coloured by how far light travels through it, pale gold where thin, deep amber in the mound.
 
 Flow sets the thread thickness, loops the coils per second, spread how fast the mound slumps; drag the pointer to stitch trails of loops.
 
 Settings: --flow 1 (0.5 to 1.5, step 0.05; Flow); --loops 1.5 (0.8 to 2.5, step 0.1; Loops per second); --spread 1 (0.6 to 2.5, step 0.05; Spread).
-Renderer: WebGL. Size: 36.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/honey-coil.html
+Renderer: WebGL. Size: 41.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/honey-coil.html
 
 
 ## Chrome & 3D

@@ -46,7 +46,7 @@
 - [Lava lamp](https://ajeckblad.github.io/motion-library/fx/lava-lamp.html): Raymarched 3D metaballs; heat drives buoyancy. `npx motion-library add lava-lamp`
 - [Fire & smoke](https://ajeckblad.github.io/motion-library/fx/fire-smoke.html): Combustion simulated: fuel burns out, gas glows as a blackbody. `npx motion-library add fire-smoke`
 - [Lava flow](https://ajeckblad.github.io/motion-library/fx/lava-flow.html): Lava simulated on an eroded volcano, lit by blackbody light. `npx motion-library add lava-flow`
-- [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. `npx motion-library add ferrofluid`
+- [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Rosensweig cones on a magnet inside the oil: a graded hex lattice, raymarched as a black mirror. `npx motion-library add ferrofluid`
 - [Paper marbling](https://ajeckblad.github.io/motion-library/fx/marbling.html): Backward lookup through comb and swirl warps; paint never smears. `npx motion-library add marbling`
 - [Rain on glass](https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html): Each drop is a lens showing a sharp, flipped background. `npx motion-library add raindrops-glass`
 - [Dripping text](https://ajeckblad.github.io/motion-library/fx/dripping-text.html): Gooey blur-and-threshold filter: drips merge with letters, necks snap. `npx motion-library add dripping-text`
@@ -54,8 +54,8 @@
 - [Kelvin–Helmholtz clouds](https://ajeckblad.github.io/motion-library/fx/billow-clouds.html): Shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself. `npx motion-library add billow-clouds`
 - [Paint swirl](https://ajeckblad.github.io/motion-library/fx/paint-swirl.html): Colour advected around vortices; palette snapping keeps bands crisp. `npx motion-library add paint-swirl`
 - [SPH water tank](https://ajeckblad.github.io/motion-library/fx/sph-water.html): Real SPH particles, splatted into one surface and traced through glass. `npx motion-library add sph-water`
-- [Open ocean](https://ajeckblad.github.io/motion-library/fx/ocean.html): FFT ocean from a JONSWAP spectrum with a broad directional spread; foam where the surface folds. `npx motion-library add ocean`
-- [Honey pour](https://ajeckblad.github.io/motion-library/fx/honey-coil.html): Liquid-rope coiling: stacked tube loops sink into a thin-film mound. `npx motion-library add honey-coil`
+- [Open ocean](https://ajeckblad.github.io/motion-library/fx/ocean.html): FFT ocean from a wind-aligned JONSWAP spectrum: long crests, deep troughs, foam where the surface folds. `npx motion-library add ocean`
+- [Honey pour](https://ajeckblad.github.io/motion-library/fx/honey-coil.html): Liquid-rope coiling: a tapering thread lays rope loops that fillet into a thin-film pool. `npx motion-library add honey-coil`
 
 ## Chrome & 3D
 

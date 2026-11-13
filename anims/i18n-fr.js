@@ -26,10 +26,10 @@ export const FR = {
  },
  "honey-coil": {
   "title": "Miel versé",
-  "trick": "Enroulement de corde liquide : boucles empilées qui s’enfoncent dans un dôme",
+  "trick": "Enroulement de corde liquide : un filet qui s’affine pose des boucles qui se fondent dans une flaque en film mince",
   "notes": [
-   "Chaque nouvelle boucle est un tube posé sur celle du dessous ; elle s’enfonce, fond dans un champ de hauteurs et s’étale selon l’équation des films minces.",
-   "Flow règle l’épaisseur du filet, loops les boucles par seconde, spread la vitesse d’affaissement du dôme ; faites glisser le pointeur pour coudre des boucles."
+   "Le filet s’affine en tombant ; chaque nouvelle boucle repose sur celle du dessous, s’enfonce, fond dans un champ de hauteurs et s’étale selon l’équation du film mince ; le miel prend sa couleur selon la distance que la lumière y parcourt : or pâle là où il est fin, ambre profond dans le monticule.",
+   "Débit règle l’épaisseur du filet, boucles le nombre de tours par seconde, étalement la vitesse à laquelle le monticule s’affaisse ; faites glisser le pointeur pour coudre des traînées de boucles."
   ]
  },
  "diff-growth": {
@@ -338,10 +338,10 @@ export const FR = {
  },
  "ferrofluid": {
   "title": "Ferrofluide",
-  "trick": "Aiguilles de Rosensweig sur un aimant bloc : cônes concaves sur un réseau hexagonal, en ray marching comme des miroirs noirs",
+  "trick": "Cônes de Rosensweig sur un aimant plongé dans l’huile : réseau hexagonal gradué, rendu en raymarching comme un miroir noir",
   "notes": [
-   "Une huile noire, brillante comme un miroir, forme une flaque sur une table de studio, grimpe sur un aimant carré nickelé et se hérisse en une couronne d’aiguilles fines, plus hautes sur les bords ; déplacez le pointeur pour faire glisser l’aimant dans la flaque (il entraîne l’huile), et cliquez ou touchez pour l’éteindre et voir fondre les aiguilles.",
-   "Champ de distance en raymarching : la flaque fusionnée en douceur avec un film sur le bloc et des cônes concaves sur un réseau hexagonal (chaque échantillon ne visite que son point le plus proche et ses six voisins), éclairé uniquement par des reflets de studio."
+   "Une huile magnétique noire et brillante forme une flaque sur une table de studio et grimpe sur un aimant carré posé dedans, se hérissant en une couronne d’aiguilles fines reliées par des creux lisses, plus hautes et penchées vers l’extérieur aux bords et aux coins ; déplacez le pointeur pour faire glisser l’aimant dans la flaque (il entraîne l’huile), et cliquez ou touchez pour l’éteindre et voir les aiguilles fondre et l’huile glisser.",
+   "Champ de distance en raymarching : la flaque unie en douceur à un film sur le bloc et à des cônes concaves sur un réseau hexagonal tourné et décalé au hasard (chaque échantillon visite son point le plus proche et ses six voisins, cherchés en annulant l’inclinaison), éclairé seulement par les reflets du studio ; la flaque reflète la couronne."
   ]
  },
  "marbling": {

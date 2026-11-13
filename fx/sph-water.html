@@ -62,11 +62,11 @@
 <article>
 <h1>SPH water tank</h1>
 <p class="tldr">SPH water tank is a WebGL effect: real SPH particles, splatted into one surface and traced through glass. One plain JavaScript file with no dependencies; add it with npx motion-library add sph-water.</p>
-<figure><img src="../posters/sph-water.webp?v=02fb725d" alt="SPH water tank: Real SPH particles, splatted into one surface and traced through glass" width="1120" height="896"></figure>
+<figure><img src="../posters/sph-water.webp?v=d8738392" alt="SPH water tank: Real SPH particles, splatted into one surface and traced through glass" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/sph-water">Open it live, tune it and copy the code</a></p>
 
 <h2>What is SPH water tank?</h2>
-<p>Water sloshes in a rocking glass tank, climbing the walls, foaming and casting caustics; the pointer tilts it.</p>
+<p>A heavy glass tank leans slowly side to side and the water rolls from end to end in long, gradual waves, casting caustics; the pointer tilts it.</p>
 
 <h2>How does SPH water tank work?</h2>
 <p>SPH with double density relaxation; particles splat into a float field, and each pixel traces it in perspective for absorption, meniscus, Fresnel surface and caustics.</p>
@@ -93,7 +93,7 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>26.8 KB, unminified</dd>
+<dt>File size</dt><dd>27.4 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -114,7 +114,8 @@
 // where light from above scatters, shafts of light focused by the waves, computed each frame from the real surface,
 // and a caustic net on the floor), or onto the top surface seen from above (a Fresnel mirror of the fluted wall,
 // broken by ripples), with the bright meniscus where water meets glass, foam where it churns, and spray that bends
-// the wall behind it like little lenses. The pointer tilts the tank.
+// the wall behind it like little lenses. The pointer tilts the tank. The tank is heavy: it leans over two seconds,
+// never faster than 11.5 degrees a second, so the waves build gradually.
 const PARAMS = { particles: 1600, slosh: 1 };
 
 export default function (stage) {
@@ -429,13 +430,17 @@ export default function (stage) {
   const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); ptr = (e.clientX - b.left) / b.width; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
   const onLeave = () =&gt; { held = false; };
   canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
-  const ease = u =&gt; u &lt;= 0 ? 0 : u &gt;= 1 ? 1 : u * u * (3 - 2 * u);
+  // left alone it leans over two seconds (a minimum-jerk ease, no lurch), holds, comes level over two more, rests, then
+  // leans the other way: the water runs downhill and the slosh builds gradually instead of slamming into the wall
+  const mj = u =&gt; u &lt;= 0 ? 0 : u &gt;= 1 ? 1 : u * u * u * (10 - 15 * u + 6 * u * u);
   const auto = t =&gt; {
-    const c = t % 8, m = 0.21;
-    if (c &lt; 0.45) return m * ease(c / 0.45); if (c &lt; 2.1) return m; if (c &lt; 2.55) return m * (1 - ease((c - 2.1) / 0.45)); if (c &lt; 4) return 0;
-    if (c &lt; 4.45) return -m * ease((c - 4) / 0.45); if (c &lt; 6.1) return -m; if (c &lt; 6.55) return -m * (1 - ease((c - 6.1) / 0.45)); return 0;
+    const c = t % 14.8, h = c % 7.4, m = c &lt; 7.4 ? 0.21 : -0.21;
+    return m * (h &lt; 2 ? mj(h / 2) : h &lt; 4.4 ? 1 : h &lt; 6.4 ? 1 - mj((h - 4.4) / 2) : 0);
   };
-  let ang = 0, angV = 0, raf, last = performance.now(), t = 0, acc0 = 0;
+  // the tank is heavy: whatever asks it to move (the rocking or the pointer), it never swings faster than VMAX or
+  // speeds up harder than AMAX, it brakes in time to stop without overshoot, and its push builds over ~0.15 s
+  const VMAX = 0.2, AMAX = 0.45;                                            // rad/s (11.5 deg/s), rad/s^2
+  let ang = 0, angV = 0, angA = 0, raf, last = performance.now(), t = 0, acc0 = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
     const live = held || now - lastMove &lt; 2000;
@@ -443,9 +448,10 @@ export default function (stage) {
     acc0 += dt;
     let steps = 0;
     while (acc0 &gt;= DT &amp;&amp; steps &lt; 6) {
-      const a = 60 * (target - ang) - 14 * angV;                            // the tank follows its target like a heavy thing
-      angV += a * DT; ang += angV * DT;
-      step(-G * Math.sin(ang), -G * Math.cos(ang), a, angV);
+      const e = target - ang, vDes = Math.sign(e) * Math.min(VMAX, Math.sqrt(1.2 * AMAX * Math.abs(e)), 2.5 * Math.abs(e));
+      angA += (Math.max(-AMAX, Math.min(AMAX, (vDes - angV) * 8)) - angA) * (DT / 0.15);
+      angV += angA * DT; ang += angV * DT;
+      step(-G * Math.sin(ang), -G * Math.cos(ang), angA, angV);
       acc0 -= DT; steps++;
     }
     if (steps === 6) acc0 = 0;

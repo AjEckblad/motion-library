@@ -1,18 +1,17 @@
-# Resume here (2026-11-13 late night): review DONE; fixing ocean + tank (lead), honey (agent A), ferrofluid (agent B)
+# Resume here (2026-11-13 ~23:30): AJ's 4 fixes SHIPPED (ocean, tank, honey, ferrofluid); nothing in progress
 
-Review findings (shown to AJ): ocean = broad wind spread (s*0.4, floor 0.6) + a swell 57 deg across -> no direction,
-short crests, swell only ~0.55 m; tank = auto-rock 0.21 rad in 0.45 s on a stiff spring: 28 deg/s, 1.9 rad/s^2, Euler
-push 13% g, no speed cap (pointer too); honey = flat orange plastic pool, white stripe at top, reflection bar, coil like
-clear tubing with a white spot, constant-thickness thread, dark outline at the mound; ferrofluid = hairbrush on a
-silver box (uniform needles in rows, no fillets, jagged sawtooth film edge over chrome, flat disc puddle, dull spikes).
-LEAD DONE, committed locally 69153d3 (NOT pushed, no static build yet): ocean = wind toward camera + right (windDir
-pi/2-0.42; verified: FFT waves travel along +k), wind-sea spread max(5,s), swell 10 s Hs~1.4 m within 0.14 rad and
-s=24, wind-sea energy x2.1, chop default 1.6->1.15 (else foam everywhere); tank = VMAX 0.2 rad/s, AMAX 0.45, braking
-follower + 0.15 s accel smoothing, minimum-jerk auto rock (2 s lean, 2.4 hold, 2 s back, 1 s rest; 14.8 s cycle),
-posterAt 5200->10000; notes in 4 languages; motion-check resting-mouse test now reads at 3.5 s. check 88/89 (only
-versions.js, fixed by the build), motion-check 22/22.
-Agents A (honey-coil.js) and B (ferrofluid.js) edit only their file and report registry text in 4 languages,
-posterAt, evidence. If a new session finds them gone, their files hold uncommitted work: review before shipping.
+All four reviewed frame by frame by the lead and live (check 89/89, motion-check 22/22, CLI copy rebuilt, 224 effects).
+- Ocean + tank: see the 69153d3 notes below.
+- Ferrofluid (agent B): continuous oil over the magnet, turned + jittered hex lattice, graded cones leaning out at edges,
+  concave fillets, soft-marched reflections, iris-like film on/off; camera pulled back to max(2.05, 2.72/a) by the
+  lead for frame cost (agent measured 13.3 ms at its closer camera, ~10 at the old one). Reservations: front row has
+  small bright cup-like flares, coated side reads a bit box-like, off-state reflection of bare nickel is dark grey.
+- Honey (agent A): white porcelain bowl on dark wood, higher camera, tapering thread (r ~ v^-1/2), coil smooth-unioned
+  into the pool, absorption-depth colour, TAU 1 -> 2 s, posterAt 10000; GPU 7.8 ms. Reservations: the softbox
+  reflection is a pale half-disc behind the coil (a bit like a setting sun; candidate fix: smaller/softer, varied
+  shape), pool in front fairly smooth, no depth of field, thread colour seam at the rim line.
+- Token rule: hand off at 400k context; ~/.claude/hooks/handoff-at-40.js (PostToolUse) enforces it.
+Waiting on AJ: his verdict on the 4 pieces (suggest /review-animations); npm publish of CLI 0.3.5 from his Terminal.
 
 # Earlier (2026-11-13 night): run /review-animations FIRST on 4 pieces, then fix them; terrain flyover pending
 

@@ -1,20 +1,22 @@
-// Honey pour: a thin thread of honey falls into a shallow pool of honey in a white dish, lit from behind in a dark
-// studio. Just above the surface the thread bends over and swings round in a circle, laying itself down in loops,
-// the way a rope of honey does (liquid-rope coiling); the loops stack, sink, soften and slump into a mound that spreads
-// into the pool. Thin honey is pale gold, the deep mound almost red-brown, the thread glows where the backlight comes
-// through it, and the curved ropes focus the light into bright lines on the dish below. Move the pointer and the pour
-// follows it: dragged along, the coil is laid out as a trail of loops, like a sewing machine stitching in honey.
+// Honey pour: a thin thread of honey falls into a white porcelain bowl of honey in a dark studio, seen from a high
+// three-quarter view. The thread tapers as it falls and speeds up (its radius goes as v^-1/2) to a thin neck just above
+// the surface, where it bends over and swings round in a circle, laying itself down in loops, the way a rope of honey
+// does (liquid-rope coiling); the loops stack, sink and slump into a mound that spreads into the pool, and the ridges
+// they leave keep flattening for a few seconds. Move the pointer and the pour follows it: dragged along, the coil is
+// laid out as a trail of loops, like a sewing machine stitching in honey.
 // The trick: the coil is kinematic but physical. The contact point circles at the speed the rope arrives (its radius
 // and pace wander, it tightens as the pile rises, and now and then it flattens into folding back and forth and may
-// come out of it turning the other way, as real coiling does), so each
-// fresh loop is a real tube (a chain of capsules) that rests on the surface or on the loop beneath it, like stacked
-// rope, and sinks, faster the higher the stack stands. Once a loop has sunk by its radius it is melted into a height
-// field as exactly the half that still shows; there it softens and fades over a second, handing its volume to a
-// smooth mound that spreads by the thin-film (lubrication) equation, solved implicitly on the CPU. Each pixel
-// raymarches the thread, the loops and that surface, and colours them by Beer-Lambert absorption along the light's
-// path through the honey: refraction down to the dish, soft amber shadows, caustics where curved rope focuses light.
-// A melted loop still standing proud of the mound is lit like rope, so it keeps its colour as it melts, and the pool
-// mirrors the thread and coil as amber backlit rope.
+// come out of it turning the other way, as real coiling does), so each fresh loop is a real tube (a chain of capsules)
+// that rests on the surface or on the loop beneath it, like stacked rope, and sinks, faster the higher the stack
+// stands. Once a loop has sunk by its radius it is melted into a height field as exactly the half that still shows;
+// there it softens and fades, handing its volume to a smooth mound that spreads by the thin-film (lubrication)
+// equation, solved implicitly on the CPU. Each pixel raymarches the thread, the loops and the surface as one liquid
+// (the ropes are joined to the pool by a smooth union, so the stack fillets into it with no seam) and the bowl
+// analytically (two half-ellipsoids and a rounded lip). Honey is coloured by Beer-Lambert absorption along the light's
+// whole path through it, refracted down to the porcelain and back: pale gold where it is thin at the shore and in the
+// thread, deep amber in the mound, a warm glow from the little light it scatters. A softbox low behind lays a broad
+// glossy reflection across the pool that bends over the mound and its ridges; cards beside the bowl draw the crisp
+// highlights along the thread and the loops.
 const PARAMS = { flow: 1, loops: 1.5, spread: 1 };
 
 export default function (stage) {
@@ -30,9 +32,9 @@ export default function (stage) {
   // ---------------------------------------------------------------- the physical set-up, in millimetres
   const H0 = 2.6;                                   // depth of the pool
   const FLOW = Math.max(0.5, Math.min(1.5, PARAMS.flow));
-  const AL = 1.0 * Math.sqrt(FLOW), A1 = 0.62 * Math.sqrt(FLOW);   // laid rope radius, thread radius above the coil
+  const AL = 1.0 * Math.sqrt(FLOW), A1 = 0.55 * Math.sqrt(FLOW);   // laid rope radius, thread radius at its neck
   const FREQ = Math.max(0.8, Math.min(2.5, PARAMS.loops)), RC0 = 3.1;
-  const TAU = 1.0;                                  // fresh rope sinks into the mound over a few seconds
+  const TAU = 2.0;                                  // a melted loop lingers as a soft ridge for a few seconds
   const KB = 0.07 * Math.max(0.6, Math.min(2.5, PARAMS.spread));  // rho g / (3 mu), for a cold, thick honey
   const NB = 160, LB = 80, DXB = LB / NB;           // the mound: 80 mm square on the CPU
   const NR = 384, LR = 32;                          // the fresh rope: 32 mm square on the GPU
@@ -70,11 +72,16 @@ export default function (stage) {
 
   const FS_MAIN = HEAD + `
   uniform sampler2D TB, TR; uniform vec4 BZ[10]; uniform vec4 BS; uniform vec3 NZ; uniform vec4 LV[64]; uniform vec4 LG[8]; uniform vec4 LS; uniform int NLV;
-  uniform float A1, HMAX, H0, LB, LR, EXPO; uniform vec2 CC; uniform float CA;
+  uniform float A1, HMAX, H0, LB, LR, EXPO, HL, RS; uniform vec2 CC; uniform float CA; uniform vec4 STK;
   uniform vec3 CP, CF, CR, CU; uniform float FOC; uniform vec2 R; out vec4 o;
-  const vec3 SIG = vec3(.05, .15, .47);                  // honey's absorption per mm: blue goes first, then green
-  const float ETA = 1.49;
-  const vec3 LD = vec3(0., .94, -.342);                    // toward the key light: a softbox overhead, a little behind
+  const vec3 SIG = vec3(.055, .19, .6);                  // honey's absorption per mm: blue goes first, then green
+  const float ETA = 1.49, KF = .6;                       // KF: how wide the honey fillets a rope into the pool
+  const vec3 LD = vec3(0., .94, -.342);                  // the main light: overhead, a little behind
+  // the dish: white porcelain, inside and outside half-ellipsoids of revolution, standing on a dark table
+  const float DA = 30., DB = 10., DC = 10., OA = 32.2, OB = 13., YRIM = 7.5, YT = -3., RIN = 29.05, ROUT = 31.6;
+  const vec2 SPC = vec2(0., -7.);
+  float yFl(vec2 x) { return DC - DB * sqrt(max(1. - dot(x, x) / (DA * DA), 0.)); }
+  float lightE(vec2 x) { vec2 s = x - SPC; float q = dot(s, s); return exp(-q / 800.) * .9 + .1 * exp(-q / 8000.); }
   float hB(vec2 x) {                                    // cubic B-spline from four bilinear taps: smooth slopes
     vec2 n = vec2(textureSize(TB, 0)), u = (x / LB + .5) * n - .5, i = floor(u), f = u - i;
     vec2 w0 = (1. - f) * (1. - f) * (1. - f) / 6., w1 = (4. - 6. * f * f + 3. * f * f * f) / 6., w2 = (1. + 3. * f + 3. * f * f - 3. * f * f * f) / 6., w3 = f * f * f / 6.;
@@ -85,35 +92,81 @@ export default function (stage) {
   float hBf(vec2 x) { return texture(TB, x / LB + .5).r; }
   float hR(vec2 x) { vec2 u = x / LR + .5; return (u.x < 0. || u.y < 0. || u.x > 1. || u.y > 1.) ? 0. : texture(TR, u).r; }
   float H(vec2 x) { vec2 q = x - CC; return hB(x) + hR(x) + CA * .55 * exp(-dot(q, q) / (CA * CA * 2.2)); }
-  float Hm(vec2 x) { vec2 q = x - CC; return hBf(x) + hR(x) + CA * .55 * exp(-dot(q, q) / (CA * CA * 2.2)); }   // cheaper, for marching
-  vec3 Hn(vec2 x, float e) {
-    float a = H(x + vec2(e, 0)), b = H(x - vec2(e, 0)), c = H(x + vec2(0, e)), d = H(x - vec2(0, e));
-    return normalize(vec3(b - a, 2. * e, d - c));
+  float Hm(vec2 x) { vec2 q = x - CC; return hBf(x) + hR(x) + CA * .55 * exp(-dot(q, q) / (CA * CA * 2.2)); }
+  vec3 Hn(vec2 x, float e) { float a = H(x + vec2(e, 0)), b = H(x - vec2(e, 0)), c = H(x + vec2(0, e)), d = H(x - vec2(0, e)); return normalize(vec3(b - a, 2. * e, d - c)); }
+  vec3 Hnf(vec2 x, float e) { float a = Hm(x + vec2(e, 0)), b = Hm(x - vec2(e, 0)), c = Hm(x + vec2(0, e)), d = Hm(x - vec2(0, e)); return normalize(vec3(b - a, 2. * e, d - c)); }
+  // ---- the studio: dark and warm; a softbox low behind (the pool's broad sheen), a big one overhead, a white card left
+  float box(vec3 r, vec4 b, float s) {
+    float el = asin(clamp(r.y, -1., 1.)), az = atan(r.x, -r.z);
+    return smoothstep(b.x - s, b.x + s, el) * smoothstep(b.y + s, b.y - s, el) * smoothstep(b.z - s, b.z + s, az) * smoothstep(b.w + s, b.w - s, az);
   }
-  // ---- the studio: black, a big warm softbox behind and above, a cool strip on the left, a dim card above
-  float panel(vec3 o, vec3 r, int ax, float at, vec4 b, float soft) {
-    float rr = ax == 0 ? r.x : (ax == 1 ? r.y : r.z), oo = ax == 0 ? o.x : (ax == 1 ? o.y : o.z);
-    float t = (at - oo) / rr; if (t < 0.) return 0.;
-    vec3 p = o + r * t; vec2 q = ax == 0 ? p.zy : (ax == 1 ? p.xz : p.xy);
-    vec2 e = min(q - b.xy, b.zw - q); return smoothstep(0., soft, min(e.x, e.y));
-  }
-  vec3 env(vec3 o, vec3 r, float sf) {             // sf > 1: the studio as seen through rope, softer
-    vec3 c = vec3(.05, .04, .03) * (1. + 1.5 * max(r.y, 0.)) + vec3(.16, .13, .1) * smoothstep(-.05, .5, r.y);
-    c = mix(c, vec3(.62, .3, .07), smoothstep(.0, -.12, r.y));     // looking down: the lit amber pool
-    float k = 1. / sf;
-    c += vec3(1.5, 1.28, 1.) * k * panel(o, r, 2, -260., vec4(-190., 8., 190., 30.), 16. * sf);      // a long low softbox behind
-    c += vec3(4.2, 4., 3.7) * k * panel(o, r, 1, 240., vec4(-130., -170., 130., 150.), 50. * sf);   // the overhead softbox
-    c += vec3(.9, 1., 1.15) * panel(o, r, 0, -180., vec4(-120., 8., 40., 120.), 20. * sf);          // a cool card on the left
-    c += vec3(.7, .62, .5) * panel(o, r, 2, 230., vec4(-120., -10., 120., 110.), 40. * sf);         // a warm bounce card by the camera
-    if (r.z < 0.) { vec3 q = o + r * ((-300. - o.z) / r.z); c += vec3(1.6, 1.25, .8) * exp(-q.x * q.x / 1800.) * smoothstep(25., 90., q.y); }   // a soft glow behind
+  vec3 studio(vec3 r, float sf) {
+    vec3 c = vec3(.012, .008, .005) + vec3(.03, .02, .012) * smoothstep(-.1, .7, r.y);
+    c += vec3(4., 3.7, 3.2) * box(r, vec4(.29, .43, -.12, .12), .012 * sf) * (.4 + .6 * smoothstep(.29, .43, asin(clamp(r.y, -1., 1.))));
+    c += vec3(2.2, 2.1, 2.) * box(r, vec4(1., 1.6, -3.3, 3.3), .08 * sf);
     return c;
   }
-  // ---- the thread: a vertical tube from the nozzle, thinning as it falls, then the bend into the coil
-  float thR(float y) { return A1 * sqrt(1. + max(y - NZ.y, 0.) / 70.); }
+  float card(vec3 o, vec3 r) {
+    if (r.x > -.02) return -1.;
+    float t = (-37. - o.x) / r.x; vec3 q = o + r * t;
+    return (t > 0. && q.z > -45. && q.z < 30. && q.y > YT && q.y < 70.) ? t : -1.;
+  }
+  vec2 ell(vec3 ro, vec3 rd, float a, float b, float c) {
+    float s = a / b; vec3 o = vec3(ro.x, (ro.y - c) * s, ro.z), d = vec3(rd.x, rd.y * s, rd.z);
+    float A = dot(d, d), B = dot(o, d), C = dot(o, o) - a * a, h = B * B - A * C;
+    if (h < 0.) return vec2(-1.);
+    h = sqrt(h); return vec2(-B - h, -B + h) / A;
+  }
+  vec3 ellN(vec3 p, float a, float b) { return normalize(vec3(p.x / (a * a), (p.y - DC) / (b * b), p.z / (a * a))); }
+  float traceDish(vec3 ro, vec3 rd, out vec3 n, out float m) {     // m: 1 porcelain, 2 table
+    float t = 1e9; m = 0.; n = vec3(0, 1, 0);
+    vec2 e = ell(ro, rd, OA, OB, DC);
+    if (e.x > 0.) { vec3 p = ro + rd * e.x; if (p.y < YRIM) { t = e.x; n = ellN(p, OA, OB); m = 1.; } }
+    if (rd.y < 0.) {
+      float tl = (YRIM - ro.y) / rd.y; vec3 p = ro + rd * tl; float r = length(p.xz);
+      if (tl > 0. && tl < t && r > RIN && r < ROUT) {   // the lip, a flat ring shaded as if rounded
+        float u = clamp((r - (RIN + ROUT) * .5) / ((ROUT - RIN) * .5), -1., 1.); vec2 q = p.xz / r * u * .92;
+        n = normalize(vec3(q.x, sqrt(max(1. - u * u * .85, .05)), q.y)); t = tl; m = 1.;
+      }
+      float tt = (YT - ro.y) / rd.y; if (tt > 0. && tt < t) { t = tt; n = vec3(0, 1, 0); m = 2.; }
+    }
+    e = ell(ro, rd, DA, DB, DC);
+    if (e.y > 0. && e.y < t) { vec3 p = ro + rd * e.y; if (p.y < YRIM) { t = e.y; n = -ellN(p, DA, DB); m = 1.; } }
+    return m > 0. ? t : -1.;
+  }
+  vec3 shadeDish(vec3 p, vec3 rd, vec3 n, float m, float sf) {
+    float E = lightE(p.xz), c = max(dot(n, -rd), 0.), F = .04 + .96 * pow(1. - c, 5.);
+    if (m > 1.5) {                                        // dark oiled wood; the light dies away from the dish
+      float ao = .3 + .7 * smoothstep(OA - 1., OA + 10., length(p.xz));
+      return vec3(.03, .019, .011) * (1.3 * E + .03) * ao + F * .07 * studio(reflect(rd, n), 8.);
+    }
+    float dif = .75 * max(dot(n, LD), 0.) + .25 * (.6 + .4 * n.y);
+    vec3 col = vec3(.9, .87, .82) * dif * 1.0 * E;
+    float r = length(p.xz);                               // the honey's glow on the porcelain just above its edge
+    if (r < RIN) col += vec3(.5, .24, .05) * E * exp(-max(p.y - HL, 0.) * .9) * smoothstep(RS - 2., RS + .5, r);
+    return col + F * studio(reflect(rd, n), sf);
+  }
+  vec3 poolFlat(vec3 q, vec3 r) {                         // the pool as seen in a reflection: level, at the shore's height
+    float d = max(HL - yFl(q.xz), 0.), F = .04 + .96 * pow(1. - abs(r.y), 5.);
+    vec3 t = refract(r, vec3(0, 1, 0), 1. / ETA); float L = d / max(-t.y, .3);
+    return studio(reflect(r, vec3(0, 1, 0)), 2.) * F + (1. - F) * vec3(1., .95, .87) * 1.3 * lightE(q.xz) * exp(-SIG * (L + d * 1.1));
+  }
+  vec3 envScene(vec3 o, vec3 r, float sf) {
+    vec3 n; float m, t = traceDish(o, r, n, m), tc = card(o, r);
+    if (r.y < 0.) {
+      float tp = (HL - o.y) / r.y; vec3 q = o + r * tp;
+      if (tp > 0. && (t < 0. || tp < t) && (tc < 0. || tp < tc) && dot(q.xz, q.xz) < RS * RS) return poolFlat(q, r);
+    }
+    if (tc > 0. && (t < 0. || tc < t)) return vec3(1.15, 1.2, 1.3);
+    if (t > 0.) return shadeDish(o + r * t, r, n, m, sf * 3.);
+    return studio(r, sf);
+  }
+  // ---- the thread: a falling tube that thins as it speeds up (radius ~ v^-1/2), narrowest just above the coil
+  float thR(float y) { return A1 * pow(1. + max(y - NZ.y, 0.) / 9., .42); }
   float traceThread(vec3 ro, vec3 rd) {
     vec2 oc = ro.xz - NZ.xz, d = rd.xz; float a = dot(d, d), b = dot(oc, d);
-    float r = A1 * 1.15, t = -1.;
-    for (int k = 0; k < 2; k++) {
+    float r = A1 * 2.6, t = -1.;
+    for (int k = 0; k < 3; k++) {
       float c = dot(oc, oc) - r * r, h = b * b - a * c; if (h < 0.) return -1.;
       t = (-b - sqrt(h)) / a; r = thR(ro.y + rd.y * t);
     }
@@ -126,21 +179,16 @@ export default function (stage) {
   float sdBend(vec3 p) {
     float d = 1e5;
     for (int i = 0; i < 9; i++) d = min(d, sdSeg(p, BZ[i], BZ[i + 1]));
-    float top = length(p.xz - NZ.xz) - thR(p.y); d = min(d, max(top, NZ.y - p.y));     // joins the straight thread
+    float top = length(p.xz - NZ.xz) - thR(p.y); d = min(d, max(top, NZ.y - p.y));
     return d;
   }
   float traceBend(vec3 ro, vec3 rd) {
     vec3 oc = ro - BS.xyz; float b = dot(oc, rd), c = dot(oc, oc) - BS.w * BS.w, h = b * b - c;
     if (h < 0.) return -1.;
     float t = max(-b - sqrt(h), 0.), t1 = -b + sqrt(h);
-    for (int i = 0; i < 64; i++) {
-      float d = sdBend(ro + rd * t);
-      if (d < .004) return t;
-      t += d * .9; if (t > t1) break;
-    }
+    for (int i = 0; i < 48; i++) { float d = sdBend(ro + rd * t); if (d < .01) return t; t += d * .9; if (t > t1) break; }
     return -1.;
   }
-  // ---- the fresh loops: a chain of capsules, checked eight at a time against bounding spheres
   float sdCap(vec3 p, vec3 a, vec3 b, float r) { vec3 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0., 1.); return length(pa - ba * h) - r; }
   float sdLive(vec3 p) {
     float d = 1e5;
@@ -151,7 +199,6 @@ export default function (stage) {
     }
     return d;
   }
-  // shading uses a smooth centreline (a quadratic Bezier through the midpoints) so the chain shows no facets
   vec3 qb(vec3 a, vec3 b, vec3 c, float u) { return mix(mix(a, b, u), mix(b, c, u), u); }
   vec3 qd(vec3 a, vec3 b, vec3 c, float u) { return mix(b - a, c - b, u); }
   void liveFrame(vec3 p, out vec3 nrm, out vec3 ax) {
@@ -166,26 +213,40 @@ export default function (stage) {
     else if (tk >= .5 && k < NLV - 2) { vec3 m0 = (a + b) * .5, m1 = (b + LV[k + 2].xyz) * .5; c = qb(m0, b, m1, tk - .5); tg = qd(m0, b, m1, tk - .5); }
     ax = normalize(tg); vec3 r = p - c; r -= ax * dot(r, ax); nrm = normalize(r + 1e-5);
   }
-  void bendFrame(vec3 p, out vec3 nrm, out vec3 ax) {
+  void bendFrame(vec3 p, out vec3 nrm, out vec3 ax, out float rad) {
     float d = 1e5, tk = 0.; int k = 0;
     for (int i = 0; i < 9; i++) {
       vec3 pa = p - BZ[i].xyz, ba = BZ[i + 1].xyz - BZ[i].xyz; float h = clamp(dot(pa, ba) / dot(ba, ba), 0., 1.), e = length(pa - ba * h);
       if (e < d) { d = e; k = i; tk = h; }
     }
-    vec3 a = BZ[k].xyz, b = BZ[k + 1].xyz, c = mix(a, b, tk), tg = b - a;
+    vec3 a = BZ[k].xyz, b = BZ[k + 1].xyz, c = mix(a, b, tk), tg = b - a; rad = mix(BZ[k].w, BZ[k + 1].w, tk);
     if (tk < .5 && k > 0) { vec3 m0 = (BZ[k - 1].xyz + a) * .5, m1 = (a + b) * .5; c = qb(m0, a, m1, tk + .5); tg = qd(m0, a, m1, tk + .5); }
     else if (tk >= .5 && k < 8) { vec3 m0 = (a + b) * .5, m1 = (b + BZ[k + 2].xyz) * .5; c = qb(m0, b, m1, tk - .5); tg = qd(m0, b, m1, tk - .5); }
     ax = normalize(tg); vec3 r = p - c; r -= ax * dot(r, ax); nrm = normalize(r + 1e-5);
-    if (p.y > NZ.y + .3) { ax = vec3(0, 1, 0); nrm = normalize(vec3(p.x - NZ.x, 0., p.z - NZ.z)); }
+    if (p.y > NZ.y + .3) { ax = vec3(0, 1, 0); nrm = normalize(vec3(p.x - NZ.x, 0., p.z - NZ.z)); rad = thR(p.y); }
   }
   float traceLive(vec3 ro, vec3 rd) {
     vec3 oc = ro - LS.xyz; float b = dot(oc, rd), c = dot(oc, oc) - LS.w * LS.w, h = b * b - c;
     if (h < 0. || NLV < 2) return -1.;
     float t = max(-b - sqrt(h), 0.), t1 = -b + sqrt(h);
-    for (int i = 0; i < 72; i++) { float d = sdLive(ro + rd * t); if (d < .004) return t; t += d; if (t > t1) break; }
+    for (int i = 0; i < 48; i++) { float d = sdLive(ro + rd * t); if (d < .01) return t; t += d; if (t > t1) break; }
     return -1.;
   }
-  // ---- the honey surface: a height field, marched from the top of the tallest pile
+  // ---- the coil as one liquid: loops and bend joined to the pool surface by a smooth union (a fillet, no seam)
+  float sdAll(vec3 p, out float h) {
+    float a = min(sdLive(p), sdBend(p)), b = (p.y - Hm(p.xz)) * .8;
+    h = clamp(.5 + .5 * (b - a) / KF, 0., 1.); return mix(b, a, h) - KF * h * (1. - h);
+  }
+  vec2 sph(vec3 ro, vec3 rd, vec4 s) { vec3 oc = ro - s.xyz; float b = dot(oc, rd), c = dot(oc, oc) - s.w * s.w, h = b * b - c; if (h < 0.) return vec2(1e9, -1.); h = sqrt(h); return vec2(-b - h, -b + h); }
+  float traceCoil(vec3 ro, vec3 rd, float tmax) {
+    vec2 s1 = NLV >= 2 ? sph(ro, rd, LS + vec4(0, 0, 0, KF)) : vec2(1e9, -1.), s2 = sph(ro, rd, BS + vec4(0, 0, 0, KF));
+    float t0 = max(min(s1.y > 0. ? s1.x : 1e9, s2.y > 0. ? s2.x : 1e9), 0.), t1 = min(max(s1.y, s2.y), tmax + .05), h;
+    if (t0 >= t1) return -1.;
+    float t = t0;
+    for (int i = 0; i < 90; i++) { float d = sdAll(ro + rd * t, h); if (d < .003 + t * 2e-5) return t; t += d * .85; if (t > t1) break; }
+    return -1.;
+  }
+  // ---- the honey surface: a height field, marched from the top of the tallest pile, inside the bowl only
   float traceH(vec3 ro, vec3 rd, int N) {
     if (rd.y >= 0. && ro.y > HMAX) return -1.;
     float t = ro.y > HMAX ? (HMAX - ro.y) / rd.y : 0., tp = t;
@@ -196,101 +257,112 @@ export default function (stage) {
         for (int j = 0; j < 6; j++) { float tm = (tp + t) * .5; vec3 q = ro + rd * tm; if (q.y - Hm(q.xz) < 0.) t = tm; else tp = tm; }
         return t;
       }
+      if (dot(p.xz, p.xz) > RIN * RIN && dot(p.xz, rd.xz) > 0.) return -1.;
       tp = t;
       bool near = max(abs(p.x), abs(p.z)) < LR * .55;
       t += clamp(d * .75 / max(-rd.y, .12), .03, near ? .4 + d * .6 : 8.);
-      if (t > 900.) break;
     }
-    return rd.y < 0. ? (H0 - ro.y) / rd.y : -1.;
+    return rd.y < 0. ? t : -1.;
   }
-  // light reaching the dish floor under the honey: soft spot, absorbed on the way down (amber shadows behind the
-  // mound), focused by curved honey above (caustics), and shaded where the thread is in the way
+  // light reaching the porcelain under the honey: absorbed on its way down (amber shadows under the mound and the
+  // coil), focused by the curved ropes (caustics), shaded where the thread is in the way
   vec3 floorLight(vec2 x) {
-    float h = Hm(x);
-    vec3 tl = refract(-LD, vec3(0, 1, 0), 1. / ETA), b = vec3(x.x, 0., x.y);
-    float path = 0.;                                        // honey crossed by the light on its slanted way down
-    for (int i = 0; i < 8; i++) {                           // two light paths across the softbox: a soft penumbra
-      vec3 q = b - tl * (float(i) + .5) * 1.25, o = vec3(.36, 0, -.14) * (float(i) + .5);
-      path += .625 * (smoothstep(-.9, .9, Hm(q.xz + o.xz) - q.y) + smoothstep(-.9, .9, Hm(q.xz - o.xz) - q.y));
+    float y0 = yFl(x);
+    vec3 tl = refract(-LD, vec3(0, 1, 0), 1. / ETA), b = vec3(x.x, y0, x.y);
+    float path = 0.;
+    for (int i = 0; i < 5; i++) {
+      vec3 q = b - tl * (float(i) + .5) * 1.8, o = vec3(.42, 0, -.16) * (float(i) + .5);
+      path += .9 * (smoothstep(-.9, .9, Hm(q.xz + o.xz) - q.y) + smoothstep(-.9, .9, Hm(q.xz - o.xz) - q.y));
     }
-    float e = .55, lap = (hR(x + vec2(e, 0)) + hR(x - vec2(e, 0)) + hR(x + vec2(0, e)) + hR(x - vec2(0, e)) - 4. * hR(x)) / (e * e);   // the ropes focus light; the smooth mound hardly does
+    vec2 sk = x - STK.xy; path += STK.w * exp(-dot(sk, sk) / (STK.z * STK.z));
+    float h = Hm(x) - y0, e = .55, lap = (hR(x + vec2(e, 0)) + hR(x - vec2(e, 0)) + hR(x + vec2(0, e)) + hR(x - vec2(0, e)) - 4. * hR(x)) / (e * e);
     float foc = clamp(1. / max(1. + h * (1. - 1. / ETA) * lap * .3, .5), .8, 1.3);
-    vec2 sc = x - vec2(0., -10.);
-    float spot = exp(-dot(sc, sc) / 1500.) * .9 + .1 * exp(-dot(sc, sc) / 12000.);
-    // the falling thread's shadow: an amber band with a bright focused line down its middle
     vec3 thr = vec3(1);
-    float ys = (x.y - NZ.z) * LD.y / -LD.z;
+    float ys = y0 + (x.y - NZ.z) * LD.y / -LD.z;
     if (ys > NZ.y - 4.) {
-      float a = thR(ys), w = a + .45 * max(ys - h, 0.), dd = abs(x.x - NZ.x), ch = 2. * a * sqrt(max(1. - dd * dd / (w * w), 0.));
+      float a = thR(ys), w = a + .45 * max(ys - h - y0, 0.), dd = abs(x.x - NZ.x), ch = 2. * a * sqrt(max(1. - dd * dd / (w * w), 0.));
       thr = mix(vec3(1), exp(-SIG * ch) * (.6 + 1.1 * exp(-pow(dd / (w * .25), 2.)) * a / w), smoothstep(w, w * .3, dd) * min(1., 2.4 * a / w) * smoothstep(NZ.y - 4., NZ.y + 6., ys));
     }
-    return vec3(1., .93, .84) * 2.6 * spot * foc * exp(-SIG * path) * thr;
+    return vec3(1., .95, .87) * 1.3 * lightE(x) * foc * exp(-SIG * path) * thr;
   }
-  vec3 shadePool(vec3 p, vec3 rd, vec3 n) {
+  // honey is not quite clear: pollen and fine bubbles scatter a little light, so thick honey glows deep amber
+  vec3 glow(float L, vec2 x) { return vec3(1., .62, .2) * .6 * lightE(x) * (1. - exp(-.16 * L)) * exp(-SIG * L * .45); }
+  vec3 shadeSurf(vec3 p, vec3 rd, vec3 n, bool mirror) {
     float c = max(dot(n, -rd), 0.), F = .039 + .961 * pow(1. - c, 5.);
-    vec3 rr = reflect(rd, n), refl = env(p, rr, 1.);
-    // the glossy pool mirrors the thread and the coil
-    float tm = traceThread(p + rr * .05, rr);
-    if (tm < 0.) tm = traceBend(p + rr * .05, rr);
-    if (tm < 0.) tm = traceLive(p + rr * .05, rr);
-    // seen in the mirror the rope is what it is up close: the backlight coming through its amber, plus the faint
-    // glow of what it scatters (not a flat cut-out)
-    if (tm > 0.) refl = env(p + rr * (tm + 1.5), rr, 1.) * exp(-SIG * 1.6) * 1.2 + vec3(.95, .5, .15) * .22;
-    vec3 t = refract(rd, n, 1. / ETA); float lv = p.y / max(-t.y, .05);
-    vec2 xb = p.xz + t.xz * lv;
-    vec3 below = floorLight(xb) * vec3(.86, .84, .8) * .55 * exp(-SIG * lv);
-    // where a melted loop still stands proud of the mound it is still a rope: the backlight comes through it as it
-    // does through the fresh loops, so a loop keeps its colour as it melts instead of jumping to the mound's red
-    float rh = hR(p.xz);
-    if (rh > .02) {
-      float ch = min(2. * rh / max(-t.y, .4), 2.6 * CA), sct = 1. - exp(-ch * .55);
-      vec3 thru = env(p, rd, 2.6) * exp(-SIG * ch) * (1. - sct * .3) + vec3(.95, .5, .15) * sct * .3 * exp(-SIG * ch * .5);
-      below = mix(below, thru, smoothstep(.05, .6, rh / max(CA, .1)) * .85);
+    vec3 rr = reflect(rd, n), refl = envScene(p + n * .02, rr, 1.);
+    if (mirror) {                                         // the glossy pool mirrors the thread and the coil, dimly
+      float tm = traceThread(p + rr * .05, rr);
+      if (tm < 0.) tm = traceBend(p + rr * .05, rr);
+      if (tm < 0.) tm = traceLive(p + rr * .05, rr);
+      if (tm > 0.) refl = studio(rr, 4.) * exp(-SIG * 2.) * .4 + vec3(.9, .5, .15) * .2 * lightE(p.xz);
     }
-    vec3 col = refl * F + below * (1. - F);
-    vec2 sc = p.xz - vec2(0., -10.);
-    return col * (.12 + .88 * exp(-dot(sc, sc) / 5000.));   // the light falls away from the set
+    vec3 t = refract(rd, n, 1. / ETA);
+    float d = max(p.y - yFl(p.xz), 0.), L = d / max(-t.y, .3);
+    return refl * F + (floorLight(p.xz + t.xz * L) * exp(-SIG * L) + glow(L + d, p.xz)) * (1. - F);
   }
-  // a rope of honey: reflection, then the light that comes through it from behind, tinted by its thickness. A tube
-  // bends rays only across its axis: the part along the axis passes straight through (Snell in vector form)
-  vec3 shadeRope(vec3 p, vec3 rd, vec3 n, vec3 ax, float rad) {
+  vec3 behindAir(vec3 q, vec3 dv) {                        // what a ray leaving the honey into the air sees
+    float t = traceH(q + dv * .05, dv, 40);
+    if (t > 0.) {
+      vec3 p = q + dv * (t + .05), n; float m, td = traceDish(q, dv, n, m);
+      if (dot(p.xz, p.xz) < RIN * RIN && (td < 0. || td > t)) return shadeSurf(p, dv, Hnf(p.xz, .1), false);
+    }
+    return envScene(q, dv, 2.);
+  }
+  // light through a rope: across its chord, then on down through the honey it rests in, or out into the air behind
+  vec3 transRope(vec3 p, vec3 rd, vec3 n, vec3 ax, float a) {
+    vec3 t = refract(rd, n, 1. / ETA), tp = t - ax * dot(t, ax); float lp = length(tp);
+    float L1 = min(2. * a * clamp(dot(-n, tp / max(lp, 1e-4)), 0., 1.) / max(lp, .2), 5. * a);
+    vec3 q = p + t * L1;
+    // does it come out into the honey beneath (on down to the porcelain) or into the air? blended across a band
+    float wa = smoothstep(.0, .6, min(q.y - Hm(q.xz), sdLive(q))), L2 = max(q.y - yFl(q.xz), 0.) / max(-t.y, .3);
+    vec3 cin = floorLight(q.xz + t.xz * L2) * exp(-SIG * (1.4 * L1 + .45 * L2)) + glow(1.4 * L1 + .45 * L2, q.xz);
+    if (wa < .01) return cin;
+    vec3 ra = ax * dot(rd, ax), rp = rd - ra; float lr = length(rp); vec3 u = rp / max(lr, 1e-5);
+    float ci = clamp(dot(u, -n), 0., 1.), si = sqrt(1. - ci * ci), dv0 = 2. * (acos(ci) - asin(si / ETA));
+    vec3 w = normalize(-n - ci * u + 1e-5 * ax), dv = normalize(ra + lr * (cos(dv0) * u + sin(dv0) * w));
+    return mix(cin, behindAir(q, dv) * exp(-SIG * 1.6 * L1) + glow(1.6 * L1 + .6, q.xz), wa);
+  }
+  vec3 shadeHoney(vec3 p, vec3 rd, vec3 ns, vec3 nr, vec3 ax, float a, float h) {
+    vec3 n = normalize(mix(ns, nr, h));
     float c = max(dot(n, -rd), 0.), F = .039 + .961 * pow(1. - c, 5.);
-    vec3 refl = env(p, reflect(rd, n), 1.);
-    vec3 ra = ax * dot(rd, ax), rp = rd - ra; float lp = length(rp);
-    vec3 u = rp / max(lp, 1e-5);
-    float ci = clamp(dot(u, -n), 0., 1.), si = sqrt(1. - ci * ci), st = si / ETA, ti = acos(ci), tt = asin(st), dv0 = 2. * (ti - tt);
-    vec3 w = normalize(-n - ci * u + 1e-5 * ax);
-    vec3 dv = normalize(ra + lp * (cos(dv0) * u + sin(dv0) * w));
-    float chord = 2. * rad * sqrt(max(1. - st * st, 0.)) * lp + 1e-3;
-    vec3 q = p + rd * chord;
-    float th = traceH(q, dv, 64);
-    vec3 behind = th > 0. ? shadePool(q + dv * th, dv, Hn((q + dv * th).xz, .09)) : env(q, dv, 2.6);
-    // honey is not quite clear: pollen and tiny bubbles scatter some light, so a rope also glows from inside
-    float L = chord / max(lp, .2), sc = 1. - exp(-L * .55);
-    vec3 glow = vec3(.95, .5, .15) * (.9 + .5 * max(n.y, 0.));
-    return refl * F + mix(behind, glow, sc * .3) * (1. - F) * exp(-SIG * L);
+    vec3 refl = envScene(p + n * .03, reflect(rd, n), 1.), tr = vec3(0);
+    vec3 rr = reflect(rd, n);            // two cards close by, left and right: the crisp lines along the thread and the loops
+    refl += vec3(2.4, 2.5, 2.6) * box(rr, vec4(-.8, -.1, -2.1, -1.05), .03) + vec3(1.3, 1.1, .85) * box(rr, vec4(-.8, -.1, 1.15, 2.0), .03);
+    if (h < .98) { vec3 t = refract(rd, n, 1. / ETA); float d = max(p.y - yFl(p.xz), 0.), L = d / max(-t.y, .3); tr = floorLight(p.xz + t.xz * L) * exp(-SIG * L) + glow(L + d, p.xz); }
+    if (h > .02) tr = mix(tr, transRope(p, rd, n, ax, a), h);
+    return refl * F + tr * (1. - F);
   }
   vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
   float hsh(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
   void main() {
     vec2 sp = (gl_FragCoord.xy / R - .5) * vec2(R.x / R.y, 1.);
-    vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y), ro = CP;
-    float th = traceH(ro, rd, 110), tt = traceThread(ro, rd), tb = traceBend(ro, rd), tl = traceLive(ro, rd);
-    if (th < 0.) th = 1e9; if (tt < 0.) tt = 1e9; if (tb < 0.) tb = 1e9; if (tl < 0.) tl = 1e9;
+    vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y), ro = CP, nd; float md, td = traceDish(ro, rd, nd, md);
+    if (td < 0.) td = 1e9;
+    float th = traceH(ro, rd, 110);
+    if (th > 0.) { vec3 p = ro + rd * th; if (dot(p.xz, p.xz) > RIN * RIN || th > td) th = 1e9; } else th = 1e9;
+    float tc = traceCoil(ro, rd, min(th, td)), tt = traceThread(ro, rd);
+    if (tc < 0.) tc = 1e9; if (tt < 0.) tt = 1e9;
     vec3 col;
-    if (tl < th && tl < tt && tl < tb) {
-      vec3 p = ro + rd * tl, nl, al; liveFrame(p, nl, al); col = shadeRope(p, rd, nl, al, CA);
-    } else if (tt < th && tt < tb) {
-      vec3 p = ro + rd * tt; vec3 n = normalize(vec3(p.x - NZ.x, 0., p.z - NZ.z));
-      col = shadeRope(p, rd, n, vec3(0, 1, 0), thR(p.y));
-    } else if (tb < th) {
-      vec3 p = ro + rd * tb, nb, ab; bendFrame(p, nb, ab); col = shadeRope(p, rd, nb, ab, mix(A1, CA, .6));
-    } else if (th < 1e8) {
-      vec3 p = ro + rd * th; col = shadePool(p, rd, Hn(p.xz, .085));
-    } else col = env(ro, rd, 1.);
+    if (tt < tc && tt < th && tt < td) {
+      vec3 p = ro + rd * tt, r = vec3(p.x - NZ.x, 0., p.z - NZ.z);
+      vec3 n = normalize(r / max(length(r), 1e-4) - vec3(0, A1 * .047 * pow(1. + max(p.y - NZ.y, 0.) / 9., -.58), 0));
+      col = shadeHoney(p, rd, n, n, vec3(0, 1, 0), thR(p.y), 1.);
+    } else if (tc < 1e8 && tc <= th + .02 && tc < td) {
+      vec3 p = ro + rd * tc, nr, ax; float h, a = CA; sdAll(p, h);
+      if (h < .02) col = shadeSurf(p, rd, Hn(p.xz, .085), true);
+      else {
+        if (sdLive(p) < sdBend(p)) liveFrame(p, nr, ax); else bendFrame(p, nr, ax, a);
+        // the normal from the gradient of the whole joined field: smooth across the bend's joint and the fillet
+        const vec2 k = vec2(1, -1) * .03; float hh;
+        vec3 ng = normalize(k.xyy * sdAll(p + k.xyy, hh) + k.yyx * sdAll(p + k.yyx, hh) + k.yxy * sdAll(p + k.yxy, hh) + k.xxx * sdAll(p + k.xxx, hh));
+        col = shadeHoney(p, rd, ng, ng, ax, a, h);
+      }
+    } else if (th < td) { vec3 p = ro + rd * th; col = shadeSurf(p, rd, Hn(p.xz, .085), true); }
+    else if (td < 1e8) col = shadeDish(ro + rd * td, rd, nd, md, 1.);
+    else col = studio(rd, 1.);
     col = aces(col * EXPO);
     vec2 uv = gl_FragCoord.xy / R;
-    col *= 1. - .3 * pow(length(uv - .5) * 1.3, 2.4);
+    col *= 1. - .35 * pow(length(uv - .5) * 1.3, 2.4);
     o = vec4(pow(col, vec3(1. / 2.2)) + (hsh(gl_FragCoord.xy) - .5) / 255., 1);
   }`;
 
@@ -325,7 +397,6 @@ export default function (stage) {
 
   // ---------------------------------------------------------------- the mound: thin-film spreading, implicit (ADI)
   const B = new Float32Array(NB * NB).fill(H0);
-  const DOME = (() => { const Q = Math.PI * AL * AL * 2 * Math.PI * RC0 * Math.sqrt(FLOW) * FREQ; return Math.pow(H0 ** 4 + 2 * Q / (Math.PI * KB) * Math.log(LB / 2 / (RC0 * 1.3)), 0.25); })();
   {                                                  // start from the steady dome that a constant pour builds
     const Q = Math.PI * AL * AL * 2 * Math.PI * RC0 * Math.sqrt(FLOW) * FREQ, c = 2 * Q / (Math.PI * KB), R0 = LB / 2;
     for (let j = 0; j < NB; j++) for (let i = 0; i < NB; i++) {
@@ -434,7 +505,7 @@ export default function (stage) {
     for (let i = rsegs.length - 1; i >= 0; i--) {
       const s = rsegs[i], e0 = Math.exp(-s.age / TAU);
       s.age += dt;
-      const gone = s.age > 7 * TAU;
+      const gone = s.age > 5 * TAU;
       splatB((s.x0 + s.x1) / 2, (s.z0 + s.z1) / 2, gone ? s.vol * e0 : s.vol * e0 * (1 - k));
       if (gone) rsegs.splice(i, 1);
     }
@@ -458,10 +529,11 @@ export default function (stage) {
   const uploadB = () => { gl.bindTexture(gl.TEXTURE_2D, texB); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, NB, NB, gl.RED, gl.FLOAT, B); };
 
   // ---------------------------------------------------------------- camera: low and close, a macro lens
-  const FOC = 3.5, EL = 0.34, DIST = 92, TGT = [0, DOME + 0.5, 0];   // aimed at the top of the steady dome
+  const FOC0 = 4.5, EL = 0.47, DIST = 125, TGT = [0, 9, -7];   // a high three-quarter view into the bowl
+  let FOC = FOC0;
   const cam = { p: [TGT[0], TGT[1] + Math.sin(EL) * DIST, TGT[2] + Math.cos(EL) * DIST], f: [0, -Math.sin(EL), -Math.cos(EL)], r: [1, 0, 0], u: [0, Math.cos(EL), -Math.sin(EL)] };
   let W = 1, H = 1;
-  const resize = () => { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(580000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); dirty = true; };
+  const resize = () => { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(580000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); FOC = FOC0 * Math.min(1, w / h / 1.15); dirty = true; };
   let dirty = true;
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
   const onMove = e => { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
@@ -503,7 +575,8 @@ export default function (stage) {
       for (let i = i0; i <= i1; i++) gr = Math.max(gr, Math.hypot(pts[i].x - gx, pts[i].y - gy, pts[i].z - gz));
       LGU.set([gx, gy, gz, gr + AL + 0.05], g * 4);
     }
-    return { n, ls: [cx, cy, cz, rad + AL + 0.2] };
+    let sh = 0; pts.forEach(p => { sh += Math.max(0, p.y + AL - sampleB(p.x, p.z)) / n; });
+    return { n, ls: [cx, cy, cz, rad + AL + 0.2], stk: [cx, cz, Math.max(1.5, Math.hypot(coil.x - cx, coil.z - cz) + AL), sh * 0.45] };
   }
   function draw() {
     const bz = bezier(), lv = packLive();
@@ -516,6 +589,8 @@ export default function (stage) {
     gl.uniform1f(u.A1, A1); gl.uniform1f(u.HMAX, Math.max(maxB, contactY + AL) + AL * 1.2 + 0.4); gl.uniform1f(u.H0, H0);
     gl.uniform1f(u.LB, LB); gl.uniform1f(u.LR, LR); gl.uniform1f(u.EXPO, 0.86);
     gl.uniform2f(u.CC, coil.x, coil.z); gl.uniform1f(u.CA, AL);
+    const hl = (sampleB(0, -21) + sampleB(21, 0) + sampleB(-21, 0) + sampleB(0, 21)) / 4, rs = 30 * Math.sqrt(Math.max(0, 1 - ((10 - hl) / 10) ** 2));
+    gl.uniform1f(u.HL, hl); gl.uniform1f(u.RS, rs); gl.uniform4fv(u.STK, lv.stk);
     gl.uniform3fv(u.CP, cam.p); gl.uniform3fv(u.CF, cam.f); gl.uniform3fv(u.CR, cam.r); gl.uniform3fv(u.CU, cam.u); gl.uniform1f(u.FOC, FOC); gl.uniform2f(u.R, W, H);
     quad();
   }
