@@ -154,10 +154,10 @@ export const FR = {
  },
  "iron-filings": {
   "title": "Limaille de fer",
-  "trick": "Des segments s’alignent sur le champ et sautent sur les lignes de flux",
+  "trick": "Des segments s’alignent sur le champ d’un aimant droit et sautent sur ses lignes de flux",
   "notes": [
-   "De la limaille d’acier posée sur deux aimants cachés saute à chaque tapotement et se range sur les lignes de champ ; faites glisser un aimant.",
-   "Chaque grain s’aligne sur le champ local et est attiré vers la courbe de niveau la plus proche de la fonction de flux, somme de l’angle de chaque pôle multiplié par sa charge."
+   "Des limailles d’acier sur une feuille, au-dessus d’un aimant droit caché, sautent à chaque tapotement et se rangent en boucles classiques d’un pôle à l’autre ; faites glisser l’aimant.",
+   "Chaque limaille s’aligne sur le champ local et est attirée vers la ligne de niveau la plus proche de la fonction de flux de l’aimant : la somme de la charge de chaque pôle multipliée par le cosinus de son angle avec l’axe du barreau."
   ]
  },
  "galton-board": {

@@ -154,10 +154,10 @@ export const ES = {
  },
  "iron-filings": {
   "title": "Limaduras de hierro",
-  "trick": "Segmentos que se alinean con el campo y saltan a las líneas de flujo",
+  "trick": "Segmentos que se alinean con el campo de un imán de barra y saltan a sus curvas de flujo",
   "notes": [
-   "Limaduras de acero sobre dos imanes ocultos saltan con cada toque y se asientan en las líneas de campo; arrastra un imán.",
-   "Cada limadura se alinea con el campo local y es atraída hacia la curva de nivel más cercana de la función de flujo, la suma del ángulo de cada polo por su carga."
+   "Limaduras de acero sobre papel, encima de un imán de barra oculto, saltan con cada golpecito y se asientan en los clásicos lazos de polo a polo; arrastra el imán.",
+   "Cada limadura se alinea con el campo local y es atraída hacia la curva de nivel más cercana de la función de flujo del imán: la suma de la carga de cada polo por el coseno de su ángulo respecto al eje de la barra."
   ]
  },
  "galton-board": {
