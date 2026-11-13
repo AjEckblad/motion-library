@@ -988,8 +988,8 @@ export const FR = {
   "title": "Sable qui tombe",
   "trick": "Automate cellulaire : le sable tombe et glisse en diagonale, l’eau s’étale sur les côtés",
   "notes": [
-   "Du sable coloré coule depuis le curseur, s’entasse sur des corniches et se dépose en dunes rayées, avec de l’eau entre elles.",
-   "Une grille cellulaire parcourue de bas en haut : les grains tombent ou glissent en diagonale, l’eau s’étale aussi sur les côtés, et un marqueur par cellule empêche tout déplacement double dans un même pas."
+   "Un sable fin aux tons de désert coule depuis le curseur, s’entasse sur les corniches et se dépose en dunes stratifiées ; de temps en temps, un filet d’eau dévale, stagne dans les creux et assombrit le sable qu’il imbibe.",
+   "Une grille de grains parcourue de bas en haut : chacun tombe de plus en plus vite ou glisse en diagonale, l’eau s’étale aussi sur les côtés et s’infiltre, et les blocs de 32 cellules immobiles se mettent en veille."
   ]
  },
  "doom-fire": {

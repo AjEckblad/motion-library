@@ -988,8 +988,8 @@ export const ES = {
   "title": "Arena que cae",
   "trick": "Autómata celular: la arena cae y resbala en diagonal, el agua se extiende a los lados",
   "notes": [
-   "Arena de colores cae desde el cursor, se amontona en cornisas y se asienta en dunas a rayas, con agua encharcada entre ellas.",
-   "Una cuadrícula celular recorrida de abajo arriba: los granos caen o resbalan en diagonal, el agua además se extiende a los lados, y una marca por celda impide que algo se mueva dos veces en un mismo paso."
+   "Arena fina del desierto cae desde el cursor, se amontona en las cornisas y se asienta en dunas por capas; de vez en cuando baja un chorro de agua, se encharca en los huecos y oscurece la arena que empapa.",
+   "Una cuadrícula de granos recorrida de abajo arriba: cada uno cae cada vez más rápido o resbala en diagonal, el agua además se extiende a los lados y se filtra, y los bloques de 32 celdas sin movimiento se duermen."
   ]
  },
  "doom-fire": {
