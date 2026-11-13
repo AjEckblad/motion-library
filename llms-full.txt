@@ -720,7 +720,7 @@ The camera flies over snowy ridges, rocky faces and a lake in thickening haze.
 Raymarched height field of noise layers damped by the running slope (the derivative trick) for erosion-like ridges; rays step by a fraction of their height above ground.
 
 Settings: --speed 1 (0 to 3, step 0.05; Flight speed); --sun 0.13 (0.08 to 0.9, step 0.01; Sun height).
-Renderer: WebGL. Size: 6.3 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html
+Renderer: WebGL. Size: 9.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html
 
 ### Volumetric clouds
 

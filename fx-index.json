@@ -2709,8 +2709,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/terrain-flyover",
    "npx": "npx motion-library add terrain-flyover",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 6441,
+   "reducedMotion": true,
+   "bytes": 9926,
    "settings": [
     {
      "key": "speed",

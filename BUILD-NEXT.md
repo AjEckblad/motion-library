@@ -16,8 +16,8 @@ Plan for the new session:
    translucent amber with refraction, viscous spreading); ferrofluid = AJ says not as it should be (compare with his
    earlier reference photo: a dense dome of fine spikes on a magnet, black glossy; review first to find what's off).
    Use two helper agents if the batch is big (memory: big-batches-two-agents); lead reviews frames and ships.
-Also pending: a helper agent (aefb980f6d89a70b9) was making terrain-flyover smoother when this session ended. Its edit
-is uncommitted in the working tree (anims/*/terrain-flyover.js). Review it (frames + fps), then ship or revert.
+Terrain flyover: DONE and shipped (camera follows a lookahead clearance on a critically damped spring, never under
+the lake, distance-faded detail; GPU 13-15 -> 11-12.5 ms).
 State: 224 effects live (watch-movement removed, a3c48ad). CLI 0.3.5 built (224), unpublished; AJ publishes.
 
 # Earlier (2026-11-13 evening): AJ's 17:30 list ALL DONE (225 live); npm 0.3.5 waits on AJ
