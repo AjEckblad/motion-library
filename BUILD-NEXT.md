@@ -1,3 +1,23 @@
+# Resume here (2026-11-14 ~01:00): ferrofluid + water ripples SHIPPED (a31b44c); honey agent running; site redesign next
+
+AJ is asleep and approved working through the night with **one helper agent at a time** (option 1: the lead coordinates,
+agents do the big chunks, so the lead's context stays under the 400k handoff). AJ cannot type "continue" while asleep.
+- SHIPPED a31b44c: ferrofluid (switch = two springs, no pop on reversal; needles collapse ~0.3 s, film drains ~3 s;
+  puddle stays put with the field off; soft limits; fat cones, meniscus, irregular film rupture, edge AA, GPU ~9.3 ms)
+  + 2 motion-check tests (25/25); water ripples (full-speed waves again, one drop at a time, 'Seconds between drops'
+  slider default 1.25 s, sunlit pond bed drawn once into a texture, poster at 4.6 s, 4 languages). check 89/89.
+- RUNNING: honey agent (anims/fluid/honey-coil.js only: hyperrealism + physics: coil centred under the nozzle, stacked
+  coil, straight vertical thread, no softbox "setting sun", no pink patch). Lead reviews frames, then ships it in a
+  clean worktree (git worktree add --detach <scratch>/wt HEAD; copy files; posters; SITE_URL build; checks; commit;
+  ff-merge main; push).
+- NEXT: the site redesign per docs/superpowers/specs/2026-11-14-front-door-design.md (AJ approved the plan: front door
+  with a live showpiece, one-sentence pitch + 3 differentiators, editorial showpiece row, hierarchy fixes, new OFL type
+  pairing). Done by ONE agent end to end (one hand for a coherent design), after the honey agent finishes. The before
+  is recorded in .taste-skill/before (design-taste inspect: 0 FAIL, 1 WARN below-fold). Lead's calls to show AJ: keep
+  the dial (make its arc legible), no rename, Penpot skipped (AJ's tab not open overnight).
+- Waiting on AJ: npm publish of CLI 0.3.5 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`); his
+  verdict on ferrofluid, ripples, honey; /review-animations at the end.
+
 # Resume here (2026-11-13 ~23:30): AJ's 4 fixes SHIPPED (ocean, tank, honey, ferrofluid); nothing in progress
 
 All four reviewed frame by frame by the lead and live (check 89/89, motion-check 22/22, CLI copy rebuilt, 224 effects).

@@ -3,6 +3,8 @@ tools/.look/
 tools/*.png
 tools/.export.html
 .taste-skill/inspect/
+.taste-skill/before/
+.taste-skill/after/
 
 # local caches and machine state
 .claude/
