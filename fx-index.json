@@ -1287,7 +1287,7 @@
    "npx": "npx motion-library add lava-flow",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 28518,
+   "bytes": 30979,
    "settings": [
     {
      "key": "flow",
@@ -1705,7 +1705,7 @@
    "npx": "npx motion-library add honey-coil",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 34871,
+   "bytes": 37222,
    "settings": [
     {
      "key": "flow",
