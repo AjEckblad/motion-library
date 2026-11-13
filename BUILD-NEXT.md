@@ -1,4 +1,33 @@
-# Resume here (2026-11-13 morning): AJ's overnight list done; 223 effects live; npm 0.3.3 waits on AJ
+# Resume here (2026-11-13 afternoon): AJ's 11:20 list + Animata gaps + new effects; 227 live
+
+AJ asked (2026-11-13 ~11:20): diff-growth less gross; falling sand more grains + sand coloured; stained glass more
+detailed environment; snow globe much more detailed; paper fold folds smoother ("spend time until perfect");
+ferrofluid: square magnet INSIDE the fluid (not under glass), a magnet on/off option, much more detailed (like his
+photo: dense fine spikes); lava lamp more detailed; compare with Animata and add what makes sense; more effects.
+DONE and live (commits f430f84 .. f867b15):
+- Paper fold (lead): minimum-jerk crease timing, overlapping steps, loose flaps are strip chains that bow edge-first
+  (gradient-shaded in the face background: overlay children left hairlines), per-panel projected shadows, slide follows
+  step progress, Z0 hinge lift. Peak panel motion 56-72 -> 15-20 px/frame, jolts <1 px. Cycle 10 s.
+- Stained glass (lead): nave of bays with piers, deep splayed reveals, ashlar detail, string course, polished floor;
+  fixed the border band's inverted separator lead.
+- Site (lead): Search pill + ⌘K palette (js/search.js; AJ had removed the old always-on search bar for looking
+  unprofessional, so this is the pill/palette form Animata uses: easy to drop if AJ objects), New (build-static reads
+  git: added after the first import, last 21 days; chip + dial entry), previous/next in the detail view, file path
+  links to GitHub (also in fx/ pages). Phone bar: chevron off <420, GitHub off <383, Surprise off <339.
+  check.mjs 89/89 (3 new), motion-check 21/21 (dial test starts on New).
+- Agents' pieces, reviewed frame by frame: diff-growth (pen-plotter print), falling-sand, snow-globe.
+- New effects (lead): chrome/watch-movement, generative/wave-collapse, simulation/mud-cracks (warped Voronoi + DT
+  shading), generative/leaf-venation (space colonisation). Dropped: pool caustics (too close to water-ripple).
+- Builds: an agent edits files in the main tree, so the static build runs in a clean worktree of HEAD
+  (git worktree add --detach <scratch>/wt HEAD; build + check there; copy the changed outputs back; commit; push).
+STILL OPEN at the time of writing: ferrofluid (agent abf43cac…, square magnet, on/off = remount state: magnet On
+grows spikes in, Off melts them; if internals change, update the ferrofluid test in tools/motion-check.mjs) and
+lava-lamp (agent ae1e7fc4…). Then: CLI 0.3.4 (cli/package.json + cd cli && node build.mjs), AJ publishes it.
+Animata comparison for AJ: theirs = React+Tailwind UI components (157), shadcn CLI, ⌘K search, New badges, changelog,
+prev/next; ours already had more in the detail view (live tweak sliders, Copy as prompt, Download .html, Share, Embed,
+4 languages, llms.txt). Not added on purpose: shadcn registry (not React), theme toggle, newsletter, testimonials.
+
+# Earlier (2026-11-13 morning): AJ's overnight list done; 223 effects live; npm 0.3.3 waits on AJ
 
 AJ's requests (2026-11-12 ~23:30). 1–5 DONE (2026-11-13, commit "Wix Madefor type, FAQ in the dial, GitHub..."):
 - Type: Wix Madefor Text (UI) + Wix Madefor Display (headings 20px+) + JetBrains Mono (code), OFL, fonts/OFL.txt.
