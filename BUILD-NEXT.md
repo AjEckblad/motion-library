@@ -1,4 +1,19 @@
-# Resume here (2026-11-13 afternoon): AJ's 11:20 list + Animata gaps + 4 new effects all live (227); npm 0.3.4 waits on AJ
+# Resume here (2026-11-13 evening): AJ's 17:30 list, two helper agents working
+
+AJ (17:30): fix honey pour; ocean a little too bright + normal wind-sea wave patterns (ref: grey overcast sea,
+whitecaps, foam streaks); ferrofluid bugged, no petri dish; fire & smoke burning on glowing logs, hyperrealistic;
+lava flow: spend time on visuals, red-hot lava must FLOW down, not stay at the top; fireworks: remove the "O"/ring
+bursts; crystal growth (dla-crystal) more realistic; REMOVE bonfire embers; iron filings: one + and one − pole, far
+fewer lines; REMOVE leaf venation; water ripples: slower, much less happening.
+- Done by lead: embers and leaf-venation moved to _cut/ and removed (f605611), 225 live. check 89/89.
+- Agent A (ada12491af339459d): fire-smoke, lava-flow, honey-coil, dla-crystal. Agent B (ad136918ab3a25700):
+  ferrofluid, ocean, iron-filings, water-ripple, fireworks. They edit only those files, report each piece by
+  SendMessage; lead reviews (tools/frames.mjs sheets), applies registry/i18n/poster, commits, and builds in a clean
+  worktree while agents still edit (see the afternoon notes). After all land: rebuild CLI (cd cli && node build.mjs;
+  it clears its anims/ copy, dropping the removed pieces), CLI version stays 0.3.4 if unpublished (check npm),
+  motion-check (ferrofluid test hooks frame(now) and S.m), final report to AJ.
+
+# Earlier (2026-11-13 afternoon): AJ's 11:20 list + Animata gaps + 4 new effects all live (227); npm 0.3.4 waits on AJ
 
 AJ asked (2026-11-13 ~11:20): diff-growth less gross; falling sand more grains + sand coloured; stained glass more
 detailed environment; snow globe much more detailed; paper fold folds smoother ("spend time until perfect");
