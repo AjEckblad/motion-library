@@ -5453,14 +5453,14 @@
    "category": "Simulation",
    "categoryId": "simulation",
    "renderer": "WebGL",
-   "description": "Repel, align, split stretched edges: a growing ridge folds to fit",
-   "descriptionZh": "排斥、对齐、拉长的边一分为二：不断生长的脊只能折叠",
+   "description": "Repel, align, split stretched edges: a growing line folds to fit",
+   "descriptionZh": "排斥、对齐、拉长的边一分为二：不断生长的线只能折叠",
    "page": "https://ajeckblad.github.io/motion-library/fx/diff-growth.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/diff-growth",
    "npx": "npx motion-library add diff-growth",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 19822,
+   "bytes": 18813,
    "settings": [
     {
      "key": "growth",

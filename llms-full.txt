@@ -1426,14 +1426,14 @@ Renderer: WebGL. Size: 31.6 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Differential growth
 
-Differential growth is a WebGL effect: repel, align, split stretched edges: a growing ridge folds to fit. One plain JavaScript file with no dependencies; add it with npx motion-library add diff-growth.
+Differential growth is a WebGL effect: repel, align, split stretched edges: a growing line folds to fit. One plain JavaScript file with no dependencies; add it with npx motion-library add diff-growth.
 
-A ridge grows longer than its space allows and folds into brain coral, then a glossy sea-slug mantle, until it fills the frame.
+A fine ink line grows longer than its paper allows and folds outward into a branching maze, with nested contours inside; the ink runs from deep blue at the old centre to vermilion at the newest edge.
 
 Nodes push away others in reach, ease toward their neighbours’ midpoint and split stretched edges. Growth sets how often roomy nodes split; Fold spacing sets fold width.
 
 Settings: --growth 1 (0.3 to 3, step 0.1; Growth); --spacing 1 (0.6 to 1.6, step 0.05; Fold spacing).
-Renderer: WebGL. Size: 19.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/diff-growth.html
+Renderer: WebGL. Size: 18.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/diff-growth.html
 
 ### Snowflake growth
 

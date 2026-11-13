@@ -154,7 +154,7 @@
 - [Vortex drain](https://ajeckblad.github.io/motion-library/fx/vortex.html): Lamb–Oseen vortex plus inflow; differential rotation winds colour into arms. `npx motion-library add vortex`
 - [Plexus](https://ajeckblad.github.io/motion-library/fx/plexus.html): Drifting points linked by distance-faded lines, found through a grid. `npx motion-library add plexus`
 - [Lenia](https://ajeckblad.github.io/motion-library/fx/lenia.html): Ring-kernel convolution and a growth bump: Chan’s Lenia, four species. `npx motion-library add lenia`
-- [Differential growth](https://ajeckblad.github.io/motion-library/fx/diff-growth.html): Repel, align, split stretched edges: a growing ridge folds to fit. `npx motion-library add diff-growth`
+- [Differential growth](https://ajeckblad.github.io/motion-library/fx/diff-growth.html): Repel, align, split stretched edges: a growing line folds to fit. `npx motion-library add diff-growth`
 - [Snowflake growth](https://ajeckblad.github.io/motion-library/fx/snowflake.html): Gravner–Griffeath model: vapour diffuses, sites freeze by neighbour rules. `npx motion-library add snowflake`
 
 ## Retro & signal
