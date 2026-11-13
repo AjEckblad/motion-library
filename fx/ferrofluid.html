@@ -94,7 +94,7 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>25.0 KB, unminified</dd>
+<dt>File size</dt><dd>25.6 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -386,9 +386,17 @@ export default function (stage) {
   // the pointer on the table: cast its ray onto the plane of the magnet's top
   // a resting mouse keeps the magnet where it is; leaving the stage, or a finger lifted for 1.8 s, hands it back to the drift
   let px = 0.5, py = 0.5, lastMove = -1e9, held = false;
-  const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
+  // a tap and a drag are different intents: a mouse moves the magnet by hovering, so its click only switches it; a finger
+  // (or pen) moves it only once it has travelled 8 px, so a tap switches the magnet without yanking it to the finger,
+  // and a drag moves it without switching it off
+  let downX = 0, downY = 0, travel = 0;
+  const onMove = e =&gt; {
+    if (e.pointerType !== 'mouse') { travel = Math.max(travel, Math.hypot(e.clientX - downX, e.clientY - downY)); if (travel &lt; 8) return; }
+    const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse';
+  };
+  const onDown = e =&gt; { downX = e.clientX; downY = e.clientY; travel = 0; if (e.pointerType === 'mouse') onMove(e); };
   const onLeave = () =&gt; { held = false; };
-  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerleave', onLeave);
   const pointerXZ = () =&gt; {
     const a = W / H, sx = (px - 0.5) * a, sy = 0.5 - py, d = cam.f.map((f, i) =&gt; f * FOC + cam.r[i] * sx + cam.u[i] * sy);
     const y0 = 0.25, t = d[1] &lt; -1e-3 ? (y0 - cam.p[1]) / d[1] : 1e3;
@@ -402,7 +410,7 @@ export default function (stage) {
   // the param sets how it starts; a click or tap on the stage switches the magnet on or off
   let onTarget = PARAMS.magnet ? 0 : 1;
   let LIM = 0.3;
-  const onClick = () =&gt; { onTarget = 1 - onTarget; if (reduce) S.on = onTarget; };
+  const onClick = () =&gt; { if (travel &gt;= 8) return; onTarget = 1 - onTarget; if (reduce) S.on = onTarget; };
   canvas.addEventListener('click', onClick);
   if (reduce) S.on = onTarget;
   let raf, last = performance.now(), t = 0;
@@ -445,7 +453,7 @@ export default function (stage) {
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
-  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); canvas.removeEventListener('click', onClick); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerleave', onLeave); canvas.removeEventListener('click', onClick); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 
 }
 </code></pre>

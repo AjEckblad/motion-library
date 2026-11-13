@@ -1332,7 +1332,7 @@
    "npx": "npx motion-library add ferrofluid",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 25596,
+   "bytes": 26218,
    "settings": [
     {
      "key": "spikes",

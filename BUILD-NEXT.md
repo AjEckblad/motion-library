@@ -11,6 +11,9 @@ All four reviewed frame by frame by the lead and live (check 89/89, motion-check
   reflection is a pale half-disc behind the coil (a bit like a setting sun; candidate fix: smaller/softer, varied
   shape), pool in front fairly smooth, no depth of field, thread colour seam at the rim line.
 - Token rule: hand off at 400k context; ~/.claude/hooks/handoff-at-40.js (PostToolUse) enforces it.
+/review-animations (AJ ran it): approved ocean, tank, honey; blocked ferrofluid on touch (a tap both yanked the magnet to the
+finger and switched it off). FIXED: touch moves the magnet only after 8 px of travel, click toggles only under 8 px;
+motion-check test added (23/23). Ferrofluid GPU measured 11.07 ms median / 13.2 p90 at 900x560 (budget 12): OK.
 Waiting on AJ: his verdict on the 4 pieces (suggest /review-animations); npm publish of CLI 0.3.5 from his Terminal.
 
 # Earlier (2026-11-13 night): run /review-animations FIRST on 4 pieces, then fix them; terrain flyover pending

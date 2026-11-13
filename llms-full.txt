@@ -365,7 +365,7 @@ Glossy black magnetic oil lies in a puddle on a studio table and climbs over a s
 Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a turned, jittered hexagonal lattice (each sample visits its nearest lattice point and six neighbours, looked up with the lean undone), shaded only by studio reflections, the puddle mirroring the crown.
 
 Settings: --spikes 260 (80 to 500, step 10; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength); --magnet 0 (0 to 1, step 1; Magnet).
-Renderer: WebGL. Size: 25.0 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
+Renderer: WebGL. Size: 25.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 

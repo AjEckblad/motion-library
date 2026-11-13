@@ -173,6 +173,22 @@ const mp = await m.newPage(); mp.on('pageerror', e => errors.push('mobile: ' + e
 await mp.goto(base + '/index.html#/'); await mp.waitForSelector('.card'); await mp.waitForTimeout(1200);
 const mob = await mp.evaluate(() => ({ fine: matchMedia('(hover: hover) and (pointer: fine)').matches, op: getComputedStyle(document.querySelector('.card .heart')).opacity, tf: getComputedStyle(document.querySelector('.card .heart')).transform }));
 check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && mob.tf === 'none', mob);
+// ferrofluid on touch: a tap switches the magnet without yanking it to the finger; a drag moves it without switching it
+{
+  const fp = await m.newPage(); fp.on('pageerror', e => errors.push('ferro touch: ' + e.message));
+  const src = await (await fetch(base + '/anims/fluid/ferrofluid.js')).text();
+  await fp.route('**/anims/fluid/ferrofluid.js', r => r.fulfill({ body: src.replace('function frame(now) {', 'function frame(now) { window.__s = { on: onTarget, px, py };'), contentType: 'text/javascript' }));
+  await fp.goto(base + '/stage.html?src=anims/fluid/ferrofluid.js'); await fp.waitForTimeout(1500);
+  const c = await fp.evaluate(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
+  const st = () => fp.evaluate(() => ({ ...window.__s }));
+  const cdp = await m.newCDPSession(fp), touch = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  const s0 = await st(); await fp.touchscreen.tap(c.x + c.w * 0.8, c.y + c.h * 0.8); await fp.waitForTimeout(400); const s1 = await st();
+  await touch('touchStart', c.x + 100, c.y + c.h * 0.6);
+  for (let i = 1; i <= 12; i++) { await touch('touchMove', c.x + 100 + i * 10, c.y + c.h * 0.6); await fp.waitForTimeout(16); }
+  await touch('touchEnd'); await fp.waitForTimeout(400); const s2 = await st();
+  check('ferrofluid touch: a tap switches without moving, a drag moves without switching', s1.on !== s0.on && s1.px === s0.px && s2.on === s1.on && s2.px !== s1.px, { s0, s1, s2 });
+  await fp.close();
+}
 
 // previous / next: a keyboard step (Enter on the focused pager link) swaps the detail view at once; a click softens it
 {
