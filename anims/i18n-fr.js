@@ -232,14 +232,6 @@ export const FR = {
    "Forces de Lennard-Jones entre chaque paire, avec un thermostat qui ramène les vitesses vers une température cible décroissante ; les atomes sont colorés selon leur vitesse et des liaisons relient les voisins proches."
   ]
  },
- "embers": {
-  "title": "Braises de feu de camp",
-  "trick": "Poussée selon le carré de la température, brassée par un champ curl sans divergence",
-  "notes": [
-   "Des braises s’élèvent d’un feu de camp en volutes, scintillant et pâlissant à mesure qu’elles refroidissent.",
-   "La poussée croît avec le carré de la température, donc les braises chaudes filent vers le haut ; le tourbillon est le rotationnel de sinus superposés, sans divergence, si bien que les braises ne s’agglutinent jamais."
-  ]
- },
  "calligraphy": {
   "title": "Pinceau de calligraphie",
   "trick": "Pinceau poil par poil, avec encre propre à chaque poil et traits secs",
@@ -1807,15 +1799,7 @@ export const FR = {
    "L’argile mouillée et brillante sèche inégalement et se fend en plaques aux bords relevés, les fentes s’élargissant à mesure qu’elle rétrécit ; puis la pluie la détrempe et les fentes se referment. Maintenez et glissez pour mouiller une zone.",
    "Un retrait uniforme casse l’argile en polygones : le réseau est donc un diagramme de Voronoï déformé par du bruit ; chaque paroi s’ouvre depuis son milieu quand sa zone sèche, et une transformée de distance ombre les fentes et les bords relevés."
   ]
- },
- "leaf-venation": {
-  "title": "Nervation de feuille",
-  "trick": "Colonisation de l’espace : des points d’auxine attirent la pointe de nervure la plus proche",
-  "notes": [
-   "Une feuille à contre-jour pousse et ses nervures avec elle : une nervure centrale, des secondaires qui s’arquent vers le bord et un fin réseau qui se referme en aréoles ; puis elle prend ses couleurs d’automne, tombe, et une nouvelle feuille commence. Bougez pour déplacer le soleil derrière elle.",
-   "Les points d’auxine apparaissent le long du bord qui grandit ; chacun attire la pointe de nervure la plus proche, qui avance vers eux, et disparaît quand une nervure l’atteint. L’épaisseur suit le modèle des tuyaux : le r³ d’une nervure est la somme de ses branches."
-  ]
- },
+ }
 };
 
 // slider labels, keyed by the English label in anims/registry.js

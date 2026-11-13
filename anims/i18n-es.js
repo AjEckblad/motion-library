@@ -232,14 +232,6 @@ export const ES = {
    "Fuerzas de Lennard-Jones entre cada par, con un termostato que lleva las velocidades hacia una temperatura objetivo descendente; los átomos se colorean por velocidad y se dibujan enlaces entre vecinos cercanos."
   ]
  },
- "embers": {
-  "title": "Brasas de hoguera",
-  "trick": "Flotabilidad según la temperatura al cuadrado, arremolinada por un campo curl sin divergencia",
-  "notes": [
-   "Las brasas suben de una hoguera en remolinos, centelleando y apagándose a medida que se enfrían.",
-   "El empuje crece con el cuadrado de la temperatura, así que las brasas calientes salen disparadas; el remolino es el rotacional de senos superpuestos, sin divergencia, de modo que las brasas nunca se agrupan."
-  ]
- },
  "calligraphy": {
   "title": "Pincel de caligrafía",
   "trick": "Pincel cerda a cerda, con tinta propia en cada cerda y trazos de pincel seco",
@@ -1807,15 +1799,7 @@ export const ES = {
    "La arcilla húmeda y brillante se seca de forma desigual y se parte en placas de bordes curvados; las grietas se ensanchan al encogerse. Luego la lluvia la empapa y se cierran. Mantén pulsado y arrastra para mojar una zona.",
    "Al encoger por igual, la arcilla se rompe en polígonos, así que la red es un diagrama de Voronoi deformado con ruido; cada pared se abre desde el centro cuando se seca su zona, y una transformada de distancia sombrea huecos y bordes."
   ]
- },
- "leaf-venation": {
-  "title": "Nervadura de hoja",
-  "trick": "Colonización del espacio: puntos de auxina atraen la punta de vena más cercana",
-  "notes": [
-   "Una hoja a contraluz crece y sus venas crecen con ella: un nervio central, nervios secundarios que se arquean hacia el borde y una red fina que se cierra en aréolas; luego se vuelve otoñal, cae y empieza una hoja nueva. Mueve el puntero para mover el sol detrás.",
-   "Los puntos de auxina aparecen en el borde que crece; cada uno atrae la punta de vena más cercana, que avanza hacia ellos, y se consume cuando llega una vena. El grosor sigue el modelo de tuberías: r³ de una vena es la suma de sus ramas."
-  ]
- },
+ }
 };
 
 // slider labels, keyed by the English label in anims/registry.js
