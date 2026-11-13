@@ -387,9 +387,9 @@ const BASE = [
     trick: 'Offset texture lookups by flowing noise',
     notes: ['An image ripples like water, rippling harder where the pointer drags through it.', 'Each pixel samples the texture at a spot shifted by animated noise, and the shift grows near the pointer.'],
     params: { strength: P(0, 0.12, 0.002, 'Strength'), speed: P(0, 1.5, 0.05, 'Flow speed') } },
-  { id: 'lava-lamp', cat: 'fluid', title: 'Lava lamp', kind: 'webgl', posterAt: 2000,
-    trick: 'Metaballs: sum the fields, threshold the sum',
-    notes: ['Blobs rise and sink like a lava lamp, merging smoothly when they meet.', 'Each blob adds a field that falls off with distance and pixels above a threshold are lava; because fields add, nearby blobs bulge together.'],
+  { id: 'lava-lamp', cat: 'fluid', title: 'Lava lamp', kind: 'webgl', posterAt: 16000,
+    trick: 'Raymarched 3D metaballs; heat drives buoyancy',
+    notes: ['A chrome-and-glass lava lamp glows in a dim room: wax swells on the bulb, necks off the pool, rises slowly, cools at the top and sinks, merging and pinching as it goes.', 'Raymarched in one shader: the wax is 3D metaballs joined by a smooth minimum, and each blob\'s heat sets its buoyancy; light refracts through the glass and the wax glows where it is thin.'],
     params: { blobs: P(2, 14, 1, 'Blobs'), speed: P(0.1, 2, 0.05, 'Speed') } },
 
   // ── Chrome & 3D

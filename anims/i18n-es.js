@@ -322,10 +322,10 @@ export const ES = {
  },
  "lava-lamp": {
   "title": "Lámpara de lava",
-  "trick": "Metaballs: sumar los campos y umbralizar la suma",
+  "trick": "Metaballs 3D con raymarching; el calor mueve la flotación",
   "notes": [
-   "Las burbujas suben y bajan como en una lámpara de lava y se funden suavemente al encontrarse.",
-   "Cada burbuja suma un campo que decae con la distancia, y los píxeles por encima de un umbral son lava; como los campos se suman, las burbujas cercanas se abomban la una hacia la otra."
+   "Una lámpara de lava de cromo y cristal brilla en una habitación en penumbra: la cera se hincha sobre la bombilla, se estira en un cuello hasta soltarse del fondo, sube despacio, se enfría arriba y vuelve a bajar, fundiéndose y separándose.",
+   "Todo se dibuja con raymarching en un solo shader: la cera son metaballs 3D unidas con un mínimo suave y el calor de cada burbuja fija su flotación; la luz se refracta en el cristal y la cera brilla donde es fina."
   ]
  },
  "fire-smoke": {

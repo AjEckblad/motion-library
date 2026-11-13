@@ -322,10 +322,10 @@ export const FR = {
  },
  "lava-lamp": {
   "title": "Lampe à lave",
-  "trick": "Metaballs : additionner les champs, seuiller la somme",
+  "trick": "Metaballs 3D en raymarching ; la chaleur fait la flottabilité",
   "notes": [
-   "Des bulles montent et descendent comme dans une lampe à lave et fusionnent en douceur en se rencontrant.",
-   "Chaque bulle ajoute un champ qui décroît avec la distance, et les pixels au-dessus d’un seuil sont de la lave ; comme les champs s’additionnent, les bulles proches gonflent l’une vers l’autre."
+   "Une lampe à lave de chrome et de verre luit dans une pièce sombre : la cire gonfle sur l’ampoule, s’étire en un col puis se détache du fond, monte lentement, refroidit en haut et redescend, en fusionnant et se séparant.",
+   "Tout est rendu en raymarching dans un seul shader : la cire est faite de metaballs 3D liées par un minimum lisse, et la chaleur de chaque bulle règle sa flottabilité ; la lumière se réfracte dans le verre et la cire luit là où elle est fine."
   ]
  },
  "fire-smoke": {
