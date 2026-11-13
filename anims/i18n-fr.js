@@ -340,8 +340,8 @@ export const FR = {
   "title": "Ferrofluide",
   "trick": "Aiguilles de Rosensweig sur un aimant bloc : cônes concaves sur un réseau hexagonal, en ray marching comme des miroirs noirs",
   "notes": [
-   "Une huile noire, brillante comme un miroir, monte dans une boîte de verre le long d’un aimant carré nickelé et se hérisse en une couronne d’aiguilles fines, plus hautes sur les arêtes ; déplacez le pointeur pour faire glisser l’aimant dans le bain, cliquez ou touchez pour l’éteindre et voir les aiguilles fondre.",
-   "Champ de distance en ray marching : le bain se fond en douceur avec un film sur le bloc et des cônes concaves sur un réseau hexagonal (chaque échantillon ne visite que le point du réseau le plus proche et ses six voisins), ombré uniquement par les reflets du studio."
+   "Une huile noire, brillante comme un miroir, forme une flaque sur une table de studio, grimpe sur un aimant carré nickelé et se hérisse en une couronne d’aiguilles fines, plus hautes sur les bords ; déplacez le pointeur pour faire glisser l’aimant dans la flaque (il entraîne l’huile), et cliquez ou touchez pour l’éteindre et voir fondre les aiguilles.",
+   "Champ de distance en raymarching : la flaque fusionnée en douceur avec un film sur le bloc et des cônes concaves sur un réseau hexagonal (chaque échantillon ne visite que son point le plus proche et ses six voisins), éclairé uniquement par des reflets de studio."
   ]
  },
  "marbling": {

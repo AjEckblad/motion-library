@@ -340,8 +340,8 @@ export const ES = {
   "title": "Ferrofluido",
   "trick": "Agujas de Rosensweig sobre un imán de bloque: conos cóncavos en una red hexagonal, con raymarching como espejos negros",
   "notes": [
-   "Un aceite negro y brillante como un espejo, en una placa de vidrio, trepa por un imán cuadrado niquelado y se eriza en una corona de agujas finas, más altas en los bordes; mueve el puntero para deslizar el imán por el charco, y haz clic o toca para apagarlo y ver cómo se funden las agujas.",
-   "Campo de distancias con raymarching: el charco se une suavemente con una película sobre el bloque y con conos cóncavos en una red hexagonal (cada muestra solo visita el punto de red más cercano y sus seis vecinos), sombreado solo con reflejos de estudio."
+   "Un aceite negro, brillante como un espejo, forma un charco sobre una mesa de estudio, trepa por un imán cuadrado niquelado y se eriza en una corona de agujas finas, más altas en los bordes; mueve el puntero para deslizar el imán por el charco (arrastra el aceite consigo) y haz clic o toca para apagarlo y ver cómo se derriten las agujas.",
+   "Campo de distancias con raymarching: el charco unido suavemente con una película sobre el bloque y conos cóncavos en una retícula hexagonal (cada muestra solo visita su punto más cercano y sus seis vecinos), sombreado solo con reflejos de estudio."
   ]
  },
  "marbling": {

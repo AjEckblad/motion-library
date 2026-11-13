@@ -64,7 +64,7 @@ export const MORE = [
     params: { flow: P(0.5, 1.6, 0.05, 'Flow'), cooling: P(0.4, 2.5, 0.1, 'Cooling'), speed: P(0.5, 1.5, 0.1, 'Speed') } },
   { id: 'ferrofluid', cat: 'fluid', title: 'Ferrofluid', kind: 'webgl', posterAt: 3800, pointer: true,
     trick: 'Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors',
-    notes: ['Black, mirror-glossy oil in a glass dish climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the pool, and click or tap to switch it off and watch the needles melt.', 'Raymarched distance field: the pool smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.'],
+    notes: ['Black, mirror-glossy oil lies in a puddle on a studio table, climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt.', 'Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.'],
     params: { spikes: P(80, 500, 10, 'Spikes'), strength: P(0, 2, 0.05, 'Magnet strength'), magnet: O('Magnet', 'On', 'Off') } },
   { id: 'marbling', cat: 'fluid', title: 'Paper marbling', kind: 'webgl', posterAt: 1800, pointer: true,
     trick: 'Backward lookup through comb and swirl warps; paint never smears',
