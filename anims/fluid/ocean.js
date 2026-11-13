@@ -1,16 +1,17 @@
-// Open ocean: the open sea on a grey, windy day, seen from a few metres above the water. A wind sea of many sizes and
-// directions (a broad directional spread over a low, short swell): peaked crests and broad troughs, short chop
-// crossing the big waves, whitecaps that break on the steepest crests and leave pale foam streaking downwind. An
+// Open ocean: the open sea on a grey, windy day, seen from a few metres above the water. The wind has blown for a
+// while and the whole sea runs with it: long-crested waves roll toward the viewer and a little to the right (a narrow
+// directional fan round the wind, over a long swell from almost the same way), with high peaked crests and deep troughs,
+// smaller chop riding them in the same direction, whitecaps that break on the steepest crests and leave pale foam streaking downwind. An
 // overcast deck of stratocumulus hides the sun; where it is thinner the sky brightens and the water under it carries
 // a soft silver sheen, and the far sea fades into a misty horizon under a sky worked out from real scattering. Move
 // the pointer and the bright patch (the hidden sun) follows it along the horizon.
-// The trick: the surface is an FFT ocean (Tessendorf). A JONSWAP wind-sea spectrum plus a narrow swell, with a
-// directional spread, gives a random amplitude to every wave vector; each frame those 196,000 waves are advanced in
+// The trick: the surface is an FFT ocean (Tessendorf). A JONSWAP wind-sea spectrum plus a long swell, both held in a
+// narrow fan round the wind, gives a random amplitude to every wave vector; each frame those 196,000 waves are advanced in
 // time and turned into heights, sideways (Gerstner) shifts, slopes and stretch by inverse FFTs on the GPU, in three
 // tiles of different sizes so nothing visibly repeats. Where the sideways shifts fold the surface (the Jacobian dips
 // below a threshold) foam is injected and then fades. Slopes too small to see in a pixel are not lost: their spread
 // is kept as roughness (LEAN mapping), so the veiled sun's reflection widens into a soft sheen, as it does on real water.
-const PARAMS = { wind: 10, chop: 1.6, sun: 10 };
+const PARAMS = { wind: 10, chop: 1.15, sun: 10 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
@@ -326,20 +327,22 @@ export default function (stage) {
   const U10 = Math.max(5, Math.min(13, PARAMS.wind)), FETCH = 150e3;
   const wp = 22 * Math.cbrt(G * G / (U10 * FETCH)), alpha = 0.076 * Math.pow(U10 * U10 / (FETCH * G), 0.22);
   const jonswap = (w, wpk, al, gam) => { const sg = w <= wpk ? 0.07 : 0.09, r = Math.exp(-((w - wpk) * (w - wpk)) / (2 * sg * sg * wpk * wpk)); return al * G * G / w ** 5 * Math.exp(-1.25 * (wpk / w) ** 4) * gam ** r; };
-  // the wind blows toward the camera, slightly from the right; the swell comes from the left
-  const camYaw = 0, windDir = Math.PI / 2 + 0.38, swellDir = Math.PI / 2 - 0.62;
+  // the wind blows toward the camera and a little to the right, and the whole sea follows it: the wind sea keeps to a
+  // narrow fan round the wind (long crests, nothing running upwind) and a long swell rolls in almost the same way
+  const camYaw = 0, windDir = Math.PI / 2 - 0.42, swellDir = windDir + 0.14;
   const sp = Math.max(2, 11.5 * Math.pow(U10 * wp / G, -2.5));
-  const swellWp = 2 * Math.PI / 11.5;
-  // the swell's level: scaled so its significant height is about a metre (a little more in stronger wind)
+  const swellWp = 2 * Math.PI / 10;
+  // the swell's level: scaled so its significant height is about one and a half metres (more in stronger wind)
   let m0 = 0; for (let w = 0.2; w < 4; w += 0.002) m0 += jonswap(w, swellWp, 1, 6) * 0.002;
-  const swellAl = (Math.min(0.8, 0.25 + U10 * 0.03) / 4) ** 2 / m0;
+  const swellAl = (Math.min(2, 0.6 + U10 * 0.08) / 4) ** 2 / m0;
+  const SEA = 2.1;                                  // a sea that has blown for a while: the wind sea's energy x2.1 (height x1.45)
   const spread = (th, s) => Math.sqrt(s + 0.25) / (2 * Math.sqrt(Math.PI)) * Math.pow(Math.abs(Math.cos(th / 2)), 2 * s);
   const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return d; };
   const E = (kx, kz) => {
     const k = Math.hypot(kx, kz), w = Math.sqrt(G * k), dwdk = G / (2 * w), th = Math.atan2(kz, kx);
     const s = w < wp ? sp * Math.pow(w / wp, 5) : sp * Math.pow(w / wp, -2.5);
-    const wind = jonswap(w, wp, alpha, 3.3) * spread(angDiff(th, windDir), Math.max(0.6, s * 0.4));   // a broad spread: short-crested, irregular
-    const swell = jonswap(w, swellWp, swellAl, 6) * spread(angDiff(th, swellDir), 9);
+    const wind = SEA * jonswap(w, wp, alpha, 3.3) * spread(angDiff(th, windDir), Math.max(5, s));   // a narrow fan: long crests, all downwind
+    const swell = jonswap(w, swellWp, swellAl, 6) * spread(angDiff(th, swellDir), 24);
     return (wind + swell) * dwdk / k * Math.exp(-(k * k) / 32000);
   };
     const h0tex = CASC.map(c => {

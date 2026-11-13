@@ -11,7 +11,8 @@
 // where light from above scatters, shafts of light focused by the waves, computed each frame from the real surface,
 // and a caustic net on the floor), or onto the top surface seen from above (a Fresnel mirror of the fluted wall,
 // broken by ripples), with the bright meniscus where water meets glass, foam where it churns, and spray that bends
-// the wall behind it like little lenses. The pointer tilts the tank.
+// the wall behind it like little lenses. The pointer tilts the tank. The tank is heavy: it leans over two seconds,
+// never faster than 11.5 degrees a second, so the waves build gradually.
 const PARAMS = { particles: 1600, slosh: 1 };
 
 export default function (stage) {
@@ -326,13 +327,17 @@ export default function (stage) {
   const onMove = e => { const b = canvas.getBoundingClientRect(); ptr = (e.clientX - b.left) / b.width; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
   const onLeave = () => { held = false; };
   canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
-  const ease = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+  // left alone it leans over two seconds (a minimum-jerk ease, no lurch), holds, comes level over two more, rests, then
+  // leans the other way: the water runs downhill and the slosh builds gradually instead of slamming into the wall
+  const mj = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * u * (10 - 15 * u + 6 * u * u);
   const auto = t => {
-    const c = t % 8, m = 0.21;
-    if (c < 0.45) return m * ease(c / 0.45); if (c < 2.1) return m; if (c < 2.55) return m * (1 - ease((c - 2.1) / 0.45)); if (c < 4) return 0;
-    if (c < 4.45) return -m * ease((c - 4) / 0.45); if (c < 6.1) return -m; if (c < 6.55) return -m * (1 - ease((c - 6.1) / 0.45)); return 0;
+    const c = t % 14.8, h = c % 7.4, m = c < 7.4 ? 0.21 : -0.21;
+    return m * (h < 2 ? mj(h / 2) : h < 4.4 ? 1 : h < 6.4 ? 1 - mj((h - 4.4) / 2) : 0);
   };
-  let ang = 0, angV = 0, raf, last = performance.now(), t = 0, acc0 = 0;
+  // the tank is heavy: whatever asks it to move (the rocking or the pointer), it never swings faster than VMAX or
+  // speeds up harder than AMAX, it brakes in time to stop without overshoot, and its push builds over ~0.15 s
+  const VMAX = 0.2, AMAX = 0.45;                                            // rad/s (11.5 deg/s), rad/s^2
+  let ang = 0, angV = 0, angA = 0, raf, last = performance.now(), t = 0, acc0 = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
     const live = held || now - lastMove < 2000;
@@ -340,9 +345,10 @@ export default function (stage) {
     acc0 += dt;
     let steps = 0;
     while (acc0 >= DT && steps < 6) {
-      const a = 60 * (target - ang) - 14 * angV;                            // the tank follows its target like a heavy thing
-      angV += a * DT; ang += angV * DT;
-      step(-G * Math.sin(ang), -G * Math.cos(ang), a, angV);
+      const e = target - ang, vDes = Math.sign(e) * Math.min(VMAX, Math.sqrt(1.2 * AMAX * Math.abs(e)), 2.5 * Math.abs(e));
+      angA += (Math.max(-AMAX, Math.min(AMAX, (vDes - angV) * 8)) - angA) * (DT / 0.15);
+      angV += angA * DT; ang += angV * DT;
+      step(-G * Math.sin(ang), -G * Math.cos(ang), angA, angV);
       acc0 -= DT; steps++;
     }
     if (steps === 6) acc0 = 0;

@@ -158,9 +158,10 @@ check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT })
     await sp.goto(base + '/stage.html?src=anims/' + id + '.js'); await sp.waitForTimeout(1500);
     const c = await sp.evaluate(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
     for (let i = 0; i <= 10; i++) { await sp.mouse.move(c.x + c.w * (0.5 + 0.03 * i), c.y + c.h * 0.6); await sp.waitForTimeout(30); }
-    await sp.waitForTimeout(1500); const a = await sp.evaluate(() => window.__v);
+    // (the water tank is heavy: a swing of this size takes about 3 s to settle, so read it after 3.5 s)
+    await sp.waitForTimeout(3500); const a = await sp.evaluate(() => window.__v);
     await sp.waitForTimeout(2500); const z = await sp.evaluate(() => window.__v);
-    check(`${id.split('/')[1]}: a resting mouse keeps control`, Math.abs(a - z) < 0.02, { after1_5s: +a.toFixed(3), after4s: +z.toFixed(3) });
+    check(`${id.split('/')[1]}: a resting mouse keeps control`, Math.abs(a - z) < 0.02, { after3_5s: +a.toFixed(3), after6s: +z.toFixed(3) });
     await sp.unroute('**/anims/' + id + '.js');
   }
   await sp.close();

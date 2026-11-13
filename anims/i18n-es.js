@@ -18,9 +18,9 @@ export const ES = {
  },
  "ocean": {
   "title": "Mar abierto",
-  "trick": "Océano FFT a partir de un espectro JONSWAP con amplia dispersión direccional; espuma donde la superficie se pliega",
+  "trick": "Océano FFT a partir de un espectro JONSWAP alineado con el viento: crestas largas, senos profundos y espuma donde la superficie se pliega",
   "notes": [
-   "Un mar abierto, gris y con viento, bajo un cielo cubierto: cuatro FFT en la GPU convierten cada fotograma un espectro JONSWAP con una amplia dispersión direccional en olas de Gerstner, y la espuma se forma donde la superficie se pliega y se estira en vetas a favor del viento.",
+   "Un mar abierto, gris y con viento, bajo un cielo cubierto: cuatro FFT en la GPU convierten cada fotograma un espectro JONSWAP, concentrado en un abanico estrecho alrededor del viento, en olas de Gerstner de cresta larga que ruedan hacia ti, y la espuma se forma donde la superficie se pliega y se estira en vetas a favor del viento.",
    "El viento fija la altura de las olas y la frecuencia de las rompientes, el oleaje afila las crestas y el sol es la altura del sol oculto tras las nubes; el puntero mueve su zona luminosa a lo largo del horizonte."
   ]
  },
@@ -396,7 +396,7 @@ export const ES = {
   "title": "Tanque de agua SPH",
   "trick": "Partículas SPH reales, fundidas en una superficie y trazadas tras el cristal",
   "notes": [
-   "El agua se agita en un tanque de cristal que se balancea: trepa por las paredes, hace espuma y proyecta cáusticas; el puntero lo inclina.",
+   "Un pesado tanque de cristal se inclina despacio a un lado y a otro, y el agua rueda de extremo a extremo en olas largas y graduales que proyectan cáusticas; el puntero lo inclina.",
    "SPH con doble relajación de densidad; las partículas se vuelcan en un campo de coma flotante y cada píxel lo recorre en perspectiva: absorción, menisco, superficie de Fresnel y cáusticas."
   ]
  },

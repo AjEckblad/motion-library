@@ -1,4 +1,14 @@
-# Resume here (2026-11-13 night): run /review-animations FIRST on 4 pieces, then fix them; terrain flyover pending
+# Resume here (2026-11-13 late night): review DONE; fixing ocean + tank (lead), honey (agent A), ferrofluid (agent B)
+
+Review findings (shown to AJ): ocean = broad wind spread (s*0.4, floor 0.6) + a swell 57 deg across -> no direction,
+short crests, swell only ~0.55 m; tank = auto-rock 0.21 rad in 0.45 s on a stiff spring: 28 deg/s, 1.9 rad/s^2, Euler
+push 13% g, no speed cap (pointer too); honey = flat orange plastic pool, white stripe at top, reflection bar, coil like
+clear tubing with a white spot, constant-thickness thread, dark outline at the mound; ferrofluid = hairbrush on a
+silver box (uniform needles in rows, no fillets, jagged sawtooth film edge over chrome, flat disc puddle, dull spikes).
+Agents A (honey-coil.js) and B (ferrofluid.js) edit only their file and report registry text in 4 languages,
+posterAt, evidence. If a new session finds them gone, their files hold uncommitted work: review before shipping.
+
+# Earlier (2026-11-13 night): run /review-animations FIRST on 4 pieces, then fix them; terrain flyover pending
 
 AJ, verbatim: "have the waves move in a general direction because of the wind right have a higher amplitude and a
 longer crest deeper trough too, the side to side on the water tank force the max speed that the cage can wobble lower

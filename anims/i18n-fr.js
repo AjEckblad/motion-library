@@ -18,9 +18,9 @@ export const FR = {
  },
  "ocean": {
   "title": "Pleine mer",
-  "trick": "Océan FFT issu d’un spectre JONSWAP à large dispersion directionnelle ; écume là où la surface se replie",
+  "trick": "Océan FFT issu d’un spectre JONSWAP aligné sur le vent : longues crêtes, creux profonds, écume là où la surface se replie",
   "notes": [
-   "Une mer ouverte, grise et ventée, sous un ciel couvert : quatre FFT sur le GPU transforment à chaque image un spectre JONSWAP à large dispersion directionnelle en vagues de Gerstner, et l’écume naît là où la surface se replie et s’étire en traînées sous le vent.",
+   "Une mer ouverte, grise et ventée, sous un ciel couvert : quatre FFT sur le GPU transforment à chaque image un spectre JONSWAP, resserré en un étroit éventail autour du vent, en longues vagues de Gerstner qui roulent vers vous, et l’écume naît là où la surface se replie et s’étire en traînées sous le vent.",
    "Le vent règle la hauteur des vagues et la fréquence des moutons, le clapot affûte les crêtes, le soleil est la hauteur du soleil caché derrière les nuages ; le pointeur déplace sa tache claire le long de l’horizon."
   ]
  },
@@ -396,7 +396,7 @@ export const FR = {
   "title": "Bassin d’eau SPH",
   "trick": "Vraies particules SPH, fondues en une surface, tracées à travers le verre",
   "notes": [
-   "L’eau ballotte dans un aquarium de verre qui oscille : elle grimpe aux parois, mousse et projette des caustiques ; le pointeur l’incline.",
+   "Un lourd aquarium de verre penche lentement d’un côté puis de l’autre, et l’eau roule d’un bout à l’autre en longues vagues progressives qui projettent des caustiques ; le pointeur l’incline.",
    "SPH à double relaxation de densité ; les particules sont projetées dans un champ flottant que chaque pixel parcourt en perspective : absorption, ménisque, surface de Fresnel et caustiques."
   ]
  },
