@@ -1235,14 +1235,14 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "Metaballs: sum the fields, threshold the sum",
-   "descriptionZh": "元球：叠加场，再对总和取阈值",
+   "description": "Raymarched 3D metaballs; heat drives buoyancy",
+   "descriptionZh": "光线步进的三维元球；热量驱动浮力",
    "page": "https://ajeckblad.github.io/motion-library/fx/lava-lamp.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/lava-lamp",
    "npx": "npx motion-library add lava-lamp",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 3841,
+   "reducedMotion": true,
+   "bytes": 15116,
    "settings": [
     {
      "key": "blobs",
@@ -1361,23 +1361,23 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors",
-   "descriptionZh": "Rosensweig 尖刺：晶格上的内凹圆锥，光线步进成黑色镜面",
+   "description": "Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors",
+   "descriptionZh": "方形磁铁上的罗森斯维格尖刺：六边形格点上的凹锥，以光线步进渲染成黑色镜面",
    "page": "https://ajeckblad.github.io/motion-library/fx/ferrofluid.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ferrofluid",
    "npx": "npx motion-library add ferrofluid",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 18031,
+   "bytes": 22297,
    "settings": [
     {
      "key": "spikes",
      "flag": "--spikes",
      "label": "Spikes",
-     "default": 22,
-     "min": 8,
-     "max": 40,
-     "step": 1
+     "default": 260,
+     "min": 80,
+     "max": 500,
+     "step": 10
     },
     {
      "key": "strength",
@@ -1387,6 +1387,19 @@
      "min": 0,
      "max": 2,
      "step": 0.05
+    },
+    {
+     "key": "magnet",
+     "flag": "--magnet",
+     "label": "Magnet",
+     "default": 0,
+     "min": 0,
+     "max": 1,
+     "step": 1,
+     "options": [
+      "On",
+      "Off"
+     ]
     }
    ]
   },

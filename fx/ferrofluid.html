@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ferrofluid: Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors · Motion Library</title>
-<meta name="description" content="Ferrofluid is a WebGL effect: rosensweig spikes: concave cones on a lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.">
+<title>Ferrofluid: Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors · Motion Library</title>
+<meta name="description" content="Ferrofluid is a WebGL effect: rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.">
 <link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/ferrofluid.html">
 <meta name="theme-color" content="#0c0c0e">
 <meta property="og:title" content="Ferrofluid · Motion Library">
-<meta property="og:description" content="Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors">
+<meta property="og:description" content="Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors">
 <meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/ferrofluid.webp">
 <link rel="stylesheet" href="../css/static.css">
 <script type="application/ld+json">[
@@ -16,7 +16,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Ferrofluid",
-  "description": "Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors",
+  "description": "Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors",
   "programmingLanguage": "JavaScript",
   "runtimePlatform": "Web browser",
   "license": "https://spdx.org/licenses/MIT-0.html",
@@ -61,15 +61,15 @@
 <main class="s-page">
 <article>
 <h1>Ferrofluid</h1>
-<p class="tldr">Ferrofluid is a WebGL effect: rosensweig spikes: concave cones on a lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.</p>
-<figure><img src="../posters/ferrofluid.webp?v=41c9de72" alt="Ferrofluid: Rosensweig spikes: concave cones on a lattice, raymarched as black mirrors" width="1120" height="896"></figure>
+<p class="tldr">Ferrofluid is a WebGL effect: rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.</p>
+<figure><img src="../posters/ferrofluid.webp?v=38681144" alt="Ferrofluid: Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/ferrofluid">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Ferrofluid?</h2>
-<p>Black, mirror-glossy spikes rise over a magnet under glass; move the pointer and the pool chases it, stretching and re-forming.</p>
+<p>Black, mirror-glossy oil in a glass dish climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the pool, and click or tap to switch it off and watch the needles melt.</p>
 
 <h2>How does Ferrofluid work?</h2>
-<p>Raymarched distance field: a sprung, stretching blob smooth-unioned with leaning concave cones on a hexagonal lattice, shaded only by studio reflections.</p>
+<p>Raymarched distance field: the pool smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.</p>
 
 <h2>How do I add Ferrofluid to my website?</h2>
 <ol>
@@ -77,14 +77,15 @@
 <li>Import it and call it with a container element that has a size: <code>import fx from './animations/ferrofluid.js'; const stop = fx(document.querySelector('#hero'));</code></li>
 <li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
 </ol>
-<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add ferrofluid --spikes 40</code>.</p>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add ferrofluid --spikes 500</code>.</p>
 
 <h2>What settings can I tweak?</h2>
 <table>
 <thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
 <tbody>
-<tr><td>Spikes</td><td><code>--spikes</code></td><td>22</td><td>8 to 40</td><td>1</td></tr>
+<tr><td>Spikes</td><td><code>--spikes</code></td><td>260</td><td>80 to 500</td><td>10</td></tr>
 <tr><td>Magnet strength</td><td><code>--strength</code></td><td>1</td><td>0 to 2</td><td>0.05</td></tr>
+<tr><td>Magnet</td><td><code>--magnet</code></td><td>0</td><td>0 On, 1 Off</td><td>1</td></tr>
 </tbody>
 </table>
 
@@ -93,7 +94,7 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>17.6 KB, unminified</dd>
+<dt>File size</dt><dd>21.8 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -101,20 +102,24 @@
 
 <h2>Source code</h2>
 <p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/fluid/ferrofluid.js">anims/fluid/ferrofluid.js on GitHub</a></p>
-<pre><code>// Ferrofluid: a pool of glossy black magnetic oil sits on a thin glass sheet in a light grey studio, and a polished
-// nickel disc magnet lies under the glass. Over the magnet the oil rises into the Rosensweig instability: a
-// hexagonal crown of needle-tipped cones, tallest in the middle, the outer ones leaning out along the field lines
-// that fan from the pole. Move the pointer left and right and the magnet slides under the glass; the pool chases it a
-// beat late, stretching into a teardrop, the spikes leaning back, shrinking while it travels and re-forming over the
-// magnet when it stops, with a shiver. With no pointer the magnet glides back and forth on its own. The scene is
-// raymarched. The oil is a distance field: a squashed ellipsoid swept from a head to a lagging tail, smooth-unioned
-// with concave cones on a triangular lattice; each cone's height, base and lean are worked out per lattice point on
-// the CPU each frame, and a sample only ever visits its nearest lattice point and six neighbours. The oil is a black
-// mirror: what you see is the studio reflected in it (a softbox overhead, a strip light either side), with a short
-// second march so each spike reflects its neighbours as darkness. The glass mirrors the crown faintly and lets the
-// magnet show through, and the magnet mirrors the oil's underside. Head and tail are springs that follow the magnet,
-// so the flow lags, overshoots and settles.
-const PARAMS = { spikes: 22, strength: 1 };
+<pre><code>// Ferrofluid: a glass petri dish holds a thin pool of glossy black magnetic oil, and a square neodymium block magnet,
+// nickel plated with bevelled edges, stands in it. Its field pulls the oil up the block: a meniscus climbs the sides,
+// a film runs over the top in a low dome, and the dome breaks into the Rosensweig instability, a dense hexagonal
+// field of fine needles. The field of a block is strongest at its edges and corners, so the needles there are the
+// tallest, and they lean out over the shoulder along the field lines; the film thins down the sides in drips, and
+// the bare nickel shows below it. Move the pointer and the magnet slides through the pool after it; the oil on top
+// lags a beat, the needles lean back and shrink while it travels and stand up again with a shiver when it stops.
+// With no pointer it wanders on its own. Click or tap to switch the magnet off: the needles melt, the film slides
+// down the block and the oil relaxes into a smooth puddle round the bare magnet; switch it on and the oil climbs
+// back and the needles rise. The magnet param sets how it starts (a fresh start with it on grows the crown in).
+// The scene is raymarched. The oil is a distance field: the pool, smooth-unioned with the film on the block (the
+// block's own rounded box, inflated by a thickness that is a dome on top and fades down the sides), smooth-unioned
+// with concave cones on a hexagonal lattice. A sample only visits its nearest lattice point and the six around it,
+// and everything near the magnet sits in a bounding box the ray only opens when it comes close. The oil is a black
+// mirror: what you see is the studio reflected in it (a soft light overhead, strips either side and behind the
+// camera, a small key up front, a rim light behind), dimmed where a neighbouring needle is in the way; the open pool
+// mirrors the magnet and its crown with a short second march. The dish is thin glass, drawn as Fresnel reflections.
+const PARAMS = { spikes: 260, strength: 1, magnet: 0 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
@@ -125,152 +130,208 @@ export default function (stage) {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FS = `#version 300 es
   precision highp float; in vec2 uv; out vec4 o;
-  uniform vec2 R, HD, TL, MG; uniform float T, SP, HM, RAD, LA, FOC;
-  uniform vec3 CP, CF, CR, CU; uniform vec4 SPK[121];
-  #define G .11                                          // the floor, a finger's width under the glass
-  #define TH .03                                         // the glass sheet: its thickness and extent
-  #define PX 1.95
-  #define PZ0 -.95
-  #define PZ1 .95
-  #define MR .52                                         // the disc magnet
-  #define MT -.05
+  uniform vec2 R, M, CO, LN; uniform float T, ON, CON, SON, LA, SH, EXC, FOC;
+  uniform vec3 CP, CF, CR, CU;
+  const vec3 MB = vec3(.2, .12, .2);                   // the block magnet's half size
+  const float BEV = .016, FL = .012, LV = .042;        // its bevel; the dish's glass floor; the pool's level
+  const float RD = .74, DH = .1;                       // the dish: inner radius, wall height
+  const float MY = FL + MB.y, MT = FL + 2. * MB.y;     // the magnet's centre and top
   const float S3 = 1.7320508;
   float h21(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + vec2(1, 1)), f.x), f.y); }
   float smin(float a, float b, float k) { float h = max(k - abs(a - b), 0.) / k; return min(a, b) - h * h * k * .25; }
+  float sdRBox(vec3 p, vec3 b, float r) { vec3 q = abs(p) - b + r; return length(max(q, 0.)) + min(max(q.x, max(q.y, q.z)), 0.) - r; }
 
-  // ---- the oil: a squashed ellipsoid swept from the head (over the magnet) to the lagging tail
-  vec4 seg(vec2 p) { vec2 ba = TL - HD; float L = dot(ba, ba), s = clamp(dot(p - HD, ba) / max(L, 1e-8), 0., 1.), k = s * min(1., sqrt(L) / RAD);
-    return vec4(HD + ba * s, RAD * (1. - .32 * k), HM * (1. - .5 * k)); }
-  float footD(vec2 p) { vec4 c = seg(p); return length(p - c.xy) - c.z; }
-  float mound(vec3 p) {
-    vec4 c = seg(p.xz); vec3 q = vec3(p.x - c.x, p.y + .5 * c.w, p.z - c.y), r = vec3(c.z * 1.05, 1.5 * c.w, c.z * 1.05);
-    float k0 = length(q / r), k1 = length(q / (r * r)); return k0 * (k0 - 1.) / k1;
+  float magnetD(vec3 p) { return sdRBox(p - vec3(M.x, MY, M.y), MB, BEV); }
+  // the film's thickness on the top face: a low dome, a little off centre while the oil lags the magnet
+  float topT(vec2 f) { float e = max(abs(f.x), abs(f.y)), e2 = mix(e * e, dot(f, f) * .5, .6); return .008 + .026 * (1. - e2); }
+  // the film on the block: a dome on top, thinning down the sides in drips; its front climbs (or slides) with CON
+  float coatT(vec3 q) {
+    vec2 f = (q.xz - CO) / MB.x;
+    float top = topT(clamp(f, -1., 1.));
+    float u = q.x * 1.7 + q.z * 2.3, drip = vn(vec2(u * 22., 3.)) * .7 + vn(vec2(u * 61., 9.)) * .3;
+    float side = .0075 * smoothstep(.05 - .11 * drip * drip, .095, q.y);
+    // while the switch is moving the sides carry a full sheet of oil, with a thicker lip where it climbs (or slides)
+    float moving = CON * (1. - CON) * 4.;
+    side = max(side, .009 * moving);
+    float t = mix(side, top, smoothstep(MB.y - .04, MB.y + .002, q.y));
+    float front = -MB.y - .04 + CON * (2. * MB.y + .12);
+    t += .009 * moving * exp(-pow((q.y - front + .012) / .014, 2.));
+    return t * smoothstep(front + .012, front - .03, q.y) * (.4 + .6 * CON);
   }
-  float fluid(vec3 p) {
-    float d = mound(p);
-    if (d &gt; .5) return d;
-    // the nearest lattice point (rounded in cube coordinates) and its six neighbours
-    vec2 q = p.xz - HD, g = vec2(q.x - q.y / S3, 2. * q.y / S3) / LA;
+  // the needles: concave cones on a hexagonal lattice over the top face and its shoulder
+  float spikes(vec3 p) {
+    vec2 q = p.xz - (M + CO), g = vec2(q.x - q.y / S3, 2. * q.y / S3) / LA;
     vec3 cu = vec3(g.x, -g.x - g.y, g.y), rc = floor(cu + .5), df = abs(rc - cu);
     if (df.x &gt; df.y &amp;&amp; df.x &gt; df.z) rc.x = -rc.y - rc.z; else if (df.y &gt; df.z) rc.y = -rc.x - rc.z; else rc.z = -rc.x - rc.y;
     float s = 1e5;
     for (int k = 0; k &lt; 7; k++) {
       vec2 c = rc.xz + (k == 0 ? vec2(0) : k == 1 ? vec2(1, 0) : k == 2 ? vec2(-1, 0) : k == 3 ? vec2(0, 1) : k == 4 ? vec2(0, -1) : k == 5 ? vec2(1, -1) : vec2(-1, 1));
-      if (abs(c.x) &gt; 5. || abs(c.y) &gt; 5.) continue;
-      vec4 sk = SPK[int(c.y + 5.) * 11 + int(c.x + 5.)];   // height, base, lean
-      if (sk.x &lt; .006) continue;
-      vec2 cw = HD + LA * vec2(c.x + .5 * c.y, .5 * S3 * c.y);
-      vec3 l = p - vec3(cw.x, sk.y, cw.y);
-      l.xz -= sk.zw * max(l.y, 0.);
-      // a concave cone: its radius shrinks as (1 - y/H)^1.7, so the flanks sweep in and the tip is a needle
-      float H = sk.x + .035, rb = LA * .68, rr = length(l.xz), yy = clamp(l.y / H, 0., 1.);
+      vec2 cw = LA * vec2(c.x + .5 * c.y, .5 * S3 * c.y), f = cw / MB.x;
+      float e = max(abs(f.x), abs(f.y));
+      if (e &gt; 1.22) continue;
+      float hs = h21(c + 17.3);
+      // the field over a block: strongest along the edges, most of all at the corners; it falls away past the shoulder
+      float corner = smoothstep(.72, 1., abs(f.x)) * smoothstep(.72, 1., abs(f.y));
+      float field = (.36 + .68 * smoothstep(.35, 1., e) + .4 * corner) * smoothstep(1.22, .96, e);
+      float H = SH * SON * field * (.8 + .4 * hs) * (1. + EXC * .3 * sin(T * 23. + hs * 40.));
+      if (H &lt; .002) continue;
+      // the base sits on the film, and past the edge it slides down the shoulder
+      float base = MT + topT(clamp(f, -1., 1.)) - max(e - 1., 0.) * MB.x * 1.5 - .006;
+      // each leans out along the field: up in the middle, out over the shoulder (to the nearest edge, or the corner)
+      vec2 od = vec2(sign(f.x) * pow(abs(f.x), 6.), sign(f.y) * pow(abs(f.y), 6.)); od /= max(length(od), 1e-4);
+      vec2 lean = od * (.06 + .78 * smoothstep(.55, 1.18, e) * (.6 + .4 * SON)) + LN + .035 * vec2(sin(T * 1.3 + hs * 9.), cos(T * 1.1 + hs * 7.));
+      vec3 l = p - vec3(M.x + CO.x + cw.x, base, M.y + CO.y + cw.y);
+      l.xz -= lean * max(l.y, 0.);
+      float rb = LA * (.68 + .25 * (1. - SON)), rr = length(l.xz), yy = clamp(l.y / H, 0., 1.);
       float sl = rb * 1.7 / H * pow(1. - yy, .7);
-      // below its base it tapers to a point, so a spike in thin oil never shows a ledge
-      float cn = l.y &gt; H ? length(vec2(rr, l.y - H)) : l.y &lt; 0. ? (rr - rb * max(0., 1. + l.y / .05)) * .45 : (rr - rb * pow(1. - yy, 1.7)) / sqrt(1. + sl * sl);
-      s = min(s, cn - .0025);
+      // below its base it tapers to a point inside the film, so a needle on a curved surface never shows a ledge
+      float cn = l.y &gt; H ? length(vec2(rr, l.y - H)) : l.y &lt; -.03 ? length(vec2(rr, l.y + .03)) : l.y &lt; 0. ? (rr - rb * (1. + l.y / .03)) * .45 : (rr - rb * pow(1. - yy, 1.7)) / sqrt(1. + sl * sl);
+
+      s = min(s, cn);
     }
-    return max(smin(d, s, LA * .4), -p.y);           // the fillet stays inside the seven cells evaluated
+    return s;
   }
-  vec3 nrm(vec3 p) { const vec2 e = vec2(.0012, -.0012);
-    return normalize(e.xyy * fluid(p + e.xyy) + e.yyx * fluid(p + e.yyx) + e.yxy * fluid(p + e.yxy) + e.xxx * fluid(p + e.xxx)); }
-  vec2 boxHit(vec3 ro, vec3 rd) {
-    vec3 lo = vec3(min(HD.x, TL.x) - RAD - .32, 0., -RAD - .32), hi = vec3(max(HD.x, TL.x) + RAD + .32, HM + .5 * SP + .12, RAD + .32);
-    vec3 i = 1. / rd, a = (lo - ro) * i, b = (hi - ro) * i, mn = min(a, b), mx = max(a, b);
-    return vec2(max(max(mn.x, mn.y), max(mn.z, 0.)), min(min(mx.x, mx.y), mx.z));
+  // the pool: level, but it climbs the dish wall in a meniscus
+  float poolD(vec3 p) { float r = length(p.xz); return max(p.y - LV - .01 * exp(-(RD - r) / .012), r - RD); }
+  // the magnet and the oil on it (film and needles), without the pool
+  vec2 crown(vec3 p) {
+    vec3 q = p - vec3(M.x, MY, M.y);
+    float mag = sdRBox(q, MB, BEV);
+    float oil = smin((mag - coatT(q)) * .8, spikes(p) * .7, LA * .32);
+    return vec2(oil, mag);
   }
-  float march(vec3 ro, vec3 rd, int N) {
-    vec2 b = boxHit(ro, rd); if (b.x &gt; b.y) return -1.;
-    float t = b.x;
-    for (int i = 0; i &lt; 110; i++) {
-      if (i &gt;= N || t &gt; b.y) break;
-      float d = fluid(ro + rd * t);
-      if (d &lt; .0005 * (1. + t)) return t;
-      t += clamp(d * .78, .0015, .09);
+  // everything inside the dish. m: 0 oil, 1 magnet. Far from the magnet the ray only sees a bounding box round it
+  vec2 inside(vec3 p) {
+    float pool = poolD(p);
+    vec3 q = p - vec3(M.x, MY, M.y);
+    float bx = sdRBox(q - vec3(CO.x, MB.y * .5 + SH * .6, CO.y), vec3(MB.x + .14, MB.y * 1.5 + SH * .6 + .08, MB.z + .14), .02);
+    if (bx &gt; .02) return vec2(min(pool, bx), 0.);
+    vec2 c = crown(p);
+    return vec2(min(smin(pool, c.x, .016 + .022 * CON), c.y), 0.);
+  }
+  // at a hit: is it bare nickel? (no film there, no needle or fillet near)
+  bool bare(vec3 p) {
+    vec3 q = p - vec3(M.x, MY, M.y);
+    return coatT(q) &lt; 3e-4 &amp;&amp; spikes(p) * .7 &gt; LA * .32 &amp;&amp; poolD(p) &gt; .016 + .022 * CON;
+  }
+  float solid(vec3 p) { vec2 c = crown(p); return min(c.x, c.y); }   // for the shading probes: exact, and not the pool
+  vec3 nrm(vec3 p) { const vec2 e = vec2(.0008, -.0008);
+    return normalize(e.xyy * inside(p + e.xyy).x + e.yyx * inside(p + e.yyx).x + e.yxy * inside(p + e.yxy).x + e.xxx * inside(p + e.xxx).x); }
+  vec2 cyl(vec3 ro, vec3 rd, float r) { float a = dot(rd.xz, rd.xz), b = dot(ro.xz, rd.xz), c = dot(ro.xz, ro.xz) - r * r, h = b * b - a * c; if (h &lt; 0.) return vec2(1e9, -1e9); h = sqrt(h); return vec2((-b - h) / a, (-b + h) / a); }
+  vec3 march(vec3 ro, vec3 rd) {                       // t, material, steps left
+    float top = MT + SH * 1.4 + .06;
+    vec2 cy = cyl(ro, rd, RD);
+    float t0 = max(cy.x, 0.), t1 = cy.y;
+    if (rd.y &lt; 0.) { t0 = max(t0, (top - ro.y) / rd.y); t1 = min(t1, (FL - ro.y) / rd.y); } else return vec3(-1.);
+    if (t0 &gt; t1) return vec3(-1.);
+    float t = t0;
+    for (int i = 0; i &lt; 160; i++) {
+      vec2 h = inside(ro + rd * t);
+      if (h.x &lt; .0004 * (1. + t)) return vec3(t, h.y, 0.);
+      t += max(h.x, .0006);
+      if (t &gt; t1) break;
     }
-    return -1.;
+    return vec3(-1.);
   }
 
   // ---- the studio
-  float rect(vec3 o, vec3 r, int ax, float at, vec4 b) {        // a soft-edged light panel in the plane axis = at
+  float rect(vec3 o, vec3 r, int ax, float at, vec4 b, float soft) {   // a soft-edged light panel in the plane axis = at
     float rr = ax == 0 ? r.x : (ax == 1 ? r.y : r.z), oo = ax == 0 ? o.x : (ax == 1 ? o.y : o.z);
     float t = (at - oo) / rr; if (t &lt; 0.) return 0.;
     vec3 p = o + r * t; vec2 q = ax == 0 ? p.zy : (ax == 1 ? p.xz : p.xy);
-    vec2 e = min(q - b.xy, b.zw - q); return smoothstep(0., .12, min(e.x, e.y));
+    vec2 e = min(q - b.xy, b.zw - q); return smoothstep(0., soft, min(e.x, e.y));
   }
-  float sheet(vec2 p) { return min(PX - abs(p.x), min(p.y - PZ0, PZ1 - p.y)); }   // &gt; 0 under the glass
-  vec3 ground(vec3 p) {
-    vec2 k = p.xz - vec2(-.3, -.2);
-    float lit = .56 + .2 * exp(-dot(k, k) * .1), e = sheet(p.xz), under = smoothstep(-.01, .01, e);
-    lit *= 1. - .06 * under;                                                     // the glass takes a little light
-    lit += .16 * exp(-pow((e - .03) / .012, 2.));                                // and its edges focus a bright line
-    lit *= 1. - .62 * smoothstep(.2, -.14, footD(p.xz - vec2(.05, .03)));        // the oil stands in the softbox's light
-    float dm = length(p.xz - MG) - MR; lit *= 1. - .38 * exp(-max(dm, 0.) * 18.);
-    vec3 c = vec3(lit) * mix(vec3(1., .992, .982), vec3(.95, .99, .975), under);
-    return mix(c, vec3(.5, .5, .515), smoothstep(5., 14., length(p.xz)));        // the sweep curving up into the wall
+  vec3 table(vec3 p) {
+    float r = length(p.xz);
+    vec2 k = p.xz - vec2(-.3, -.4);
+    float lit = .6 + .2 * exp(-dot(k, k) * .12);
+    lit *= 1. - .55 * smoothstep(.45, -.05, r - RD - .1) * smoothstep(-.2, .3, -p.z + .1) - .25 * smoothstep(.25, .0, r - RD);   // the dish and its dark oil shade the table
+    lit += .22 * exp(-pow((r - RD - .05) / .02, 2.)) * smoothstep(-.4, .6, p.z);   // the glass wall focuses a bright line
+    vec3 c = vec3(lit) * vec3(1., .992, .982);
+    return mix(c, vec3(.52, .52, .535), smoothstep(5., 14., length(p.xz)));
   }
   vec3 env(vec3 o, vec3 r) {
     vec3 c;
-    if (r.y &lt; 0.) c = ground(o + r * ((-G - o.y) / r.y)) * .94 + .03;
-    else c = mix(vec3(.6, .6, .62), vec3(.36, .36, .38), smoothstep(0., .8, r.y));
-    c += 7. * rect(o, r, 1, 3.4, vec4(-1.3, -1.6, -.1, 1.2));       // a long softbox overhead
-    c += 9. * rect(o, r, 0, -3.2, vec4(-.2, .3, .9, 2.6));         // a tall strip on the left
-    c += 5. * rect(o, r, 0, 3.4, vec4(-.6, .5, .2, 2.4));          // a narrower strip on the right
-    c += 1.2 * rect(o, r, 2, 4., vec4(-2.5, -.2, 2.5, 1.4));       // a white card behind the camera
+    if (r.y &lt; 0.) {
+      float tp = (LV - o.y) / r.y; vec3 h = o + r * tp;
+      if (o.y &gt; LV &amp;&amp; length(h.xz) &lt; RD) {                     // the pool: a dark mirror of its own
+        vec3 rr = vec3(r.x, -r.y, r.z);
+        vec2 k = h.xz + rr.xz * ((3.4 - h.y) / rr.y) - vec2(-.6, -3.2);
+        c = vec3(.008) + .05 * (2.6 * exp(-dot(k, k * vec2(.5, .22))) + .5);
+      } else c = table(o + r * ((0. - o.y) / r.y)) * .94 + .03;
+    } else c = mix(vec3(.62, .62, .64), vec3(.38, .38, .4), smoothstep(0., .8, r.y));
+    if (r.y &gt; 0.) { vec2 k = o.xz + r.xz * ((3.4 - o.y) / r.y) - vec2(-.6, -3.2); c += 2.6 * exp(-dot(k, k * vec2(.5, .22))); }   // a big soft overhead light
+    c += 16. * rect(o, r, 0, -3.2, vec4(-.5, -.4, .7, 2.6), .1);        // a tall strip on the left
+    c += 10. * rect(o, r, 0, 3.4, vec4(-.9, -.4, -.1, 2.4), .1);        // a narrower strip on the right
+    c += 8. * rect(o, r, 2, -3.6, vec4(-.7, .5, .5, 1.6), .12);         // a rim light behind
+    c += 30. * rect(o, r, 2, 4.5, vec4(-2.6, -1., -1.1, 3.6), .12);     // two tall strips behind the camera: each needle
+    c += 14. * rect(o, r, 2, 4.5, vec4(1., -1., 1.9, 3.6), .12);        // carries their reflections as vertical lines
+    c += 40. * rect(o, r, 1, 3.4, vec4(-1.5, .7, -.5, 1.7), .08);       // a compact key up front: a glint on every tip
+
+    c += 2.5 * rect(o, r, 2, 4.6, vec4(-3., -.5, 3., 2.5), .6);         // and a broad white card between them
+
     return c;
-  }
-  // the magnet: polished nickel; its top mirrors the dark underside of the oil through the glass
-  vec3 magnet(vec3 p, vec3 rd, vec3 n) {
-    vec3 r = reflect(rd, n), e = env(p + n * .01, r);
-    if (r.y &gt; 0.) {                                                                 // the oil's underside, and the crown upside down
-      vec3 q = p + r * (-p.y / r.y); float u = smoothstep(-.015, .02, footD(q.xz));
-      if (u &gt; .5 &amp;&amp; march(q + r * .01, r, 40) &gt; 0.) u = 0.;
-      e *= mix(.05, 1., u);
-    }
-    float fr = .64 + .36 * pow(1. - max(dot(n, -rd), 0.), 5.);
-    float sh = 1. - .55 * smoothstep(.12, -.18, footD(p.xz));
-    return e * vec3(.8, .77, .72) * fr * sh;
-  }
-  // what a ray finds under the glass: the magnet or the floor
-  vec3 below(vec3 ro, vec3 rd) {
-    vec2 oc = ro.xz - MG; float a = dot(rd.xz, rd.xz), b = dot(oc, rd.xz), c = dot(oc, oc) - MR * MR, h = b * b - a * c;
-    if (h &gt; 0.) {
-      float tc = (MT - ro.y) / rd.y; vec3 p = ro + rd * tc; vec2 dq = p.xz - MG;
-      if (tc &gt; 0. &amp;&amp; length(dq) &lt; MR) { float bv = smoothstep(MR - .03, MR, length(dq)) * 1.4 / MR; return magnet(p, rd, normalize(vec3(dq.x * bv, 1, dq.y * bv))); }
-      float t = (-b - sqrt(h)) / a; p = ro + rd * t;
-      if (t &gt; 0. &amp;&amp; p.y &gt; -G &amp;&amp; p.y &lt; MT) return magnet(p, rd, normalize(vec3(p.x - MG.x, 0, p.z - MG.y)));
-    }
-    return ground(ro + rd * ((-G - ro.y) / rd.y));
   }
   vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
   void main() {
     vec2 sp = (uv - .5) * vec2(R.x / R.y, 1.);
     vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y), ro = CP, col;
-    float tf = march(ro, rd, 110);
-    float tp = rd.y &lt; 0. ? -ro.y / rd.y : 1e9; vec3 pp = ro + rd * tp;
-    if (tf &gt; 0.) {
-      vec3 p = ro + rd * tf, n = nrm(p), r = reflect(rd, n);
-      float fr = .05 + .95 * pow(1. - max(dot(n, -rd), 0.), 5.);
-      float ao = clamp(fluid(p + n * .05) / .05, 0., 1.); ao = .25 + .75 * ao;
-      vec3 e = env(p, r);
-      if (r.y &lt; 0.) e = mix(e, env(p, vec3(r.x, -r.y, r.z)) * .14 + e * .8, .5);   // the glass under the oil mirrors it a little
-      float ts = march(p + n * .006, r, 34);                                      // a neighbour in the way: it reflects black
-      if (ts &gt; 0.) e *= .015;
-      col = vec3(.006, .0055, .005) + e * fr * ao + .012 * max(dot(n, normalize(vec3(-.4, 1, .3))), 0.);
-    } else if (rd.y &lt; 0. &amp;&amp; sheet(pp.xz) &gt; 0.) {
-      // the glass sheet: it mirrors the studio and the crown, and lets the floor and the magnet show through
-      float fr = .04 + .96 * pow(1. - max(-rd.y, 0.), 5.);
-      vec3 rr = vec3(rd.x, -rd.y, rd.z), e = env(pp, rr);
-      float tr = march(pp + rr * .002, rr, 48);
-      if (tr &gt; 0.) e = mix(e, vec3(.01), .85);
-      vec3 tdir = normalize(vec3(rd.x, rd.y * 1.1, rd.z));                        // a little refraction
-      col = e * fr + below(pp - vec3(0, TH, 0), tdir) * (1. - fr) * vec3(.94, .97, .96);
-    } else {
-      float te = (PZ1 - ro.z) / rd.z; vec3 pe = ro + rd * te;
-      if (te &gt; 0. &amp;&amp; pe.y &lt; 0. &amp;&amp; pe.y &gt; -TH &amp;&amp; abs(pe.x) &lt; PX) {
-        // the front edge: the long path through the glass glows green, and its arris catches the softbox
-        float k = (pe.y + TH) / TH;
-        col = below(pe, rd) * vec3(.55, .78, .7) + vec3(.06, .11, .1) + 1.2 * smoothstep(.75, 1., k) + .3 * smoothstep(.25, 0., k);
-      } else col = below(ro, rd);
+    vec3 h = march(ro, rd);
+    float th = h.x &gt; 0. ? h.x : (rd.y &lt; 0. ? -ro.y / rd.y : 1e9);
+    if (h.x &gt; 0.) {
+      vec3 p = ro + rd * h.x, n = nrm(p), r = reflect(rd, n);
+      float c = max(dot(n, -rd), 0.);
+      // ambient occlusion along the normal, and how much of the reflection a neighbouring needle blocks
+      float ao = clamp(.3 + .7 * solid(p + n * .03) / .03, 0., 1.);
+      float occ = 1.;
+      vec3 e;
+      if (p.y &lt; LV + .012 &amp;&amp; solid(p) &gt; .03) {
+        // the open pool mirrors the magnet and its crown: a short second march, only if the reflection heads for them
+        e = env(p, r);
+        vec3 lo = vec3(M.x + CO.x - MB.x - .08, FL, M.y + CO.y - MB.z - .08), hi = vec3(M.x + CO.x + MB.x + .08, MT + SH * 1.4 + .04, M.y + CO.y + MB.z + .08);
+        vec3 iv = 1. / r, ta = (lo - p) * iv, tb = (hi - p) * iv, tn = min(ta, tb), tf = max(ta, tb);
+        float a0 = max(max(tn.x, tn.y), max(tn.z, .003)), a1 = min(min(tf.x, tf.y), tf.z);
+        if (a0 &lt; a1) {
+          float t2 = a0;
+          for (int i = 0; i &lt; 56; i++) {
+            vec3 q2 = p + r * t2; float d = solid(q2);
+            if (d &lt; .0012) { e = bare(q2) ? vec3(.52, .5, .47) * (.35 + .9 * smoothstep(FL, MT, q2.y)) : vec3(.012) + .25 * smoothstep(MT - .02, MT + SH, q2.y); break; }
+            t2 += d; if (t2 &gt; a1) break;
+          }
+        }
+      } else {
+        for (int i = 1; i &lt;= 3; i++) { float s = .012 * float(i * i); occ = min(occ, clamp(solid(p + r * s) / s * 1.4, 0., 1.)); }
+        e = env(p + n * .002, r) * mix(.03, 1., occ);
+      }
+      if (!bare(p)) {
+        float fr = .045 + .955 * pow(1. - c, 5.);
+        col = vec3(.0035, .003, .0028) * ao + e * fr * (.4 + .6 * ao);
+      } else {
+        // nickel plating: a bright, slightly warm mirror, a little satin, with a faint polish grain
+        vec3 q = p - vec3(M.x, MY, M.y);
+        float grain = vn(vec2((q.x + q.z) * 300., q.y * 20.));
+        float fr = .62 + .38 * pow(1. - c, 5.);
+        vec3 sat = vec3(.5) * (.55 + .45 * n.y) + .35 * max(dot(n, normalize(vec3(-.8, .3, .4))), 0.) + .2 * max(dot(n, normalize(vec3(.9, .2, .3))), 0.);
+        col = (e * fr * .7 + sat * .38) * vec3(.82, .8, .76) * (.92 + .08 * grain) * (.45 + .55 * ao);
+      }
+    } else if (rd.y &lt; 0.) {
+      vec3 p = ro + rd * th;
+      if (length(p.xz) &lt; RD) col = vec3(.01); else col = table(p);
+    } else col = env(ro, rd);
+    // the dish's wall: thin glass, a Fresnel reflection where the ray crosses it (front and back), its rim catching the light
+    vec2 w = cyl(ro, rd, RD + .009);
+    for (int k = 0; k &lt; 2; k++) {
+      float t = k == 0 ? w.y : w.x;                                       // the far crossing first, then the near one
+      vec3 p = ro + rd * t;
+      if (t &gt; 0. &amp;&amp; t &lt; th + 1e-4 &amp;&amp; p.y &gt; 0. &amp;&amp; p.y &lt; DH) {
+        vec3 n = normalize(vec3(p.x, 0., p.z)); if (dot(n, rd) &gt; 0.) n = -n;
+        float c = abs(dot(rd, n)), fr = .04 + .96 * pow(1. - c, 5.);
+        vec3 ref = env(p, reflect(rd, n));
+        col = col * (1. - 2. * fr) * mix(vec3(.8, .9, .87), vec3(.97, .99, .98), smoothstep(.0, .35, c)) + ref * 2. * fr;
+        col += vec3(.9) * smoothstep(.006, .0, DH - p.y) * (.4 + .6 * smoothstep(.0, .5, p.z + .3));   // the rim
+        col *= 1. - .25 * smoothstep(.006, .0, p.y);                                                 // the foot
+      }
     }
     col = aces(col * 1.02);
     col *= 1. - .22 * pow(length(uv - .5) * 1.25, 2.6);
@@ -282,76 +343,82 @@ export default function (stage) {
   const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   gl.useProgram(prog);
-  const U = {}; ['R', 'HD', 'TL', 'MG', 'T', 'SP', 'HM', 'RAD', 'LA', 'FOC', 'CP', 'CF', 'CR', 'CU', 'SPK'].forEach(n =&gt; U[n] = gl.getUniformLocation(prog, n));
+  const U = {}; ['R', 'M', 'CO', 'LN', 'T', 'ON', 'CON', 'SON', 'LA', 'SH', 'EXC', 'FOC', 'CP', 'CF', 'CR', 'CU'].forEach(n =&gt; U[n] = gl.getUniformLocation(prog, n));
   gl.bindVertexArray(gl.createVertexArray()); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   let W = 1, H = 1;
-  const resize = () =&gt; { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(620000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); gl.viewport(0, 0, W, H); };
+  const resize = () =&gt; { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(700000 / (w * h)))); W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0); gl.viewport(0, 0, W, H); };
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
-  // the camera looks down at the shelf; on narrow screens it backs off so the pool and its travel stay in frame
-  const FOC = 1.8, EL = 0.46, cam = {};
+  // the camera looks down into the dish; on narrow screens it backs off so the dish stays in frame
+  const FOC = 1.8, EL = 0.6, AT = [0, 0.1, 0.13], cam = {};
   const setCam = () =&gt; {
-    const a = W / H, D = Math.max(2.9, 2.9 * 1.3 / a);
-    cam.p = [0, 0.1 + Math.sin(EL) * D, Math.cos(EL) * D]; const f = [0, -Math.sin(EL), -Math.cos(EL)];
-    cam.f = f; cam.r = [1, 0, 0]; cam.u = [0, Math.cos(EL), -Math.sin(EL)]; cam.halfW = D * a * 0.5 / FOC;
+    const a = W / H, D = Math.max(2.2, 3.4 / a);
+
+
+    cam.p = [AT[0], AT[1] + Math.sin(EL) * D, AT[2] + Math.cos(EL) * D]; cam.f = [0, -Math.sin(EL), -Math.cos(EL)];
+    cam.r = [1, 0, 0]; cam.u = [0, Math.cos(EL), -Math.sin(EL)];
   };
-  // the pointer's x on the shelf: cast its ray onto the plane of the glass
+  // the pointer on the dish: cast its ray onto the plane of the magnet's top
   // a resting mouse keeps the magnet where it is; leaving the stage, or a finger lifted for 1.8 s, hands it back to the drift
   let px = 0.5, py = 0.5, lastMove = -1e9, held = false;
   const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
   const onLeave = () =&gt; { held = false; };
   canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
-  const pointerX = () =&gt; {
+  const pointerXZ = () =&gt; {
     const a = W / H, sx = (px - 0.5) * a, sy = 0.5 - py, d = cam.f.map((f, i) =&gt; f * FOC + cam.r[i] * sx + cam.u[i] * sy);
-    if (d[1] &gt;= -1e-3) return sx * 4; return cam.p[0] + d[0] * (-cam.p[1] / d[1]);
+    const y0 = 0.25, t = d[1] &lt; -1e-3 ? (y0 - cam.p[1]) / d[1] : 1e3;
+    return [cam.p[0] + d[0] * t, cam.p[2] + d[2] * t];
   };
-  // springs: the magnet follows its target, the head of the pool follows the magnet (a little bouncy, like a
-  // heavy liquid), and the tail follows the head more slowly, so the pool stretches as it travels
-  const S = { m: 0, mv: 0, h: 0, hv: 0, t: 0, tv: 0, exc: 0 }, spk = new Float32Array(121 * 4);
-  const smooth = (a, b, x) =&gt; { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
-  const hash = (i, j) =&gt; { const v = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return v - Math.floor(v); };
+  // springs: the magnet follows its target; the oil on top follows the magnet a little late and a little bouncy, so
+  // it lags while the magnet travels and overshoots when it stops. on: the switch, eased over a couple of seconds
+  const S = { m: 0, mv: 0, n: 0, nv: 0, h: 0, hv: 0, k: 0, kv: 0, exc: 0, on: PARAMS.magnet ? 1 : 0 };
   const spring = (x, v, target, w, z, dt) =&gt; { const a = w * w * (target - x) - 2 * z * w * v; v += a * dt; return [x + v * dt, v, a]; };
+  const smooth = (a, b, x) =&gt; { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
+  // the param sets how it starts; a click or tap on the stage switches the magnet on or off
+  let onTarget = PARAMS.magnet ? 0 : 1;
+  const LIM = 0.3;
+  const onClick = () =&gt; { onTarget = 1 - onTarget; if (reduce) S.on = onTarget; };
+  canvas.addEventListener('click', onClick);
+  if (reduce) S.on = onTarget;
   let raf, last = performance.now(), t = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
     setCam();
-    const amp = Math.max(0.3, Math.min(1.05, cam.halfW - 0.8));
-    const auto = reduce ? 0.18 * Math.sin(t * 0.06) : amp * Math.tanh(2.2 * Math.sin(t * Math.PI * 2 / 7.5 - 0.5)) / Math.tanh(2.2);
+    // on its own the magnet wanders: it slides, rests long enough for the needles to stand, and slides on
+    const ease = x =&gt; Math.tanh(2.4 * Math.sin(x)) / Math.tanh(2.4);
+    // (it holds still at first, so the crown grows in the middle of the dish)
+    const tw = Math.max(0, t - 4.5);
+    const auto = reduce ? [0.04, 0.02] : [0.26 * ease(tw * Math.PI * 2 / 9), 0.04 + 0.1 * ease(tw * Math.PI * 2 / 13)];
+
+
     const live = held || now - lastMove &lt; 1800;
-    const lim = Math.max(0.3, cam.halfW - 0.75), target = live ? Math.max(-lim, Math.min(lim, pointerX())) : auto;
+    let target = live ? pointerXZ() : auto;
+    const tl = Math.hypot(...target); if (tl &gt; LIM) target = target.map(x =&gt; x * LIM / tl);
     for (let i = 0, n = 4, h = dt / n; i &lt; n; i++) {
-      [S.m, S.mv] = spring(S.m, S.mv, target, 9, 1, h);
-      let a; [S.h, S.hv, a] = spring(S.h, S.hv, S.m, 4.2, 0.45, h);
-      [S.t, S.tv] = spring(S.t, S.tv, S.h, 3, 0.8, h);
-      S.exc = Math.min(1, S.exc * Math.exp(-h * 2.2) + Math.abs(a) * h * 0.06);
+      [S.m, S.mv] = spring(S.m, S.mv, target[0], 7, 1, h); [S.n, S.nv] = spring(S.n, S.nv, target[1], 7, 1, h);
+      let ax, az; [S.h, S.hv, ax] = spring(S.h, S.hv, S.m, 5.5, 0.4, h); [S.k, S.kv, az] = spring(S.k, S.kv, S.n, 5.5, 0.4, h);
+      S.exc = Math.min(1, S.exc * Math.exp(-h * 2.2) + Math.hypot(ax, az) * h * 0.05);
+      if (!reduce) S.on += Math.sign(onTarget - S.on) * Math.min(Math.abs(onTarget - S.on), h / 3.2);
     }
-    const stretch = Math.abs(S.h - S.t), str = PARAMS.strength;
-    // each spike's height comes from the field where it stands (strongest straight above the magnet) and the depth
-    // of oil there; each leans away from the magnet's axis, the way field lines fan out from a pole, and back from motion
-    const RAD = 0.4 + 0.04 * str, HM = (0.12 + 0.05 * str) / (1 + stretch * 0.9), LA = 0.36 * Math.sqrt(Math.PI / (0.866 * Math.max(6, Math.min(48, PARAMS.spikes))));
-    const SP = str / (1 + Math.abs(S.hv) * 0.35), exc = reduce ? 0 : S.exc;
-    const moundH = (x, z) =&gt; {
-      const bx = S.t - S.h, u = Math.max(0, Math.min(1, bx ? (x - S.h) / bx : 0)), cx = S.h + bx * u, k = u * Math.min(1, Math.abs(bx) / RAD), r = RAD * (1 - 0.32 * k) * 1.05, hh = HM * (1 - 0.5 * k);
-      const q = Math.hypot(x - cx, z) / r; return hh * (1.5 * Math.sqrt(Math.max(0, 1 - q * q)) - 0.5);
-    };
-    for (let j = -5, k = 0; j &lt;= 5; j++) for (let i = -5; i &lt;= 5; i++, k++) {
-      const x = S.h + LA * (i + 0.5 * j), z = LA * 0.8660254 * j, dm = (x - S.m) ** 2 + z * z, dh = Math.hypot(x - S.h, z);
-      const deep = smooth(RAD * 0.92, RAD * 0.35, dh), r = hash(i, j);
-      const hgt = SP * (0.36 * Math.exp(-dm / 0.13) + 0.04) * deep * (0.88 + 0.24 * r) * (1 + exc * 0.2 * Math.sin(t * 21 + r * 40));
-      spk[k * 4] = hgt; spk[k * 4 + 1] = moundH(x, z) - 0.035;
-      spk[k * 4 + 2] = Math.max(-0.6, Math.min(0.6, (x - S.m) * 0.62 - S.hv * 0.14)); spk[k * 4 + 3] = Math.max(-0.6, Math.min(0.6, z * 0.62));
-    }
-    gl.uniform4fv(U.SPK, spk);
-    gl.uniform2f(U.R, W, H); gl.uniform1f(U.T, t); gl.uniform1f(U.FOC, FOC);
-    gl.uniform2f(U.MG, S.m, 0); gl.uniform2f(U.HD, S.h, 0); gl.uniform2f(U.TL, S.t, 0); 
-    gl.uniform1f(U.SP, SP); gl.uniform1f(U.RAD, RAD); gl.uniform1f(U.HM, HM); gl.uniform1f(U.LA, LA);
+    // the switch: when it comes on the film climbs first and the needles rise after; switched off, the needles melt first
+    const on = S.on, up = onTarget &gt; 0.5, str = PARAMS.strength;
+    const CON = up ? smooth(0.0, 0.5, on) : smooth(0.0, 0.62, on), SON = up ? smooth(0.42, 1, on) : smooth(0.5, 1, on);
+
+    const speed = Math.hypot(S.mv, S.nv), N = Math.max(60, Math.min(600, PARAMS.spikes));
+    const LA = 2 * 0.2 * 1.18 / Math.sqrt(0.866 * N), SHv = LA * 2.3 * Math.min(1.5, str) / (1 + speed * 0.9);
+    const co = [Math.max(-0.035, Math.min(0.035, S.h - S.m)), Math.max(-0.035, Math.min(0.035, S.k - S.n))];
+    gl.uniform2f(U.R, W, H); gl.uniform1f(U.T, reduce ? 2 : t); gl.uniform1f(U.FOC, FOC);
+
+    gl.uniform2f(U.M, S.m, S.n); gl.uniform2f(U.CO, co[0], co[1]); gl.uniform2f(U.LN, -S.hv * 0.25, -S.kv * 0.25);
+    gl.uniform1f(U.ON, on); gl.uniform1f(U.CON, CON * Math.min(1, 0.3 + str)); gl.uniform1f(U.SON, SON); gl.uniform1f(U.LA, LA); gl.uniform1f(U.SH, SHv); gl.uniform1f(U.EXC, reduce ? 0 : S.exc);
     gl.uniform3f(U.CP, ...cam.p); gl.uniform3f(U.CF, ...cam.f); gl.uniform3f(U.CR, ...cam.r); gl.uniform3f(U.CU, ...cam.u);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
-  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+  return () =&gt; { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave); canvas.removeEventListener('click', onClick); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+
 }
 </code></pre>
 </article>

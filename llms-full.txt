@@ -336,14 +336,14 @@ Renderer: WebGL. Size: 4.8 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Lava lamp
 
-Lava lamp is a WebGL effect: metaballs: sum the fields, threshold the sum. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-lamp.
+Lava lamp is a WebGL effect: raymarched 3D metaballs; heat drives buoyancy. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-lamp.
 
-Blobs rise and sink like a lava lamp, merging smoothly when they meet.
+A chrome-and-glass lava lamp glows in a dim room: wax swells on the bulb, necks off the pool, rises slowly, cools at the top and sinks, merging and pinching as it goes.
 
-Each blob adds a field that falls off with distance and pixels above a threshold are lava; because fields add, nearby blobs bulge together.
+Raymarched in one shader: the wax is 3D metaballs joined by a smooth minimum, and each blob's heat sets its buoyancy; light refracts through the glass and the wax glows where it is thin.
 
 Settings: --blobs 8 (2 to 14, step 1; Blobs); --speed 0.5 (0.1 to 2, step 0.05; Speed).
-Renderer: WebGL. Size: 3.8 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/lava-lamp.html
+Renderer: WebGL. Size: 14.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/lava-lamp.html
 
 ### Fire & smoke
 
@@ -369,14 +369,14 @@ Renderer: WebGL. Size: 27.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Ferrofluid
 
-Ferrofluid is a WebGL effect: rosensweig spikes: concave cones on a lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
+Ferrofluid is a WebGL effect: rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
 
-Black, mirror-glossy spikes rise over a magnet under glass; move the pointer and the pool chases it, stretching and re-forming.
+Black, mirror-glossy oil in a glass dish climbs a square nickel magnet and bristles into a crown of fine needles, tallest along its edges; move the pointer to slide the magnet through the pool, and click or tap to switch it off and watch the needles melt.
 
-Raymarched distance field: a sprung, stretching blob smooth-unioned with leaning concave cones on a hexagonal lattice, shaded only by studio reflections.
+Raymarched distance field: the pool smooth-unioned with a film on the block and concave cones on a hexagonal lattice (each sample visits only its nearest lattice point and six neighbours), shaded only by studio reflections.
 
-Settings: --spikes 22 (8 to 40, step 1; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength).
-Renderer: WebGL. Size: 17.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
+Settings: --spikes 260 (80 to 500, step 10; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength); --magnet 0 (0 to 1, step 1; Magnet).
+Renderer: WebGL. Size: 21.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 
