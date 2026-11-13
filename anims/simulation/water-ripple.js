@@ -1,9 +1,10 @@
-// Water ripples: a height field run through the discrete wave equation on the GPU. Each step a cell becomes the average
-// of its four neighbours, times two, minus its own previous height, then loses a little energy; two textures hold
-// "now" and "before" and swap. The surface’s slope bends the view of a tiled floor beneath it (refraction), the
-// curvature focuses light into caustic brightening, and a specular term catches the crests. Move to drag a wake,
-// click for a big drop; with no pointer, rain falls and a ghost finger trails through.
-const PARAMS = { damping: 0.985, refraction: 1, rain: 1 };
+// Water ripples: a height field run through the discrete wave equation on the GPU. Each step a cell moves toward the
+// average of its four neighbours (by less than the fastest stable amount, so the rings travel slowly enough to
+// follow), minus its own previous height, then loses a little energy; two textures hold "now" and "before" and swap.
+// The surface’s slope bends the view of a tiled floor beneath it (refraction), the curvature focuses light into
+// caustic brightening, and a specular term catches the crests. Move to drag a wake, click for a big drop; with no
+// pointer, a drop falls now and then, so each ring can be followed as it spreads.
+const PARAMS = { damping: 0.985, refraction: 1, rain: 1, speed: 0.55 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
@@ -16,11 +17,11 @@ export default function (stage) {
   in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
   const simFS = `#version 300 es
   precision highp float; in vec2 uv; out vec4 o;
-  uniform sampler2D S; uniform vec2 px; uniform float damp; uniform vec4 drops[8]; uniform float aspect;
+  uniform sampler2D S; uniform vec2 px; uniform float damp, K; uniform vec4 drops[8]; uniform float aspect;
   void main() {
     vec2 c = texture(S, uv).rg;
     float n = texture(S, uv + vec2(px.x, 0)).r + texture(S, uv - vec2(px.x, 0)).r + texture(S, uv + vec2(0, px.y)).r + texture(S, uv - vec2(0, px.y)).r;
-    float h = (n * .5 - c.g) * damp;
+    float h = (2. * c.r + K * (n - 4. * c.r) - c.g) * damp;   // K = .5 is the fastest stable speed
     for (int i = 0; i < 8; i++) {
       vec4 d = drops[i]; if (d.w == 0.) continue;
       vec2 q = (uv - d.xy) * vec2(aspect, 1);
@@ -106,24 +107,21 @@ export default function (stage) {
   const pl = () => { lx = -1; };
   stage.addEventListener('pointermove', pm); stage.addEventListener('pointerdown', pd); stage.addEventListener('pointerleave', pl);
 
-  let cur = 0, raf, frameN = 0, nextRain = 0, gx = -1, gy = -1; const t0 = performance.now();
+  let cur = 0, raf, frameN = 0, nextRain = 0; const t0 = performance.now();
   const dropArr = new Float32Array(32);
   function frame(now) {
     const t = (now - t0) / 1000; frameN++;
-    const idle = now - lastPointer > 2500;
-    if (t > nextRain && PARAMS.rain > 0) {
-      drop(Math.random(), Math.random(), 0.008 + Math.random() * 0.014, 0.4 + Math.random() * 0.9);
-      nextRain = t + (0.15 + Math.random() * 0.6) / PARAMS.rain;
+        if (t > nextRain && PARAMS.rain > 0 && !reduce) {
+      drop(0.12 + Math.random() * 0.76, 0.12 + Math.random() * 0.76, 0.013 + Math.random() * 0.008, 0.6 + Math.random() * 0.5);
+      nextRain = t + (0.9 + Math.random() * 1.6) / PARAMS.rain;
     }
-    if (idle && !reduce) {
-      // ghost finger: a slow figure-of-eight wake
-      const x = 0.5 + 0.33 * Math.sin(t * 0.55), y = 0.5 + 0.28 * Math.sin(t * 1.1 + 0.6);
-      if (gx >= 0) drop(x, y, 0.011, Math.min(0.4, Math.hypot(x - gx, y - gy) * 7));
-      gx = x; gy = y;
-    }
-    const steps = reduce ? (frameN % 10 === 0 ? 1 : 0) : 2;
+    // reduced motion: three drops run on for a moment and then the surface holds still, unless the pointer stirs it
+    if (reduce && frameN === 1) { drop(0.3, 0.6, 0.02, 1); drop(0.68, 0.38, 0.018, 0.9); drop(0.55, 0.72, 0.014, 0.7); }
+    const steps = reduce ? (frameN === 1 ? 70 : now - lastPointer < 3000 ? 1 : 0) : 1;
     gl.useProgram(sim); gl.viewport(0, 0, SW, SH);
-    gl.uniform2f(u(sim, 'px'), 1 / SW, 1 / SH); gl.uniform1f(u(sim, 'damp'), Math.min(0.999, PARAMS.damping)); gl.uniform1f(u(sim, 'aspect'), SW / SH);
+    gl.uniform2f(u(sim, 'px'), 1 / SW, 1 / SH); const K = 0.5 * Math.max(0.1, Math.min(1, PARAMS.speed)) ** 2;   // speed is the fraction of the fastest
+    // (damping is per step; slower rings take more steps per cell, so it is scaled to fade over the same distance)
+    gl.uniform1f(u(sim, 'damp'), Math.min(0.999, PARAMS.damping) ** Math.sqrt(K / 0.5)); gl.uniform1f(u(sim, 'K'), K); gl.uniform1f(u(sim, 'aspect'), SW / SH);
     for (let s = 0; s < steps; s++) {
       dropArr.fill(0);
       if (s === 0) queue.forEach((d, i) => dropArr.set(d, i * 4));

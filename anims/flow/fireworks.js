@@ -1,8 +1,8 @@
-// Fireworks: rockets climb, slow, and burst at the top of their arc into stars that obey gravity and air drag. Six
-// shell types, each a different rule set: peony (a sphere of stars), ring (a tilted circle, so it reads as an
-// ellipse), willow (heavy drag, long-lived gold that droops and leaves trails), crossette (a few stars that each split
-// into four), crackle (glitter that pops into tiny white flashes) and two-tone (an inner core in a second colour).
-// Each star keeps its last few positions and is drawn as a tapering additive streak. Click to launch.
+// Fireworks: rockets climb, slow, and burst at the top of their arc into stars that obey gravity and air drag. Five
+// shell types, each a different rule set: peony (a sphere of stars), willow (heavy drag, long-lived gold that droops
+// and leaves trails), crossette (a few stars that each split into four), crackle (glitter that pops into tiny white
+// flashes) and two-tone (an inner core in a second colour). Each star keeps its last few positions and is drawn as a
+// tapering additive streak. Click to launch.
 const PARAMS = { rate: 1, gravity: 1, drag: 1 };
 
 export default function (stage) {
@@ -27,18 +27,11 @@ export default function (stage) {
   const sphere = n => { const out = []; for (let i = 0; i < n; i++) { const u = Math.random() * 2 - 1, a = Math.random() * 6.2832, r = Math.sqrt(1 - u * u); out.push([r * Math.cos(a), r * Math.sin(a) * 0.95 + u * 0.05, u]); } return out; };
   const burst = (x, y) => {
     const s = Math.min(W, H), sp = s * (0.5 + Math.random() * 0.15), hue = HUES[Math.random() * HUES.length | 0];
-    const type = ['peony', 'ring', 'willow', 'crossette', 'crackle', 'twotone'][Math.random() * 6 | 0];
+    const type = ['peony', 'willow', 'crossette', 'crackle', 'twotone'][Math.random() * 5 | 0];
     flashes.push({ x, y, age: 0, r: s * 0.1, hue: type === 'willow' ? 40 : hue });
     if (type === 'peony' || type === 'twotone') {
       for (const [a, b] of sphere(170)) spark(x, y, a * sp, b * sp, { hue, life: 1.5 + Math.random() * 0.5 });
       if (type === 'twotone') { const h2 = (hue + 150) % 360; for (const [a, b] of sphere(60)) spark(x, y, a * sp * 0.45, b * sp * 0.45, { hue: h2, light: 70, life: 1.3 }); }
-    } else if (type === 'ring') {
-      const tilt = Math.random() * 3.14, squash = 0.25 + Math.random() * 0.6, n = 90;
-      for (let i = 0; i < n; i++) {
-        const a = i / n * 6.2832, cx = Math.cos(a), cy = Math.sin(a) * squash, c = Math.cos(tilt), sn = Math.sin(tilt);
-        spark(x, y, (cx * c - cy * sn) * sp, (cx * sn + cy * c) * sp, { hue, light: 66, life: 1.5 });
-      }
-      for (const [a, b] of sphere(24)) spark(x, y, a * sp * 0.25, b * sp * 0.25, { hue: 50, sat: 30, light: 85, life: 0.9 });
     } else if (type === 'willow') {
       for (const [a, b] of sphere(110)) spark(x, y, a * sp * 0.85, b * sp * 0.85, { kind: 'willow', hue: 38, sat: 85, light: 58, life: 3.2 + Math.random(), drag: 0.955, g: 0.5, w: 1.3, tl: 30 });
     } else if (type === 'crossette') {

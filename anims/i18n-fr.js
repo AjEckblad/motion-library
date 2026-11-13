@@ -274,9 +274,9 @@ export const FR = {
  },
  "fireworks": {
   "title": "Feu d’artifice",
-  "trick": "Explosions de fusées avec gravité, traînée et six types de bombes",
+  "trick": "Explosions de fusées avec gravité, traînée et cinq types de bombes",
   "notes": [
-   "Les fusées éclatent en pivoines, anneaux, saules, crossettes et paillettes ; cliquez pour en lancer une à cet endroit.",
+   "Les fusées éclatent en pivoines, saules, crossettes, bombes bicolores et paillettes ; cliquez pour en lancer une à cet endroit.",
    "Chaque étoile a une vitesse, une gravité et une traînée, avec des règles propres à chaque type de bombe ; les étoiles gardent leurs dernières positions, dessinées en traînées additives qui s’effilent."
   ]
  },
@@ -996,8 +996,8 @@ export const FR = {
   "title": "Ondes sur l’eau",
   "trick": "Équation d’onde en champ de hauteurs sur GPU, qui réfracte une grille",
   "notes": [
-   "Les gouttes de pluie et le pointeur envoient des anneaux sur l’eau claire, déformant la grille du fond ; cliquez pour une grosse goutte.",
-   "L’équation d’onde sur deux textures float en ping-pong : la nouvelle hauteur est la moitié de la somme des voisins moins la hauteur précédente, amortie ; la pente réfracte la grille et la courbure ajoute des caustiques."
+   "De temps en temps une goutte tombe dans l’eau claire et envoie un anneau lent qui courbe la grille en dessous ; faites glisser pour un sillage, cliquez pour une grosse goutte.",
+   "L’équation des ondes sur deux textures flottantes en ping-pong : chaque cellule se rapproche de la moyenne de ses voisines (plus lentement que le maximum stable, pour qu’on puisse suivre les anneaux) moins sa hauteur précédente, amortie ; la pente réfracte la grille et la courbure ajoute des caustiques."
   ]
  },
  "double-pendulum": {
@@ -1804,6 +1804,7 @@ export const FR = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Ripple speed": "Vitesse des ondes",
  "Magnet": "Aimant",
  "On": "Allumé",
  "Off": "Éteint",

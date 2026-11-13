@@ -274,9 +274,9 @@ export const ES = {
  },
  "fireworks": {
   "title": "Fuegos artificiales",
-  "trick": "Estallidos de cohetes con gravedad, resistencia y seis tipos de carcasa",
+  "trick": "Estallidos de cohetes con gravedad, resistencia y cinco tipos de carcasa",
   "notes": [
-   "Los cohetes estallan en peonías, anillos, sauces, crossettes y purpurina; haz clic para lanzar uno ahí.",
+   "Los cohetes estallan en peonías, sauces, crossettes, carcasas bicolores y purpurina; haz clic para lanzar uno allí.",
    "Cada estrella tiene velocidad, gravedad y resistencia, con un conjunto de reglas por tipo de carcasa; las estrellas guardan sus últimas posiciones, dibujadas como estelas aditivas que se afinan."
   ]
  },
@@ -996,8 +996,8 @@ export const ES = {
   "title": "Ondas en el agua",
   "trick": "Ecuación de onda de campo de alturas en la GPU, que refracta una cuadrícula",
   "notes": [
-   "Las gotas de lluvia y el puntero envían anillos por el agua clara y curvan la cuadrícula del fondo; haz clic para una gota grande.",
-   "La ecuación de onda sobre dos texturas float en ping-pong: la nueva altura es la mitad de la suma de las vecinas menos la altura anterior, amortiguada; la pendiente refracta la cuadrícula y la curvatura añade cáusticas."
+   "De vez en cuando cae una gota en el agua clara y envía un anillo lento que dobla la retícula de debajo; arrastra para dejar una estela y haz clic para una gota grande.",
+   "La ecuación de ondas en dos texturas flotantes que se alternan: cada celda se acerca a la media de sus vecinas (más despacio que el máximo estable, para poder seguir los anillos) menos su altura anterior, amortiguada; la pendiente refracta la retícula y la curvatura añade cáusticas."
   ]
  },
  "double-pendulum": {
@@ -1804,6 +1804,7 @@ export const ES = {
 
 // slider labels, keyed by the English label in anims/registry.js
 export const LABELS = {
+ "Ripple speed": "Velocidad de las ondas",
  "Magnet": "Imán",
  "On": "Encendido",
  "Off": "Apagado",
