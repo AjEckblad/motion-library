@@ -1,12 +1,17 @@
-// Snow globe: a water-filled glass globe on a turned wooden base, a cabin with a lit window and three pines inside.
-// Now and then it is given a shake: the snow is thrown up in a swirl, tumbles, and settles back over the scene.
-// Drag sideways across it to shake it yourself.
-// The scene inside is ray-marched from signed distance functions, but only after the ray has been bent into the
-// water at the glass (Snell's law, water against air), so the cabin is magnified and wraps at the rim the way it
-// does in a real globe. The flakes are 900 particles in a swirling flow that decays with time: they are dragged by
-// the water, sink slowly, rest when they land, and are lifted again when it moves. They are drawn as soft discs,
-// pushed out from the centre by the same lens. A last pass lays the glass over everything: a Fresnel reflection of
-// the studio's softboxes and the sharp highlights that make the sphere read as glass.
+// Snow globe: a water-filled glass globe on a turned walnut base (a bead, a cove, a brass band and an engraved
+// plaque), with a moonlit miniature inside: a log cabin with lit windows, a snow-loaded roof, icicles and a smoking
+// stone chimney, firs with drooping tiers, a bare birch, a snowman and a lamp post by a trodden path. Now and then
+// it is given a shake: the snow is thrown up in a swirl, tumbles, and settles back over the scene. Drag sideways
+// across it to shake it yourself.
+// The scene is ray-marched from signed distance functions, but only after the ray has been bent into the water at
+// the glass (Snell's law, water against air), so it is magnified and wraps at the rim the way it does in a real
+// globe. Each object sits in a bounding volume the ray only opens when it comes close, and rays start where they
+// drop below the treetops. The cabin's windows throw window-shaped pools of light onto the snow (traced back
+// through the openings to a lamp inside), the lamps glow in the water around them, and the moon casts soft shadows.
+// The flakes are particles in a swirl that dies away: they sink, rest where they land (on the ground or the roof)
+// and fade into the snow. Each is placed on screen by finding the eye ray that refracts through it, so it hides
+// behind the cabin and trees correctly. A last pass lays the glass over everything: the room's window and a warm
+// lamp reflected on the curve, Fresnel at the rim, and a faint reflection from the back of the glass.
 const PARAMS = { flakes: 900, shake: 1, every: 9 };
 
 export default function (stage) {
@@ -17,130 +22,617 @@ export default function (stage) {
   if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ---- the miniature's layout, in globe coordinates (centre at the origin, inner radius .975)
+  const F = x => (+x).toFixed(5), V3 = a => `vec3(${a.map(F).join(',')})`;
+  const CAB = [0.08, -0.366, -0.12], CA = -0.42, CC = Math.cos(CA), CS = Math.sin(CA), CK = 1.18; // cabin: floor centre, yaw, scale
+  const HL = 0.17, HW = 0.12, HH = 0.165, RH = 0.11;                                           // half length, half width, wall height, roof rise
+  const RL = Math.hypot(HW, RH), RDv = [HW / RL, -RH / RL], RNv = [RH / RL, HW / RL];          // roof slope: down, out
+  const A1 = RL + 0.036, EZ = RDv[0] * A1, EY = HH + RH + RDv[1] * A1;                         // the eave's lower edge
+  const CHT = 0.335;                                                                           // chimney height
+  const cabW = (lx, ly, lz) => [CAB[0] + CK * (CC * lx + CS * lz), CAB[1] + CK * ly, CAB[2] + CK * (-CS * lx + CC * lz)];
+  const SM = [0.33, -0.375, 0.235], LP = [-0.215, -0.372, 0.215];                              // snowman, lamp post (feet)
+  const SFv = (() => { const v = [-0.35, 0, 1], l = Math.hypot(...v); return v.map(x => x / l); })();
+  const LPO = cabW(0.052, 0.118, HW + 0.014), LLP = [LP[0], LP[1] + 0.222, LP[2]];            // porch lamp, lamp post lantern
+  const WIN1 = cabW(0.1, 0.088, HW + 0.02), WIN2 = cabW(-0.1, 0.088, HW + 0.02), WIN3 = cabW(HL + 0.02, 0.088, 0);
+  const SMK = cabW(-HL - 0.03, CHT, -0.025);                                                   // chimney mouth
+  const TREES = [[-0.40, -0.36, 0.62, 0.21], [-0.61, 0.03, 0.44, 0.15], [0.50, -0.42, 0.54, 0.18], [0.63, -0.05, 0.33, 0.115], [-0.50, 0.42, 0.2, 0.072], [0.6, 0.31, 0.16, 0.058]];
+  const BIRCH = [-0.16, -0.58];
+  const mound = (x, z) => -0.42 + 0.07 * Math.exp(-(x * x + z * z) * 2.2);
+  const toCab = (x, z) => { const dx = (x - CAB[0]) / CK, dz = (z - CAB[2]) / CK; return [CC * dx - CS * dz, CS * dx + CC * dz]; };
+  const drift = (x, z) => {
+    const [lx, lz] = toCab(x, z), qx = Math.abs(lx) - HL - 0.005, qz = Math.abs(lz) - HW - 0.005;
+    const dc = Math.hypot(Math.max(qx, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qz), 0);
+    return 0.04 * (0.45 + 0.55 * Math.min(1, Math.max(0, (0.1 - lz) / 0.25))) * Math.exp(-Math.max(dc, 0) * CK * 26);
+  };
+  const groundY = (x, z) => mound(x, z) + drift(x, z);
+  const treeGLSL = TREES.map(([x, z, h, r]) => `vec4(${F(x)},${F(groundY(x, z) - 0.03)},${F(z)},${F(h)})`).join(',');
+  const treeR = TREES.map(t => F(t[3])).join(',');
+
   const COMMON = `
   const vec3 C = vec3(0., .22, 0.); const float R = 1.;
   uniform vec2 RES; uniform vec3 EYE, FWD, RGT, UPV; uniform float FOC, T, SWAY;
   vec3 rayDir(vec2 fc) { vec2 p = (fc - .5 * RES) / RES.y; return normalize(FWD * FOC + RGT * p.x + UPV * p.y); }
   vec2 sph(vec3 ro, vec3 rd, vec3 c, float r) { vec3 oc = ro - c; float b = dot(oc, rd), h = b * b - dot(oc, oc) + r * r; if (h < 0.) return vec2(-1.); h = sqrt(h); return vec2(-b - h, -b + h); }
-  // the studio: two softboxes (a big key above left, a strip to the right) on a dark grey sweep
+  float sdBox2(vec2 p, vec2 b) { vec2 q = abs(p) - b; return length(max(q, 0.)) + min(max(q.x, q.y), 0.); }
+  // the room around the globe: dark, a tall four-pane window up to the left and behind (cool, moonlit), a warm lamp low on the right
+  const vec3 KD = ${V3([-0.74, 0.62, -0.26].map((x, _, a) => x / Math.hypot(...a)))};
+  const vec3 WD = ${V3([0.86, -0.04, -0.5].map((x, _, a) => x / Math.hypot(...a)))};
   vec3 studio(vec3 d) {
-    vec3 c = mix(vec3(.01, .01, .012), vec3(.035, .034, .038), smoothstep(-.3, .6, d.y)) * 1.;
-    // a square softbox up and to the left: sharp edges, so its reflection reads as a window on the glass
-    vec3 kd = normalize(vec3(-.55, .75, .55)), ku = normalize(cross(cross(kd, vec3(0, 1, 0)), kd)), kr = cross(kd, ku);
-    float kz = dot(d, kd); vec2 kq = vec2(dot(d, kr), dot(d, ku)) / max(kz, 1e-3);
-    c += vec3(1., .97, .92) * 60. * step(0., kz) * smoothstep(.2, .17, abs(kq.x)) * smoothstep(.14, .11, abs(kq.y));
-    float strip = smoothstep(.035, .015, abs(d.x - .8)) * smoothstep(-.05, .1, d.y) * smoothstep(.7, .45, d.y) * step(0., d.z);
-    c += vec3(.85, .9, 1.) * 22. * strip;
+    vec3 c = mix(vec3(.006, .006, .008), vec3(.024, .025, .03), smoothstep(-.3, .8, d.y));
+    float kz = dot(d, KD);
+    if (kz > 0.) {
+      vec3 ku = normalize(vec3(0., 1., 0.) - KD * KD.y), kr = cross(KD, ku);
+      vec2 q = vec2(dot(d, kr), dot(d, ku)) / kz;
+      float w = smoothstep(.05, -.03, sdBox2(q, vec2(.2, .3)));
+      float bars = smoothstep(.006, .018, abs(q.x)) * smoothstep(.006, .018, abs(q.y - .05));
+      c += vec3(.62, .74, 1.) * 7. * w * mix(.12, 1., bars) * (.55 + .45 * smoothstep(-.3, .3, q.y));
+    }
+    float wl = max(dot(d, WD), 0.);
+    c += vec3(1., .58, .28) * (pow(wl, 260.) * 2.5 + pow(wl, 24.) * .05);
+
     return c;
   }`;
 
-  // pass 1: backdrop, base, and the scene inside the globe (seen through the water)
-  const FS_SCENE = `#version 300 es
+  const NOISE = `
+  float h11(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
+  float h21(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * .1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+  float h31(vec3 p3) { p3 = fract(p3 * .1031); p3 += dot(p3, p3.zyx + 31.32); return fract((p3.x + p3.y) * p3.z); }
+  float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + vec2(1, 1)), f.x), f.y); }
+  float vn3(vec3 p) { vec3 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+    return mix(mix(mix(h31(i), h31(i + vec3(1, 0, 0)), f.x), mix(h31(i + vec3(0, 1, 0)), h31(i + vec3(1, 1, 0)), f.x), f.y),
+               mix(mix(h31(i + vec3(0, 0, 1)), h31(i + vec3(1, 0, 1)), f.x), mix(h31(i + vec3(0, 1, 1)), h31(i + vec3(1, 1, 1)), f.x), f.y), f.z); }`;
+
+  // pass 1: the scene inside the globe, seen through the water. rgb: colour; a: how far the refracted ray went (for the flakes)
+  const FS_INSIDE = `#version 300 es
   precision highp float; out vec4 o;
   ${COMMON}
-  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), f.x), f.y); }
+  ${NOISE}
+  const vec3 CAB = ${V3(CAB)}; const float CC = ${F(CC)}, CS = ${F(CS)}, CK = ${F(CK)};
+  const float HL = ${F(HL)}, HW = ${F(HW)}, HH = ${F(HH)}, RH = ${F(RH)}, RL = ${F(RL)}, EZ = ${F(EZ)}, EY = ${F(EY)}, CHT = ${F(CHT)};
+  const vec2 RD = vec2(${F(RDv[0])}, ${F(RDv[1])}), RN = vec2(${F(RNv[0])}, ${F(RNv[1])});
+  const vec3 SM = ${V3(SM)}, SF = ${V3(SFv)}, SR = vec3(${F(SFv[2])}, 0., ${F(-SFv[0])}), LP = ${V3(LP)};
+  const vec3 LPO = ${V3(LPO)}, LLP = ${V3(LLP)}, WIN1 = ${V3(WIN1)}, WIN2 = ${V3(WIN2)}, WIN3 = ${V3(WIN3)}, SMK = ${V3(SMK)};
+  const vec4 TP[6] = vec4[6](${treeGLSL});
+  const float TR[6] = float[6](${treeR});
+  const vec3 BI = vec3(${F(BIRCH[0])}, ${F(groundY(...BIRCH) - 0.03)}, ${F(BIRCH[1])});
+  const vec3 LM = ${V3([-0.6, 0.68, -0.15].map((x, _, a) => x / Math.hypot(...a)))};       // the moon
+  const vec3 MOONC = vec3(.5, .62, .95) * 1.2, SKYC = vec3(.07, .095, .19), WARM = vec3(1., .5, .18);
+  const float S = HH / 7.;                                                              // one course of logs
+
   float sdBox(vec3 p, vec3 b) { vec3 q = abs(p) - b; return length(max(q, 0.)) + min(max(q.x, max(q.y, q.z)), 0.); }
-  float sdCone(vec3 p, float h, float r) { float q = length(p.xz); return max(dot(vec2(h, r) / length(vec2(h, r)), vec2(q, p.y - h)) , -p.y); }
-  // the scene in globe coordinates (centre at the origin)
-  vec2 scene(vec3 p) {
-    float ground = p.y + .42 - .09 * exp(-dot(p.xz, p.xz) * 2.6) - .02 * noise(p.xz * 6.);
-    vec2 r = vec2(ground, 1.);
-    vec3 q = p - vec3(.1, -.27, -.04);
-    float house = sdBox(q, vec3(.17, .1, .13)) - .006;
-    vec3 rq = q - vec3(0., .1, 0.); float roof = max(abs(rq.x) * .78 + rq.y * .9 - .15, abs(rq.z) - .155); roof = max(roof, -rq.y - .01);
-    float chimney = sdBox(q - vec3(-.09, .2, .05), vec3(.025, .06, .025));
-    float cabin = min(min(house, roof - .004), chimney);
-    if (cabin < r.x) r = vec2(cabin, roof - .004 < house ? 3. : 2.);
-    for (int i = 0; i < 3; i++) {
-      vec3 tp = i == 0 ? vec3(-.42, -.33, .12) : i == 1 ? vec3(-.22, -.32, -.38) : vec3(.48, -.33, -.22);
-      float hh = i == 1 ? .52 : .42;
-      vec3 lp = p - tp; float tr = sdCone(lp - vec3(0, .04, 0), hh, hh * .34);
-      tr = min(tr, sdCone(lp - vec3(0, .18, 0), hh * .72, hh * .27));
-      float trunk = sdBox(lp, vec3(.02, .06, .02));
-      tr = min(tr, trunk);
-      if (tr < r.x) r = vec2(tr, 4.);
+  float sdRBox(vec3 p, vec3 b, float r) { return sdBox(p, b - r) - r; }
+  float sdCap(vec3 p, vec3 a, vec3 b, float ra, float rb) { vec3 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0., 1.); return length(pa - ba * h) - mix(ra, rb, h); }
+  float smin(float a, float b, float k) { float h = clamp(.5 + .5 * (b - a) / k, 0., 1.); return mix(b, a, h) - k * h * (1. - h); }
+  void U(inout vec2 r, float d, float m) { if (d < r.x) r = vec2(d, m); }
+  vec3 toCab(vec3 p) { vec3 q = (p - CAB) / CK; return vec3(CC * q.x - CS * q.z, q.y, CS * q.x + CC * q.z); }
+  vec3 dirCab(vec3 n) { return vec3(CC * n.x - CS * n.z, n.y, CS * n.x + CC * n.z); }
+
+  // the trodden path from the door, curving toward the front
+  float pathX(float z) { float s = z + .01; return .031 - .45 * s + .55 * s * s; }
+  float pathMask(vec2 x) { return smoothstep(.046, .014, abs(x.x - pathX(x.y))) * smoothstep(.0, .03, x.y) * smoothstep(.9, .7, x.y); }
+  float steps(vec2 x) {                                                                 // footprints, left and right
+    float c = floor(x.y / .03), zc = (c + .5) * .03, sd = mod(c, 2.) - .5;
+    vec2 e = vec2(x.x - pathX(zc) - sd * .022, x.y - zc) / vec2(.0065, .011);
+    return smoothstep(1., .45, length(e)) * step(.02, zc);
+  }
+  float gH(vec2 x) {
+    float h = -.42 + .07 * exp(-dot(x, x) * 2.2) + .016 * vn(x * 3.3 + 7.) + .006 * vn(x * 11. + 3.) - .011;
+    vec2 c = (x - CAB.xz) / CK; c = vec2(CC * c.x - CS * c.y, CS * c.x + CC * c.y);
+    float dc = sdBox2(c, vec2(HL + .005, HW + .005)) * CK;
+    float pm = pathMask(x);
+    h += .04 * (.45 + .55 * clamp((.1 - c.y) / .25, 0., 1.)) * exp(-max(dc, 0.) * 26.) * (1. - pm);   // drifts against the walls
+    return h - pm * (.004 + .005 * steps(x));
+  }
+
+  // ---- the cabin, in its own frame (floor centre at the origin, ridge along x, the door at +z)
+  vec2 cabin(vec3 q) {
+    vec2 r = vec2(sdBox(q - vec3(0., HH * .5, 0.), vec3(HL - .007, HH * .5, HW - .007)), 3.);   // the inner block: glass and door show on it
+    float cy = q.y - (floor(q.y / S) + .5) * S, cy2 = q.y - floor(q.y / S + .5) * S;
+    float lz = max(length(vec2(cy, abs(q.z) - HW + .003)) - S * .54, abs(q.x) - HL - .024);  // long walls: logs along x
+    float lx = max(length(vec2(cy2, abs(q.x) - HL + .003)) - S * .54, abs(q.z) - HW - .024); // gables: logs along z, half a course up
+    float logs = max(min(lz, lx), max(q.y - HH, -q.y - .03));
+    vec3 dq = q - vec3(0., .056, HW), wq = vec3(abs(q.x) - .1, q.y - .088, q.z - HW), gq = vec3(q.z, q.y - .088, q.x - HL);
+    float holes = min(sdBox(dq, vec3(.03, .057, .03)), min(sdBox(wq, vec3(.028, .026, .03)), sdBox(gq, vec3(.024, .024, .03))));
+    U(r, max(logs, -holes), 2.);
+    // trim round the door and windows, and the windows' glazing bars
+    float tr = max(sdBox(dq - vec3(0., .003, .006), vec3(.037, .062, .005)), -sdBox(dq, vec3(.03, .057, .03)));
+    tr = min(tr, max(sdBox(wq - vec3(0., 0., .006), vec3(.035, .033, .005)), -sdBox(wq, vec3(.028, .026, .03))));
+    tr = min(tr, max(sdBox(gq - vec3(0., 0., .006), vec3(.031, .031, .005)), -sdBox(gq, vec3(.024, .024, .03))));
+    tr = min(tr, min(sdBox(wq + vec3(0., 0., .004), vec3(.0022, .026, .003)), sdBox(wq + vec3(0., 0., .004), vec3(.028, .0022, .003))));
+    tr = min(tr, min(sdBox(gq + vec3(0., 0., .004), vec3(.0022, .024, .003)), sdBox(gq + vec3(0., 0., .004), vec3(.024, .0022, .003))));
+    U(r, tr, 4.);
+    // the roof: two pitched slabs, an attic gable under them, and a thick pillow of snow on top
+    vec2 rp = vec2(abs(q.z), q.y - HH - RH);
+    float al = dot(rp, RD), ac = dot(rp, RN);
+    U(r, sdBox(vec3(q.x, al - (RL + .036) * .5 + .003, ac - .007), vec3(HL + .032, (RL + .036) * .5 + .003, .007)), 5.);
+    U(r, max(max(abs(q.x) - HL + .004, ac), max(HH - .002 - q.y, abs(q.z) - HW)), 7.);
+    vec2 rs = vec2(sqrt(q.z * q.z + 1.4e-4), q.y - HH - RH);
+    float als = dot(rs, RD), acs = dot(rs, RN) - .014;
+    float th = .021 - .006 * smoothstep(.06, RL + .04, als);
+    float sn = sdRBox(vec3(q.x, als - (RL + .046) * .5 + .006, acs - th * .5), vec3(HL + .038, (RL + .046) * .5 + .006, th * .5 + .001), .011);
+    sn += .006 * (vn(vec2(q.x, als) * 26.) - .5) + .0025 * (vn(vec2(q.x, als) * 90.) - .5);
+    // the chimney: dry stone at the far gable, with a cap and its own cushion of snow
+    vec3 cq = q - vec3(-HL - .03, 0., -.025);
+    float ch = sdBox(cq - vec3(0., CHT * .5 - .02, 0.), vec3(.029, CHT * .5, .033)) - .002;
+    ch = min(ch, sdBox(cq - vec3(0., CHT - .016, 0.), vec3(.035, .005, .039)));
+    float flue = sdBox(cq - vec3(0., CHT, 0.), vec3(.016, .03, .019));
+    U(r, max(ch, -flue), 8.);
+    sn = min(sn, max(sdRBox(cq - vec3(0., CHT - .007, 0.), vec3(.039, .0065, .043), .0062), -flue));
+    U(r, sn, 6.);
+    // icicles hanging from both eaves
+    float ex = q.x / .013, ci = floor(ex) - (fract(ex) < .5 ? 1. : 0.), ice = 1e9;
+    for (int k = 0; k < 2; k++) {
+      float id = ci + float(k), xc = (id + .5) * .013;
+      float L = .01 + .05 * pow(h11(id * 7.31 + sign(q.z) * 13.), 2.2);
+      float u = q.y - EY, rr = .0048 * clamp(1. + u / L, 0., 1.);
+      ice = min(ice, max(length(vec2(q.x - xc, abs(q.z) - EZ + .004)) - rr, max(-L - u, u - .004)) * .8);
     }
+    U(r, max(ice, abs(q.x) - HL - .02), 9.);
+    // the porch lamp beside the door
+    vec3 lq = q - vec3(.052, .118, HW + .014);
+    U(r, min(sdBox(lq, vec3(.0055, .008, .0055)), sdBox(lq - vec3(0., .0095, 0.), vec3(.0075, .0018, .0075))), 32.);
+    U(r, sdBox(lq - vec3(0., 0., -.009), vec3(.0014, .0014, .006)), 30.);
     return r;
   }
-  vec3 nrm(vec3 p) { vec2 e = vec2(.0015, 0); return normalize(vec3(scene(p + e.xyy).x - scene(p - e.xyy).x, scene(p + e.yxy).x - scene(p - e.yxy).x, scene(p + e.yyx).x - scene(p - e.yyx).x)); }
-  vec3 inside(vec3 ro, vec3 rd, float tmax) {
-    float t = .0; vec2 h = vec2(1., 0.);
-    for (int i = 0; i < 80; i++) { h = scene(ro + rd * t); if (h.x < .0012 || t > tmax) break; t += h.x * .9; }
-    vec3 water = vec3(.018, .03, .062);                                // night-blue water against the far glass
-    if (t > tmax) return water * (.8 + .2 * rd.y) + studio(reflect(rd, normalize(ro + rd * tmax))) * .008;
-    vec3 p = ro + rd * t, n = nrm(p), col;
-    vec3 L = normalize(vec3(-.5, .8, .35)), lamp = vec3(.1, -.27, .1);   // the key, and the cabin's window glow
-    float dif = max(dot(n, L), 0.), ao = clamp(scene(p + n * .05).x / .05, 0., 1.), up = smoothstep(.2, .8, n.y);
-    vec3 snow = vec3(.78, .84, .98);                                   // moonlit: cool, the window warms it
-    if (h.y < 1.5) col = snow * (.3 + .75 * dif) * (.85 + .15 * noise(p.xz * 40.));
-    else if (h.y < 2.5) { col = vec3(.38, .2, .11) * (.25 + .7 * dif);
-      vec3 q = p - vec3(.1, -.27, -.04);
-      float win = step(abs(q.x - .05), .04) * step(abs(q.y + .01), .035) * step(.12, q.z);
-      float door = step(abs(q.x + .07), .028) * step(q.y, .03) * step(.12, q.z);
-      col = mix(col, vec3(1., .62, .25) * 2.2, win); col = mix(col, vec3(.2, .1, .05), door); }
-    else if (h.y < 3.5) col = mix(vec3(.3, .16, .1), snow, up) * (.3 + .75 * dif);
-    else col = mix(vec3(.05, .17, .1), snow, up * smoothstep(.4, .7, noise(p.xz * 30. + p.y * 9.))) * (.28 + .8 * dif);
-    // warm light from the window falls on the snow in front of the cabin
-    float dl = length(p - lamp - vec3(0, 0, .15)); col += vec3(1., .55, .2) * .55 / (1. + dl * dl * 45.) * (1. - step(2.5, h.y) * .5);
-    col *= .55 + .45 * ao;
-    return mix(water, col, exp(-t * .22));
+
+  // ---- a fir: seven drooping tiers of branches round a trunk (p from the foot)
+  float fir(vec3 p, float h, float R0, float sd) {
+    float rho = length(p.xz);
+    float d = max(rho - .08 * R0, p.y - h * .5);
+    float a = atan(p.z, p.x);
+    float y0 = h * .15, s = (h - y0) / 7.4, fi = floor((p.y - y0) / s);
+    for (int k = -1; k <= 1; k++) {
+      float i = fi + float(k);
+      if (i < 0. || i > 6.) continue;
+      float yb = y0 + i * s, yt = yb + s * 2.05, ri = R0 * (1. - i * .128);
+      float nb = 3.5 + .5 * mod(i + sd, 2.);
+      float lb = pow(abs(cos(a * nb + h11(i + sd * 9.) * 6.28)), 3.);                // 1 along a branch, 0 between
+      float r = ri * (.74 + .26 * lb), yd = yb - s * .5 * lb;                         // the tips reach out and droop
+      vec2 q = vec2(rho, p.y), e = vec2(r, yd - yt), w = q - vec2(0., yt);
+      float hh = clamp(dot(w, e) / dot(e, e), 0., 1.);
+      float dd = min(length(w - e * hh), length(vec2(q.x - min(q.x, r), q.y - yd)));
+      float sg = (e.x * w.y - e.y * w.x < 0. && q.y > yd) ? -1. : 1.;
+      dd = sg * dd - .1 * s * sin(3.1416 * hh);                                      // each tier bows out like an umbrella
+      d = min(d, dd * .8);
+    }
+    return d;
+  }
+  float birch(vec3 p) {
+    float d = sdCap(p, vec3(0.), vec3(.03, .56, -.01), .0115, .0032);
+    for (int i = 0; i < 7; i++) {
+      float fi = float(i), y = .2 + fi * .052, an = fi * 2.4 + .5;
+      vec3 a = vec3(.03 * y / .56, y, -.01 * y / .56);
+      vec3 b = a + vec3(cos(an) * .1, .08 + .012 * fi, sin(an) * .1) * (1. - fi * .08);
+      d = min(d, sdCap(p, a, b, .0042, .0012));
+      d = min(d, sdCap(p, mix(a, b, .55), mix(a, b, .55) + vec3(cos(an + 1.) * .03, .05, sin(an + 1.) * .03), .0018, .0008));
+    }
+    return d;
+  }
+  vec2 snowman(vec3 p) {
+    float d = length(p - vec3(0., .036, 0.)) - .05;
+    d = smin(d, length(p - vec3(0., .102, 0.)) - .037, .012);
+    d = smin(d, length(p - vec3(0., .155, 0.)) - .027, .008);
+    vec2 r = vec2(d, 20.);
+    vec3 hq = p - vec3(0., .18, 0.);
+    U(r, min(max(length(hq.xz) - .0175, abs(hq.y - .014) - .014), max(length(hq.xz) - .029, abs(hq.y) - .0022)), 21.);
+    vec3 nq = p - vec3(0., .157, 0.) - SF * .022; float t = dot(nq, SF);
+    U(r, max(length(nq - SF * t) - .0055 * (1. - t / .034), max(-t, t - .034)) * .8, 22.);
+    vec3 sq = p - vec3(0., .128, 0.);
+    float sc = length(vec2(length(sq.xz) - .029, sq.y)) - .0075;
+    sc = min(sc, sdCap(p, vec3(0., .128, 0.) + SR * .02 + SF * .018, vec3(0., .09, 0.) + SR * .026 + SF * .03, .006, .0045));
+    U(r, sc, 23.);
+    float ar = 1e9;
+    for (int k = 0; k < 2; k++) {
+      float sd = float(k) * 2. - 1.;
+      vec3 a = vec3(0., .108, 0.) + SR * sd * .03, b = a + SR * sd * .058 + vec3(0., .036 + .01 * sd, 0.);
+      ar = min(ar, min(sdCap(p, a, b, .0026, .0014), sdCap(p, mix(a, b, .7), mix(a, b, .7) + SR * sd * .008 + vec3(0., .02, 0.), .0014, .0009)));
+    }
+    U(r, ar, 24.);
+    return r;
+  }
+  vec2 lampPost(vec3 p) {
+    vec2 r = vec2(max(length(p.xz) - .0052 - .006 * smoothstep(.035, .0, p.y), p.y - .205), 30.);
+    vec3 q = p - vec3(0., .222, 0.);
+    U(r, sdBox(q, vec3(.0115, .016, .0115)), 31.);
+    vec3 c = q - vec3(0., .017, 0.);
+    U(r, max(length(c.xz) * .62 + c.y * .78 - .0105, -c.y), 30.);
+    U(r, length(c - vec3(0., .016, 0.)) - .006, 33.);
+    return r;
+  }
+
+  // everything but the ground (the shadows are cast by these)
+  vec2 objs(vec3 p) {
+    vec2 r = vec2(1e9, 0.);
+    vec3 q = toCab(p);
+    float b = sdBox(q - vec3(-.03, .17, 0.), vec3(HL + .08, .19, HW + .06));
+    b *= CK; if (b < .03) { r = cabin(q); r.x *= CK; } else r = vec2(b, 0.);
+    for (int i = 0; i < 6; i++) {
+      vec3 tp = p - TP[i].xyz;
+      float bt = max(length(tp.xz) - TR[i] * 1.08, max(-tp.y - .02, tp.y - TP[i].w));
+      if (bt < r.x) { if (bt > .03) r = vec2(bt, 0.); else U(r, fir(tp, TP[i].w, TR[i], float(i)), 10.); }
+    }
+    vec3 bp = p - BI;
+    float bb = max(length(bp.xz) - .16, max(-bp.y, bp.y - .62));
+
+    if (bb < r.x) { if (bb > .03) r = vec2(bb, 0.); else U(r, birch(bp), 11.); }
+    vec3 sp = p - SM;
+    float bs = length(sp - vec3(0., .1, 0.)) - .115;
+    if (bs < r.x) { if (bs > .03) r = vec2(bs, 0.); else { vec2 h = snowman(sp); if (h.x < r.x) r = h; } }
+    vec3 lp = p - LP;
+    float bl = max(length(lp.xz) - .024, max(-lp.y, lp.y - .26));
+    if (bl < r.x) { if (bl > .03) r = vec2(bl, 0.); else { vec2 h = lampPost(lp); if (h.x < r.x) r = h; } }
+    return r;
+  }
+  vec2 map(vec3 p) {
+    vec2 r = objs(p);
+    U(r, (p.y - gH(p.xz)) * .75, 1.);
+    return r;
+  }
+  vec3 calcN(vec3 p) { const vec2 k = vec2(1., -1.); const float e = .0007;
+    return normalize(k.xyy * map(p + k.xyy * e).x + k.yyx * map(p + k.yyx * e).x + k.yxy * map(p + k.yxy * e).x + k.xxx * map(p + k.xxx * e).x); }
+  float shadow(vec3 ro, vec3 rd) {
+    float res = 1., t = .006;
+    for (int i = 0; i < 26; i++) {
+      vec3 p = ro + rd * t;
+      if (p.y > .24) break;
+      float h = objs(p).x;
+      res = min(res, 9. * h / t);
+      if (res < .02) break;
+      t += clamp(h, .006, .07);
+    }
+    return clamp(res, 0., 1.);
+  }
+
+  // warm light: the lamps, and the windows' light thrown out through the openings from a lamp inside the cabin
+  float pl(vec3 p, vec3 n, vec3 L, float k) { vec3 l = L - p; float d2 = dot(l, l); return max(dot(n, l) * inversesqrt(d2) * .85 + .15, 0.) * k / (d2 + .0012); }
+  float pool(vec3 q, vec3 nq) {
+    vec3 L = vec3(0., .158, -.02); float w = 0.;
+    if (q.z > HW + .002) {
+      vec3 d = q - L; float s = (HW - L.z) / d.z; vec2 W = L.xy + d.xy * s;
+      vec2 c = vec2(abs(W.x) - .1, W.y - .088); float sf = .002 + .004 * (1. / s - 1.);
+      float op = smoothstep(sf, -sf, sdBox2(c, vec2(.028, .026))) * (1. - .85 * smoothstep(sf * .8 + .001, .0, min(abs(c.x), abs(c.y)) - .0022));
+      w += op * max(dot(nq, -normalize(d)), 0.) / (dot(d, d) * 30. + .12);
+    }
+    if (q.x > HL + .002) {
+      vec3 d = q - L; float s = (HL - L.x) / d.x; vec2 W = L.zy + d.zy * s;
+      vec2 c = vec2(W.x, W.y - .088); float sf = .002 + .004 * (1. / s - 1.);
+      float op = smoothstep(sf, -sf, sdBox2(c, vec2(.024, .024))) * (1. - .85 * smoothstep(sf * .8 + .001, .0, min(abs(c.x), abs(c.y)) - .0022));
+      w += op * max(dot(nq, -normalize(d)), 0.) / (dot(d, d) * 30. + .12);
+    }
+    return w;
+  }
+  float flick() { return 1. + .06 * sin(T * 11.3) + .04 * sin(T * 17.9 + 1.) + .03 * sin(T * 5.1); }
+  vec3 warmAt(vec3 p, vec3 n) {
+    vec3 q = toCab(p), nq = dirCab(n);
+    float f = flick();
+    float w = pool(q, nq) * .5 * f;
+    w += pl(p, n, LPO, .004) + pl(p, n, LLP, .014);
+    w += (pl(p, n, WIN1, .0016) + pl(p, n, WIN2, .0016) + pl(p, n, WIN3, .0012)) * f;
+    return WARM * w;
+  }
+  float halo(vec3 ro, vec3 rd, float tm, vec3 L, float k) {
+    vec3 o = ro - L; float b = dot(o, rd), c = max(dot(o, o) - b * b, 0.);
+    float s = sqrt(k), q = sqrt(1. + k * c);
+    return (atan(s * (tm + b) / q) - atan(s * b / q)) / (s * q);
+  }
+  float sparkle(vec3 p, vec3 n, vec3 rd) {
+    vec3 g = floor(p * 170.); float hs = h31(g);
+    if (hs < .93) return 0.;
+    vec3 fn = normalize(n + (vec3(h31(g + 1.7), h31(g + 4.1), h31(g + 8.3)) - .5) * 1.2);
+    return pow(max(dot(reflect(rd, fn), LM), 0.), 120.) * 6.;
+  }
+
+  vec3 shade(vec3 p, vec3 rd, float m) {
+    vec3 n = calcN(p), q = toCab(p), nq = dirCab(n);
+    vec3 alb = vec3(.8), emi = vec3(0.);
+    float snowy = 0., spec = 0., wrap = 0.;
+    const vec3 SNOW = vec3(.82, .87, .98);
+    if (m < 1.5) {                                                                  // the ground
+      float pm = pathMask(p.xz);
+      alb = SNOW * (.92 + .08 * vn(p.xz * 90.)); snowy = 1.; wrap = .25;
+      alb *= 1. - pm * (.12 + .25 * steps(p.xz)) * vec3(1., .97, .9);
+    } else if (m < 2.5) {                                                           // log walls
+      bool along = abs(abs(q.z) - HW) < abs(abs(q.x) - HL);
+      float ax = along ? q.x : q.z, crs = along ? floor(q.y / S) : floor(q.y / S + .5);
+      vec3 lc = mix(vec3(.15, .075, .036), vec3(.26, .14, .07), h11(crs * 3.1 + (along ? 0. : 7.)));
+      alb = lc * (.75 + .4 * vn(vec2(ax * 18., q.y * 220. + crs * 9.)) * vn(vec2(ax * 90., q.y * 600.)));
+      float endF = along ? abs(nq.x) : abs(nq.z);
+      if (endF > .7) {                                                              // sawn log ends: pale end grain and rings
+        float rr = along ? length(vec2(q.y - (crs + .5) * S, abs(q.z) - HW + .003)) : length(vec2(q.y - crs * S, abs(q.x) - HL + .003));
+        alb = mix(vec3(.42, .3, .18), vec3(.3, .19, .1), smoothstep(.3, .7, fract(rr * 520.))) * (1. - .5 * smoothstep(.009, .0125, rr));
+      }
+      float ledge = smoothstep(.55, .85, n.y) * smoothstep(.35, .6, vn(vec2(ax * 70., q.y * 30.)));
+      alb = mix(alb, SNOW, ledge); snowy = ledge;
+    } else if (m < 3.5) {                                                           // behind the openings: glass, the door
+      if (abs(q.z - HW + .007) < .004 && abs(q.x) < .03 && q.y < .114) {
+        float bd = fract(q.x / .012 + .5);
+        alb = vec3(.30, .05, .035) * (.6 + .4 * smoothstep(.0, .12, bd) * smoothstep(1., .88, bd)) * (.85 + .3 * vn(vec2(q.x * 200., q.y * 40.)));
+        alb = mix(alb, vec3(.02), smoothstep(.0035, .002, length(vec2(q.x - .019, q.y - .058))));
+        alb = mix(alb, vec3(.02), step(abs(q.y - .03), .0025) + step(abs(q.y - .088), .0025));   // iron straps
+        spec = .3;
+      } else {
+        vec2 uv = abs(q.z - HW + .007) < .004 ? vec2(abs(q.x) - .1, q.y - .088) : vec2(q.z, q.y - .088);
+        float curtain = smoothstep(.014, .02, abs(uv.x) + .004 * sin(uv.y * 300.));
+        vec3 room = vec3(1., .6, .26) * (2.6 + 1.2 * smoothstep(.026, -.02, uv.y)) * flick();
+        emi = mix(room, vec3(.8, .16, .08) * 1.4, curtain * .8);
+        alb = vec3(.02);
+      }
+    } else if (m < 4.5) { alb = vec3(.55, .5, .4) * (.8 + .2 * vn(p.xy * 300.)); spec = .2; }   // painted trim
+    else if (m < 5.5) { alb = vec3(.07, .055, .045) * (.7 + .5 * vn(vec2(q.x * 120., dot(vec2(abs(q.z), q.y), RD) * 160.))); }
+    else if (m < 6.5) { alb = SNOW; snowy = 1.; wrap = .3; }                        // snow on the roof and the chimney
+    else if (m < 7.5) {                                                             // gable boards
+      alb = vec3(.2, .11, .06) * (.7 + .3 * smoothstep(.0, .1, fract(q.z / .014)) * smoothstep(1., .9, fract(q.z / .014))) * (.8 + .3 * vn(vec2(q.z * 70., q.y * 300.)));
+    } else if (m < 8.5) {                                                           // dry stone
+      vec3 cq = q - vec3(-HL - .03, 0., -.025);
+      float u = abs(nq.x) > abs(nq.z) ? cq.z : cq.x;
+      float row = floor(q.y / .017), cell = floor((u + row * .0137) / .021);
+      vec2 f = vec2(fract((u + row * .0137) / .021), fract(q.y / .017));
+      float mortar = smoothstep(.0, .12, min(min(f.x, 1. - f.x) * 1.3, min(f.y, 1. - f.y)));
+      vec3 st = mix(vec3(.2, .19, .18), vec3(.34, .3, .26), h21(vec2(cell, row)));
+      alb = mix(vec3(.06, .055, .05), st * (.8 + .3 * vn(p.xy * 400.)), mortar);
+      if (q.y > CHT - .025) alb = vec3(.18, .17, .16);
+      float cover = smoothstep(.6, .9, n.y); alb = mix(alb, SNOW, cover); snowy = cover;
+    } else if (m < 9.5) {                                                           // icicles
+      alb = vec3(.35, .45, .55); spec = 1.;
+      emi = WARM * pool(q - vec3(0., 0., .02), vec3(0., 0., 1.)) * .25;
+    } else if (m < 10.5) {                                                          // fir needles, snow on the tiers
+      alb = vec3(.025, .075, .05) * (.6 + .8 * vn(vec2(atan(p.z, p.x) * 40., length(p.xz) * 160. + p.y * 60.)));
+      float sn = smoothstep(.35, .75, n.y) * smoothstep(.3, .62, vn(p.xz * 75. + p.y * 31.) * .7 + vn(p.xz * 190.) * .3 + .1 * n.y);
+      alb = mix(alb, SNOW, sn); snowy = sn; wrap = .2 * sn;
+    } else if (m < 11.5) {                                                          // birch bark
+      vec3 bp = p - BI;
+      float mk = smoothstep(.62, .7, vn(vec2(atan(bp.z, bp.x) * 3., bp.y * 120.)));
+      alb = mix(vec3(.7, .68, .62), vec3(.05), mk) * (bp.y > .3 && length(bp.xz - vec2(.03, -.01) * bp.y / .56) > .008 ? .35 : 1.);
+    } else if (m < 20.5) {                                                          // the snowman, with coal eyes and buttons
+      alb = SNOW; snowy = .6; wrap = .3;
+      vec3 hp = normalize(p - SM - vec3(0., .155, 0.)), bp = normalize(p - SM - vec3(0., .102, 0.));
+      vec3 e1 = normalize(SF * .9 + SR * .38 + vec3(0., .32, 0.)), e2 = normalize(SF * .9 - SR * .38 + vec3(0., .32, 0.));
+      float coal = step(.988, max(dot(hp, e1), dot(hp, e2))) * step(length(p - SM - vec3(0., .155, 0.)), .03);
+      for (int k = -1; k <= 1; k++) coal = max(coal, step(.992, dot(bp, normalize(SF + vec3(0., float(k) * .42 + .15, 0.)))) * step(length(p - SM - vec3(0., .102, 0.)), .04));
+      alb = mix(alb, vec3(.02), coal);
+    } else if (m < 21.5) { alb = vec3(.012); spec = .4; }                          // hat
+    else if (m < 22.5) { alb = vec3(.9, .28, .04); }                               // carrot
+    else if (m < 23.5) { alb = vec3(.55, .04, .04) * (.8 + .3 * step(.5, fract((p.y - SM.y) * 260.))); } // knitted scarf
+    else if (m < 24.5) { alb = vec3(.09, .05, .03); }                              // twig arms
+    else if (m < 30.5) { alb = vec3(.025); spec = .5; }                            // iron
+    else if (m < 31.5) {                                                            // lantern glass in its frame
+      vec3 lq = p - LP - vec3(0., .222, 0.);
+      float fr = step(.0088, min(abs(lq.x), abs(lq.z))) + step(.0135, abs(lq.y));
+      emi = mix(vec3(1., .5, .17) * 4.5 * flick(), vec3(0.), clamp(fr, 0., 1.)); alb = vec3(.025);
+    } else if (m < 32.5) { emi = vec3(1., .5, .17) * 4.5 * flick(); alb = vec3(.02); }
+    else { alb = SNOW; snowy = 1.; }
+
+    float sh = shadow(p + n * .003, LM);
+    float a1 = map(p + n * .012).x, a2 = map(p + n * .04).x;
+    float ao = clamp(min(a1 / .012, 1.) * .45 + min(a2 / .04, 1.) * .55, 0., 1.);   // ambient occlusion from two probes
+    float dif = max((dot(n, LM) + wrap) / (1. + wrap), 0.);
+    vec3 amb = SKYC * (.55 + .45 * n.y) + vec3(.06, .07, .1) * max(-n.y, 0.);
+    vec3 col = alb * (MOONC * dif * sh + amb * (.35 + .65 * ao)) + alb * warmAt(p, n) * (.5 + .5 * ao) + emi;
+    vec3 h = normalize(LM - rd);
+    col += (spec + snowy * .08) * MOONC * pow(max(dot(n, h), 0.), spec > .9 ? 60. : 24.) * sh * .6;
+    if (spec > .9) col += WARM * .6 * pow(max(dot(reflect(rd, n), normalize(LPO - p)), 0.), 30.) + vec3(.4, .5, .7) * pow(1. - max(dot(-rd, n), 0.), 3.) * .25;
+    col += snowy * sparkle(p, n, rd) * (sh * MOONC + warmAt(p, n) * 2.);
+    return col;
+  }
+
+  vec3 water(vec3 ro, vec3 rd, float tmax) {                                        // night-blue water against the far glass
+    vec3 e = ro + rd * tmax, n = normalize(e);
+    vec3 c = mix(vec3(.024, .045, .1), vec3(.005, .011, .034), smoothstep(-.35, .8, e.y));
+    return c + studio(reflect(rd, -n)) * .035;
+  }
+  vec4 smoke(vec3 ro, vec3 rd, float tm) {
+    vec3 lo = SMK - vec3(.1, .0, .1), hi = SMK + vec3(.12, .34, .1);
+    vec3 iv = 1. / rd, t0 = (lo - ro) * iv, t1 = (hi - ro) * iv, tn = min(t0, t1), tf = max(t0, t1);
+    float a = max(max(tn.x, tn.y), max(tn.z, 0.)), b = min(min(tf.x, tf.y), min(tf.z, tm));
+    if (a >= b) return vec4(0.);
+    float dt = (b - a) / 12., acc = 0., tt = a + dt * h21(gl_FragCoord.xy);
+    for (int i = 0; i < 12; i++) {
+      vec3 p = ro + rd * tt - SMK; float y = p.y;
+      vec2 c = vec2(.028 * sin(y * 8. - T * .5) + y * .3, .018 * cos(y * 6. - T * .4));
+      float rr = .01 + y * .17;
+      float den = smoothstep(rr, rr * .15, length(p.xz - c)) * smoothstep(.0, .015, y) * smoothstep(.32, .05, y);
+      den *= smoothstep(.3, .8, vn3(p * vec3(30., 20., 30.) - vec3(0., T * .5, 0.)) * .7 + vn3(p * 70. - vec3(0., T * .9, 0.)) * .3 + .1);
+      acc += den * dt * 26.; tt += dt;
+    }
+    return vec4(vec3(.4, .46, .6) * 1.15, (1. - exp(-acc)) * .62);
+
+  }
+
+  vec4 inside(vec3 ro, vec3 rd, float tmax) {
+    const float TOP = .26;
+    float t = 0.;
+    vec3 col; float th = tmax;
+    if (ro.y > TOP) t = rd.y < 0. ? (TOP - ro.y) / rd.y : tmax + 1.;
+    bool hit = false; vec2 h = vec2(1., 0.);
+    if (t < tmax) {
+      if (map(ro + rd * t).x < 0.) {                                                // the snow packed against the glass at the bottom
+        vec3 p = ro + rd * t;
+        float dep = gH(p.xz) - p.y;
+        // lit as a snow surface pressed against the glass: it faces out and down, so it darkens toward the bottom
+        vec3 sn = normalize(p);
+        float strata = vn(vec2(atan(p.z, p.x) * 5., p.y * 55.)) * .55 + vn(vec2(atan(p.z, p.x) * 30., p.y * 180.)) * .3 + vn(p.xy * 400.) * .15;
+        vec3 lit = MOONC * max(dot(sn, LM) * .7 + .3, 0.) * .45 + SKYC * (1.2 + .6 * sn.y) + WARM * .05 * smoothstep(-.3, .6, sn.z);
+        col = vec3(.8, .85, .97) * lit * (.25 + .75 * exp(-dep * 4.5)) * (.82 + .3 * strata);
+        col += vec3(.7, .8, 1.) * .08 * exp(-dep * 60.);
+
+        return vec4(mix(water(ro, rd, tmax), col, .92), t);
+      }
+      for (int i = 0; i < 110; i++) {
+        h = map(ro + rd * t);
+        if (h.x < .0006 + t * .0008) { hit = true; break; }
+        t += h.x;
+        if (t > tmax) break;
+      }
+    }
+    if (hit) { col = shade(ro + rd * t, rd, h.y); th = t; col = mix(water(ro, rd, tmax), col, exp(-t * .3)); }
+    else col = water(ro, rd, tmax);
+    vec4 sm = smoke(ro, rd, th); col = mix(col, sm.rgb * (MOONC * .3 + SKYC * 1.5), sm.a);
+    float f = flick();
+    col += WARM * (halo(ro, rd, th, LPO, 5000.) * 2. + halo(ro, rd, th, LLP, 4000.) * 3. + (halo(ro, rd, th, WIN1, 3000.) + halo(ro, rd, th, WIN2, 3000.) + halo(ro, rd, th, WIN3, 3000.)) * .8 * f);
+    return vec4(col, th);
+  }
+  void main() {
+    vec3 rd = rayDir(gl_FragCoord.xy);
+    vec2 g = sph(EYE, rd, C, R);
+    if (g.x < 0.) { o = vec4(0., 0., 0., 9.); return; }
+    vec3 p = EYE + rd * g.x, n = normalize(p - C);
+    vec3 rr = refract(rd, n, 1. / 1.33);
+    vec2 g2 = sph(p + rr * 1e-3, rr, C, R * .975);
+    vec3 lp = (p - C) + rr * 1e-3;
+    // the water sways for a moment after a shake: tilt the scene the other way, a touch
+    float s = SWAY; mat2 sw = mat2(cos(s), -sin(s), sin(s), cos(s)); lp.xy = sw * lp.xy; vec3 lr = rr; lr.xy = sw * lr.xy;
+    o = inside(lp, lr, max(g2.y, 0.));
+  }`;
+
+  // pass 2: the room, the table and the turned base, and the inside (from pass 1) through the glass
+  const FS_MAIN = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform sampler2D I; uniform float IS;
+  ${COMMON}
+  ${NOISE}
+  // the base's profile, turned on a lathe: a foot, a bead, a gently swelling body, a brass band, a cove and a lip with a bead for the glass
+  float body(float y) { float u = (y + .99) / .2; return .842 - .032 * u + .014 * sin(3.1416 * u); }
+  vec2 base(vec3 p) {
+    vec2 q = vec2(length(p.xz), p.y);
+    float d = sdBox2(q - vec2(0., -1.005), vec2(.862, .011)) - .004;
+    d = min(d, length(q - vec2(.848, -.975)) - .0145);
+    d = min(d, max(q.x - body(q.y), abs(q.y + .885) - .1));
+    float th = atan(p.x, p.z), y = q.y + .885;
+    float pl = max(q.x - body(q.y) - .006, sdBox2(vec2(th * .82, y + .002), vec2(.125, .046)) - .008);
+    float cove = max(sdBox2(q - vec2(0., -.731), vec2(.8, .031)), -(length(q - vec2(.8, -.7)) - .062));
+    d = min(d, cove);
+    d = min(d, sdBox2(q - vec2(0., -.6925), vec2(.736, .0075)) - .003);
+    vec2 r = vec2(d, 0.);
+    float band = sdBox2(q - vec2(0., -.776), vec2(.808, .012)) - .003;
+    if (band < r.x) r = vec2(band, 1.);
+    if (pl < r.x) r = vec2(pl, 2.);
+    float ring = length(q - vec2(.455, -.685)) - .013;
+    if (ring < r.x) r = vec2(ring, 1.);
+    return r;
+  }
+  vec3 bN(vec3 p) { const vec2 k = vec2(1., -1.); const float e = .0008;
+    return normalize(k.xyy * base(p + k.xyy * e).x + k.yyx * base(p + k.yyx * e).x + k.yxy * base(p + k.yxy * e).x + k.xxx * base(p + k.xxx * e).x); }
+  vec3 wood(vec3 p) {                                                              // walnut: the blank was cut across a log, so the rings arch
+    vec3 q = p - vec3(0., -1.75, .4);
+    float r = length(q.yz) * 26. + vn(vec2(p.x * 2.5, q.y * 3.)) * 1.8 + vn(p.xz * 8.) * .5;
+    float ring = fract(r), band = smoothstep(.0, .3, ring) * smoothstep(1., .5, ring);
+    float pores = vn(vec2(p.x * 220., length(q.yz) * 1200.));
+    return mix(vec3(.11, .05, .025), vec3(.26, .13, .06), band) * (.82 + .3 * pores);
+  }
+  vec3 engrave(vec2 u) {                                                           // the plaque: a double border and a six-armed snowflake
+    float b = abs(sdBox2(u, vec2(.11, .036)) + .006);
+    float b2 = abs(sdBox2(u, vec2(.11, .036)) + .011);
+    float a = atan(u.y, u.x), r = length(u);
+    float k = 3.1416 / 3.; float aa = mod(a + k * .5, k) - k * .5;
+    vec2 v = vec2(cos(aa), abs(sin(aa))) * r;
+    float arm = max(abs(v.y) - .0012, v.x - .026);
+    vec2 bv = v - vec2(.016, 0.); float br = abs(dot(bv, vec2(.6, -.8))) - .001; br = max(br, max(-bv.x, bv.x - .007));
+    float flake = min(arm, br);
+    return vec3(min(min(b, b2) - .0011, flake), 0., 0.);
   }
   void main() {
     vec3 rd = rayDir(gl_FragCoord.xy), ro = EYE, col;
-    // the floor and its sweep
+    // the table: dark, a pool of light from the window, the base's shadow, a warm glow from the globe
     float tf = (-1.02 - ro.y) / rd.y; vec3 fp = ro + rd * max(tf, 0.);
-    col = studio(rd) * .25;
-    if (tf > 0.) { float r = length(fp.xz);
-      vec3 fl = vec3(.022, .021, .023) + vec3(.07, .06, .052) * exp(-r * r * .22);
-      fl *= 1. - .75 * smoothstep(1.15, .82, r);                      // the base's contact shadow
-      col = mix(fl, col, smoothstep(5., 11., tf)); }
-    // the base: a turned wooden plinth (a cylinder with a rounded top edge)
-    vec2 bc = vec2(1e9);
-    { vec3 oc = ro - vec3(0, -.85, 0); float a = dot(rd.xz, rd.xz), b = dot(oc.xz, rd.xz), c = dot(oc.xz, oc.xz) - .82 * .82, h = b * b - a * c;
-      if (h > 0.) { float t = (-b - sqrt(h)) / a; vec3 p = ro + rd * t; if (abs(p.y + .85) < .17) bc = vec2(t, 0.); }
-      float tt = (-.68 - ro.y) / rd.y; vec3 p = ro + rd * tt; if (tt > 0. && length(p.xz) < .82 && tt < bc.x) bc = vec2(tt, 1.); }
+    col = studio(rd) * .2;
+    if (tf > 0.) {
+      float r = length(fp.xz), rs = length(fp.xz - vec2(.3, .25));
+      vec3 fl = vec3(.016, .014, .013) + vec3(.07, .058, .05) * exp(-dot(fp.xz + vec2(.6, .3), fp.xz + vec2(.6, .3)) * .16);
+      fl *= (.6 + .4 * smoothstep(.85, 1.4, rs)) * (.25 + .75 * smoothstep(.862, 1.05, r));
+      fl += vec3(1., .55, .25) * .012 * exp(-pow(max(r - .86, 0.), 2.) * 12.) * smoothstep(-.2, .6, fp.z);
+      fl *= .9 + .1 * vn(fp.xz * vec2(3., 60.));
+      col = mix(fl, col, smoothstep(5., 11., tf));
+    }
     vec2 g = sph(ro, rd, C, R);
-    bool glass = g.x > 0. && g.x < bc.x;
-    if (bc.x < 1e8 && !glass) {
-      vec3 p = ro + rd * bc.x, n = bc.y > .5 ? vec3(0, 1, 0) : normalize(vec3(p.x, 0, p.z));
-      float grain = noise(vec2(atan(p.z, p.x) * 3., p.y * 90.)) * .5 + noise(vec2(atan(p.z, p.x) * 40., p.y * 300.)) * .5;
-      vec3 wood = mix(vec3(.16, .075, .035), vec3(.3, .15, .07), grain) * .9;
-      vec3 L = normalize(vec3(-.55, .75, .35)); float d = max(dot(n, L), 0.);
-      col = wood * (.18 + .9 * d) + studio(reflect(rd, n)) * .012;
-      col *= 1. - .6 * smoothstep(.3, .0, length(p.xz) - .55) * step(.5, bc.y);   // the globe's contact shadow on the top
+    // the base: march the turned profile inside its bounding cylinder
+    float tb = 1e9; vec2 bh = vec2(0.);
+    { vec3 oc = ro; float a = dot(rd.xz, rd.xz), b = dot(oc.xz, rd.xz), c = dot(oc.xz, oc.xz) - .875 * .875, h = b * b - a * c;
+      if (h > 0.) { h = sqrt(h); float t0 = (-b - h) / a, t1 = (-b + h) / a;
+        float y0 = (-.66 - ro.y) / rd.y; t0 = max(t0, y0);
+        float t = t0;
+        if (t < t1 && (g.x < 0. || g.x > t0)) for (int i = 0; i < 64; i++) { vec3 p = ro + rd * t; bh = base(p); if (bh.x < .0004) { tb = t; break; } t += bh.x; if (t > t1) break; }
+      } }
+    bool glass = g.x > 0. && g.x < tb;
+    if (tb < 1e8 && !glass) {
+      vec3 p = ro + rd * tb, n = bN(p), rf = reflect(rd, n);
+      float fr = .04 + .96 * pow(1. - max(dot(-rd, n), 0.), 5.);
+      float kd = max(dot(n, KD), 0.), wd = max(dot(n, WD), 0.);
+      float occ = 1. - .6 * smoothstep(.22, .0, length(p.xz) - .44) * smoothstep(-.6, -.7, p.y);     // under the globe
+      occ *= .55 + .45 * smoothstep(-1.02, -.99, p.y);
+      if (bh.y < .5) {
+        vec3 w = wood(p);
+        col = w * (vec3(.62, .74, 1.) * .55 * kd + vec3(1., .6, .3) * .25 * wd + .05) * occ;
+        col += studio(rf) * fr * .55 * occ;                                       // the varnish
+        col += vec3(1., .55, .25) * .08 * w * smoothstep(-.72, -.68, p.y) * max(n.y, 0.);   // the globe's warm light on the top
+      } else {
+        vec3 brass = vec3(1., .72, .36);
+        float eng = 1.;
+        if (bh.y > 1.5) { float y = p.y + .885, th = atan(p.x, p.z); eng = smoothstep(.0, .0012, engrave(vec2(th * .82, y)).x); brass *= .85 + .15 * vn(vec2(th * 400., y * 40.)); }
+        col = brass * (studio(rf) * .9 + (vec3(.62, .74, 1.) * .12 * kd + .02)) * occ * mix(.25, 1., eng);
+      }
+      // a thin caustic: light gathered by the water lands on the lip in front of the glass
+      float lr = length(p.xz);
+      col += vec3(.8, .85, 1.) * .22 * smoothstep(.035, .0, abs(lr - .51)) * smoothstep(.3, .95, dot(normalize(p.xz), normalize(vec2(.55, .6)))) * step(-.7, p.y);
+
     }
     if (glass) {
       vec3 p = ro + rd * g.x, n = normalize(p - C);
-      vec3 rr = refract(rd, n, 1. / 1.33);
-      vec2 g2 = sph(p + rr * 1e-3, rr, C, R * .975);
-      float tmax = max(g2.y, .0);
-      vec3 lp = (p - C) + rr * 1e-3;
-      // the water sways for a moment after a shake: tilt the scene the other way, a touch
-      float s = SWAY; mat2 sw = mat2(cos(s), -sin(s), sin(s), cos(s)); lp.xy = sw * lp.xy; vec3 lr = rr; lr.xy = sw * lr.xy;
-      col = inside(lp, lr, tmax);
-      col *= mix(1., .45, pow(1. - max(dot(-rd, n), 0.), 2.5));      // the glass thickens toward the rim
+      vec2 uv = gl_FragCoord.xy * IS; vec3 inner = texture(I, uv / (RES * IS)).rgb;
+      col = inner * mix(1., .42, pow(1. - max(dot(-rd, n), 0.), 2.5));           // the glass thickens toward the rim
     }
     o = vec4(col, 1.);
   }`;
 
-  // pass 2: the flakes, as soft discs
+  // pass 3: the flakes, as soft discs, each where the eye sees it through the water
   const VS_FLAKE = `#version 300 es
   layout(location=0) in vec4 a;                                       // xyz in the globe, w: size
-  uniform mat4 VP; uniform vec2 RES; out float sz, dep;
+  layout(location=1) in float al;                                     // 1 drifting, fading to a trace once it rests
+  uniform mat4 VP; uniform vec2 RES; uniform vec3 EL; uniform float SWAY;
+  out float va, vs, vd; out vec3 vc;
+  const vec3 LPO = ${V3(LPO)}, LLP = ${V3(LLP)}, WIN1 = ${V3(WIN1)}, WIN2 = ${V3(WIN2)}, WIN3 = ${V3(WIN3)};
   void main() {
-    vec3 p = a.xyz; float r = length(p);
-    p *= 1. + .26 * (1. - r * r);                                     // the water lens magnifies toward the middle
-    vec4 c = VP * vec4(p + vec3(0., .22, 0.), 1.);
-    gl_Position = c; sz = a.w; dep = c.w;
-    gl_PointSize = a.w * RES.y * .017 / c.w;
+    vec3 P = a.xyz;
+    if (al < .99) { float s = -SWAY; P.xy = mat2(cos(s), -sin(s), sin(s), cos(s)) * P.xy; }   // resting flakes ride with the scene
+    // find the eye ray that refracts through P. The bend happens in the plane through the eye, the flake and the
+    // centre, so it is a search along one arc of the glass for the point where Snell's law holds (bisection)
+    float e = length(EL); vec3 ex = EL / e, pp = P - ex * dot(P, ex); float pq = length(pp);
+    vec3 ey = pq > 1e-5 ? pp / pq : vec3(0., 1., 0.);
+    vec2 P2 = vec2(dot(P, ex), pq), E2 = vec2(e, 0.);
+    float lo = 0., hi = acos(1. / e), fe = 0.;
+    vec2 Xm = vec2(cos(hi), sin(hi));                                    // at the silhouette: if Snell still fails there, the glass cannot show it
+    float fm = (Xm.x * normalize(Xm - E2).y - Xm.y * normalize(Xm - E2).x) - 1.33 * (Xm.x * normalize(P2 - Xm).y - Xm.y * normalize(P2 - Xm).x);
+    for (int k = 0; k < 18; k++) {
+      float ph = .5 * (lo + hi); vec2 X2 = vec2(cos(ph), sin(ph));
+      vec2 d1 = normalize(X2 - E2), d2 = normalize(P2 - X2);
+      fe = (X2.x * d1.y - X2.y * d1.x) - 1.33 * (X2.x * d2.y - X2.y * d2.x);
+      if (fe < 0.) lo = ph; else hi = ph;
+    }
+    float ph = .5 * (lo + hi);
+    vec3 X = ex * cos(ph) + ey * sin(ph), d = normalize(X - EL);
+    float s = length(P - X);
+    vec4 c = VP * vec4(X + vec3(0., .22, 0.), 1.);
+    gl_Position = c;
+    float soft = clamp(1. - s * 2.6, 0., 1.);                          // flakes close to the front glass are out of focus
+    vd = s; vs = soft;
+    float w = 0.;
+    w += .0016 / (dot(P - LPO, P - LPO) + .002) + .0024 / (dot(P - LLP, P - LLP) + .002);
+    w += .0007 / (dot(P - WIN1, P - WIN1) + .003) + .0007 / (dot(P - WIN2, P - WIN2) + .003) + .0005 / (dot(P - WIN3, P - WIN3) + .003);
+    vc = vec3(.62, .7, .9) * .9 + vec3(1., .55, .22) * w;
+    float rim = mix(1., .45, pow(1. - max(dot(-d, X), 0.), 2.5));
+    va = al * rim / (1. + soft * 1.4) * step(0., fm);
+
+    gl_PointSize = max(1.5, a.w * RES.y * .019 / c.w * (1. + soft * 1.1));
   }`;
   const FS_FLAKE = `#version 300 es
-  precision highp float; in float sz, dep; out vec4 o;
+  precision highp float; in float va, vs, vd; in vec3 vc; out vec4 o;
+  uniform sampler2D I; uniform float IS;
   void main() { vec2 q = gl_PointCoord * 2. - 1.; float d = dot(q, q); if (d > 1.) discard;
-    float a = smoothstep(1., .3, d) * .9; o = vec4(vec3(.95, .97, 1.) * (.75 + .25 * (1. - q.y)), a); }`;
+    float th = texelFetch(I, ivec2(gl_FragCoord.xy * IS), 0).a;
+    float vis = smoothstep(.015, -.005, vd - th);                     // behind the cabin or a tree: hidden
+    float a = smoothstep(1., .1 + .2 * (1. - vs), d) * va * vis;
+    o = vec4(vc * (.8 + .2 * (1. - q.y)), a); }`;
 
-  // pass 3: the glass itself, reflections and highlights over everything
+  // pass 4: the glass itself, reflections over everything
   const FS_GLASS = `#version 300 es
   precision highp float; out vec4 o;
   ${COMMON}
@@ -148,51 +640,72 @@ export default function (stage) {
     vec3 rd = rayDir(gl_FragCoord.xy); vec2 g = sph(EYE, rd, C, R);
     if (g.x < 0.) discard;
     vec3 p = EYE + rd * g.x, n = normalize(p - C);
-    float f = .04 + .96 * pow(1. - max(dot(-rd, n), 0.), 5.);
-    vec3 refl = studio(reflect(rd, n));
-    vec3 col = refl * f * 1.3 + vec3(.6, .7, .8) * pow(1. - max(dot(-rd, n), 0.), 3.) * .06;
-    float a = clamp(max(max(col.r, col.g), col.b), 0., 1.);
-    o = vec4(col / max(a, 1e-3), a);
+    float c = max(dot(-rd, n), 0.), f = .04 + .96 * pow(1. - c, 5.);
+    vec3 rf = reflect(rd, n);
+    vec3 col = studio(rf) * f * 1.4;
+    col += vec3(.8, .9, 1.) * 30. * pow(max(dot(rf, normalize(KD + vec3(.06, .1, 0.))), 0.), 2400.);   // a pin-sharp glint
+    col += vec3(.5, .6, .75) * .05 * pow(1. - c, 4.) + vec3(.7, .8, 1.) * .03 * smoothstep(.12, .0, c);  // the rim, where the glass is seen edge on
+    o = vec4(col, clamp(f * 1.1, 0., 1.));
   }`;
   const FS_POST = `#version 300 es
   precision highp float; out vec4 o; uniform sampler2D S; uniform vec2 RES;
   void main() { vec2 uv = gl_FragCoord.xy / RES; vec3 c = texture(S, uv).rgb;
     c = c * (2.51 * c + .03) / (c * (2.43 * c + .59) + .14);            // ACES-ish tone curve
     float v = length(uv - .5); c *= 1. - .35 * v * v;
-    o = vec4(pow(clamp(c, 0., 1.), vec3(1. / 2.2)), 1.); }`;
+    c = pow(clamp(c, 0., 1.), vec3(1. / 2.2));
+    c += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - .5) / 255.;   // dither the dark gradients
+    o = vec4(c, 1.); }`;
   const VS_FULL = `#version 300 es
   void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2. - 1., 0., 1.); }`;
 
   const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
   const program = (vs, fs) => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); const u = {}; return { p, u: n => (u[n] ??= gl.getUniformLocation(p, n)) }; };
-  const pScene = program(VS_FULL, FS_SCENE), pGlass = program(VS_FULL, FS_GLASS), pPost = program(VS_FULL, FS_POST), pFlake = program(VS_FLAKE, FS_FLAKE);
+  const pIn = program(VS_FULL, FS_INSIDE), pMain = program(VS_FULL, FS_MAIN), pGlass = program(VS_FULL, FS_GLASS), pPost = program(VS_FULL, FS_POST), pFlake = program(VS_FLAKE, FS_FLAKE);
   const empty = gl.createVertexArray();
 
-  // HDR target (linear light), then tone mapped to the canvas
-  const half = !!gl.getExtension('EXT_color_buffer_float') || !!gl.getExtension('EXT_color_buffer_half_float');
-  let fbo = null, tex = null, W = 1, H = 1;
+  // HDR targets (linear light): the inside of the globe, and the whole frame, then tone mapped to the canvas
+  const half = !!gl.getExtension('EXT_color_buffer_float');
+  const IS = 1;                                                       // the inside's resolution, relative to the frame
+  let fbo = null, tex = null, fboI = null, texI = null, W = 1, H = 1, WI = 1, HI = 1;
+  const target = (w, h, filter) => {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, half ? gl.RGBA16F : gl.RGBA8, w, h, 0, gl.RGBA, half ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return [f, t];
+  };
   const resize = () => {
     const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.6, Math.sqrt(900000 / (w * h))));
     W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0);
-    if (tex) gl.deleteTexture(tex); if (fbo) gl.deleteFramebuffer(fbo);
-    tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, half ? gl.RGBA16F : gl.RGBA8, W, H, 0, gl.RGBA, half ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    WI = Math.max(1, Math.round(W * IS)); HI = Math.max(1, Math.round(H * IS));
+    for (const t of [tex, texI]) if (t) gl.deleteTexture(t);
+    for (const f of [fbo, fboI]) if (f) gl.deleteFramebuffer(f);
+    [fbo, tex] = target(W, H, gl.LINEAR); [fboI, texI] = target(WI, HI, gl.LINEAR);
   };
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
   // ---- the snow: positions inside the globe (radius .94), a decaying swirl in the water
   const N = Math.max(200, Math.min(3000, Math.round(PARAMS.flakes)));
-  const fp = new Float32Array(N * 4), fv = new Float32Array(N * 3), rest = new Uint8Array(N);
+  const fp = new Float32Array(N * 4), fv = new Float32Array(N * 3), fa = new Float32Array(N), rest = new Uint8Array(N);
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const groundY = (x, z) => -0.42 + 0.09 * Math.exp(-(x * x + z * z) * 2.6);
+  // where a falling flake comes to rest: the snow, or the roof's snow where it is over the cabin
+  const landY = (x, z) => {
+    let y = groundY(x, z);
+    const [lx, lz] = toCab(x, z);
+    if (Math.abs(lx) < HL + 0.035 && Math.abs(lz) < EZ + 0.008) y = Math.max(y, CAB[1] + CK * (HH + RH + 0.046 - Math.abs(lz) * (RNv[0] / RNv[1])));
+    return y;
+  };
   for (let i = 0; i < N; i++) {
-    // start settled on the ground, with a few still drifting
-    const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * 0.86, x = Math.cos(a) * r, z = Math.sin(a) * r;
-    fp[i * 4] = x; fp[i * 4 + 2] = z; fp[i * 4 + 1] = Math.max(groundY(x, z), -Math.sqrt(Math.max(0, 0.9 - x * x - z * z))) + 0.004; fp[i * 4 + 3] = 0.5 + rnd() * 1.1; rest[i] = 1;
+    // start settled on the ground; most flakes are small, a few are big and drift slowly
+    const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * 0.86, x = Math.cos(a) * r, z = Math.sin(a) * r, k = rnd();
+    fp[i * 4] = x; fp[i * 4 + 2] = z; fp[i * 4 + 1] = Math.max(landY(x, z), -Math.sqrt(Math.max(0, 0.9 - x * x - z * z))) + 0.004;
+    fp[i * 4 + 3] = k < 0.035 ? 2.1 + rnd() * 0.8 : k < 0.18 ? 1.15 + rnd() * 0.7 : 0.45 + rnd() * 0.7; rest[i] = 1; fa[i] = 0.12;
   }
-  const fbuf = gl.createBuffer(), fvao = gl.createVertexArray(); gl.bindVertexArray(fvao); gl.bindBuffer(gl.ARRAY_BUFFER, fbuf); gl.bufferData(gl.ARRAY_BUFFER, fp, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+  const fbuf = gl.createBuffer(), abuf = gl.createBuffer(), fvao = gl.createVertexArray(); gl.bindVertexArray(fvao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, fbuf); gl.bufferData(gl.ARRAY_BUFFER, fp, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, abuf); gl.bufferData(gl.ARRAY_BUFFER, fa, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(null);
   let swirl = 0, swirlAxis = 1, turb = 0, sway = 0, swayV = 0;
   const shake = (power, dir = 1) => {
     swirl = Math.min(3, swirl + 1.6 * power); swirlAxis = dir; turb = Math.min(2.5, turb + 1.4 * power); swayV += 1.4 * power * dir;
@@ -202,18 +715,19 @@ export default function (stage) {
     swirl *= Math.exp(-dt * 0.42); turb *= Math.exp(-dt * 0.55);
     swayV += (-30 * sway - 3.2 * swayV) * dt; sway += swayV * dt;
     for (let i = 0; i < N; i++) {
-      if (rest[i]) continue;
-      const k = i * 4, j = i * 3; let x = fp[k], y = fp[k + 1], z = fp[k + 2];
+      if (rest[i]) { fa[i] = Math.max(0.12, fa[i] - dt * 0.7); continue; }
+      fa[i] = 1;
+      const k = i * 4, j = i * 3, big = fp[k + 3] > 2; let x = fp[k], y = fp[k + 1], z = fp[k + 2];
       // the water: a swirl about the vertical axis plus an overturning roll, and some eddies
       const ux = (-z * swirl * swirlAxis + Math.sin(y * 5 + i) * turb * 0.25), uz = (x * swirl * swirlAxis + Math.cos(x * 4 + i * 0.7) * turb * 0.25);
-      const uy = (Math.sin(x * 3.1 + z * 2.3 + i * 0.13) * turb * 0.35) - 0.03;
-      const drag = 2.6;
-      fv[j] += (ux - fv[j]) * drag * dt; fv[j + 1] += (uy - fv[j + 1]) * drag * dt - 0.05 * dt; fv[j + 2] += (uz - fv[j + 2]) * drag * dt;
+      const uy = (Math.sin(x * 3.1 + z * 2.3 + i * 0.13) * turb * 0.35) - (big ? 0.018 : 0.03);
+      const drag = big ? 1.6 : 2.6;
+      fv[j] += (ux - fv[j]) * drag * dt; fv[j + 1] += (uy - fv[j + 1]) * drag * dt - (big ? 0.03 : 0.05) * dt; fv[j + 2] += (uz - fv[j + 2]) * drag * dt;
       x += fv[j] * dt; y += fv[j + 1] * dt; z += fv[j + 2] * dt;
       // the glass: keep inside, slide along it
       const r = Math.hypot(x, y, z); if (r > 0.94) { x *= 0.94 / r; y *= 0.94 / r; z *= 0.94 / r; }
-      // the ground and the scene: land and rest when the water is calm enough
-      const gy = groundY(x, z);
+      // the ground and the roof: land and rest when the water is calm enough
+      const gy = landY(x, z);
       if (y < gy + 0.004) { y = gy + 0.004; if (Math.hypot(fv[j], fv[j + 2]) < 0.25 + turb * 0.1) { rest[i] = 1; fv[j] = fv[j + 1] = fv[j + 2] = 0; } else fv[j + 1] = Math.abs(fv[j + 1]) * 0.3; }
       fp[k] = x; fp[k + 1] = y; fp[k + 2] = z;
     }
@@ -225,8 +739,9 @@ export default function (stage) {
   const norm = a => { const l = Math.hypot(...a) || 1; return a.map(x => x / l); };
   let cam = {};
   const camera = yaw => {
-    const a = W / H, d = Math.max(5.6, 5.0 / Math.min(1, a * 0.62));
-    const eye = [Math.sin(yaw) * d, 0.62, Math.cos(yaw) * d], at = [0, 0.1, 0];
+    const a = W / H, d = Math.max(5.6, 4.7 / a);                       // narrow stages: back off until the globe fits the width
+
+    const eye = [Math.sin(yaw) * d, 1.0, Math.cos(yaw) * d], at = [0, 0.06, 0];
     const f = norm(sub(at, eye)), r = norm(cross(f, [0, 1, 0])), u = cross(r, f), FOC = 2.0;
     // the same lens as the rays: a pixel's offset from the centre in units of the height is (x, y) · FOC / depth
     const P = [2 * FOC / a, 0, 0, 0, 0, 2 * FOC, 0, 0, 0, 0, -1.0004, -1, 0, 0, -0.02, 0];
@@ -249,21 +764,31 @@ export default function (stage) {
     gl.uniform2f(P.u('RES'), W, H); gl.uniform3fv(P.u('EYE'), cam.eye); gl.uniform3fv(P.u('FWD'), cam.f); gl.uniform3fv(P.u('RGT'), cam.r); gl.uniform3fv(P.u('UPV'), cam.u);
     gl.uniform1f(P.u('FOC'), cam.FOC); gl.uniform1f(P.u('T'), t); gl.uniform1f(P.u('SWAY'), sway * 0.12);
   };
-  let raf, last = performance.now(), t = 0, nextShake = 1.2;
+  let raf, last = performance.now(), t = reduce ? 4 : 0, nextShake = 1.2;
   if (reduce) { shake(0.6); for (let i = 0; i < 150; i++) step(1 / 60); }    // a still with snow mid-fall
   function frame(now) {
     const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
     if (!reduce) { t += dt; if (t > nextShake && !dragging) { shake(0.9 * PARAMS.shake, rnd() < 0.5 ? -1 : 1); nextShake = t + PARAMS.every; } step(dt); }
     camera(reduce ? 0.12 : 0.18 * Math.sin(t * 0.11));
-    gl.bindBuffer(gl.ARRAY_BUFFER, fbuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, fp);
+    // the inside of the globe, at its own resolution
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboI); gl.viewport(0, 0, WI, HI); gl.disable(gl.BLEND);
+    gl.useProgram(pIn.p); setCommon(pIn); gl.uniform2f(pIn.u('RES'), WI, HI); gl.bindVertexArray(empty); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // the room, the base, and the inside through the glass
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); gl.viewport(0, 0, W, H);
-    gl.disable(gl.BLEND); gl.useProgram(pScene.p); setCommon(pScene); gl.bindVertexArray(empty); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.useProgram(pMain.p); setCommon(pMain); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texI); gl.uniform1i(pMain.u('I'), 0); gl.uniform1f(pMain.u('IS'), WI / W); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // the flakes
+    gl.bindBuffer(gl.ARRAY_BUFFER, fbuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, fp); gl.bindBuffer(gl.ARRAY_BUFFER, abuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, fa);
     gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.useProgram(pFlake.p); gl.uniformMatrix4fv(pFlake.u('VP'), false, cam.VP); gl.uniform2f(pFlake.u('RES'), W, H); gl.bindVertexArray(fvao); gl.drawArrays(gl.POINTS, 0, N);
+    gl.useProgram(pFlake.p); gl.uniformMatrix4fv(pFlake.u('VP'), false, cam.VP); gl.uniform2f(pFlake.u('RES'), W, H);
+    gl.uniform3f(pFlake.u('EL'), cam.eye[0], cam.eye[1] - 0.22, cam.eye[2]); gl.uniform1f(pFlake.u('SWAY'), sway * 0.12);
+    gl.uniform1i(pFlake.u('I'), 0); gl.uniform1f(pFlake.u('IS'), WI / W);
+    gl.bindVertexArray(fvao); gl.drawArrays(gl.POINTS, 0, N);
+    // the glass: reflection added over what it lets through
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(pGlass.p); setCommon(pGlass); gl.bindVertexArray(empty); gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.disable(gl.BLEND);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
-    gl.useProgram(pPost.p); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(pPost.u('S'), 0); gl.uniform2f(pPost.u('RES'), W, H); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.useProgram(pPost.p); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(pPost.u('S'), 0); gl.uniform2f(pPost.u('RES'), W, H); gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (!reduce) raf = requestAnimationFrame(frame);
   }
   if (reduce) frame(performance.now()); else raf = requestAnimationFrame(frame);

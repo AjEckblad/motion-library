@@ -484,7 +484,7 @@ export const MORE = [
     params: { every: P(2, 10, 0.5, 'Turn every (s)'), curl: P(0, 2, 0.05, 'Curl'), speed: P(0.4, 2.5, 0.1, 'Speed') } },
   { id: 'snow-globe', cat: 'chrome', title: 'Snow globe', kind: 'webgl', posterAt: 2500, pointer: true,
     trick: 'A ray-marched scene seen through refracting water, with settling snow',
-    notes: ['A glass globe on a wooden base, with a cabin and pines inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.', 'Rays bend into the water at the glass, so the scene is magnified and wraps at the rim; the snow rides a swirl that dies away, sinks, and rests where it lands.'],
+    notes: ['A water-filled glass globe on a turned walnut base, with a moonlit log cabin, snowy firs, a snowman and a lamp post inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.', 'The scene is ray-marched after each ray bends into the water at the glass, so it is magnified and wraps at the rim; the windows throw pools of light traced back through their openings, and each flake is placed by solving for the eye ray that refracts through it, so it hides behind the cabin and trees.'],
     params: { flakes: P(200, 3000, 50, 'Flakes'), shake: P(0.2, 2, 0.05, 'Shake'), every: P(4, 20, 1, 'Shake every (s)') } },
   { id: 'dynamic-island', cat: 'morph', title: 'Dynamic island', kind: 'dom', posterAt: 10500, pointer: true,
     trick: 'One black box clipped to three springs: width, height and corner radius',

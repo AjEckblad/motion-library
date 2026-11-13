@@ -68,8 +68,8 @@ export const FR = {
   "title": "Boule à neige",
   "trick": "Une scène en ray marching vue à travers l’eau qui réfracte, avec de la neige qui se dépose",
   "notes": [
-   "Une boule de verre sur un socle en bois, avec un chalet et des sapins à l’intérieur ; de temps en temps on la secoue et la neige tourbillonne puis retombe. Faites glisser dessus pour la secouer.",
-   "Les rayons se courbent en entrant dans l’eau à travers le verre, si bien que la scène est agrandie et se déforme au bord ; la neige suit un tourbillon qui s’éteint, coule et reste où elle tombe."
+   "Une boule à neige remplie d’eau sur un socle tourné en noyer, avec une cabane en rondins sous la lune, des sapins enneigés, un bonhomme de neige et un réverbère ; de temps en temps on la secoue et la neige tourbillonne puis retombe. Faites-la glisser de côté pour la secouer.",
+   "La scène est rendue par ray marching après que chaque rayon s’est courbé en entrant dans l’eau à travers le verre, elle paraît donc agrandie et s’enroule au bord ; les fenêtres projettent des flaques de lumière retracées à travers leurs ouvertures, et chaque flocon est placé en cherchant le rayon de l’œil qui se réfracte jusqu’à lui, si bien qu’il se cache derrière la cabane et les arbres."
   ]
  },
  "page-turn": {

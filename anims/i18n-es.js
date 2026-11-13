@@ -68,8 +68,8 @@ export const ES = {
   "title": "Bola de nieve",
   "trick": "Una escena por ray marching vista a través del agua que refracta, con nieve que se posa",
   "notes": [
-   "Una bola de cristal sobre una base de madera, con una cabaña y pinos dentro; de vez en cuando se agita y la nieve sube en remolino y se posa. Arrastra sobre ella para agitarla.",
-   "Los rayos se doblan al entrar en el agua por el cristal, así que la escena se amplía y se curva en el borde; la nieve sigue un remolino que se apaga, se hunde y se queda donde cae."
+   "Un globo de cristal lleno de agua sobre una base de nogal torneada, con una cabaña de troncos a la luz de la luna, abetos nevados, un muñeco de nieve y una farola; de vez en cuando se agita y la nieve gira y vuelve a posarse. Arrástralo de lado para agitarlo.",
+   "La escena se traza con ray marching después de que cada rayo se desvía al entrar en el agua por el cristal, así que se ve ampliada y se curva en el borde; las ventanas proyectan charcos de luz trazados hacia atrás por sus huecos, y cada copo se coloca buscando el rayo de la vista que se refracta a través de él, de modo que se oculta tras la cabaña y los árboles."
   ]
  },
  "page-turn": {
