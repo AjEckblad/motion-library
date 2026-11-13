@@ -5,6 +5,12 @@ short crests, swell only ~0.55 m; tank = auto-rock 0.21 rad in 0.45 s on a stiff
 push 13% g, no speed cap (pointer too); honey = flat orange plastic pool, white stripe at top, reflection bar, coil like
 clear tubing with a white spot, constant-thickness thread, dark outline at the mound; ferrofluid = hairbrush on a
 silver box (uniform needles in rows, no fillets, jagged sawtooth film edge over chrome, flat disc puddle, dull spikes).
+LEAD DONE, committed locally 69153d3 (NOT pushed, no static build yet): ocean = wind toward camera + right (windDir
+pi/2-0.42; verified: FFT waves travel along +k), wind-sea spread max(5,s), swell 10 s Hs~1.4 m within 0.14 rad and
+s=24, wind-sea energy x2.1, chop default 1.6->1.15 (else foam everywhere); tank = VMAX 0.2 rad/s, AMAX 0.45, braking
+follower + 0.15 s accel smoothing, minimum-jerk auto rock (2 s lean, 2.4 hold, 2 s back, 1 s rest; 14.8 s cycle),
+posterAt 5200->10000; notes in 4 languages; motion-check resting-mouse test now reads at 3.5 s. check 88/89 (only
+versions.js, fixed by the build), motion-check 22/22.
 Agents A (honey-coil.js) and B (ferrofluid.js) edit only their file and report registry text in 4 languages,
 posterAt, evidence. If a new session finds them gone, their files hold uncommitted work: review before shipping.
 
