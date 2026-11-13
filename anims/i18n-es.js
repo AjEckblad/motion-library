@@ -332,8 +332,8 @@ export const ES = {
   "title": "Colada de lava",
   "trick": "Lava simulada sobre un volcán erosionado, con luz de cuerpo negro",
   "notes": [
-   "Un volcán al anochecer: la lava rebosa del cráter por barrancos erosionados, se cubre de costra y se agrieta, y su brillo ilumina las laderas y la columna.",
-   "Una simulación de grosor y calor corre sobre la montaña trazada por rayos; el color sale de la ley de Planck, así las grietas brillan y la costra se apaga en rojo."
+   "Un volcán al anochecer: la lava al rojo vivo brota del cráter y baja por los barrancos en canales incandescentes, con balsas oscuras de costra a la deriva, y su luz tiñe las laderas y la columna.",
+   "Una simulación de espesor y calor corre sobre la montaña trazada por rayos; el cráter da pulsos, las placas de costra cuajan cada una a su edad y viajan con el flujo, y el color sigue la ley de Planck."
   ]
  },
  "ferrofluid": {

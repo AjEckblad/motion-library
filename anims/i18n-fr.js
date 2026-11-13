@@ -332,8 +332,8 @@ export const FR = {
   "title": "Coulée de lave",
   "trick": "Lave simulée sur un volcan érodé, éclairée en corps noir",
   "notes": [
-   "Un volcan au crépuscule : la lave déborde du cratère dans les ravines, se couvre d’une croûte qui se fend, et sa lueur éclaire les pentes et le panache.",
-   "Une simulation d’épaisseur et de chaleur tourne sur la montagne tracée par rayons ; la couleur suit la loi de Planck, les fissures brillent et la croûte vire au rouge sombre."
+   "Un volcan au crépuscule : la lave rouge vif jaillit du cratère et dévale les ravines en chenaux incandescents, des radeaux de croûte sombre dérivant dessus, sa lueur sur les pentes et le panache.",
+   "Une simulation d’épaisseur et de chaleur tourne sur la montagne en raymarching ; le cratère pulse, chaque plaque de croûte fige à son âge et suit le courant, et la couleur suit la loi de Planck."
   ]
  },
  "ferrofluid": {

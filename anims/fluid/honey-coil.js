@@ -4,13 +4,17 @@
 // into the pool. Thin honey is pale gold, the deep mound almost red-brown, the thread glows where the backlight comes
 // through it, and the curved ropes focus the light into bright lines on the dish below. Move the pointer and the pour
 // follows it: dragged along, the coil is laid out as a trail of loops, like a sewing machine stitching in honey.
-// The trick: the coil is kinematic but physical. The contact point circles at the speed the rope arrives, so each
+// The trick: the coil is kinematic but physical. The contact point circles at the speed the rope arrives (its radius
+// and pace wander, it tightens as the pile rises, and now and then it flattens into folding back and forth and may
+// come out of it turning the other way, as real coiling does), so each
 // fresh loop is a real tube (a chain of capsules) that rests on the surface or on the loop beneath it, like stacked
 // rope, and sinks, faster the higher the stack stands. Once a loop has sunk by its radius it is melted into a height
 // field as exactly the half that still shows; there it softens and fades over a second, handing its volume to a
 // smooth mound that spreads by the thin-film (lubrication) equation, solved implicitly on the CPU. Each pixel
 // raymarches the thread, the loops and that surface, and colours them by Beer-Lambert absorption along the light's
 // path through the honey: refraction down to the dish, soft amber shadows, caustics where curved rope focuses light.
+// A melted loop still standing proud of the mound is lit like rope, so it keeps its colour as it melts, and the pool
+// mirrors the thread and coil as amber backlit rope.
 const PARAMS = { flow: 1, loops: 1.5, spread: 1 };
 
 export default function (stage) {
@@ -68,7 +72,7 @@ export default function (stage) {
   uniform sampler2D TB, TR; uniform vec4 BZ[10]; uniform vec4 BS; uniform vec3 NZ; uniform vec4 LV[64]; uniform vec4 LG[8]; uniform vec4 LS; uniform int NLV;
   uniform float A1, HMAX, H0, LB, LR, EXPO; uniform vec2 CC; uniform float CA;
   uniform vec3 CP, CF, CR, CU; uniform float FOC; uniform vec2 R; out vec4 o;
-  const vec3 SIG = vec3(.042, .15, .52);                  // honey's absorption per mm: blue goes first, then green
+  const vec3 SIG = vec3(.05, .15, .47);                  // honey's absorption per mm: blue goes first, then green
   const float ETA = 1.49;
   const vec3 LD = vec3(0., .94, -.342);                    // toward the key light: a softbox overhead, a little behind
   float hB(vec2 x) {                                    // cubic B-spline from four bilinear taps: smooth slopes
@@ -217,22 +221,32 @@ export default function (stage) {
     vec3 thr = vec3(1);
     float ys = (x.y - NZ.z) * LD.y / -LD.z;
     if (ys > NZ.y - 4.) {
-      float a = thR(ys), w = a + .16 * max(ys - h, 0.), dd = abs(x.x - NZ.x), ch = 2. * a * sqrt(max(1. - dd * dd / (w * w), 0.));
-      thr = mix(vec3(1), exp(-SIG * ch) * (.6 + 1.1 * exp(-pow(dd / (w * .25), 2.)) * a / w), smoothstep(w, w * .5, dd) * min(1., 2. * a / w + .3) * smoothstep(NZ.y - 4., NZ.y + 6., ys));
+      float a = thR(ys), w = a + .45 * max(ys - h, 0.), dd = abs(x.x - NZ.x), ch = 2. * a * sqrt(max(1. - dd * dd / (w * w), 0.));
+      thr = mix(vec3(1), exp(-SIG * ch) * (.6 + 1.1 * exp(-pow(dd / (w * .25), 2.)) * a / w), smoothstep(w, w * .3, dd) * min(1., 2.4 * a / w) * smoothstep(NZ.y - 4., NZ.y + 6., ys));
     }
     return vec3(1., .93, .84) * 2.6 * spot * foc * exp(-SIG * path) * thr;
   }
   vec3 shadePool(vec3 p, vec3 rd, vec3 n) {
     float c = max(dot(n, -rd), 0.), F = .039 + .961 * pow(1. - c, 5.);
     vec3 rr = reflect(rd, n), refl = env(p, rr, 1.);
-    // the glossy pool mirrors the thread and the coil, faintly
+    // the glossy pool mirrors the thread and the coil
     float tm = traceThread(p + rr * .05, rr);
     if (tm < 0.) tm = traceBend(p + rr * .05, rr);
     if (tm < 0.) tm = traceLive(p + rr * .05, rr);
-    if (tm > 0.) refl = vec3(1.15, .6, .19);
+    // seen in the mirror the rope is what it is up close: the backlight coming through its amber, plus the faint
+    // glow of what it scatters (not a flat cut-out)
+    if (tm > 0.) refl = env(p + rr * (tm + 1.5), rr, 1.) * exp(-SIG * 1.6) * 1.2 + vec3(.95, .5, .15) * .22;
     vec3 t = refract(rd, n, 1. / ETA); float lv = p.y / max(-t.y, .05);
     vec2 xb = p.xz + t.xz * lv;
     vec3 below = floorLight(xb) * vec3(.86, .84, .8) * .55 * exp(-SIG * lv);
+    // where a melted loop still stands proud of the mound it is still a rope: the backlight comes through it as it
+    // does through the fresh loops, so a loop keeps its colour as it melts instead of jumping to the mound's red
+    float rh = hR(p.xz);
+    if (rh > .02) {
+      float ch = min(2. * rh / max(-t.y, .4), 2.6 * CA), sct = 1. - exp(-ch * .55);
+      vec3 thru = env(p, rd, 2.6) * exp(-SIG * ch) * (1. - sct * .3) + vec3(.95, .5, .15) * sct * .3 * exp(-SIG * ch * .5);
+      below = mix(below, thru, smoothstep(.05, .6, rh / max(CA, .1)) * .85);
+    }
     vec3 col = refl * F + below * (1. - F);
     vec2 sc = p.xz - vec2(0., -10.);
     return col * (.12 + .88 * exp(-dot(sc, sc) / 5000.));   // the light falls away from the set
@@ -374,7 +388,10 @@ export default function (stage) {
   const DEP = new Float32Array(32), DEPY = new Float32Array(16); let nDep = 0;
 
   // the pour: a nozzle that drifts (or follows the pointer), a coil centre that lags it, a contact point circling
-  const noz = { x: 0, z: 0, vx: 0, vz: 0 }, coil = { phi: 0, x: RC0, z: 0 };
+  const noz = { x: 0, z: 0, vx: 0, vz: 0 }, coil = { phi: 0, x: RC0, z: 0, dir: 1, fold: false };
+  const hash1 = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+  const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const nz1 = (t, k) => { const i = Math.floor(t), f = t - i, u = f * f * (3 - 2 * f); return hash1(i + k * 57) * (1 - u) + hash1(i + 1 + k * 57) * u; };   // smooth 1D noise in 0..1
   let simT = 0, contactY = H0 + AL;
   let px = 0.5, py = 0.5, lastMove = -1e9, held = false;
   function advance(dt, follow, target) {
@@ -384,12 +401,20 @@ export default function (stage) {
     for (let s = 0; s < sub; s++) {
       noz.vx += (40 * (tx_ - noz.x) - 11 * noz.vx) * h; noz.vz += (40 * (tz_ - noz.z) - 11 * noz.vz) * h;
       noz.x += noz.vx * h; noz.z += noz.vz * h;
-      const rc = RC0 * (1 + 0.1 * Math.sin(simT * 0.71) + 0.05 * Math.sin(simT * 2.3)) * Math.sqrt(FLOW);
-      coil.phi += 2 * Math.PI * FREQ * (1 + 0.06 * Math.sin(simT * 0.53)) * h;
+      // the coil is never quite steady: its radius and pace wander, it tightens as the pile rises toward the nozzle,
+      // and now and then it flattens into folding, the rope swinging back and forth, and may come out of it turning
+      // the other way, as real coiling honey does
+      const pile = Math.min(1, Math.max(0, (contactY - H0 - AL) / 6));
+      const rc = RC0 * (0.8 + 0.34 * nz1(simT * 0.37, 1) + 0.05 * Math.sin(simT * 2.3)) * (1 - 0.22 * pile) * Math.sqrt(FLOW);
+      coil.phi += coil.dir * 2 * Math.PI * FREQ * (0.84 + 0.3 * nz1(simT * 0.5, 2)) * h;
+      const ecc = 0.9 * sstep(0.6, 0.82, nz1(simT * 0.12, 3)), psi = simT * 0.06 + 3 * nz1(simT * 0.05, 4);
+      if (ecc > 0.8 && !coil.fold) { coil.fold = true; if (hash1(Math.floor(simT * 0.12) + 7.3) > 0.5) coil.dir = -coil.dir; }
+      else if (ecc < 0.5) coil.fold = false;
       // the coil's centre trails the nozzle and slowly precesses, so loops land beside each other as well as on top
       let cx = noz.x - noz.vx * 0.32 + 1.2 * Math.cos(simT * 0.83), cz = noz.z - noz.vz * 0.32 + 1.2 * Math.sin(simT * 0.83);
       cx = Math.max(-12, Math.min(12, cx)); cz = Math.max(-12, Math.min(12, cz));
-      coil.x = cx + rc * Math.cos(coil.phi); coil.z = cz + rc * Math.sin(coil.phi);
+      const ux = rc * Math.cos(coil.phi), uz = rc * (1 - ecc) * Math.sin(coil.phi), cs = Math.cos(psi), sn = Math.sin(psi);
+      coil.x = cx + ux * cs - uz * sn; coil.z = cz + ux * sn + uz * cs;
       const lp = live[live.length - 1];
       if (!lp || Math.hypot(coil.x - lp.x, coil.z - lp.z) >= spacing) live.push({ x: coil.x, z: coil.z, y: landY(coil.x, coil.z), age: 0 });
     }

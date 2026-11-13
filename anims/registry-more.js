@@ -60,7 +60,7 @@ export const MORE = [
     params: { heat: P(0.2, 2, 0.05, 'Heat'), cooling: P(0.85, 0.99, 0.005, 'Heat persistence'), curl: P(0, 50, 1, 'Curl') } },
   { id: 'lava-flow', cat: 'fluid', title: 'Lava flow', kind: 'webgl', posterAt: 6000,
     trick: 'Lava simulated on an eroded volcano, lit by blackbody light',
-    notes: ['A volcano at dusk: lava spills from the crater down eroded gullies, crusting and cracking, its glow lighting the slopes and plume.', 'A thickness-and-heat simulation runs on the raymarched mountain; colour is Planck’s law, so cracks glow and crust goes dull red.'],
+    notes: ['A volcano at dusk: red-hot lava pours from the crater and runs down the gullies in glowing channels, dark rafts of crust drifting on it, its light on the slopes and plume.', 'A thickness-and-heat simulation runs on the raymarched mountain; the vent surges, crust plates set at their own age and ride the flow, and colour is Planck’s law.'],
     params: { flow: P(0.5, 1.6, 0.05, 'Flow'), cooling: P(0.4, 2.5, 0.1, 'Cooling'), speed: P(0.5, 1.5, 0.1, 'Speed') } },
   { id: 'ferrofluid', cat: 'fluid', title: 'Ferrofluid', kind: 'webgl', posterAt: 3800, pointer: true,
     trick: 'Rosensweig needles on a block magnet: concave cones on a hex lattice, raymarched as black mirrors',

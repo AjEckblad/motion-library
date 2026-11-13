@@ -5,12 +5,16 @@
 // ash follow from where it carved and where it built up. Then the lava is a simulation on that very terrain: each
 // cell holds a thickness and a temperature, and lava flows to lower neighbours at a rate that grows steeply with
 // its thickness and collapses as it cools (cold lava is hundreds of times stiffer), so it finds the gullies by
-// itself, builds levees and keeps a hot channel open down the middle. A crust ages on its surface and is torn
-// open where the flow runs fast; its plates are drawn on coordinates the flow carries along, so they drift,
-// stretch and crack apart. Every pixel is a ray marched over the terrain plus the lava. Lava's light is
+// itself, builds levees and keeps a hot channel open down the middle. The vent pulses, and every 16 s a surge of
+// fresh lava spills over and runs down the channels, so the glowing lava really flows down the mountain. A crust
+// ages on the surface (each plate sets at its own age, so dark rafts float on the running lava before it all
+// crusts over) and is torn open where the flow runs fast; lava that stops moving loses its heat, so old lobes go
+// dark with red cracks. The plates, and the cooler streaks on the molten surface, are drawn on coordinates the flow
+// carries along, so they drift, stretch into flow lines and crack apart. Every pixel is a ray marched over the terrain plus the lava. Lava's light is
 // blackbody radiation: three wavelengths through Planck's law, so a crack at 1150 °C glows yellow-orange and the
 // crust at 600 °C is a dull red a thousand times dimmer. That light is mipmapped from above and thrown back onto
-// the slopes around it; the crater lights the steam plume from below, and the plume rises through 3D noise.
+// the slopes around it; the crater lights the steam plume from below, and the plume rises through 3D noise. Up close the rock is
+// speckled, pitted scoria. On a narrow screen the camera steps back so it all fits; reduced motion shows one still.
 const PARAMS = { flow: 1, cooling: 1, speed: 1 };
 
 export default function (stage) {
@@ -119,9 +123,10 @@ export default function (stage) {
     age = (age + 1.) * (1. - clamp(fast / max(h, .1) * 2. - .03, 0., .08));   // older each step; only fast flow tears the skin
     vec2 dv = vec2(c) - VENT; float g = exp(-dot(dv, dv) / 30.);
     h += SRC * g; T = mix(T, 1., clamp(SRC * g * 6., 0., 1.)); age *= 1. - clamp(SRC * g * 40., 0., 1.);
-    T = max(0., T - COOL * T / (h + .25));
+    float still = smoothstep(.02, .0, fast / max(h, .1));         // lava that has stopped moving loses its heat for good
+    T = max(0., T - COOL * T / (h + .25) * (1. + 5. * still));
     h *= 1. - .0004 * smoothstep(.3, .12, T);                   // cold lava sets into rock
-    o = vec4(h, T, min(age, 5000.), 1);
+    o = vec4(h, T, min(age, 20000.), 1);
   }`);
   // a lava lake filling the crater to its lip, to start from
   const fillP = prog(`${SIMC} uniform vec2 VENT;
@@ -146,7 +151,7 @@ export default function (stage) {
   const PLANCK = `
   vec3 planck(float K) { vec3 l = vec3(.61, .55, .465); return pow(vec3(.61) / l, vec3(5.)) * exp(-14388. / l / K + 14388. / .61 / 1450.); }
   float kelvin(float T) { return 680. + 790. * T; }            // the simulation's 0..1 heat, in kelvin
-  float crustOf(float T, float age) { return max(smoothstep(6., 40., age), smoothstep(.62, .45, T)); }`;
+  float crustOf(float T, float age) { return max(smoothstep(700., 3600., age), smoothstep(.6, .42, T)); }`;
   // what the lava gives off, seen from above, with mipmaps: the light it throws on everything near it
   const emitP = prog(`${SIMC} ${PLANCK}
   void main() { vec4 s = texelFetch(S, ivec2(gl_FragCoord.xy), 0);
@@ -262,10 +267,14 @@ export default function (stage) {
     vec3 alb = mix(vec3(.06, .055, .055), vec3(.13, .115, .1), smoothstep(.02, -.06, ero) * .7 + .3 * fine);
     alb = mix(alb, vec3(.035, .032, .034), smoothstep(.04, .12, ero));
     alb *= .8 + .4 * fine;
+    // up close: vesicular scoria, speckled, with dark pits and the odd paler clinker
+    float near = smoothstep(7., 2.5, t), sc = n3(vec3(p.xz * 27., .35)), pit = n3(vec3(p.xz * 71., .15));
+    alb *= mix(1., (.7 + .6 * sc) * (1. - .55 * smoothstep(.62, .8, pit)), near);
+    alb = mix(alb, vec3(.16, .12, .1), smoothstep(.78, .9, n3(vec3(p.xz * 19., .85))) * near * .5);
     float r = length(p.xz);
     vec3 amb = mix(vec3(.035, .032, .038), vec3(.06, .07, .11), n.y * .5 + .5) * .65;
     vec3 twl = vec3(.35, .18, .12) * max(dot(n, normalize(TW + vec3(0, .25, 0))), 0.) * .18;     // the last of the afterglow
-    vec3 gl = glowAt(p.xz) * (.5 + .5 * n.y) * 1.6;
+    vec3 gl = glowAt(p.xz) * (.5 + .5 * n.y) * 2.;
     vec3 cp = vec3(0., 2.55, 0.) - p; float cd = length(cp);   // the crater's lake, lighting its walls and the rim
     vec3 cl = vec3(1., .38, .1) * 1.4 * max(dot(n, cp / cd), 0.) / (cd * cd * 1.5 + .25);
     vec3 col = alb * (amb + twl + gl + cl);
@@ -274,15 +283,24 @@ export default function (stage) {
       // margins and the crust's edge are broken up with noise so the simulation's cells never show
       float th = lv.w, Tm = lv.y, age = lv.z, jit = vn(p.xz * 31.) - .5 + .5 * (vn(p.xz * 83.) - .5);
       vec2 mc = texture(M, simUV(p.xz)).xy / 6.5; vec3 v = vor(mc);
-      float cr = clamp(crustOf(Tm, age) + jit * .35, 0., 1.);
+      // each plate of skin sets at its own age, so on a running channel dark rafts float on the glowing lava long
+      // before the whole surface crusts over
+      float pid = h21(vec2(v.z * 91.)), thr = mix(250., 2600., pid * pid);
+      float cr = clamp(max(smoothstep(thr, thr * 1.5 + 500., age), smoothstep(.6, .42, Tm)) + jit * .3, 0., 1.);
       float fw = t * PXA / max(abs(dot(n, rd)), .3) / (SIMW / float(N.x) * 6.5);   // one pixel, in plate units
-      float w = .025 + .07 * (1. - cr) * (.4 + .6 * h21(vec2(v.z * 91.)));
-      float open = smoothstep(.28, .6, Tm) * (1. - .85 * smoothstep(200., 2500., age)) * (.3 + .7 * h21(vec2(v.z * 37.)));
+      float w = .025 + .08 * (1. - cr) * (.4 + .6 * h21(vec2(v.z * 91.)));
+      float open = smoothstep(.3, .62, Tm) * (1. - .8 * smoothstep(3000., 14000., age)) * (.3 + .7 * h21(vec2(v.z * 37.)));
       float crack = smoothstep(w + fw, max(w - fw, 0.), v.y - v.x) * min(1., w / fw) * open;
       float K = kelvin(Tm);
-      vec3 molten = planck(K * (.96 + .06 * vn(mc * 2.5 + vec2(0, T * .3)))) * (.8 + .4 * vn(mc * 7.));
-      vec3 plate = alb * (.55 + .7 * v.z) * (amb + gl * .7 + cl) + planck(K - 450. * cr) * .7;
-      vec3 lc = mix(molten, plate + planck(K - 40.) * crack * 1.4, smoothstep(.15, .85, cr));
+      // the molten surface: cooler skin streaks drawn on the carried coordinates, so the flow itself stretches them
+      // into the long lines a running channel shows; a little hotter where the skin is torn
+      float sk = vn(mc * 1.6 + 3.) * .55 + vn(mc * 4.1 + 7.) * .3 + vn(mc * 11.) * .15;
+      float Km = K * (.88 + .13 * smoothstep(.68, .32, sk) + .03 * vn(mc * 2.5 + vec2(0, T * .3)));
+      vec3 molten = planck(Km) * (.75 + .5 * smoothstep(.2, .8, vn(mc * 6.)));
+      // crust: a rough black-red skin, lit by the lava around it, with its own dull glow while it is still hot
+      float rough = vn(mc * 23.) * .6 + vn(mc * 57.) * .4;
+      vec3 plate = alb * (.4 + .9 * v.z * rough) * (amb + gl * .9 + cl) + planck(K - 470. * cr) * (.5 + .4 * rough);
+      vec3 lc = mix(molten, plate + planck(K - 30.) * crack * 1.5, smoothstep(.15, .85, cr));
       col = mix(col, lc * 2., smoothstep(.0, .1, th + jit * .1));
     }
     // haze: blue dusk far off, and the lava's light caught in the fumes near the ground
@@ -347,7 +365,7 @@ export default function (stage) {
     if (SC) { gl.deleteTexture(SC.t); gl.deleteFramebuffer(SC.f); }
     SC = target(W, H, gl.RGBA16F, gl.LINEAR, true);
   };
-  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  const ro = new ResizeObserver(() => { resize(); if (reduce && warm >= WARM) render(); }); ro.observe(stage); resize();
   const run = (pr, out, set) => {
     gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, out ? out.f : null); gl.viewport(0, 0, out ? out.w : W, out ? out.h : H);
     let unit = 0;
@@ -365,36 +383,43 @@ export default function (stage) {
   run(terrainP, TT, u => u('RES', NT));
   run(groundP, Zt, u => u('TT', TT));
   run(fillP, S.w, u => { u('Z', Zt); u('VENT', VENT); }); S.swap();                     // the crater starts full
+  // the vent pulses: every so often a surge of fresh lava spills over and runs down the channels
+  let sim = 0;
+  const surge = () => { const ph = (sim++ / 600) % 16; return 0.55 + 2.2 * Math.exp(-(((ph - 3) / 1.6) ** 2)); };
   const step = n => {
     for (let done = 0; done < n;) {
       const k = Math.min(10, n - done); done += k;
       for (let i = 0; i < k; i++) {
-        run(flowP, S.w, u => { u('S', S.r); u('Z', Zt); u('C', 0.1); u('COOL', 0.000015 * PARAMS.cooling); u('SRC', 0.012 * PARAMS.flow); u('VENT', VENT); }); S.swap();
+        run(flowP, S.w, u => { u('S', S.r); u('Z', Zt); u('C', 0.1); u('COOL', 0.000015 * PARAMS.cooling); u('SRC', 0.012 * PARAMS.flow * surge()); u('VENT', VENT); }); S.swap();
       }
       run(matP, M.w, u => { u('S', S.r); u('Z', Zt); u('M', M.r); u('C', 0.1); u('K', k); u('VENT', VENT); }); M.swap();
     }
   };
   // the camera stands on the lower flank and drifts slowly along it
-  const cam = t => {
-    const a = 0.36 + (reduce ? 0 : 0.06 * Math.sin(t * 0.045)), rr = 8.4;
-    const cx = Math.sin(a) * rr, cz = -Math.cos(a) * rr, cy = 2.2 + (reduce ? 0 : 0.08 * Math.sin(t * 0.06 + 1));
+  // (on a narrow screen it steps back and up and widens its lens, so the whole cone and plume still fit)
+  const cam = (t, k) => {
+    const a = 0.36 + (reduce ? 0 : 0.06 * Math.sin(t * 0.045)), rr = 8.4 + 2.9 * k;
+    const cx = Math.sin(a) * rr, cz = -Math.cos(a) * rr, cy = 2.2 + 0.7 * k + (reduce ? 0 : 0.08 * Math.sin(t * 0.06 + 1));
     let fx = -0.5 - cx, fy = 1.45 - cy, fz = -1.2 - cz; const fl = Math.hypot(fx, fy, fz); fx /= fl; fy /= fl; fz /= fl;
     let rx = fz, rz = -fx; const rl = Math.hypot(rx, rz); rx /= rl; rz /= rl;
     return { p: [cx, cy, cz], f: [fx, fy, fz], r: [rx, 0, rz], u: [fy * rz, fz * rx - fx * rz, -fy * rx] };
   };
   let raf, last = null, t = 0, warm = 0;
   const WARM = 14000;                                          // steps run before the first frame shows
-  function frame(now) {
-    if (last === null) last = now;
-    const dt = Math.min(1 / 30, (now - last) / 1000) * (reduce ? 0.25 : 1); last = now;
-    if (warm < WARM) { const n = Math.min(1500, WARM - warm); step(n); warm += n; }
-    else { t += dt * PARAMS.speed; step(Math.max(1, Math.round(10 * PARAMS.speed * Math.min(2, dt * 60)))); }
+  const render = () => {
     run(emitP, EM, u => { u('S', S.r); }); gl.bindTexture(gl.TEXTURE_2D, EM.t); gl.generateMipmap(gl.TEXTURE_2D);
-    const c = cam(t), asp = W / H, foc = 1.85 * Math.max(1, 1.3 / asp);
+    const asp = W / H, k = 1 - Math.min(1, asp / 1.45), c = cam(t, k), foc = 1.85 * (1 - 0.5 * k);
     run(renP, SC, u => { u('TT', TT); u('S', S.r); u('M', M.r); u('EM', EM); u('NZ', NZ); u('R', [W, H]); u('T', t); u('FOC', foc); u('PXA', 2 / (foc * H)); u('CP', c.p); u('CF', c.f); u('CR', c.r); u('CU', c.u); });
     gl.bindTexture(gl.TEXTURE_2D, SC.t); gl.generateMipmap(gl.TEXTURE_2D);
-    run(compP, null, u => { u('SC', SC); u('R', [W, H]); u('FADE', warm < WARM ? 0 : Math.min(1, t / 0.6)); });
-    raf = requestAnimationFrame(frame);
+    run(compP, null, u => { u('SC', SC); u('R', [W, H]); u('FADE', reduce ? 1 : warm < WARM ? 0 : Math.min(1, t / 0.6)); });
+  };
+  function frame(now) {
+    if (last === null) last = now;
+    const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
+    if (warm < WARM) { const n = Math.min(1500, WARM - warm); step(n); warm += n; }
+    else { t += dt * PARAMS.speed; step(Math.max(1, Math.round(10 * PARAMS.speed * Math.min(2, dt * 60)))); }
+    render();
+    if (!reduce || warm < WARM) raf = requestAnimationFrame(frame);       // reduced motion: one still, once warm
   }
   raf = requestAnimationFrame(frame);
   return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
