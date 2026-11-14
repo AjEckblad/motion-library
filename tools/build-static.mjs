@@ -13,7 +13,7 @@ import { ANIMS, CATEGORIES, catById, srcOf } from '../anims/registry.js';
 import { ZH } from '../anims/i18n-zh.js';
 import { FAQ } from '../js/faq.js';
 import { readParams, formatValue } from '../js/code.js';
-import { HERO, SHOWPIECES } from '../js/showpieces.js';
+import { HERO, HEADLINE, HEADLINE_ACCENT } from '../js/hero.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = (process.env.SITE_URL || '').replace(/\/$/, '');
@@ -31,7 +31,7 @@ const hashOf = rel => { try { return crypto.createHash('sha1').update(fs.readFil
 const V = Object.fromEntries(ANIMS.map(a => [a.id, hashOf(srcOf(a))])), PV = Object.fromEntries(ANIMS.map(a => [a.id, hashOf(`posters/${a.id}.webp`)]));
 const posterUrl = id => `posters/${id}.webp${PV[id] ? '?v=' + PV[id] : ''}`;
 // "New": effects whose file arrived after the first import, within the last 21 days, newest first (from git; a file that
-// is not committed yet counts as arriving now). The site badges them and lists them under New on the dial.
+// is not committed yet counts as arriving now). The site badges their cards.
 const git = (...args) => { try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return ''; } };
 const firstCommit = git('rev-list', '--max-parents=0', 'HEAD').split('\n')[0];
 const nowS = Math.floor(Date.now() / 1000), NEW_DAYS = 21;
@@ -163,19 +163,14 @@ const siteLd = [
     mainEntity: FAQ.en.map(([q, ans]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: ans } })) },
 ];
 let index = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-// the front page: the hero's poster and caption, and the showpiece row (the first tile is the large one)
-const cardHtml = (f, cls = '') => `<article class="card${cls}" style="--hue:${catById[f.a.cat].hue}"><a class="card-link" href="${f.page}"><div class="card-media"><img src="${posterUrl(f.a.id)}" alt="" loading="lazy" decoding="async"></div><div class="card-meta"><h3 class="card-title"><i class="cat-dot" aria-hidden="true"></i><span>${esc(f.a.title)}</span></h3><span class="kind">${KIND_SHORT[f.a.kind]}</span><p class="trick">${esc(f.a.trick)}</p></div></a></article>`;
-const spFx = SHOWPIECES.map(id => fx.find(f => f.a.id === id)).filter(Boolean);
-index = replaceBetween(index, '<!--static:showpieces-->', '<!--/static:showpieces-->', `<div class="sp-head"><h2 id="sp-title">Showpieces</h2><p class="sp-note">Real-time simulations and renders. Each one is still a single file.</p></div><div class="sp-grid">
-${spFx.map((f, i) => cardHtml(f, i ? ' sp-card' : ' sp-card sp-big')).join('\n')}
-</div>`);
+// the front page: the headline (its accent phrase in an <em>, as js/front.js sets it), the count on the button, the
+// hero's poster
 {
-  const h = fx.find(f => f.a.id === HERO);
-  index = index.replace(/<span data-count>\d+<\/span>/g, `<span data-count>${ANIMS.length}</span>`)
-    .replace(/(<a class="front-media" id="front-media" href=")[^"]*(">)<img src="[^"]*"/, `$1${h.page}$2<img src="${posterUrl(HERO)}"`)
-    .replace(/(<span id="front-name">)[^<]*/, `$1${esc(h.a.title)}`).replace(/(<span class="front-trick" id="front-trick">)[^<]*/, `$1${esc(h.a.trick)}`)
-    .replace(/(<button class="front-npx" id="front-npx" type="button"><code>)[^<]*/, `$1npx motion-library add ${HERO}`)
-    .replace(/(class="cat-dot" aria-hidden="true" style="--hue:)[^"]*("><\/i><span id="front-name">)/, `$1${catById[h.a.cat].hue}$2`);
+  const at = HEADLINE.indexOf(HEADLINE_ACCENT);
+  const headline = at < 0 ? esc(HEADLINE) : `${esc(HEADLINE.slice(0, at))}<em>${esc(HEADLINE_ACCENT)}</em>${esc(HEADLINE.slice(at + HEADLINE_ACCENT.length))}`;
+  index = index.replace(/(<h1 id="front-title" class="front-title">)[\s\S]*?(<\/h1>)/, `$1${headline}$2`)
+    .replace(/<span data-count>\d+<\/span>/g, `<span data-count>${ANIMS.length}</span>`)
+    .replace(/(<div class="front-media" id="front-media"[^>]*><img src=")[^"]*"/, `$1${posterUrl(HERO)}"`);
 }
 index = replaceBetween(index, '<!--static:grid-->', '<!--/static:grid-->', `\n${sections}\n`);
 index = replaceBetween(index, '<!--static:faq-->', '<!--/static:faq-->', faqHtml);

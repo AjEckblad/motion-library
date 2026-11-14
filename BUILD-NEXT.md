@@ -14,11 +14,13 @@ screenshots/frames, runs check + motion-check itself, ships via commit/push. Han
   content column left of the dial; 5 showpieces (they also appear in their own categories); differentiators as short
   phrases with accent dots; phone dial tucks away on scroll (behaviour change to the signature); creatures steer
   around the hero words (js/critters.js lists only, no motion retune); direction "The product performs".
+- AJ's review (2026-11-14): gauge dial (track + hue dots, phone tuck) reverted to 27c9a67, New gone from the dial
+  (#/new -> All; card chips stay), showpiece row removed (HERO now in js/hero.js). Fonts: with the lead.
 - Known issues: poster->live hero handover shows a camera jump (blurred); dial overflows 3px at 320px (old);
   .impeccable/surfaces/index-html.md still describes the old direction; page-mode inspect has 3 FAILs about the
   catalogue (14px trick lines, dial column off-centre, catalogue screens "empty").
-- Waiting on AJ: his verdict on everything above; `/review-animations` (hero reveal, handover, row entrance, dial
-  tuck, plus ferrofluid/ripples/honey); npm publish of CLI 0.3.5 (`cd ~/Downloads/motion-library/cli && npm login &&
+- Waiting on AJ: his verdict on everything above; `/review-animations` (hero reveal, handover, plus
+  ferrofluid/ripples/honey); npm publish of CLI 0.3.5 (`cd ~/Downloads/motion-library/cli && npm login &&
   npm publish`).
 
 # Earlier (2026-11-14 ~01:00): ferrofluid + water ripples SHIPPED (a31b44c); honey agent running; site redesign next

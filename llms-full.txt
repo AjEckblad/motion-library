@@ -14,7 +14,7 @@
 
 ### Curl-noise flow field
 
-Curl-noise flow field is a Canvas effect: divergence-free curl noise; particles never clump. One plain JavaScript file with no dependencies; add it with npx motion-library add curl-flow.
+Curl-noise flow field is a Canvas effect: thousands of particles follow a current that never tangles. One plain JavaScript file with no dependencies; add it with npx motion-library add curl-flow.
 
 Particles swirl in smooth streams that leave soft trails and never pile up.
 
@@ -25,7 +25,7 @@ Renderer: Canvas 2D. Size: 2.6 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Drone light show
 
-Drone light show is a WebGL effect: formation changes solved as an assignment problem: sort, then swap. One plain JavaScript file with no dependencies; add it with npx motion-library add drone-show.
+Drone light show is a WebGL effect: lights fly between shapes without crossing paths. One plain JavaScript file with no dependencies; add it with npx motion-library add drone-show.
 
 A drone fleet lifts off a barge and flies formations over a night city, mirrored in the bay.
 
@@ -36,7 +36,7 @@ Renderer: WebGL. Size: 24.9 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Particle life
 
-Particle life is a Canvas effect: asymmetric attraction table between species; lifelike clusters emerge. One plain JavaScript file with no dependencies; add it with npx motion-library add particle-life.
+Particle life is a Canvas effect: specks chase and flee until creatures form; drag to stir. One plain JavaScript file with no dependencies; add it with npx motion-library add particle-life.
 
 Coloured particles self-organise into cells, worms and hunting swarms that melt and re-form; drag to stir.
 
@@ -47,7 +47,7 @@ Renderer: Canvas 2D. Size: 5.9 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Cloud chamber
 
-Cloud chamber is a Canvas effect: particle tracks drawn as droplet trails that swell, drift and fade. One plain JavaScript file with no dependencies; add it with npx motion-library add cloud-chamber.
+Cloud chamber is a Canvas effect: invisible radiation leaves misty trails that curl and fade. One plain JavaScript file with no dependencies; add it with npx motion-library add cloud-chamber.
 
 Droplet tracks appear in a misty chamber: straight alpha stubs, spiralling electrons and long muon lines.
 
@@ -58,7 +58,7 @@ Renderer: Canvas 2D. Size: 7.8 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Spiral galaxy
 
-Spiral galaxy is a WebGL effect: stars on log-spiral arms with differential rotation and additive light. One plain JavaScript file with no dependencies; add it with npx motion-library add galaxy.
+Spiral galaxy is a WebGL effect: arms of stars wind slowly round a bright core. One plain JavaScript file with no dependencies; add it with npx motion-library add galaxy.
 
 A spiral galaxy turns slowly, its arms winding as the bright core blooms.
 
@@ -69,7 +69,7 @@ Renderer: WebGL. Size: 4.5 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Strange attractor
 
-Strange attractor is a Canvas effect: particles integrating the Aizawa attractor, with fading-canvas trails. One plain JavaScript file with no dependencies; add it with npx motion-library add strange-attractor.
+Strange attractor is a Canvas effect: glowing trails loop round an apple shape, never repeating. One plain JavaScript file with no dependencies; add it with npx motion-library add strange-attractor.
 
 Thousands of glowing particles trace the Aizawa attractor, an apple-like shell with a spine, as the camera turns.
 
@@ -80,7 +80,7 @@ Renderer: Canvas 2D. Size: 3.3 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Slime mould maps Tokyo
 
-Slime mould maps Tokyo is a WebGL effect: sense, turn, step, deposit: agents carve self-reinforcing trail networks. One plain JavaScript file with no dependencies; add it with npx motion-library add physarum.
+Slime mould maps Tokyo is a WebGL effect: a web spreads between cities and thins into rail-like routes. One plain JavaScript file with no dependencies; add it with npx motion-library add physarum.
 
 A slime mould grows a network between the cities around Tokyo, tightening into trunk lines.
 
@@ -91,7 +91,7 @@ Renderer: WebGL. Size: 12.4 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Lightning arcs
 
-Lightning arcs is a Canvas effect: midpoint displacement, recursive branches, glow and afterimage. One plain JavaScript file with no dependencies; add it with npx motion-library add lightning.
+Lightning arcs is a Canvas effect: forked bolts crackle out from your pointer. One plain JavaScript file with no dependencies; add it with npx motion-library add lightning.
 
 Branching bolts strike, re-strike rapidly and leave a glowing afterimage.
 
@@ -102,7 +102,7 @@ Renderer: Canvas 2D. Size: 4.0 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Iron filings
 
-Iron filings is a Canvas effect: segments align to a bar magnet's field and hop onto its flux contours. One plain JavaScript file with no dependencies; add it with npx motion-library add iron-filings.
+Iron filings is a Canvas effect: steel slivers hop into loops round a hidden magnet; drag it. One plain JavaScript file with no dependencies; add it with npx motion-library add iron-filings.
 
 Steel filings on paper over one hidden bar magnet hop on each tap and settle into the classic loops from pole to pole; drag the magnet.
 
@@ -113,7 +113,7 @@ Renderer: Canvas 2D. Size: 9.2 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Galton board
 
-Galton board is a Canvas effect: per-bead coin tosses stack into a binomial bell curve. One plain JavaScript file with no dependencies; add it with npx motion-library add galton-board.
+Galton board is a Canvas effect: beads bounce down through pegs and pile up into a bell curve. One plain JavaScript file with no dependencies; add it with npx motion-library add galton-board.
 
 Beads pour through brass pegs and pile into a bell curve, matching the dashed theory line.
 
@@ -124,7 +124,7 @@ Renderer: Canvas 2D. Size: 10.7 KB. Reduced motion: no. Page: https://ajeckblad.
 
 ### Pin art
 
-Pin art is a WebGL effect: instanced pins that only slide forward, so imprints persist. One plain JavaScript file with no dependencies; add it with npx motion-library add pin-art.
+Pin art is a WebGL effect: a hand and a face rise in steel relief; press to push it back. One plain JavaScript file with no dependencies; add it with npx motion-library add pin-art.
 
 A hand, a face and a ripple rise in relief through steel pins; press to push pins back.
 
@@ -135,7 +135,7 @@ Renderer: WebGL. Size: 14.4 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### 3D paper confetti
 
-3D paper confetti is a Canvas effect: squash by cos(spin) to fake a 3D tumble, two-sided colour. One plain JavaScript file with no dependencies; add it with npx motion-library add confetti.
+3D paper confetti is a Canvas effect: two cannons fire coloured bits that tumble and flutter down. One plain JavaScript file with no dependencies; add it with npx motion-library add confetti.
 
 Paper confetti bursts from two cannons, tumbles and flutters down.
 
@@ -146,7 +146,7 @@ Renderer: Canvas 2D. Size: 2.7 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Firefly sync
 
-Firefly sync is a Canvas effect: pulse-coupled oscillators: every flash nudges neighbours forward. One plain JavaScript file with no dependencies; add it with npx motion-library add firefly-sync.
+Firefly sync is a Canvas effect: random flashes slowly fall into step; move to startle them. One plain JavaScript file with no dependencies; add it with npx motion-library add firefly-sync.
 
 Fireflies in a forest drift into flashing as one; the pointer startles the nearby ones.
 
@@ -157,7 +157,7 @@ Renderer: Canvas 2D. Size: 7.9 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### GPU particles (262k)
 
-GPU particles (262k) is a WebGL effect: positions live in a float texture; a shader moves them all. One plain JavaScript file with no dependencies; add it with npx motion-library add gpu-particles.
+GPU particles (262k) is a WebGL effect: glowing threads of dots stream and curl through 3D space. One plain JavaScript file with no dependencies; add it with npx motion-library add gpu-particles.
 
 A quarter of a million particles stream through 3D curl noise in glowing filaments.
 
@@ -168,7 +168,7 @@ Renderer: WebGL. Size: 6.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Hydrogen orbitals
 
-Hydrogen orbitals is a WebGL effect: metropolis sampling of an exact wavefunction, coloured by phase. One plain JavaScript file with no dependencies; add it with npx motion-library add orbitals.
+Hydrogen orbitals is a WebGL effect: a cloud of points flows from one electron shape to the next. One plain JavaScript file with no dependencies; add it with npx motion-library add orbitals.
 
 A cloud of points shows a hydrogen orbital, sloshing as it morphs into the next one.
 
@@ -179,7 +179,7 @@ Renderer: WebGL. Size: 14.1 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Roche limit
 
-Roche limit is a WebGL effect: tidal stretching past the Roche limit shears rubble into a ring. One plain JavaScript file with no dependencies; add it with npx motion-library add roche-limit.
+Roche limit is a WebGL effect: a rubble moon spirals in, tears apart and winds into a ring. One plain JavaScript file with no dependencies; add it with npx motion-library add roche-limit.
 
 A rubble moon spirals into an ice giant, tears into two streams and winds into a ring.
 
@@ -190,7 +190,7 @@ Renderer: WebGL. Size: 11.5 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Starling murmuration
 
-Starling murmuration is a Canvas effect: 3D flocking where each bird tracks only seven nearest neighbours. One plain JavaScript file with no dependencies; add it with npx motion-library add murmuration.
+Starling murmuration is a Canvas effect: a flock folds and ripples as a falcon dives through. One plain JavaScript file with no dependencies; add it with npx motion-library add murmuration.
 
 A starling flock stretches and folds, and dark waves ripple through it as a falcon dives.
 
@@ -201,7 +201,7 @@ Renderer: Canvas 2D. Size: 7.0 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### States of matter
 
-States of matter is a Canvas effect: lennard-Jones atoms plus a thermostat: gas, liquid, crystal. One plain JavaScript file with no dependencies; add it with npx motion-library add states-of-matter.
+States of matter is a Canvas effect: atoms cool from gas to droplets to crystal, then melt again. One plain JavaScript file with no dependencies; add it with npx motion-library add states-of-matter.
 
 Atoms cool from gas into droplets, a pool and a hexagonal crystal, then melt again.
 
@@ -212,7 +212,7 @@ Renderer: Canvas 2D. Size: 7.6 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Calligraphy brush
 
-Calligraphy brush is a Canvas effect: bristle-by-bristle brush with per-bristle ink and dry-brush streaks. One plain JavaScript file with no dependencies; add it with npx motion-library add calligraphy.
+Calligraphy brush is a Canvas effect: writes 永 stroke by stroke, running dry and pooling at turns. One plain JavaScript file with no dependencies; add it with npx motion-library add calligraphy.
 
 A brush writes 永 stroke by stroke, with dry streaks on long strokes and pooled ink at turns.
 
@@ -223,7 +223,7 @@ Renderer: Canvas 2D. Size: 8.9 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Harmonograph
 
-Harmonograph is a Canvas effect: summed decaying sines near a simple ratio, slightly detuned. One plain JavaScript file with no dependencies; add it with npx motion-library add harmonograph.
+Harmonograph is a Canvas effect: a swinging pen draws a rosette that spirals in as it slows. One plain JavaScript file with no dependencies; add it with npx motion-library add harmonograph.
 
 A pen draws a slowly creeping rosette that thins as the swing dies.
 
@@ -234,7 +234,7 @@ Renderer: Canvas 2D. Size: 4.0 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Chladni plate
 
-Chladni plate is a WebGL effect: GPU grains hop by local vibration and settle on nodal lines. One plain JavaScript file with no dependencies; add it with npx motion-library add chladni.
+Chladni plate is a WebGL effect: buzzing brass shakes sand into new figures as the tone rises. One plain JavaScript file with no dependencies; add it with npx motion-library add chladni.
 
 Sand on a vibrating brass plate gathers into figures that shift as the tone rises.
 
@@ -245,7 +245,7 @@ Renderer: WebGL. Size: 10.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Crystal growth (DLA)
 
-Crystal growth (DLA) is a WebGL effect: diffusion-limited aggregation: manganese oxide grows fern-like dendrites from a crack in limestone. One plain JavaScript file with no dependencies; add it with npx motion-library add dla-crystal.
+Crystal growth (DLA) is a WebGL effect: black fern-like branches creep across stone from a crack. One plain JavaScript file with no dependencies; add it with npx motion-library add dla-crystal.
 
 Black fern-like manganese dendrites creep up a slab of pale limestone from a crack, branching into plumes with a brown halo.
 
@@ -256,7 +256,7 @@ Renderer: WebGL. Size: 12.1 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Wind tunnel
 
-Wind tunnel is a WebGL effect: GPU lattice Boltzmann solver shedding a Kármán vortex street. One plain JavaScript file with no dependencies; add it with npx motion-library add wind-tunnel.
+Wind tunnel is a WebGL effect: smoke curls into eddies behind a shape; drag to move it. One plain JavaScript file with no dependencies; add it with npx motion-library add wind-tunnel.
 
 Smoke lines flow past a cylinder, wing or plate and roll into a vortex street; drag the body.
 
@@ -267,7 +267,7 @@ Renderer: WebGL. Size: 16.3 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Fireworks
 
-Fireworks is a Canvas effect: rocket bursts with gravity, drag and five shell types. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.
+Fireworks is a Canvas effect: five kinds of shell burst overhead; tap to launch your own. One plain JavaScript file with no dependencies; add it with npx motion-library add fireworks.
 
 Rockets burst into peonies, willows, crossettes, two-tone shells and glitter; click to launch one there.
 
@@ -278,7 +278,7 @@ Renderer: Canvas 2D. Size: 7.5 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Bokeh
 
-Bokeh is a Canvas effect: circle of confusion: discs grow with distance from the focal plane. One plain JavaScript file with no dependencies; add it with npx motion-library add bokeh.
+Bokeh is a Canvas effect: blurred lights drift as the focus slowly pulls through them. One plain JavaScript file with no dependencies; add it with npx motion-library add bokeh.
 
 Out-of-focus lights drift in layers while the focus pulls through, sharpening some and blooming others.
 
@@ -289,7 +289,7 @@ Renderer: Canvas 2D. Size: 4.8 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Nebula
 
-Nebula is a WebGL effect: domain-warped fbm gas, lit toward a star, with dust lanes. One plain JavaScript file with no dependencies; add it with npx motion-library add nebula.
+Nebula is a WebGL effect: glowing gas swirls round a bright star, cut by dark dust. One plain JavaScript file with no dependencies; add it with npx motion-library add nebula.
 
 Magenta and teal gas drifts around a bright star, cut by dark dust lanes, over twinkling stars.
 
@@ -303,7 +303,7 @@ Renderer: WebGL. Size: 6.0 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Ink fluid
 
-Ink fluid is a WebGL effect: stable fluids: advect, curl, project, repeat. One plain JavaScript file with no dependencies; add it with npx motion-library add ink-fluid.
+Ink fluid is a WebGL effect: move through the water to push glowing dye into swirls. One plain JavaScript file with no dependencies; add it with npx motion-library add ink-fluid.
 
 Ink swirls and spreads as you push through it, and splats on its own.
 
@@ -314,7 +314,7 @@ Renderer: WebGL. Size: 9.5 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Liquid image distortion
 
-Liquid image distortion is a WebGL effect: offset texture lookups by flowing noise. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-distort.
+Liquid image distortion is a WebGL effect: a photo ripples like water; move over it to stir it harder. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-distort.
 
 An image ripples like water, rippling harder where the pointer drags through it.
 
@@ -325,7 +325,7 @@ Renderer: WebGL. Size: 4.8 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Lava lamp
 
-Lava lamp is a WebGL effect: raymarched 3D metaballs; heat drives buoyancy. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-lamp.
+Lava lamp is a WebGL effect: warm wax stretches off the pool, rises, cools and sinks. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-lamp.
 
 A chrome-and-glass lava lamp glows in a dim room: wax swells on the bulb, necks off the pool, rises slowly, cools at the top and sinks, merging and pinching as it goes.
 
@@ -336,7 +336,7 @@ Renderer: WebGL. Size: 14.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Fire & smoke
 
-Fire & smoke is a WebGL effect: combustion simulated: fuel burns out, gas glows as a blackbody. One plain JavaScript file with no dependencies; add it with npx motion-library add fire-smoke.
+Fire & smoke is a WebGL effect: flames lick stacked logs as sparks rise into the night. One plain JavaScript file with no dependencies; add it with npx motion-library add fire-smoke.
 
 A campfire at night burning on stacked logs: flames lick up from the wood and the coals, the logs’ charred skin glows orange in its cracks, and smoke and sparks rise.
 
@@ -347,7 +347,7 @@ Renderer: WebGL. Size: 34.2 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Lava flow
 
-Lava flow is a WebGL effect: lava simulated on an eroded volcano, lit by blackbody light. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-flow.
+Lava flow is a WebGL effect: molten rock pours from a crater and runs down the gullies. One plain JavaScript file with no dependencies; add it with npx motion-library add lava-flow.
 
 A volcano at dusk: red-hot lava pours from the crater and runs down the gullies in glowing channels, dark rafts of crust drifting on it, its light on the slopes and plume.
 
@@ -358,7 +358,7 @@ Renderer: WebGL. Size: 30.3 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Ferrofluid
 
-Ferrofluid is a WebGL effect: rosensweig cones on a magnet inside the oil: a graded hex lattice, raymarched as a black mirror. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
+Ferrofluid is a WebGL effect: black oil spikes over a magnet; move it, or tap to switch it off. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
 
 Glossy black magnetic oil lies in a puddle on a studio table and climbs over a square magnet standing in it, breaking into a crown of sharp needles joined by smooth valleys, tallest and leaning out at the edges and corners; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt and the oil slide off.
 
@@ -369,7 +369,7 @@ Renderer: WebGL. Size: 28.2 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Paper marbling
 
-Paper marbling is a WebGL effect: backward lookup through comb and swirl warps; paint never smears. One plain JavaScript file with no dependencies; add it with npx motion-library add marbling.
+Paper marbling is a WebGL effect: bands of paint swirl after the stylus as you move over them. One plain JavaScript file with no dependencies; add it with npx motion-library add marbling.
 
 Bands of paint are combed and swirled like marbled paper; the pointer drags the stylus.
 
@@ -380,7 +380,7 @@ Renderer: WebGL. Size: 3.8 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Rain on glass
 
-Rain on glass is a Canvas effect: each drop is a lens showing a sharp, flipped background. One plain JavaScript file with no dependencies; add it with npx motion-library add raindrops-glass.
+Rain on glass is a Canvas effect: drops slide down a window, each holding the city upside down. One plain JavaScript file with no dependencies; add it with npx motion-library add raindrops-glass.
 
 Raindrops bead and slide down a window over a blurred city, each showing a sharp flipped copy.
 
@@ -391,7 +391,7 @@ Renderer: Canvas 2D. Size: 4.6 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Dripping text
 
-Dripping text is a Canvas effect: gooey blur-and-threshold filter: drips merge with letters, necks snap. One plain JavaScript file with no dependencies; add it with npx motion-library add dripping-text.
+Dripping text is a Canvas effect: paint drips off the letters, stretches thin and snaps. One plain JavaScript file with no dependencies; add it with npx motion-library add dripping-text.
 
 Drops swell under the letters, stretch, snap off and collect in a puddle.
 
@@ -402,7 +402,7 @@ Renderer: Canvas 2D. Size: 3.8 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Liquid mercury
 
-Liquid mercury is a WebGL effect: metaball beads that merge, split and mirror an environment. One plain JavaScript file with no dependencies; add it with npx motion-library add mercury.
+Liquid mercury is a WebGL effect: silver beads roll and merge; sweep through fast to split them. One plain JavaScript file with no dependencies; add it with npx motion-library add mercury.
 
 Beads of mercury roll, merge on contact and split when you move fast through them.
 
@@ -413,7 +413,7 @@ Renderer: WebGL. Size: 11.3 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Kelvin–Helmholtz clouds
 
-Kelvin–Helmholtz clouds is a WebGL effect: shear-layer fluid sim rolls up Kelvin–Helmholtz billows by itself. One plain JavaScript file with no dependencies; add it with npx motion-library add billow-clouds.
+Kelvin–Helmholtz clouds is a WebGL effect: a sunset sky rolls up into a row of breaking waves. One plain JavaScript file with no dependencies; add it with npx motion-library add billow-clouds.
 
 At sunset a cloud sheet rolls up into a row of breaking waves, then dissolves into turbulence.
 
@@ -424,7 +424,7 @@ Renderer: WebGL. Size: 11.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Paint swirl
 
-Paint swirl is a WebGL effect: colour advected around vortices; palette snapping keeps bands crisp. One plain JavaScript file with no dependencies; add it with npx motion-library add paint-swirl.
+Paint swirl is a WebGL effect: colour rings wind into spirals; circle over them to stir. One plain JavaScript file with no dependencies; add it with npx motion-library add paint-swirl.
 
 Rings of paint pour from two spouts and wind into crisp spirals; circle the pointer to stir.
 
@@ -435,7 +435,7 @@ Renderer: WebGL. Size: 10.2 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### SPH water tank
 
-SPH water tank is a WebGL effect: real SPH particles, splatted into one surface and traced through glass. One plain JavaScript file with no dependencies; add it with npx motion-library add sph-water.
+SPH water tank is a WebGL effect: waves roll end to end in a rocking glass box; move to tilt it. One plain JavaScript file with no dependencies; add it with npx motion-library add sph-water.
 
 A heavy glass tank leans slowly side to side and the water rolls from end to end in long, gradual waves, casting caustics; the pointer tilts it.
 
@@ -446,7 +446,7 @@ Renderer: WebGL. Size: 27.4 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Open ocean
 
-Open ocean is a WebGL effect: FFT ocean from a wind-aligned JONSWAP spectrum: long crests, deep troughs, foam where the surface folds. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
+Open ocean is a WebGL effect: grey, windy waves roll in; move to slide the sun’s glow. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
 
 A grey, windy open sea under an overcast sky: four GPU FFTs turn a JONSWAP wave spectrum, held in a narrow fan round the wind, into long-crested Gerstner waves that roll toward you, and foam forms and streaks downwind where the surface folds.
 
@@ -457,7 +457,7 @@ Renderer: WebGL. Size: 35.9 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Honey pour
 
-Honey pour is a WebGL effect: liquid-rope coiling: a tapering thread lays rope loops that fillet into a thin-film pool. One plain JavaScript file with no dependencies; add it with npx motion-library add honey-coil.
+Honey pour is a WebGL effect: a golden thread coils into a column; drag to move the spoon. One plain JavaScript file with no dependencies; add it with npx motion-library add honey-coil.
 
 Honey pours from a still spoon into a porcelain bowl and coils into a stacked column that sinks into the pool, now and then toppling over. Drag to move the spoon and stitch a trail of loops.
 
@@ -471,7 +471,7 @@ Renderer: WebGL. Size: 51.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Portal
 
-Portal is a WebGL effect: rays crossing the ring finish tracing in a second world. One plain JavaScript file with no dependencies; add it with npx motion-library add portal.
+Portal is a WebGL effect: a desert gate opens onto a night sea; fly through and back. One plain JavaScript file with no dependencies; add it with npx motion-library add portal.
 
 A carved gate in a golden desert opens onto a night sea under a ringed planet; the camera flies through and back.
 
@@ -482,7 +482,7 @@ Renderer: WebGL. Size: 29.1 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Glass lens refraction
 
-Glass lens refraction is a WebGL effect: bend the lookup by the lens normal, per colour. One plain JavaScript file with no dependencies; add it with npx motion-library add glass-lens.
+Glass lens refraction is a WebGL effect: move to slide a magnifier with rainbow edges over the scene. One plain JavaScript file with no dependencies; add it with npx motion-library add glass-lens.
 
 A glass lens follows the pointer, bending the scene with a coloured fringe at its edge.
 
@@ -493,7 +493,7 @@ Renderer: WebGL. Size: 4.9 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Dust to the wind
 
-Dust to the wind is a WebGL effect: SDF surface sampled by random rays, dissolved point by point. One plain JavaScript file with no dependencies; add it with npx motion-library add dust-bust.
+Dust to the wind is a WebGL effect: a marble bust blows away, then pulls itself back together. One plain JavaScript file with no dependencies; add it with npx motion-library add dust-bust.
 
 A marble bust burns away into wind-blown dust, then reassembles on its socle.
 
@@ -504,7 +504,7 @@ Renderer: WebGL. Size: 18.1 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Cloth reveal
 
-Cloth reveal is a WebGL effect: Verlet silk tents over cone-shaped points, then slides off by a corner. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.
+Cloth reveal is a WebGL effect: red silk settles over a hidden star, then slides off. One plain JavaScript file with no dependencies; add it with npx motion-library add cloth-reveal.
 
 Red silk floats down over a plinth and drapes on hidden points, then a corner is drawn away to reveal a chrome star.
 
@@ -515,7 +515,7 @@ Renderer: WebGL. Size: 29.8 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Liquid metal
 
-Liquid metal is a WebGL effect: smooth-minimum blob pinches off a height-field pool; double reflections. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-metal.
+Liquid metal is a WebGL effect: a chrome blob rises from the pool, lets go and splashes back. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-metal.
 
 A chrome blob rises from a rippling pool, necks, lets go and splashes back in rings.
 
@@ -526,7 +526,7 @@ Renderer: WebGL. Size: 6.7 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Mandelbulb fractal
 
-Mandelbulb fractal is a WebGL effect: power-8 orbits in spherical coordinates, raymarched by distance estimate. One plain JavaScript file with no dependencies; add it with npx motion-library add mandelbulb.
+Mandelbulb fractal is a WebGL effect: a knobbly 3D shape slowly breathes and reshapes its crevices. One plain JavaScript file with no dependencies; add it with npx motion-library add mandelbulb.
 
 A Mandelbulb fractal slowly breathes and rearranges its crevices.
 
@@ -537,7 +537,7 @@ Renderer: WebGL. Size: 5.0 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Infinite tunnel
 
-Infinite tunnel is a WebGL effect: distance-field tube on a winding path, panels from angle and depth. One plain JavaScript file with no dependencies; add it with npx motion-library add infinite-tunnel.
+Infinite tunnel is a WebGL effect: fly forever down a bending tube lit by racing pulses. One plain JavaScript file with no dependencies; add it with npx motion-library add infinite-tunnel.
 
 The camera flies forever down a bending tunnel of bevelled panels with racing light pulses.
 
@@ -548,7 +548,7 @@ Renderer: WebGL. Size: 5.4 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Glass prism
 
-Glass prism is a WebGL effect: per-channel refraction with total internal reflection for dispersion. One plain JavaScript file with no dependencies; add it with npx motion-library add glass-prism.
+Glass prism is a WebGL effect: as it turns, every stripe behind it splits into a rainbow. One plain JavaScript file with no dependencies; add it with npx motion-library add glass-prism.
 
 A turning glass prism splits a striped studio into rainbow fringes and casts a fan of colour.
 
@@ -559,7 +559,7 @@ Renderer: WebGL. Size: 6.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Dot globe with arcs
 
-Dot globe with arcs is a Canvas effect: fibonacci sphere of dots, noise continents, great-circle arcs. One plain JavaScript file with no dependencies; add it with npx motion-library add point-globe.
+Dot globe with arcs is a Canvas effect: flight paths hop between continents; drag to spin the world. One plain JavaScript file with no dependencies; add it with npx motion-library add point-globe.
 
 A dotted globe spins with arcs hopping between land points; drag to spin.
 
@@ -570,7 +570,7 @@ Renderer: Canvas 2D. Size: 6.7 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Extruded 3D type
 
-Extruded 3D type is a Canvas effect: text mask stacked back to front through one 3D rotation. One plain JavaScript file with no dependencies; add it with npx motion-library add extruded-type.
+Extruded 3D type is a Canvas effect: a solid word turns under a chrome shine; move to steer it. One plain JavaScript file with no dependencies; add it with npx motion-library add extruded-type.
 
 A solid 3D word turns with a chrome sweep across its face; the pointer steers it.
 
@@ -581,7 +581,7 @@ Renderer: Canvas 2D. Size: 5.0 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Holographic card
 
-Holographic card is a DOM effect: spring-driven CSS 3D tilt, color-dodge foil, glare tracking the light. One plain JavaScript file with no dependencies; add it with npx motion-library add holo-card.
+Holographic card is a DOM effect: tilts toward your pointer as rainbow foil and glare slide. One plain JavaScript file with no dependencies; add it with npx motion-library add holo-card.
 
 A holographic card tilts toward the pointer, its rainbow foil and glare sliding with it.
 
@@ -592,7 +592,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 4.8 KB. Reduced motion: no
 
 ### Iridescent torus knot
 
-Iridescent torus knot is a WebGL effect: tube swept along a (p, q) knot with parallel-transport frames. One plain JavaScript file with no dependencies; add it with npx motion-library add torus-knot.
+Iridescent torus knot is a WebGL effect: a colour-shifting tube loops through itself as stripes flow. One plain JavaScript file with no dependencies; add it with npx motion-library add torus-knot.
 
 An iridescent tube twists through a torus knot with stripes flowing along it.
 
@@ -603,7 +603,7 @@ Renderer: WebGL. Size: 7.4 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Jelly cube
 
-Jelly cube is a WebGL effect: mass-spring lattice drives free-form deformation; thickness-based light absorption. One plain JavaScript file with no dependencies; add it with npx motion-library add jelly-cube.
+Jelly cube is a WebGL effect: drag and throw it to see it wobble; tap to make it hop. One plain JavaScript file with no dependencies; add it with npx motion-library add jelly-cube.
 
 A jelly cube lands, squashes and wobbles; grab and throw it, or tap to make it hop.
 
@@ -614,7 +614,7 @@ Renderer: WebGL. Size: 27.2 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Neon geodesic sphere
 
-Neon geodesic sphere is a Canvas effect: icosphere wireframe stroked as neon, glow from cheap downscaled copies. One plain JavaScript file with no dependencies; add it with npx motion-library add neon-geodesic.
+Neon geodesic sphere is a Canvas effect: light pulses race along the struts of a turning wire ball. One plain JavaScript file with no dependencies; add it with npx motion-library add neon-geodesic.
 
 A neon geodesic sphere turns over a glossy floor while pulses walk its struts.
 
@@ -625,7 +625,7 @@ Renderer: Canvas 2D. Size: 11.4 KB. Reduced motion: no. Page: https://ajeckblad.
 
 ### Spheres on a knot
 
-Spheres on a knot is a WebGL effect: analytically ray-traced spheres with soft shadows and interreflections. One plain JavaScript file with no dependencies; add it with npx motion-library add path-spheres.
+Spheres on a knot is a WebGL effect: glossy balls glide along a loop, reflecting each other. One plain JavaScript file with no dependencies; add it with npx motion-library add path-spheres.
 
 Chrome and coloured balls slide along a trefoil knot, mirroring each other and the floor.
 
@@ -636,7 +636,7 @@ Renderer: WebGL. Size: 8.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### SDF shape morph
 
-SDF shape morph is a WebGL effect: five distance functions blended in turn, twisting at each midpoint. One plain JavaScript file with no dependencies; add it with npx motion-library add sdf-morph.
+SDF shape morph is a WebGL effect: chrome melts from sphere to cube to ring, twisting as it goes. One plain JavaScript file with no dependencies; add it with npx motion-library add sdf-morph.
 
 A chrome object morphs from sphere to cube, torus, octahedron and a gyroid-carved sphere.
 
@@ -647,7 +647,7 @@ Renderer: WebGL. Size: 9.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Paper fold
 
-Paper fold is a DOM effect: a tree of CSS 3D hinges: the last crease carries the rest. One plain JavaScript file with no dependencies; add it with npx motion-library add paper-fold.
+Paper fold is a DOM effect: a printed sheet creases shut and opens, four different ways. One plain JavaScript file with no dependencies; add it with npx motion-library add paper-fold.
 
 A printed sheet folds and opens on a desk: as a letter, a gate fold, an accordion or a map.
 
@@ -658,7 +658,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 31.2 KB. Reduced motion: y
 
 ### Menger sponge
 
-Menger sponge is a WebGL effect: box minus a cross, repeated by folding space each level. One plain JavaScript file with no dependencies; add it with npx motion-library add menger-sponge.
+Menger sponge is a WebGL effect: a brass cube full of ever-smaller holes turns in the light. One plain JavaScript file with no dependencies; add it with npx motion-library add menger-sponge.
 
 A brass Menger sponge turns in a studio, its tunnels darkening inward.
 
@@ -669,7 +669,7 @@ Renderer: WebGL. Size: 5.9 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Gyroid fly-through
 
-Gyroid fly-through is a WebGL effect: thickened gyroid sheet with a tube carved along the camera path. One plain JavaScript file with no dependencies; add it with npx motion-library add gyroid.
+Gyroid fly-through is a WebGL effect: glide past endless curving walls that change colour into fog. One plain JavaScript file with no dependencies; add it with npx motion-library add gyroid.
 
 The camera flies through endless organic labyrinth walls that drift in hue and vanish into fog.
 
@@ -680,7 +680,7 @@ Renderer: WebGL. Size: 5.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Black hole
 
-Black hole is a WebGL effect: each ray follows the exact light-orbit equation round a spinning hole. One plain JavaScript file with no dependencies; add it with npx motion-library add black-hole.
+Black hole is a WebGL effect: a bright disc arches over and under the shadow, like Interstellar. One plain JavaScript file with no dependencies; add it with npx motion-library add black-hole.
 
 Gargantua as the film drew it: a thin white disc arching over and under the shadow, a hairline photon ring, stars stretched at its edge.
 
@@ -691,7 +691,7 @@ Renderer: WebGL. Size: 18.6 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Tesseract
 
-Tesseract is a WebGL effect: rigid 4D rotation projected to 3D turns the cube inside out. One plain JavaScript file with no dependencies; add it with npx motion-library add tesseract.
+Tesseract is a WebGL effect: a four-dimensional cube turns and seems to flip inside out. One plain JavaScript file with no dependencies; add it with npx motion-library add tesseract.
 
 A chrome four-dimensional cube turns inside out as it rotates.
 
@@ -702,7 +702,7 @@ Renderer: WebGL. Size: 11.6 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Soap bubble
 
-Soap bubble is a WebGL effect: thin-film interference from a draining, swirling film thickness. One plain JavaScript file with no dependencies; add it with npx motion-library add soap-bubble.
+Soap bubble is a WebGL effect: wobbles in the air as rainbow colours swirl over its skin. One plain JavaScript file with no dependencies; add it with npx motion-library add soap-bubble.
 
 A floating soap bubble wobbles while swirling rainbow colours flow over it.
 
@@ -724,7 +724,7 @@ Renderer: WebGL. Size: 9.7 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Volumetric clouds
 
-Volumetric clouds is a WebGL effect: march a noise density, with a second march toward the sun. One plain JavaScript file with no dependencies; add it with npx motion-library add volumetric-clouds.
+Volumetric clouds is a WebGL effect: drift through a sunlit sky with dark bellies and bright edges. One plain JavaScript file with no dependencies; add it with npx motion-library add volumetric-clouds.
 
 The camera drifts through sunlit clouds with dark bellies, bright tops and glowing thin edges.
 
@@ -735,7 +735,7 @@ Renderer: WebGL. Size: 5.0 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Brilliant-cut diamond
 
-Brilliant-cut diamond is a WebGL effect: facet-plane intersection, total internal reflection, per-channel dispersion. One plain JavaScript file with no dependencies; add it with npx motion-library add gem.
+Brilliant-cut diamond is a WebGL effect: turns under strip lights, flashing white and coloured fire. One plain JavaScript file with no dependencies; add it with npx motion-library add gem.
 
 A brilliant-cut diamond turns under strip lights, flashing white and coloured fire.
 
@@ -746,7 +746,7 @@ Renderer: WebGL. Size: 7.6 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Klein bottle
 
-Klein bottle is a WebGL effect: parametric mesh as an additive hologram, see-through self-intersection. One plain JavaScript file with no dependencies; add it with npx motion-library add klein-bottle.
+Klein bottle is a WebGL effect: a see-through shape whose neck passes through its own side. One plain JavaScript file with no dependencies; add it with npx motion-library add klein-bottle.
 
 A holographic Klein bottle turns, its neck passing through its own wall.
 
@@ -757,7 +757,7 @@ Renderer: WebGL. Size: 6.7 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Inflated type
 
-Inflated type is a WebGL effect: pressure membrane solved inside glyphs gives a balloon profile. One plain JavaScript file with no dependencies; add it with npx motion-library add inflated-type.
+Inflated type is a WebGL effect: a word puffs up like a foil balloon, bounces, then lets down. One plain JavaScript file with no dependencies; add it with npx motion-library add inflated-type.
 
 A word blows up like a foil balloon with a springy overshoot, then lets down.
 
@@ -768,7 +768,7 @@ Renderer: WebGL. Size: 11.0 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Melting chrome logo
 
-Melting chrome logo is a WebGL effect: distance-field text melted by sampling the field from above. One plain JavaScript file with no dependencies; add it with npx motion-library add melting-logo.
+Melting chrome logo is a WebGL effect: letters slump into a puddle, then pull back into the word. One plain JavaScript file with no dependencies; add it with npx motion-library add melting-logo.
 
 Chrome letters slump into a puddle, then pull back into the word with an overshoot.
 
@@ -779,7 +779,7 @@ Renderer: WebGL. Size: 18.9 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### DNA double helix
 
-DNA double helix is a Canvas effect: pre-shaded sphere sprites sorted back to front, no 3D engine. One plain JavaScript file with no dependencies; add it with npx motion-library add dna-helix.
+DNA double helix is a Canvas effect: turns while its two strands peel apart and zip back together. One plain JavaScript file with no dependencies; add it with npx motion-library add dna-helix.
 
 A DNA double helix turns while a replication fork unzips and rezips it.
 
@@ -790,7 +790,7 @@ Renderer: Canvas 2D. Size: 3.9 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### 3D fractal tree
 
-3D fractal tree is a Canvas effect: three-way recursive branching around the golden angle, grown level by level. One plain JavaScript file with no dependencies; add it with npx motion-library add fractal-tree.
+3D fractal tree is a Canvas effect: grows branch by branch, sways in the wind and sheds petals. One plain JavaScript file with no dependencies; add it with npx motion-library add fractal-tree.
 
 A 3D tree grows level by level, sways in the wind and sheds petals.
 
@@ -801,7 +801,7 @@ Renderer: Canvas 2D. Size: 5.3 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Shatter & rewind
 
-Shatter & rewind is a WebGL effect: spiderweb Voronoi shards on closed-form paths; time slows, stops, reverses. One plain JavaScript file with no dependencies; add it with npx motion-library add shatter.
+Shatter & rewind is a WebGL effect: a ball smashes glass in slow motion, then time runs back. One plain JavaScript file with no dependencies; add it with npx motion-library add shatter.
 
 A steel ball punches through dichroic glass before a ring of light; shards bloom out in slow motion, hang, then rewind and snap whole.
 
@@ -812,7 +812,7 @@ Renderer: WebGL. Size: 26.7 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Snow globe
 
-Snow globe is a WebGL effect: a ray-marched scene seen through refracting water, with settling snow. One plain JavaScript file with no dependencies; add it with npx motion-library add snow-globe.
+Snow globe is a WebGL effect: drag across it to shake the flakes around a tiny moonlit cabin. One plain JavaScript file with no dependencies; add it with npx motion-library add snow-globe.
 
 A water-filled glass globe on a turned walnut base, with a moonlit log cabin, snowy firs, a snowman and a lamp post inside; now and then it is shaken and the snow swirls up and settles. Drag across it to shake it.
 
@@ -823,7 +823,7 @@ Renderer: WebGL. Size: 53.0 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Meadow
 
-Meadow is a WebGL effect: instanced blades bent by gust bands carried downwind across the field. One plain JavaScript file with no dependencies; add it with npx motion-library add meadow.
+Meadow is a WebGL effect: gusts sweep across sunlit grass; move to turn the wind. One plain JavaScript file with no dependencies; add it with npx motion-library add meadow.
 
 A hillside of long grass at golden hour: gusts roll across it in waves you can follow, and the blades glow where the low sun shines through them. Move across it to turn the wind.
 
@@ -837,7 +837,7 @@ Renderer: WebGL. Size: 12.7 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### CRT monitor
 
-CRT monitor is a WebGL effect: simulated electron beam, phosphor decay and aperture-grille stripes. One plain JavaScript file with no dependencies; add it with npx motion-library add crt-monitor.
+CRT monitor is a WebGL effect: an old screen warms up, plays Breakout and shrinks to a dot. One plain JavaScript file with no dependencies; add it with npx motion-library add crt-monitor.
 
 An old CRT switches on, boots, plays Breakout by itself and collapses to a dot.
 
@@ -848,7 +848,7 @@ Renderer: WebGL. Size: 19.8 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### CMYK halftone
 
-CMYK halftone is a WebGL effect: rotated dot screens (C15° M75° Y0° K45°) printed in light. One plain JavaScript file with no dependencies; add it with npx motion-library add cmyk-halftone.
+CMYK halftone is a WebGL effect: drifting colour prints in dots; move over it to swell them. One plain JavaScript file with no dependencies; add it with npx motion-library add cmyk-halftone.
 
 Drifting colour orbs print as rotated halftone dot screens forming rosettes; the cursor makes dots bloom.
 
@@ -859,7 +859,7 @@ Renderer: WebGL. Size: 7.6 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Reaction–diffusion
 
-Reaction–diffusion is a WebGL effect: gray–Scott: two chemicals, feed and kill. One plain JavaScript file with no dependencies; add it with npx motion-library add reaction-diffusion.
+Reaction–diffusion is a WebGL effect: coral-like patterns spread; move over them to seed more. One plain JavaScript file with no dependencies; add it with npx motion-library add reaction-diffusion.
 
 Spots, stripes and coral patterns grow and shift across the surface.
 
@@ -870,7 +870,7 @@ Renderer: WebGL. Size: 5.7 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Guilloche spirograph
 
-Guilloche spirograph is a Canvas effect: a hypotrochoid, drawn as a seven-line ribbon. One plain JavaScript file with no dependencies; add it with npx motion-library add guilloche.
+Guilloche spirograph is a Canvas effect: fine looping lines form rosettes like a banknote engraving. One plain JavaScript file with no dependencies; add it with npx motion-library add guilloche.
 
 Engraved banknote-style rosettes of fine looping lines.
 
@@ -881,7 +881,7 @@ Renderer: Canvas 2D. Size: 2.4 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### RGB-split glitch
 
-RGB-split glitch is a Canvas effect: shift the colour channels, displace slices. One plain JavaScript file with no dependencies; add it with npx motion-library add rgb-glitch.
+RGB-split glitch is a Canvas effect: a picture breaks into colour copies as slices jump in bursts. One plain JavaScript file with no dependencies; add it with npx motion-library add rgb-glitch.
 
 A picture splits into colour channels while slices jump sideways in random bursts.
 
@@ -892,7 +892,7 @@ Renderer: Canvas 2D. Size: 3.2 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 ### Domain-warped marble
 
-Domain-warped marble is a WebGL effect: noise sampled at noise-warped coordinates: f(p + g(p + h(p))). One plain JavaScript file with no dependencies; add it with npx motion-library add domain-warp.
+Domain-warped marble is a WebGL effect: smoky veins of colour fold into each other and keep flowing. One plain JavaScript file with no dependencies; add it with npx motion-library add domain-warp.
 
 Smoky marbled filaments fold and flow endlessly.
 
@@ -903,7 +903,7 @@ Renderer: WebGL. Size: 3.8 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Truchet flow
 
-Truchet flow is a WebGL effect: random quarter-arc tiles that always connect, checkerboard flow. One plain JavaScript file with no dependencies; add it with npx motion-library add truchet.
+Truchet flow is a WebGL effect: dashes run along winding paths that reroute as tiles turn. One plain JavaScript file with no dependencies; add it with npx motion-library add truchet.
 
 Dashes flow along winding paths that reroute as tiles occasionally turn.
 
@@ -914,7 +914,7 @@ Renderer: WebGL. Size: 4.0 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Kaleidoscope
 
-Kaleidoscope is a WebGL effect: polar angle wrapped into one mirrored wedge. One plain JavaScript file with no dependencies; add it with npx motion-library add kaleidoscope.
+Kaleidoscope is a WebGL effect: glass chips tumble in mirrored slices round a turning centre. One plain JavaScript file with no dependencies; add it with npx motion-library add kaleidoscope.
 
 A slowly turning kaleidoscope of glass chips with a warm light leak.
 
@@ -925,7 +925,7 @@ Renderer: WebGL. Size: 4.2 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Ordered dither
 
-Ordered dither is a WebGL effect: ordered dithering against an 8×8 Bayer threshold matrix. One plain JavaScript file with no dependencies; add it with npx motion-library add dither.
+Ordered dither is a WebGL effect: a small 3D scene drawn in two inks that read as soft grey. One plain JavaScript file with no dependencies; add it with npx motion-library add dither.
 
 A small 3D scene rendered in two chunky ink tones that read as smooth grey.
 
@@ -936,7 +936,7 @@ Renderer: WebGL. Size: 5.3 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Pen sketch
 
-Pen sketch is a WebGL effect: hatching layered by lighting; outlines from depth and normal jumps. One plain JavaScript file with no dependencies; add it with npx motion-library add pen-sketch.
+Pen sketch is a WebGL effect: plaster shapes turn on a stand, drawn in shaky hatched ink. One plain JavaScript file with no dependencies; add it with npx motion-library add pen-sketch.
 
 Plaster solids on a turntable drawn in boiling blue-black ink with hatching that deepens into shadow.
 
@@ -947,7 +947,7 @@ Renderer: WebGL. Size: 11.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### ASCII render
 
-ASCII render is a WebGL effect: brightness picks a glyph, edges pick - / | \ by direction. One plain JavaScript file with no dependencies; add it with npx motion-library add ascii-render.
+ASCII render is a WebGL effect: a turning 3D sponge drawn only in amber text characters. One plain JavaScript file with no dependencies; add it with npx motion-library add ascii-render.
 
 A Menger sponge turns over a floor, drawn only in amber characters.
 
@@ -958,7 +958,7 @@ Renderer: WebGL. Size: 11.9 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Pixel sort
 
-Pixel sort is a WebGL effect: GPU odd-even transposition sort within bright runs per column. One plain JavaScript file with no dependencies; add it with npx motion-library add pixel-sort.
+Pixel sort is a WebGL effect: bright sky pours down a sunset in streaks, then drains away. One plain JavaScript file with no dependencies; add it with npx motion-library add pixel-sort.
 
 A stormy sunset melts as bright sky pours down in sorted streaks, then drains away.
 
@@ -969,7 +969,7 @@ Renderer: WebGL. Size: 11.5 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Hyperbolic tiling
 
-Hyperbolic tiling is a WebGL effect: fold pixels into one triangle by reflections; glide by Möbius map. One plain JavaScript file with no dependencies; add it with npx motion-library add hyperbolic-tiling.
+Hyperbolic tiling is a WebGL effect: woven stars shrink toward the rim forever, like Escher’s prints. One plain JavaScript file with no dependencies; add it with npx motion-library add hyperbolic-tiling.
 
 A woven star pattern of seven-sided tiles streams endlessly toward the rim of a Poincaré disk.
 
@@ -980,7 +980,7 @@ Renderer: WebGL. Size: 10.7 KB. Reduced motion: no. Page: https://ajeckblad.gith
 
 ### Stained glass
 
-Stained glass is a WebGL effect: trace light back to a glass function: coloured pools and dusty shafts. One plain JavaScript file with no dependencies; add it with npx motion-library add stained-glass.
+Stained glass is a WebGL effect: coloured shafts of sun cross a church; move to shift the light. One plain JavaScript file with no dependencies; add it with npx motion-library add stained-glass.
 
 Sun pours through a row of leaded windows set deep in a stone nave: coloured shafts in the dusty air, and pools on the polished flagstones that drift as it moves.
 
@@ -994,7 +994,7 @@ Renderer: WebGL. Size: 18.5 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Op-art moiré
 
-Op-art moiré is a WebGL effect: two fine ring gratings beat into broad, fast-moving moiré fringes. One plain JavaScript file with no dependencies; add it with npx motion-library add op-art-moire.
+Op-art moiré is a WebGL effect: fine rings overlap into sweeping fringes; move to shift one set. One plain JavaScript file with no dependencies; add it with npx motion-library add op-art-moire.
 
 Two sets of fine rings overlap into sweeping moiré fringes; the pointer steers one centre.
 
@@ -1005,7 +1005,7 @@ Renderer: WebGL. Size: 4.5 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Bauhaus composition
 
-Bauhaus composition is a Canvas effect: primary tiles that re-compose themselves through staggered, eased tweens. One plain JavaScript file with no dependencies; add it with npx motion-library add bauhaus.
+Bauhaus composition is a Canvas effect: a poster of bold primary tiles keeps rearranging in ripples. One plain JavaScript file with no dependencies; add it with npx motion-library add bauhaus.
 
 A Bauhaus poster of coloured tiles where a third of the figures change in a ripple.
 
@@ -1016,7 +1016,7 @@ Renderer: Canvas 2D. Size: 5.9 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Memphis pattern
 
-Memphis pattern is a Canvas effect: jittered-grid confetti of Memphis shapes, wrapping seamlessly in three parallax layers. One plain JavaScript file with no dependencies; add it with npx motion-library add memphis.
+Memphis pattern is a Canvas effect: 80s squiggles and zigzags drift; move to shift the layers. One plain JavaScript file with no dependencies; add it with npx motion-library add memphis.
 
 Memphis squiggles, zigzags and dots drift over a dark ground; the pointer shifts three depth layers.
 
@@ -1027,7 +1027,7 @@ Renderer: Canvas 2D. Size: 5.5 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Phyllotaxis
 
-Phyllotaxis is a Canvas effect: seeds at the golden angle, radius ∝ √age: why 137.5° packs perfectly. One plain JavaScript file with no dependencies; add it with npx motion-library add phyllotaxis.
+Phyllotaxis is a Canvas effect: seeds pack a sunflower head; move sideways to change the angle. One plain JavaScript file with no dependencies; add it with npx motion-library add phyllotaxis.
 
 Seeds grow outward in a sunflower head as the angle sways around 137.508°, opening spokes. Left to right turns the angle from 130.5° to 144.5°, catching at 137.508°.
 
@@ -1038,7 +1038,7 @@ Renderer: Canvas 2D. Size: 5.0 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Rose curve
 
-Rose curve is a Canvas effect: r = cos(kθ) traced by a comet pen, k gliding between fractions. One plain JavaScript file with no dependencies; add it with npx motion-library add rose-curve.
+Rose curve is a Canvas effect: a glowing pen draws petal shapes; move to pick the next one. One plain JavaScript file with no dependencies; add it with npx motion-library add rose-curve.
 
 A glowing pen traces a polar rose, holds it, then morphs into the next. The pointer picks the ratio n/d: across for n, down for d.
 
@@ -1049,7 +1049,7 @@ Renderer: Canvas 2D. Size: 7.3 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Superformula
 
-Superformula is a Canvas effect: Gielis superformula outlines blended radius by radius, echoed into ribbons. One plain JavaScript file with no dependencies; add it with npx motion-library add superformula.
+Superformula is a Canvas effect: one outline morphs from stars to flowers; move to reshape it. One plain JavaScript file with no dependencies; add it with npx motion-library add superformula.
 
 A star morphs into a square, gear, triangle and flower, trailing fading nested echoes. The pointer sets symmetry and sharpness, from spiky star to round flower.
 
@@ -1060,7 +1060,7 @@ Renderer: Canvas 2D. Size: 7.0 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Hex wave
 
-Hex wave is a Canvas effect: honeycomb prisms lifted by summed travelling rings and a swell. One plain JavaScript file with no dependencies; add it with npx motion-library add hex-wave.
+Hex wave is a Canvas effect: honeycomb columns rise in rings; tap or move to add more. One plain JavaScript file with no dependencies; add it with npx motion-library add hex-wave.
 
 Rings of raised, glowing hex prisms spread over a slow swell; click or move to drop rings.
 
@@ -1071,7 +1071,7 @@ Renderer: Canvas 2D. Size: 4.8 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Wave lines
 
-Wave lines is a Canvas effect: harmonics phase-shifted line to line; hidden-line ridges drift diagonally. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-lines.
+Wave lines is a Canvas effect: stacked hairlines roll into ridges; move to lift a peak. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-lines.
 
 A stack of hairlines rises into ridges that travel diagonally down and flatten again. The pointer pinches the lines up into a glowing peak.
 
@@ -1082,7 +1082,7 @@ Renderer: Canvas 2D. Size: 6.2 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Starburst
 
-Starburst is a Canvas effect: counter-rotating ray fans and zooming rings, combined with a difference blend. One plain JavaScript file with no dependencies; add it with npx motion-library add starburst.
+Starburst is a Canvas effect: spinning rays stream outward; move to cross in a second fan. One plain JavaScript file with no dependencies; add it with npx motion-library add starburst.
 
 A sunburst of rays spins, flickers and streams outward through bands of colour. The pointer moves a second ray fan, and the two cross into moiré arcs.
 
@@ -1093,7 +1093,7 @@ Renderer: Canvas 2D. Size: 4.7 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Log spiral
 
-Log spiral is a WebGL effect: rotating log spirals look like an endless zoom inward. One plain JavaScript file with no dependencies; add it with npx motion-library add spiral.
+Log spiral is a WebGL effect: arms pour inward forever and stream out of your pointer. One plain JavaScript file with no dependencies; add it with npx motion-library add spiral.
 
 Gold and blue spirals weave a diamond lattice that pours endlessly into a glowing centre. The pointer is a second pole the spirals stream out of.
 
@@ -1104,7 +1104,7 @@ Renderer: WebGL. Size: 6.4 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Woven tartan
 
-Woven tartan is a WebGL effect: real 2/2 twill per pixel: a mirrored sett on warp and weft. One plain JavaScript file with no dependencies; add it with npx motion-library add tartan.
+Woven tartan is a WebGL effect: plaid cloth slides by up close, every thread visible. One plain JavaScript file with no dependencies; add it with npx motion-library add tartan.
 
 A close-up of woven tartan slides diagonally, every thread and twill rib visible.
 
@@ -1115,7 +1115,7 @@ Renderer: WebGL. Size: 5.8 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Clifford attractor
 
-Clifford attractor is a WebGL effect: a million GPU orbits a frame into a log-tone-mapped density buffer. One plain JavaScript file with no dependencies; add it with npx motion-library add clifford-attractor.
+Clifford attractor is a WebGL effect: a silky ribbon of light keeps reshaping; move to bend it. One plain JavaScript file with no dependencies; add it with npx motion-library add clifford-attractor.
 
 A silky self-crossing ribbon of light reshapes as its four parameters drift. Pointer x and y set two coefficients, reshaping the attractor under your hand.
 
@@ -1126,7 +1126,7 @@ Renderer: WebGL. Size: 9.9 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Barnsley fern
 
-Barnsley fern is a Canvas effect: chaos game with four affine maps, shaded by hit count. One plain JavaScript file with no dependencies; add it with npx motion-library add barnsley-fern.
+Barnsley fern is a Canvas effect: scattered dots build a leafy frond; move to blow it about. One plain JavaScript file with no dependencies; add it with npx motion-library add barnsley-fern.
 
 A fern assembles from scattered dots, outline first, then leaflets and veins. The pointer is wind: the fern leans and curls toward it.
 
@@ -1137,7 +1137,7 @@ Renderer: Canvas 2D. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Chaos game
 
-Chaos game is a Canvas effect: random jumps toward corners converge on the Sierpinski triangle. One plain JavaScript file with no dependencies; add it with npx motion-library add sierpinski.
+Chaos game is a Canvas effect: random jumps build nested triangles; move to pull a corner. One plain JavaScript file with no dependencies; add it with npx motion-library add sierpinski.
 
 A point jumping halfway to random corners draws a Sierpinski triangle in nested colours. The pointer pulls the nearest corner, and the figure re-forms around it.
 
@@ -1148,7 +1148,7 @@ Renderer: Canvas 2D. Size: 9.4 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Dragon curve
 
-Dragon curve is a Canvas effect: each fold copies the curve and swings it open by 90°. One plain JavaScript file with no dependencies; add it with npx motion-library add dragon-curve.
+Dragon curve is a Canvas effect: a paper strip unfolds fold by fold; move to set the angle. One plain JavaScript file with no dependencies; add it with npx motion-library add dragon-curve.
 
 A Heighway dragon unfolds one crease at a time to 8,192 segments, then folds back. Left to right opens every crease from 60° to 150°, catching at 90°.
 
@@ -1159,7 +1159,7 @@ Renderer: Canvas 2D. Size: 6.3 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Dot-matrix wave
 
-Dot-matrix wave is a WebGL effect: one disc per cell, sized and coloured by rolling waves. One plain JavaScript file with no dependencies; add it with npx motion-library add dot-matrix-wave.
+Dot-matrix wave is a WebGL effect: round lights breathe in rolling bands; move to raise a bulge. One plain JavaScript file with no dependencies; add it with npx motion-library add dot-matrix-wave.
 
 A grid of dots breathes in rolling bands; the cursor raises a hot dome with a moat.
 
@@ -1170,7 +1170,7 @@ Renderer: WebGL. Size: 6.8 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Metaballs
 
-Metaballs is a WebGL effect: summed inverse-square fields, thresholded into one surface. One plain JavaScript file with no dependencies; add it with npx motion-library add metaballs.
+Metaballs is a WebGL effect: glossy blobs flow into each other; your pointer is one too. One plain JavaScript file with no dependencies; add it with npx motion-library add metaballs.
 
 Glossy blobs drift and flow into one another with smooth necks; the cursor is a blob too.
 
@@ -1181,7 +1181,7 @@ Renderer: WebGL. Size: 7.0 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Aurora curtains
 
-Aurora curtains is a WebGL effect: folded light curtains: bright hems, stretched-noise rays, altitude colour. One plain JavaScript file with no dependencies; add it with npx motion-library add aurora-ribbons.
+Aurora curtains is a WebGL effect: green light pleats across a starry sky; move to lift a fold. One plain JavaScript file with no dependencies; add it with npx motion-library add aurora-ribbons.
 
 Green aurora curtains pleat and drift across a starry sky, shimmering into violet above. The pointer lifts the nearest curtain into a bright fold.
 
@@ -1192,7 +1192,7 @@ Renderer: WebGL. Size: 8.5 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Ripple grid
 
-Ripple grid is a WebGL effect: damped ring waves displace the coordinates a grid is drawn in. One plain JavaScript file with no dependencies; add it with npx motion-library add ripple-grid.
+Ripple grid is a WebGL effect: graph paper floats on water; tap or move to send rings. One plain JavaScript file with no dependencies; add it with npx motion-library add ripple-grid.
 
 A fine grid floats like graph paper on water, rings spreading from clicks and movement.
 
@@ -1203,7 +1203,7 @@ Renderer: WebGL. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Voronoi cells
 
-Voronoi cells is a WebGL effect: nearest and second-nearest seed distances; walls where F2 − F1 ≈ 0. One plain JavaScript file with no dependencies; add it with npx motion-library add voronoi-cells.
+Voronoi cells is a WebGL effect: glass panes drift and swap neighbours; move to push them. One plain JavaScript file with no dependencies; add it with npx motion-library add voronoi-cells.
 
 A glass mosaic of drifting cells with glowing walls that slide and swap partners. The pointer is one more seed, pushing its neighbours aside.
 
@@ -1214,7 +1214,7 @@ Renderer: WebGL. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Quasicrystal
 
-Quasicrystal is a WebGL effect: n rotated plane waves summed: ordered, symmetric, never repeating. One plain JavaScript file with no dependencies; add it with npx motion-library add quasicrystal.
+Quasicrystal is a WebGL effect: golden rosettes bloom outward, never repeating; move to reshape. One plain JavaScript file with no dependencies; add it with npx motion-library add quasicrystal.
 
 Gold rings and five-pointed rosettes bloom outward in a pattern that never repeats. The pointer shifts the waves’ phases, so rosettes melt and re-form.
 
@@ -1225,7 +1225,7 @@ Renderer: WebGL. Size: 6.2 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Topographic contours
 
-Topographic contours is a WebGL effect: isolines of morphing noise terrain, made pixel-exact with fwidth. One plain JavaScript file with no dependencies; add it with npx motion-library add topographic.
+Topographic contours is a WebGL effect: map lines shift with the land; move for a hill, press to dig. One plain JavaScript file with no dependencies; add it with npx motion-library add topographic.
 
 Contour lines of a slowly shifting landscape crowd on slopes and close into rings on peaks. The pointer raises a hill the contours ring around; press to sink a pit.
 
@@ -1236,7 +1236,7 @@ Renderer: WebGL. Size: 7.1 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Wave interference
 
-Wave interference is a WebGL effect: point sources summed as complex waves; fixed fringes, travelling crests. One plain JavaScript file with no dependencies; add it with npx motion-library add interference.
+Wave interference is a WebGL effect: ripples from two points cross in bands; move to shift one. One plain JavaScript file with no dependencies; add it with npx motion-library add interference.
 
 Two ripple sources cross into bright bands and black nodal lines; move the cursor to drag one source.
 
@@ -1247,7 +1247,7 @@ Renderer: WebGL. Size: 6.3 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Plasma
 
-Plasma is a WebGL effect: four sines summed, through a dark-light-dark ramp, not a rainbow. One plain JavaScript file with no dependencies; add it with npx motion-library add plasma.
+Plasma is a WebGL effect: neon coral and ice-blue blobs swell and fold; move to steer. One plain JavaScript file with no dependencies; add it with npx motion-library add plasma.
 
 Neon lobes swell, merge and fold, warm coral on one side and ice blue on the other. The rings spread out from the pointer.
 
@@ -1258,7 +1258,7 @@ Renderer: WebGL. Size: 6.6 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Heatmap
 
-Heatmap is a WebGL effect: a drifting field, sampled per cell, through a perceptual heat palette. One plain JavaScript file with no dependencies; add it with npx motion-library add heatmap.
+Heatmap is a WebGL effect: cells glow hotter as heat drifts; move to leave a warm trail. One plain JavaScript file with no dependencies; add it with npx motion-library add heatmap.
 
 A grid of rounded cells glows from black through crimson to pale yellow as hot spots drift. The pointer leaves heat that spreads and slowly cools.
 
@@ -1269,7 +1269,7 @@ Renderer: WebGL. Size: 8.3 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Julia set
 
-Julia set is a WebGL effect: z → z² + c, with c gliding along the Mandelbrot edge. One plain JavaScript file with no dependencies; add it with npx motion-library add julia-set.
+Julia set is a WebGL effect: a glowing fractal melts from lobes to spirals; move to steer. One plain JavaScript file with no dependencies; add it with npx motion-library add julia-set.
 
 A glowing fractal morphs endlessly: fat lobes melt into spirals, then lace and dust, and back. Move the pointer to steer c yourself.
 
@@ -1280,7 +1280,7 @@ Renderer: WebGL. Size: 8.1 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Wave function collapse
 
-Wave function collapse is a Canvas effect: collapse the least certain cell, then propagate what its neighbours may be. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-collapse.
+Wave function collapse is a Canvas effect: an island map fills itself in; drag to wipe a patch and regrow. One plain JavaScript file with no dependencies; add it with npx motion-library add wave-collapse.
 
 An island map writes itself: unsolved cells hold every terrain at once until the solver picks one, and coastlines, beaches and ridges grow out from there. Press and drag to dissolve a patch and watch it regrow.
 
@@ -1294,7 +1294,7 @@ Renderer: Canvas 2D. Size: 14.7 KB. Reduced motion: yes. Page: https://ajeckblad
 
 ### Brian’s Brain
 
-Brian’s Brain is a Canvas effect: three-state cellular automaton: fire, refractory, off; gliders everywhere. One plain JavaScript file with no dependencies; add it with npx motion-library add brians-brain.
+Brian’s Brain is a Canvas effect: tiny ships streak, crash and spawn new ones; drag to draw. One plain JavaScript file with no dependencies; add it with npx motion-library add brians-brain.
 
 Spaceships streak across a grid, crash and spawn new ones, trailing cooling blue tails; drag to paint cells.
 
@@ -1305,7 +1305,7 @@ Renderer: Canvas 2D. Size: 5.8 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Langton’s ant
 
-Langton’s ant is a Canvas effect: turn right on empty, left on filled, flip, step: then a highway. One plain JavaScript file with no dependencies; add it with npx motion-library add langtons-ant.
+Langton’s ant is a Canvas effect: scribbles a messy blob for ages, then marches off in a line. One plain JavaScript file with no dependencies; add it with npx motion-library add langtons-ant.
 
 One ant scribbles chaos for about ten thousand steps, then builds a straight diagonal highway.
 
@@ -1316,7 +1316,7 @@ Renderer: Canvas 2D. Size: 4.6 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Falling sand
 
-Falling sand is a Canvas effect: cellular automaton: grains fall, slide diagonally, water spreads sideways. One plain JavaScript file with no dependencies; add it with npx motion-library add falling-sand.
+Falling sand is a Canvas effect: move to pour grains that pile into dunes and soak up water. One plain JavaScript file with no dependencies; add it with npx motion-library add falling-sand.
 
 Fine desert sand pours from the cursor, piles on the ledges and settles into layered dunes; now and then a burst of water runs down, pools in the hollows and darkens the sand it soaks.
 
@@ -1327,7 +1327,7 @@ Renderer: Canvas 2D. Size: 15.8 KB. Reduced motion: yes. Page: https://ajeckblad
 
 ### Doom fire
 
-Doom fire is a Canvas effect: the PlayStation Doom fire: copy heat up, jitter sideways, cool randomly. One plain JavaScript file with no dependencies; add it with npx motion-library add doom-fire.
+Doom fire is a Canvas effect: chunky pixel flames sway and roar back; drag to add heat. One plain JavaScript file with no dependencies; add it with npx motion-library add doom-fire.
 
 A wall of chunky pixel fire sways, dies down and roars back; drag to add heat anywhere.
 
@@ -1338,7 +1338,7 @@ Renderer: Canvas 2D. Size: 4.6 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Water ripples
 
-Water ripples is a WebGL effect: height-field wave equation on the GPU over a sunlit, pebbled pond bed. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.
+Water ripples is a WebGL effect: drops ring across a sunny pond; drag for a wake, tap to splash. One plain JavaScript file with no dependencies; add it with npx motion-library add water-ripple.
 
 A shallow pond on a sunny day: one drop at a time falls into the clear water and sends a ring across it, bending the pebbles below, with sunlight caustics on the bed and the sky on the surface; the slider sets the seconds between drops. Drag for a wake, click for a big drop.
 
@@ -1349,7 +1349,7 @@ Renderer: WebGL. Size: 14.3 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Double pendulums
 
-Double pendulums is a Canvas effect: chaos: pendulums a fraction of a milliradian apart diverge completely. One plain JavaScript file with no dependencies; add it with npx motion-library add double-pendulum.
+Double pendulums is a Canvas effect: nine swing as one, then split apart; move to hold the pivot. One plain JavaScript file with no dependencies; add it with npx motion-library add double-pendulum.
 
 Nine double pendulums swing as one white trace, then suddenly fan out into colours that never agree again. The pointer holds the pivot, so the pendulums swing from your hand.
 
@@ -1360,7 +1360,7 @@ Renderer: Canvas 2D. Size: 7.4 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### N-body orbits
 
-N-body orbits is a Canvas effect: every body pulls every other; leapfrog integration keeps orbits closed. One plain JavaScript file with no dependencies; add it with npx motion-library add orbits.
+N-body orbits is a Canvas effect: planets loop twin suns in rosettes; tap to drop a new one. One plain JavaScript file with no dependencies; add it with npx motion-library add orbits.
 
 Planets circle twin suns in slowly turning rosettes while comets swing through; click to drop a planet.
 
@@ -1371,7 +1371,7 @@ Renderer: Canvas 2D. Size: 7.9 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Vortex drain
 
-Vortex drain is a Canvas effect: lamb–Oseen vortex plus inflow; differential rotation winds colour into arms. One plain JavaScript file with no dependencies; add it with npx motion-library add vortex.
+Vortex drain is a Canvas effect: streaks spiral into a hole that follows your pointer. One plain JavaScript file with no dependencies; add it with npx motion-library add vortex.
 
 Thousands of streaks spiral into a drain that follows the cursor, their colours wound into spiral arms.
 
@@ -1382,7 +1382,7 @@ Renderer: Canvas 2D. Size: 4.4 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Plexus
 
-Plexus is a Canvas effect: drifting points linked by distance-faded lines, found through a grid. One plain JavaScript file with no dependencies; add it with npx motion-library add plexus.
+Plexus is a Canvas effect: drifting dots link up with fine lines; move to gather them. One plain JavaScript file with no dependencies; add it with npx motion-library add plexus.
 
 Drifting points knit a mesh of fine lines, and the cursor gathers the nearest into warm links.
 
@@ -1393,7 +1393,7 @@ Renderer: Canvas 2D. Size: 5.3 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Lenia
 
-Lenia is a WebGL effect: ring-kernel convolution and a growth bump: Chan’s Lenia, four species. One plain JavaScript file with no dependencies; add it with npx motion-library add lenia.
+Lenia is a WebGL effect: soft lifelike blobs glide, spin and heal; drag to wound one. One plain JavaScript file with no dependencies; add it with npx motion-library add lenia.
 
 Real creatures from Bert Chan’s Lenia catalogue glide, spin, collide and heal in a drop under a fluorescence microscope; move to focus, drag to wound.
 
@@ -1404,7 +1404,7 @@ Renderer: WebGL. Size: 31.6 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Differential growth
 
-Differential growth is a WebGL effect: repel, align, split stretched edges: a growing line folds to fit. One plain JavaScript file with no dependencies; add it with npx motion-library add diff-growth.
+Differential growth is a WebGL effect: an ink line outgrows the page and folds into a maze. One plain JavaScript file with no dependencies; add it with npx motion-library add diff-growth.
 
 A fine ink line grows longer than its paper allows and folds outward into a branching maze, with nested contours inside; the ink runs from deep blue at the old centre to vermilion at the newest edge.
 
@@ -1415,7 +1415,7 @@ Renderer: WebGL. Size: 18.4 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Snowflake growth
 
-Snowflake growth is a WebGL effect: gravner–Griffeath model: vapour diffuses, sites freeze by neighbour rules. One plain JavaScript file with no dependencies; add it with npx motion-library add snowflake.
+Snowflake growth is a WebGL effect: ice grows six branching arms, then a fresh crystal starts. One plain JavaScript file with no dependencies; add it with npx motion-library add snowflake.
 
 Vapour diffuses on a hex lattice; edge sites freeze when their liquid layer is thick enough, and corners outgrow faces into branches.
 
@@ -1426,7 +1426,7 @@ Renderer: WebGL. Size: 13.2 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Mud cracks
 
-Mud cracks is a Canvas effect: warped Voronoi walls tear open as the drying front passes. One plain JavaScript file with no dependencies; add it with npx motion-library add mud-cracks.
+Mud cracks is a Canvas effect: wet clay dries into curled plates; drag to wet a patch again. One plain JavaScript file with no dependencies; add it with npx motion-library add mud-cracks.
 
 Wet, glossy clay dries unevenly and tears into curled plates, the cracks widening as it shrinks; then rain soaks it and the cracks close. Press and drag to wet a patch.
 
@@ -1440,7 +1440,7 @@ Renderer: Canvas 2D. Size: 14.8 KB. Reduced motion: yes. Page: https://ajeckblad
 
 ### Digital rain
 
-Digital rain is a Canvas effect: falling glyph heads with fading tails, stamped from a cached atlas. One plain JavaScript file with no dependencies; add it with npx motion-library add matrix-rain.
+Digital rain is a Canvas effect: green glyphs pour down in columns behind bright white heads. One plain JavaScript file with no dependencies; add it with npx motion-library add matrix-rain.
 
 Columns of mirrored katakana and digits pour down, each led by a white head and fading green tail.
 
@@ -1451,7 +1451,7 @@ Renderer: Canvas 2D. Size: 5.0 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Warp starfield
 
-Warp starfield is a Canvas effect: perspective-projected stars whose streak length grows with speed. One plain JavaScript file with no dependencies; add it with npx motion-library add starfield-warp.
+Warp starfield is a Canvas effect: stars stretch into streaks as speed builds; move to steer. One plain JavaScript file with no dependencies; add it with npx motion-library add starfield-warp.
 
 Stars rush from a vanishing point, dots at cruise and long streaks at warp; the pointer steers.
 
@@ -1462,7 +1462,7 @@ Renderer: Canvas 2D. Size: 5.8 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Oscilloscope
 
-Oscilloscope is a Canvas effect: x-Y Lissajous beam with speed-dependent brightness and phosphor afterglow. One plain JavaScript file with no dependencies; add it with npx motion-library add oscilloscope.
+Oscilloscope is a Canvas effect: a green beam draws looping figures; move to turn the knobs. One plain JavaScript file with no dependencies; add it with npx motion-library add oscilloscope.
 
 A green CRT trace draws drifting Lissajous figures over a graticule, leaving a fading phosphor afterglow. Left–right picks the frequency ratio, up–down the phase.
 
@@ -1473,7 +1473,7 @@ Renderer: Canvas 2D. Size: 8.9 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Copper bars
 
-Copper bars is a WebGL effect: per-scanline colour ramps on a rolling drum, in 12-bit colour. One plain JavaScript file with no dependencies; add it with npx motion-library add copper-bars.
+Copper bars is a WebGL effect: shiny Amiga-style stripes roll over and under each other. One plain JavaScript file with no dependencies; add it with npx motion-library add copper-bars.
 
 Glossy horizontal bars roll over and under each other above a rippling reflection, banded like an Amiga.
 
@@ -1484,7 +1484,7 @@ Renderer: WebGL. Size: 4.7 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Checker tunnel
 
-Checker tunnel is a WebGL effect: angle and inverse radius as texture coordinates; a flat checker becomes a tube. One plain JavaScript file with no dependencies; add it with npx motion-library add checker-tunnel.
+Checker tunnel is a WebGL effect: fly down an endless twisting tube of squares into the dark. One plain JavaScript file with no dependencies; add it with npx motion-library add checker-tunnel.
 
 An endless twisting, bending checker tunnel rushes past and fades into the dark.
 
@@ -1495,7 +1495,7 @@ Renderer: WebGL. Size: 4.3 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Rotozoom
 
-Rotozoom is a WebGL effect: one texture lookup through a rotating, breathing scale matrix. One plain JavaScript file with no dependencies; add it with npx motion-library add rotozoom.
+Rotozoom is a WebGL effect: a pattern of nested squares spins and zooms like a 90s demo. One plain JavaScript file with no dependencies; add it with npx motion-library add rotozoom.
 
 A XOR pattern of nested squares spins and zooms in and out across the screen.
 
@@ -1506,7 +1506,7 @@ Renderer: WebGL. Size: 4.1 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Seven-segment clock
 
-Seven-segment clock is a Canvas effect: bevelled hexagon segments with lit glow and unlit ghosts. One plain JavaScript file with no dependencies; add it with npx motion-library add seven-segment.
+Seven-segment clock is a Canvas effect: a live LED readout ticks hundredths, unlit bars faint behind. One plain JavaScript file with no dependencies; add it with npx motion-library add seven-segment.
 
 A live LED clock with hundredths, a slanted face, faint unlit segments and a blinking colon.
 
@@ -1517,7 +1517,7 @@ Renderer: Canvas 2D. Size: 5.9 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### LED dot-matrix sign
 
-LED dot-matrix sign is a WebGL effect: 5×7 bitmap text stepped one LED column at a time, bloomed per LED. One plain JavaScript file with no dependencies; add it with npx motion-library add led-matrix.
+LED dot-matrix sign is a WebGL effect: amber text scrolls across a board of round glowing bulbs. One plain JavaScript file with no dependencies; add it with npx motion-library add led-matrix.
 
 Amber text scrolls across a panel of round LEDs with ghost dots and soft bloom.
 
@@ -1528,7 +1528,7 @@ Renderer: WebGL. Size: 7.5 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Radar sweep
 
-Radar sweep is a WebGL effect: phosphor decay as exp(−angle since the beam passed). One plain JavaScript file with no dependencies; add it with npx motion-library add radar-sweep.
+Radar sweep is a WebGL effect: a turning beam lights up blips that fade until the next pass. One plain JavaScript file with no dependencies; add it with npx motion-library add radar-sweep.
 
 A radar beam turns over range rings, and contacts flare as it passes, then fade.
 
@@ -1539,7 +1539,7 @@ Renderer: WebGL. Size: 6.2 KB. Reduced motion: yes. Page: https://ajeckblad.gith
 
 ### Heart monitor
 
-Heart monitor is a Canvas effect: gaussian PQRST beats written in place behind an erase bar. One plain JavaScript file with no dependencies; add it with npx motion-library add ekg.
+Heart monitor is a Canvas effect: a green heartbeat trace writes across, wiping as it goes. One plain JavaScript file with no dependencies; add it with npx motion-library add ekg.
 
 A green ECG trace writes across the screen, wiping a gap just ahead of the pen.
 
@@ -1550,7 +1550,7 @@ Renderer: Canvas 2D. Size: 5.8 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Spectrum analyser
 
-Spectrum analyser is a Canvas effect: synthesised spectrum, fast-attack bars, peak caps falling under gravity. One plain JavaScript file with no dependencies; add it with npx motion-library add audio-bars.
+Spectrum analyser is a Canvas effect: bars jump to a beat while their peak caps hang, then drop. One plain JavaScript file with no dependencies; add it with npx motion-library add audio-bars.
 
 Segmented green-to-red bars dance to a beat, each topped by a peak cap that hangs, then falls.
 
@@ -1561,7 +1561,7 @@ Renderer: Canvas 2D. Size: 5.4 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Neon tubes
 
-Neon tubes is a Canvas effect: hot core, coloured glass, and a mip-pyramid bloom. One plain JavaScript file with no dependencies; add it with npx motion-library add neon-pipes.
+Neon tubes is a Canvas effect: bright coloured glass snakes across a dark wall. One plain JavaScript file with no dependencies; add it with npx motion-library add neon-pipes.
 
 Coloured neon tubes snake slowly across a dark wall, each with a white-hot core and soft halo.
 
@@ -1572,7 +1572,7 @@ Renderer: Canvas 2D. Size: 5.6 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Targeting HUD
 
-Targeting HUD is a Canvas effect: spring-damped reticle, edge rulers, and brackets that close to lock. One plain JavaScript file with no dependencies; add it with npx motion-library add crosshair-hud.
+Targeting HUD is a Canvas effect: a sight follows your pointer and locks onto nearby blips. One plain JavaScript file with no dependencies; add it with npx motion-library add crosshair-hud.
 
 A targeting reticle follows the pointer with live readouts, and brackets close in to lock onto contacts.
 
@@ -1586,7 +1586,7 @@ Renderer: Canvas 2D. Size: 8.4 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Fade & scale in
 
-Fade & scale in is a DOM effect: cards rise from 94% scale, never from zero. One plain JavaScript file with no dependencies; add it with npx motion-library add fade-scale.
+Fade & scale in is a DOM effect: old shop cards leave fast and new ones rise in, one by one. One plain JavaScript file with no dependencies; add it with npx motion-library add fade-scale.
 
 Tap a shop filter and the product cards leave quickly, then the new ones rise in turn.
 
@@ -1597,7 +1597,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.1 KB. Reduced motion: y
 
 ### Stagger grid
 
-Stagger grid is a DOM effect: delay grows with distance from the tap. One plain JavaScript file with no dependencies; add it with npx motion-library add stagger-grid.
+Stagger grid is a DOM effect: a colour change ripples out from the tapped swatch. One plain JavaScript file with no dependencies; add it with npx motion-library add stagger-grid.
 
 Tap a paint-chart swatch and every swatch turns a shade of it, in a spreading wave.
 
@@ -1608,7 +1608,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.1 KB. Reduced motion: ye
 
 ### Easing curves race
 
-Easing curves race is a DOM effect: same distance, same time, four easing curves. One plain JavaScript file with no dependencies; add it with npx motion-library add easing-race.
+Easing curves race is a DOM effect: four toggles side by side show why ease-out feels fastest. One plain JavaScript file with no dependencies; add it with npx motion-library add easing-race.
 
 Four billing toggles switch together over the same distance and time; only the easing curve differs.
 
@@ -1619,7 +1619,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.5 KB. Reduced motion: ye
 
 ### 3D card flip
 
-3D card flip is a DOM effect: rotateY on a spring, with the back face hidden. One plain JavaScript file with no dependencies; add it with npx motion-library add card-flip.
+3D card flip is a DOM effect: turns over to show the back when the CVC field is in focus. One plain JavaScript file with no dependencies; add it with npx motion-library add card-flip.
 
 At checkout the card preview turns over when the CVC field gets focus, and back afterwards.
 
@@ -1630,7 +1630,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: ye
 
 ### Anticipation & follow-through
 
-Anticipation & follow-through is a DOM effect: crouch before the hop, wobble after the landing. One plain JavaScript file with no dependencies; add it with npx motion-library add anticipation.
+Anticipation & follow-through is a DOM effect: a product crouches, hops into the bag and the handle swings. One plain JavaScript file with no dependencies; add it with npx motion-library add anticipation.
 
 A product hops into the bag icon, crouching first and stretching in flight, while the handle swings on.
 
@@ -1641,7 +1641,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.1 KB. Reduced motion: ye
 
 ### List reorder (FLIP)
 
-List reorder (FLIP) is a DOM effect: FLIP reorder; rising rows pass above falling ones. One plain JavaScript file with no dependencies; add it with npx motion-library add list-reorder.
+List reorder (FLIP) is a DOM effect: leaderboard rows glide to new ranks, climbers passing above. One plain JavaScript file with no dependencies; add it with npx motion-library add list-reorder.
 
 A running club’s leaderboard re-ranks by distance, pace or climb, and each runner glides to their new place.
 
@@ -1652,7 +1652,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.5 KB. Reduced motion: ye
 
 ### Add & remove
 
-Add & remove is a DOM effect: the gap closes after the item leaves, and opens before it returns. One plain JavaScript file with no dependencies; add it with npx motion-library add add-remove.
+Add & remove is a DOM effect: an item fades, the rest close the gap, and Undo reverses it. One plain JavaScript file with no dependencies; add it with npx motion-library add add-remove.
 
 A removed bag item fades out, then the rows below close the gap; Undo reverses both steps.
 
@@ -1663,7 +1663,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.5 KB. Reduced motion: ye
 
 ### Number ticker
 
-Number ticker is a DOM effect: each digit is a 0–9 strip that rolls to its value. One plain JavaScript file with no dependencies; add it with npx motion-library add number-ticker.
+Number ticker is a DOM effect: each digit rolls to its new value when a stat changes. One plain JavaScript file with no dependencies; add it with npx motion-library add number-ticker.
 
 A revenue card switches range and each digit rolls to its new value like an odometer.
 
@@ -1674,7 +1674,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.4 KB. Reduced motion: ye
 
 ### Accordion FAQ
 
-Accordion FAQ is a DOM effect: height to a measured value, text a beat later. One plain JavaScript file with no dependencies; add it with npx motion-library add accordion-faq.
+Accordion FAQ is a DOM effect: answers open one at a time, the text a beat behind. One plain JavaScript file with no dependencies; add it with npx motion-library add accordion-faq.
 
 Delivery questions open one at a time: the answer panel grows, the previous closes, the chevron turns.
 
@@ -1685,7 +1685,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.7 KB. Reduced motion: ye
 
 ### Tab swap
 
-Tab swap is a DOM effect: a clipped copy of the tabs; the leading edge moves first. One plain JavaScript file with no dependencies; add it with npx motion-library add tab-swap.
+Tab swap is a DOM effect: a dark pill stretches to the picked item, front edge first. One plain JavaScript file with no dependencies; add it with npx motion-library add tab-swap.
 
 A dark pill slides to the picked product tab and the content below cross-fades.
 
@@ -1699,7 +1699,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.0 KB. Reduced motion: ye
 
 ### Push slide
 
-Push slide is a DOM effect: the new screen pushes; the old one drifts slower. One plain JavaScript file with no dependencies; add it with npx motion-library add push-slide.
+Push slide is a DOM effect: a new screen sweeps in as the old one drifts back and dims. One plain JavaScript file with no dependencies; add it with npx motion-library add push-slide.
 
 In phone Settings, Notifications pushes in from the right and Back slides it out again.
 
@@ -1710,7 +1710,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 13.1 KB. Reduced motion: y
 
 ### Circle reveal
 
-Circle reveal is a DOM effect: a clip-path circle grows from the tap point. One plain JavaScript file with no dependencies; add it with npx motion-library add circle-reveal.
+Circle reveal is a DOM effect: tap anywhere and the new theme floods out from that point. One plain JavaScript file with no dependencies; add it with npx motion-library add circle-reveal.
 
 Tapping Dark floods the dark theme out from your finger in a circle; click to set the origin.
 
@@ -1721,7 +1721,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.1 KB. Reduced motion: y
 
 ### Staircase wipe
 
-Staircase wipe is a DOM effect: bars cover in a stagger, the page swaps unseen. One plain JavaScript file with no dependencies; add it with npx motion-library add staircase-wipe.
+Staircase wipe is a DOM effect: coloured bars sweep down over the page and carry on out. One plain JavaScript file with no dependencies; add it with npx motion-library add staircase-wipe.
 
 Next sends coloured bars down over a shop page in turn, revealing the next collection as they leave.
 
@@ -1732,7 +1732,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: ye
 
 ### Shared-element expand
 
-Shared-element expand is a DOM effect: FLIP with a uniform scale and a clip. One plain JavaScript file with no dependencies; add it with npx motion-library add shared-expand.
+Shared-element expand is a DOM effect: a product photo grows from its card into the page header. One plain JavaScript file with no dependencies; add it with npx motion-library add shared-expand.
 
 A tapped product photo grows from its card into the page header and shrinks back on return.
 
@@ -1743,7 +1743,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 14.3 KB. Reduced motion: y
 
 ### View Transitions morph
 
-View Transitions morph is a DOM effect: the browser morphs matching view-transition-names. One plain JavaScript file with no dependencies; add it with npx motion-library add view-transition.
+View Transitions morph is a DOM effect: an album cover grows into the open album’s header, and back. One plain JavaScript file with no dependencies; add it with npx motion-library add view-transition.
 
 An album’s cover and name grow into the header of the opened album, and shrink back on return.
 
@@ -1754,7 +1754,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.5 KB. Reduced motion: y
 
 ### iOS sheet
 
-iOS sheet is a DOM effect: the page steps back as the sheet comes up. One plain JavaScript file with no dependencies; add it with npx motion-library add ios-sheet.
+iOS sheet is a DOM effect: a panel slides up while the page behind steps back and dims. One plain JavaScript file with no dependencies; add it with npx motion-library add ios-sheet.
 
 Choose size slides a sheet up while the page behind shrinks, rounds its corners and dims.
 
@@ -1765,7 +1765,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.6 KB. Reduced motion: y
 
 ### Lightbox zoom
 
-Lightbox zoom is a DOM effect: the square crop opens out to the full photo. One plain JavaScript file with no dependencies; add it with npx motion-library add lightbox-zoom.
+Lightbox zoom is a DOM effect: a thumbnail grows into a full-screen photo and shrinks back. One plain JavaScript file with no dependencies; add it with npx motion-library add lightbox-zoom.
 
 A tapped photo grows from its square into a full-screen viewer; swipe down and it shrinks back home.
 
@@ -1776,7 +1776,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 12.5 KB. Reduced motion: y
 
 ### Directional tabs
 
-Directional tabs is a DOM effect: content enters from the side of the tab you picked. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-tabs.
+Directional tabs is a DOM effect: products slide in from the side of the category you picked. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-tabs.
 
 Picking a category further right slides products in from the right; going back slides them from the left.
 
@@ -1787,7 +1787,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 12.3 KB. Reduced motion: y
 
 ### Blur crossfade
 
-Blur crossfade is a DOM effect: a short blur hides the double image. One plain JavaScript file with no dependencies; add it with npx motion-library add blur-crossfade.
+Blur crossfade is a DOM effect: grid view melts into list view without a messy double image. One plain JavaScript file with no dependencies; add it with npx motion-library add blur-crossfade.
 
 Switching a shop category between grid and list view melts one layout into the other.
 
@@ -1798,7 +1798,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.0 KB. Reduced motion: y
 
 ### Card stack swipe
 
-Card stack swipe is a DOM effect: drag, stamp, throw; the stack springs up. One plain JavaScript file with no dependencies; add it with npx motion-library add card-stack-swipe.
+Card stack swipe is a DOM effect: photos tilt, get stamped Keep or Delete and fly off the pile. One plain JavaScript file with no dependencies; add it with npx motion-library add card-stack-swipe.
 
 Photos are dragged right to keep or left to delete and thrown off, and the next card rises.
 
@@ -1809,7 +1809,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 12.9 KB. Reduced motion: y
 
 ### Page turn
 
-Page turn is a WebGL effect: each row bent from the spine in short segments, so paper never stretches. One plain JavaScript file with no dependencies; add it with npx motion-library add page-turn.
+Page turn is a WebGL effect: a book flips its own leaves; drag the right one to try it. One plain JavaScript file with no dependencies; add it with npx motion-library add page-turn.
 
 An open book turns its own pages: each lifts from the lower corner, bends over the spine and lands. Drag the right page to turn it yourself.
 
@@ -1823,7 +1823,7 @@ Renderer: WebGL. Size: 24.9 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Letter rise stagger
 
-Letter rise stagger is a DOM effect: letters spring up from a clipped line, 40 ms apart. One plain JavaScript file with no dependencies; add it with npx motion-library add letter-rise.
+Letter rise stagger is a DOM effect: a name springs up from a hidden edge, one character at a time. One plain JavaScript file with no dependencies; add it with npx motion-library add letter-rise.
 
 A composer’s name rises letter by letter out of a clipped line, then the date and programme follow.
 
@@ -1834,7 +1834,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.5 KB. Reduced motion: ye
 
 ### Scramble decode
 
-Scramble decode is a DOM effect: characters churn through random glyphs, then lock left to right. One plain JavaScript file with no dependencies; add it with npx motion-library add scramble.
+Scramble decode is a DOM effect: random characters churn, then lock into words left to right. One plain JavaScript file with no dependencies; add it with npx motion-library add scramble.
 
 A headline and key fingerprint churn through random glyphs and lock into place, letter by letter.
 
@@ -1845,7 +1845,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.9 KB. Reduced motion: ye
 
 ### Variable-font wave
 
-Variable-font wave is a DOM effect: a sine wave rolls through variable-font weight and width. One plain JavaScript file with no dependencies; add it with npx motion-library add vf-wave.
+Variable-font wave is a DOM effect: a bulge of weight and width rolls along a word. One plain JavaScript file with no dependencies; add it with npx motion-library add vf-wave.
 
 A wave of weight and width rolls through a word while axis sliders track the marked letter.
 
@@ -1856,7 +1856,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.7 KB. Reduced motion: ye
 
 ### Typewriter
 
-Typewriter is a DOM effect: typing with randomised keystroke delays and pauses at punctuation. One plain JavaScript file with no dependencies; add it with npx motion-library add typewriter.
+Typewriter is a DOM effect: a search box types example trips with human pauses. One plain JavaScript file with no dependencies; add it with npx motion-library add typewriter.
 
 A search box types example trips, splits them into filter chips that pop in, then erases the text.
 
@@ -1867,7 +1867,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.8 KB. Reduced motion: ye
 
 ### Line mask reveal
 
-Line mask reveal is a DOM effect: lines slide up one by one from behind a clipping edge. One plain JavaScript file with no dependencies; add it with npx motion-library add line-mask.
+Line mask reveal is a DOM effect: headline rows slide up one by one from a hidden edge. One plain JavaScript file with no dependencies; add it with npx motion-library add line-mask.
 
 A three-line headline slides up line by line, then the byline follows and the photo wipes up.
 
@@ -1878,7 +1878,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: ye
 
 ### Split-flap board
 
-Split-flap board is a DOM effect: each character flips through the alphabet, one fold at a time. One plain JavaScript file with no dependencies; add it with npx motion-library add split-flap.
+Split-flap board is a DOM effect: letters flip like an airport departures sign. One plain JavaScript file with no dependencies; add it with npx motion-library add split-flap.
 
 A departures board flips rows to the next flight, each character stepping through the alphabet flap by flap.
 
@@ -1889,7 +1889,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.7 KB. Reduced motion: ye
 
 ### Odometer counter
 
-Odometer counter is a DOM effect: digit wheels roll and carries ripple left, like a mileage counter. One plain JavaScript file with no dependencies; add it with npx motion-library add odometer.
+Odometer counter is a DOM effect: a charity total rolls up with each new gift, wheel by wheel. One plain JavaScript file with no dependencies; add it with npx motion-library add odometer.
 
 A charity’s live total rolls up with each gift while a feed card slides in.
 
@@ -1900,7 +1900,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.4 KB. Reduced motion: ye
 
 ### Rotating word
 
-Rotating word is a DOM effect: one word cycles through a clipped slot with a slight blur. One plain JavaScript file with no dependencies; add it with npx motion-library add rotating-word.
+Rotating word is a DOM effect: the end of a headline keeps changing, sliding through a slot. One plain JavaScript file with no dependencies; add it with npx motion-library add rotating-word.
 
 A headline’s last word cycles through families, flatmates, clubs and teams, and the calendar beside it follows.
 
@@ -1911,7 +1911,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.9 KB. Reduced motion: ye
 
 ### Marker highlight
 
-Marker highlight is a DOM effect: an uneven marker stroke sweeps behind key phrases. One plain JavaScript file with no dependencies; add it with npx motion-library add highlighter.
+Marker highlight is a DOM effect: a wobbly pen stroke sweeps behind key phrases, line by line. One plain JavaScript file with no dependencies; add it with npx motion-library add highlighter.
 
 A marker highlight sweeps behind three phrases on a Walden page, one stroke per line.
 
@@ -1922,7 +1922,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: ye
 
 ### Text on a circle
 
-Text on a circle is a DOM effect: text on an SVG circle turns, easing toward a target speed. One plain JavaScript file with no dependencies; add it with npx motion-library add text-circle.
+Text on a circle is a DOM effect: a ring of words turns slowly; move over it to spin it up. One plain JavaScript file with no dependencies; add it with npx motion-library add text-circle.
 
 A ring of text turns slowly around an arrow, sometimes spinning up; hover to spin it yourself.
 
@@ -1933,7 +1933,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.8 KB. Reduced motion: y
 
 ### Type ribbon
 
-Type ribbon is a WebGL effect: type on a Möbius band, framed by parallel transport. One plain JavaScript file with no dependencies; add it with npx motion-library add type-ribbon.
+Type ribbon is a WebGL effect: words run round a twisting Möbius band; move to tilt the view. One plain JavaScript file with no dependencies; add it with npx motion-library add type-ribbon.
 
 A band of bold type twists through space as a Möbius strip, and the words run round it forever, mirrored in a glossy floor.
 
@@ -1947,7 +1947,7 @@ Renderer: WebGL. Size: 14.5 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Parallax layers
 
-Parallax layers is a DOM effect: layers move at speeds that fall with depth. One plain JavaScript file with no dependencies; add it with npx motion-library add parallax.
+Parallax layers is a DOM effect: far mountains lag as the page scrolls, near ones keep pace. One plain JavaScript file with no dependencies; add it with npx motion-library add parallax.
 
 On scroll, far mountains barely move, the near ridge nearly keeps pace and the title drifts between.
 
@@ -1958,7 +1958,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.4 KB. Reduced motion: ye
 
 ### Scrub reveal
 
-Scrub reveal is a DOM effect: words light up one by one, scrubbed by scroll. One plain JavaScript file with no dependencies; add it with npx motion-library add scrub-reveal.
+Scrub reveal is a DOM effect: a statement lights up word by word as you scroll. One plain JavaScript file with no dependencies; add it with npx motion-library add scrub-reveal.
 
 A product statement pins in place and lights up one word at a time as the page scrolls.
 
@@ -1969,7 +1969,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.3 KB. Reduced motion: no
 
 ### Pinned horizontal track
 
-Pinned horizontal track is a DOM effect: vertical scroll slides a sticky row sideways. One plain JavaScript file with no dependencies; add it with npx motion-library add pinned-track.
+Pinned horizontal track is a DOM effect: scrolling down slides a row of projects sideways. One plain JavaScript file with no dependencies; add it with npx motion-library add pinned-track.
 
 A portfolio section pins while scrolling slides a row of projects sideways, with a counter and progress bar.
 
@@ -1980,7 +1980,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.5 KB. Reduced motion: y
 
 ### Zoom-through
 
-Zoom-through is a DOM effect: exponential scale flies the view through a letter’s counter. One plain JavaScript file with no dependencies; add it with npx motion-library add zoom-through.
+Zoom-through is a DOM effect: scrolling flies you inside the O of a giant word. One plain JavaScript file with no dependencies; add it with npx motion-library add zoom-through.
 
 Saturn shows through the O of LOOK, and scrolling scales the word until you fly through the letter.
 
@@ -1991,7 +1991,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.6 KB. Reduced motion: ye
 
 ### Velocity-skew marquee
 
-Velocity-skew marquee is a DOM effect: scroll velocity speeds up the marquee and skews it. One plain JavaScript file with no dependencies; add it with npx motion-library add velocity-skew.
+Velocity-skew marquee is a DOM effect: scrolling text races and leans the faster you flick. One plain JavaScript file with no dependencies; add it with npx motion-library add velocity-skew.
 
 Promo bands drift constantly, and a quick scroll flick makes them race and tilt before settling.
 
@@ -2002,7 +2002,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.0 KB. Reduced motion: ye
 
 ### Reading progress
 
-Reading progress is a DOM effect: an eased scaleX progress bar plus minutes left to read. One plain JavaScript file with no dependencies; add it with npx motion-library add reading-progress.
+Reading progress is a DOM effect: a thin bar fills as you read and the minutes left count down. One plain JavaScript file with no dependencies; add it with npx motion-library add reading-progress.
 
 A thin bar fills as you read, and the minutes left count down, sliding in your scroll direction.
 
@@ -2013,7 +2013,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.9 KB. Reduced motion: ye
 
 ### Sticky card stack
 
-Sticky card stack is a DOM effect: sticky cards stack; each steps back as the next arrives. One plain JavaScript file with no dependencies; add it with npx motion-library add sticky-stack.
+Sticky card stack is a DOM effect: steps pile up as you scroll, older ones shrinking back. One plain JavaScript file with no dependencies; add it with npx motion-library add sticky-stack.
 
 Each step card sticks a little lower than the last, and covered cards scale back and dim.
 
@@ -2024,7 +2024,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: ye
 
 ### Timeline draw
 
-Timeline draw is a DOM effect: a scroll-scrubbed line draws down; milestones trigger as it passes. One plain JavaScript file with no dependencies; add it with npx motion-library add timeline-draw.
+Timeline draw is a DOM effect: a line grows down the page as you scroll, years popping in. One plain JavaScript file with no dependencies; add it with npx motion-library add timeline-draw.
 
 A copper telegraph line draws down the page as you scroll, and each year pops in on arrival.
 
@@ -2035,7 +2035,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.7 KB. Reduced motion: ye
 
 ### Image-sequence scrub
 
-Image-sequence scrub is a Canvas effect: scroll position picks the frame of an image sequence. One plain JavaScript file with no dependencies; add it with npx motion-library add sequence-scrub.
+Image-sequence scrub is a Canvas effect: a shoe turns a full circle as you scroll, frame by frame. One plain JavaScript file with no dependencies; add it with npx motion-library add sequence-scrub.
 
 A running shoe turns a full circle frame by frame as you scroll, beside changing feature notes.
 
@@ -2046,7 +2046,7 @@ Renderer: Canvas 2D. Size: 12.2 KB. Reduced motion: yes. Page: https://ajeckblad
 
 ### Snap gallery
 
-Snap gallery is a DOM effect: scroll snapping; the centre card scales up, neighbours dim. One plain JavaScript file with no dependencies; add it with npx motion-library add snap-gallery.
+Snap gallery is a DOM effect: photos click into place one by one, the centre one growing. One plain JavaScript file with no dependencies; add it with npx motion-library add snap-gallery.
 
 A row of night photographs snaps card by card, the centre card scaling up while neighbours dim.
 
@@ -2060,7 +2060,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.9 KB. Reduced motion: ye
 
 ### Magnetic button
 
-Magnetic button is a DOM effect: pulled toward the cursor, label pulled further. One plain JavaScript file with no dependencies; add it with npx motion-library add magnetic.
+Magnetic button is a DOM effect: leans toward the pointer as it nears, the label leaning further. One plain JavaScript file with no dependencies; add it with npx motion-library add magnetic.
 
 Two signup buttons lean toward the approaching cursor, each label leaning a little further than its button.
 
@@ -2071,7 +2071,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.8 KB. Reduced motion: ye
 
 ### Click ripple
 
-Click ripple is a DOM effect: a circle expands from the exact press point. One plain JavaScript file with no dependencies; add it with npx motion-library add ripple.
+Click ripple is a DOM effect: press a button and a soft circle spreads from the exact spot. One plain JavaScript file with no dependencies; add it with npx motion-library add ripple.
 
 Pressing a pricing button sends a soft circle out from the exact point pressed, and the button dips.
 
@@ -2082,7 +2082,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.7 KB. Reduced motion: ye
 
 ### 3D tilt card
 
-3D tilt card is a DOM effect: the card turns toward the pointer, glare follows. One plain JavaScript file with no dependencies; add it with npx motion-library add tilt.
+3D tilt card is a DOM effect: turns toward the cursor and lifts, catching a sliding glare. One plain JavaScript file with no dependencies; add it with npx motion-library add tilt.
 
 A hovered article card turns toward the cursor, lifts slightly and a soft glare slides across it.
 
@@ -2093,7 +2093,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.8 KB. Reduced motion: ye
 
 ### Cursor trail
 
-Cursor trail is a Canvas effect: each point chases the one before it. One plain JavaScript file with no dependencies; add it with npx motion-library add cursor-trail.
+Cursor trail is a Canvas effect: a warm ribbon follows the pointer and curls with every move. One plain JavaScript file with no dependencies; add it with npx motion-library add cursor-trail.
 
 A warm ribbon trails behind the cursor, tapering and curling with every gesture.
 
@@ -2104,7 +2104,7 @@ Renderer: Canvas 2D. Size: 6.9 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Spotlight reveal
 
-Spotlight reveal is a DOM effect: a soft mask follows the cursor over a dark layer. One plain JavaScript file with no dependencies; add it with npx motion-library add spotlight.
+Spotlight reveal is a DOM effect: a soft torch follows the cursor through a dark veil. One plain JavaScript file with no dependencies; add it with npx motion-library add spotlight.
 
 A soft round hole in a dark veil follows the cursor, revealing a colourful calendar preview beneath.
 
@@ -2115,7 +2115,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 6.7 KB. Reduced motion: ye
 
 ### Image follow
 
-Image follow is a DOM effect: a preview trails the cursor and swaps per row. One plain JavaScript file with no dependencies; add it with npx motion-library add image-follow.
+Image follow is a DOM effect: move down a project list and each preview trails the cursor. One plain JavaScript file with no dependencies; add it with npx motion-library add image-follow.
 
 Hovering a project row shows its preview beside the cursor, trailing behind and leaning into the motion.
 
@@ -2126,7 +2126,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.6 KB. Reduced motion: y
 
 ### Directional fill
 
-Directional fill is a DOM effect: the fill enters and leaves the way the cursor did. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-fill.
+Directional fill is a DOM effect: colour floods in from the side you enter, out the side you leave. One plain JavaScript file with no dependencies; add it with npx motion-library add directional-fill.
 
 A button’s dark fill sweeps in from the side the cursor entered and out the side it leaves.
 
@@ -2137,7 +2137,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.3 KB. Reduced motion: ye
 
 ### Sliding underline
 
-Sliding underline is a DOM effect: one underline travels between links and stretches. One plain JavaScript file with no dependencies; add it with npx motion-library add underline-slide.
+Sliding underline is a DOM effect: one nav marker stretches to whichever link you point at. One plain JavaScript file with no dependencies; add it with npx motion-library add underline-slide.
 
 One nav underline slides to the hovered link and returns to the current page when the cursor leaves.
 
@@ -2148,7 +2148,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.0 KB. Reduced motion: ye
 
 ### Lit border
 
-Lit border is a DOM effect: card edges catch a light that follows the cursor. One plain JavaScript file with no dependencies; add it with npx motion-library add lit-border.
+Lit border is a DOM effect: card edges in a dark grid light up around the cursor. One plain JavaScript file with no dependencies; add it with npx motion-library add lit-border.
 
 Cards in a dark grid light up around the cursor, with neighbours catching spill on their nearest edges.
 
@@ -2159,7 +2159,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.4 KB. Reduced motion: no
 
 ### Dock magnify
 
-Dock magnify is a DOM effect: icons swell around the cursor and push apart. One plain JavaScript file with no dependencies; add it with npx motion-library add dock-magnify.
+Dock magnify is a DOM effect: icons swell under the cursor and push their neighbours apart. One plain JavaScript file with no dependencies; add it with npx motion-library add dock-magnify.
 
 Dock icons swell as the cursor passes, largest under it and tapering over a few neighbours.
 
@@ -2173,7 +2173,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.0 KB. Reduced motion: y
 
 ### Toggle spring
 
-Toggle spring is a DOM effect: the knob stretches while it travels. One plain JavaScript file with no dependencies; add it with npx motion-library add toggle.
+Toggle spring is a DOM effect: tap a switch and its knob stretches as it slides, then lands. One plain JavaScript file with no dependencies; add it with npx motion-library add toggle.
 
 Notification switches flip one at a time, each knob stretching along its travel and snapping round on landing.
 
@@ -2184,7 +2184,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 4.9 KB. Reduced motion: ye
 
 ### Like burst
 
-Like burst is a DOM effect: squash, pop, ring and sparks on one beat. One plain JavaScript file with no dependencies; add it with npx motion-library add like-burst.
+Like burst is a DOM effect: tap the heart and it squashes, pops and fires a ring of dots. One plain JavaScript file with no dependencies; add it with npx motion-library add like-burst.
 
 A saved product’s heart squashes, pops past full size and settles as a ring and dots fire.
 
@@ -2195,7 +2195,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.5 KB. Reduced motion: ye
 
 ### Submit to success
 
-Submit to success is a DOM effect: the button becomes the spinner becomes the tick. One plain JavaScript file with no dependencies; add it with npx motion-library add submit-success.
+Submit to success is a DOM effect: tap Send; the button becomes a spinner, then a green tick. One plain JavaScript file with no dependencies; add it with npx motion-library add submit-success.
 
 A Send button pinches into a circle, spins while sending, then turns green and draws a tick.
 
@@ -2206,7 +2206,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 6.5 KB. Reduced motion: ye
 
 ### Arc spinner
 
-Arc spinner is a DOM effect: the arc grows and shrinks while it turns. One plain JavaScript file with no dependencies; add it with npx motion-library add arc-spinner.
+Arc spinner is a DOM effect: a loading ring whose stroke grows and shrinks as it turns. One plain JavaScript file with no dependencies; add it with npx motion-library add arc-spinner.
 
 A checkout shows a small spinner on the shipping line, then a larger one inside the Pay button.
 
@@ -2217,7 +2217,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 6.4 KB. Reduced motion: ye
 
 ### Skeleton shimmer
 
-Skeleton shimmer is a DOM effect: a light sweep says loading, then content fades in. One plain JavaScript file with no dependencies; add it with npx motion-library add skeleton.
+Skeleton shimmer is a DOM effect: grey placeholders hold the layout until real items fade in. One plain JavaScript file with no dependencies; add it with npx motion-library add skeleton.
 
 Grey placeholder rows hold a cart drawer’s layout under a sweeping light, then real items fade in.
 
@@ -2228,7 +2228,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.4 KB. Reduced motion: ye
 
 ### Copy to tick
 
-Copy to tick is a DOM effect: the copy icon turns into a tick, with a Copied tag. One plain JavaScript file with no dependencies; add it with npx motion-library add copy-tick.
+Copy to tick is a DOM effect: tap Copy and the icon becomes a check with a Copied label. One plain JavaScript file with no dependencies; add it with npx motion-library add copy-tick.
 
 Pressing Copy swaps the icon for a tick that draws itself, and a small Copied label rises.
 
@@ -2239,7 +2239,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 6.4 KB. Reduced motion: ye
 
 ### Password strength
 
-Password strength is a DOM effect: meter and checklist update on every keystroke. One plain JavaScript file with no dependencies; add it with npx motion-library add password-strength.
+Password strength is a DOM effect: a meter fills and rules tick off as the text is typed. One plain JavaScript file with no dependencies; add it with npx motion-library add password-strength.
 
 As a password types itself, a four-part meter fills and recolours and each rule ticks off.
 
@@ -2250,7 +2250,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.9 KB. Reduced motion: ye
 
 ### Hold to delete
 
-Hold to delete is a DOM effect: slow fill while held, fast snap back on release. One plain JavaScript file with no dependencies; add it with npx motion-library add hold-delete.
+Hold to delete is a DOM effect: press and hold to fill the button red; let go early to undo. One plain JavaScript file with no dependencies; add it with npx motion-library add hold-delete.
 
 Holding a delete button creeps a red fill across it; letting go early snaps it back.
 
@@ -2261,7 +2261,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.1 KB. Reduced motion: ye
 
 ### Bell and badge
 
-Bell and badge is a DOM effect: the bell rings, the count rolls up. One plain JavaScript file with no dependencies; add it with npx motion-library add bell-badge.
+Bell and badge is a DOM effect: each new alert rings it, and the count pops up or rolls on. One plain JavaScript file with no dependencies; add it with npx motion-library add bell-badge.
 
 Each new notification rings the bell and pops or rolls the badge; opening the bell clears it.
 
@@ -2272,7 +2272,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.7 KB. Reduced motion: ye
 
 ### Toast stack
 
-Toast stack is a DOM effect: new toasts in front, older ones step back. One plain JavaScript file with no dependencies; add it with npx motion-library add toast-stack.
+Toast stack is a DOM effect: new messages rise in front as older ones step back and fade. One plain JavaScript file with no dependencies; add it with npx motion-library add toast-stack.
 
 Toasts rise at the bottom right while older ones step back, smaller and higher, until the oldest fades.
 
@@ -2286,7 +2286,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.3 KB. Reduced motion: ye
 
 ### Squash & stretch bounce
 
-Squash & stretch bounce is a DOM effect: stretch with speed, squash on impact. One plain JavaScript file with no dependencies; add it with npx motion-library add squash-bounce.
+Squash & stretch bounce is a DOM effect: tap Add to bag and a mug flies in, squashing as it lands. One plain JavaScript file with no dependencies; add it with npx motion-library add squash-bounce.
 
 Tap Add to bag and a mug thumbnail arcs onto the bag icon, squashes, bounces and drops in.
 
@@ -2297,7 +2297,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 12.3 KB. Reduced motion: y
 
 ### Rubber-band drag
 
-Rubber-band drag is a DOM effect: resistance grows past the edge, release springs back. One plain JavaScript file with no dependencies; add it with npx motion-library add rubber-band.
+Rubber-band drag is a DOM effect: drag past the last photo and it resists, then springs back. One plain JavaScript file with no dependencies; add it with npx motion-library add rubber-band.
 
 A photo viewer is swiped past its last photo, resisting more and more, then springs back on release.
 
@@ -2308,7 +2308,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.5 KB. Reduced motion: y
 
 ### Pendulum wave
 
-Pendulum wave is a DOM effect: lengths tuned so the row drifts in and out of sync. One plain JavaScript file with no dependencies; add it with npx motion-library add pendulum-wave.
+Pendulum wave is a DOM effect: glowing weights drift out of step, snake about, then line up. One plain JavaScript file with no dependencies; add it with npx motion-library add pendulum-wave.
 
 A row of glowing pendulums drifts from unison into travelling waves and snakes, then lines up again.
 
@@ -2319,7 +2319,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.6 KB. Reduced motion: ye
 
 ### Verlet rope
 
-Verlet rope is a DOM effect: points remember where they were; lengths are enforced. One plain JavaScript file with no dependencies; add it with npx motion-library add verlet-rope.
+Verlet rope is a DOM effect: tug the lamp’s pull cord to switch it, or flick it to swing. One plain JavaScript file with no dependencies; add it with npx motion-library add verlet-rope.
 
 A lamp’s pull cord swings and whips; a tug switches the light on or off.
 
@@ -2330,7 +2330,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 13.0 KB. Reduced motion: y
 
 ### Ball collisions
 
-Ball collisions is a DOM effect: elastic impulses along the line between centres. One plain JavaScript file with no dependencies; add it with npx motion-library add ball-collisions.
+Ball collisions is a DOM effect: tap a bubble to grow it and watch it shove the rest aside. One plain JavaScript file with no dependencies; add it with npx motion-library add ball-collisions.
 
 Topic bubbles huddle together, and each tap grows one on a spring so it shoulders the others aside.
 
@@ -2341,7 +2341,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.2 KB. Reduced motion: y
 
 ### Snap-point bottom sheet
 
-Snap-point bottom sheet is a DOM effect: aim with the throw, then spring to the nearest snap point. One plain JavaScript file with no dependencies; add it with npx motion-library add bottom-sheet.
+Snap-point bottom sheet is a DOM effect: fling the map panel and it springs to the nearest stop. One plain JavaScript file with no dependencies; add it with npx motion-library add bottom-sheet.
 
 A maps sheet of nearby cafés is flung between peek, half and full height.
 
@@ -2352,7 +2352,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.1 KB. Reduced motion: y
 
 ### Swipe to dismiss
 
-Swipe to dismiss is a DOM effect: fly off with the throw, rubber-band the wrong way. One plain JavaScript file with no dependencies; add it with npx motion-library add swipe-dismiss.
+Swipe to dismiss is a DOM effect: flick a notification away and the rest close the gap. One plain JavaScript file with no dependencies; add it with npx motion-library add swipe-dismiss.
 
 Flicked notifications leave as the rest spring up to fill the gap; one pulled backwards snaps back.
 
@@ -2363,7 +2363,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.5 KB. Reduced motion: ye
 
 ### Chat heads
 
-Chat heads is a DOM effect: each bubble chases the one in front on its own spring. One plain JavaScript file with no dependencies; add it with npx motion-library add chat-heads.
+Chat heads is a DOM effect: drag the bubbles; they trail in a chain and dock at an edge. One plain JavaScript file with no dependencies; add it with npx motion-library add chat-heads.
 
 A dragged stack of chat bubbles trails the front one, and on release flies to the nearest edge.
 
@@ -2374,7 +2374,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.0 KB. Reduced motion: y
 
 ### Jelly app icon
 
-Jelly app icon is a DOM effect: a second spring turns speed into stretch. One plain JavaScript file with no dependencies; add it with npx motion-library add icon-jelly.
+Jelly app icon is a DOM effect: drag it to a new slot; it stretches, then wobbles as it lands. One plain JavaScript file with no dependencies; add it with npx motion-library add icon-jelly.
 
 A long-pressed app icon is dragged to a new slot, stretching on the way and wobbling on landing.
 
@@ -2385,7 +2385,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 10.4 KB. Reduced motion: y
 
 ### Pull to refresh
 
-Pull to refresh is a DOM effect: rubber-band pull, hold on a shelf, spring home. One plain JavaScript file with no dependencies; add it with npx motion-library add pull-refresh.
+Pull to refresh is a DOM effect: drag the inbox down; it resists, waits, then springs back. One plain JavaScript file with no dependencies; add it with npx motion-library add pull-refresh.
 
 Pulling an inbox down grows a spinner; the list holds on a shelf, then new mail slides in.
 
@@ -2399,7 +2399,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 11.6 KB. Reduced motion: y
 
 ### Shape morph
 
-Shape morph is a Canvas effect: every shape is the same 160 polar radii. One plain JavaScript file with no dependencies; add it with npx motion-library add shape-morph.
+Shape morph is a Canvas effect: album covers melt into the next track’s outline and colour. One plain JavaScript file with no dependencies; add it with npx motion-library add shape-morph.
 
 Skipping a track morphs the album cover into the next track’s shape and colour as the title crossfades.
 
@@ -2410,7 +2410,7 @@ Renderer: Canvas 2D. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Icon morph
 
-Icon morph is a DOM effect: two icons drawn with the same points, interpolated. One plain JavaScript file with no dependencies; add it with npx motion-library add icon-morph.
+Icon morph is a DOM effect: tap and a download arrow folds into a check, a list into a grid. One plain JavaScript file with no dependencies; add it with npx motion-library add icon-morph.
 
 A download arrow folds into a check when saved, and a list icon’s bars regroup into a grid.
 
@@ -2421,7 +2421,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 9.8 KB. Reduced motion: ye
 
 ### Gooey blobs
 
-Gooey blobs is a DOM effect: blur, then a hard alpha threshold. One plain JavaScript file with no dependencies; add it with npx motion-library add gooey.
+Gooey blobs is a DOM effect: tap the add button and its actions ooze out like liquid. One plain JavaScript file with no dependencies; add it with npx motion-library add gooey.
 
 A notes app’s add button oozes its actions out one by one and drains them back in.
 
@@ -2432,7 +2432,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.7 KB. Reduced motion: ye
 
 ### Line draw-on
 
-Line draw-on is a DOM effect: stroke-dasharray equals the path length. One plain JavaScript file with no dependencies; add it with npx motion-library add line-draw.
+Line draw-on is a DOM effect: chart strokes trace the week, one just after the other. One plain JavaScript file with no dependencies; add it with npx motion-library add line-draw.
 
 Two lines on an analytics card trace the week left to right, the second just after the first.
 
@@ -2443,7 +2443,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.5 KB. Reduced motion: ye
 
 ### Liquid button
 
-Liquid button is a Canvas effect: edge points on springs, pushed by the pointer. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-button.
+Liquid button is a Canvas effect: move over it and its edge ripples; press to squeeze it. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-button.
 
 The Place order button’s edge ripples like liquid as the pointer passes, and squeezes in on press.
 
@@ -2454,7 +2454,7 @@ Renderer: Canvas 2D. Size: 7.7 KB. Reduced motion: yes. Page: https://ajeckblad.
 
 ### Play to pause
 
-Play to pause is a DOM effect: two four-point halves of a triangle slide into two bars. One plain JavaScript file with no dependencies; add it with npx motion-library add play-pause.
+Play to pause is a DOM effect: tap and the triangle splits and slides into two bars. One plain JavaScript file with no dependencies; add it with npx motion-library add play-pause.
 
 A play triangle splits into two halves that slide straight into the pause bars, and back.
 
@@ -2465,7 +2465,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.3 KB. Reduced motion: ye
 
 ### Menu to close
 
-Menu to close is a DOM effect: three two-point lines, the middle one shrinks to a dot. One plain JavaScript file with no dependencies; add it with npx motion-library add menu-close.
+Menu to close is a DOM effect: tap and three lines fold into an X as the panel wipes open. One plain JavaScript file with no dependencies; add it with npx motion-library add menu-close.
 
 Three lines fold into an X and the menu panel wipes down with its links arriving in turn.
 
@@ -2476,7 +2476,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.7 KB. Reduced motion: ye
 
 ### Chart morph
 
-Chart morph is a DOM effect: every dataset resampled to the same 48 points. One plain JavaScript file with no dependencies; add it with npx motion-library add chart-morph.
+Chart morph is a DOM effect: tap a range and the line flows into the new data. One plain JavaScript file with no dependencies; add it with npx motion-library add chart-morph.
 
 Switching between week, month and quarter morphs the line chart and its area into the new data.
 
@@ -2487,7 +2487,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 8.3 KB. Reduced motion: ye
 
 ### Logo draw
 
-Logo draw is a DOM effect: dash length = path length, then slide the offset to zero. One plain JavaScript file with no dependencies; add it with npx motion-library add logo-draw.
+Logo draw is a DOM effect: a brand mark traces itself like a pen, then fills in. One plain JavaScript file with no dependencies; add it with npx motion-library add logo-draw.
 
 A logo draws itself stroke by stroke, then fills in as the name rises letter by letter.
 
@@ -2498,7 +2498,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 5.2 KB. Reduced motion: ye
 
 ### Button to menu
 
-Button to menu is a DOM effect: one surface, a rounded clip-path opening from the button corner. One plain JavaScript file with no dependencies; add it with npx motion-library add button-menu.
+Button to menu is a DOM effect: tap Share and it opens out into a list of options. One plain JavaScript file with no dependencies; add it with npx motion-library add button-menu.
 
 A Share button opens into its menu as one dark surface, then closes back into the button.
 
@@ -2509,7 +2509,7 @@ Renderer: DOM (CSS and the Web Animations API). Size: 7.6 KB. Reduced motion: ye
 
 ### Dynamic island
 
-Dynamic island is a DOM effect: one black box clipped to three springs: width, height and corner radius. One plain JavaScript file with no dependencies; add it with npx motion-library add dynamic-island.
+Dynamic island is a DOM effect: the camera pill grows into calls and music; tap to open the player. One plain JavaScript file with no dependencies; add it with npx motion-library add dynamic-island.
 
 On a lock screen the pill around the camera grows into a call, its timer, a music player and a countdown. Tap it to open or close the player.
 

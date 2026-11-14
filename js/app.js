@@ -1,7 +1,7 @@
 import { CATEGORIES, ANIMS, catById, animById, srcOf } from '../anims/registry.js';
 import { V, PV, NEW } from './versions.js';
 // content hashes ride on each effect (js/versions.js): its file and poster URLs change whenever they do, so no stale copies.
-// NEW lists the effects added in the last few weeks, newest first: they get a badge and their own entry on the dial
+// NEW lists the effects added in the last few weeks, newest first: their cards get a badge
 const NEW_SET = new Set(NEW || []);
 for (const a of ANIMS) { a.v = V[a.id] || ''; a.pv = PV[a.id] || ''; a.isNew = NEW_SET.has(a.id); }
 import { store } from './store.js';
@@ -14,10 +14,9 @@ import { exportGroup } from './export.js';
 import { LANG, LANGS, setLang, t, tr, catName, countText, FAQ } from './i18n.js';
 import { createSearch } from './search.js';
 import { createFront } from './front.js';
-import { SHOWPIECES } from './showpieces.js';
 
 const $ = s => document.querySelector(s);
-const grid = $('#grid'), spEl = $('#showpieces'), headEl = $('.sheet-head'), emptyEl = $('#empty'), titleEl = $('#view-title'), countEl = $('#count'), toolsEl = $('#head-tools');
+const grid = $('#grid'), headEl = $('.sheet-head'), emptyEl = $('#empty'), titleEl = $('#view-title'), countEl = $('#count'), toolsEl = $('#head-tools');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const canHover = matchMedia('(hover: hover) and (pointer: fine)');
 const KIND = { dom: 'DOM', canvas: 'Canvas', webgl: 'WebGL' };
@@ -36,15 +35,14 @@ let crew = null;
 /* ───────── dial ───────── */
 const entries = [
   { id: 'all', name: t('All'), hue: '#f2f2f3' },
-  ...(NEW_SET.size ? [{ id: 'new', name: t('New'), hue: '#7cc0ff' }] : []),
-  { id: 'hearted', name: t('Hearted'), hue: '#ffb3c8' },
+  { id: 'hearted', name: t('Hearted'), hue: '#ff5fa2' },   // the pop pink (--pop), as on every heart
   ...CATEGORIES.map(c => ({ id: c.id, name: catName(c), hue: c.hue })),
   { id: 'faq', name: t('FAQ'), hue: '#9aa3ad' },                 // last on the dial: jumps to the questions under the full list
 ];
 const dial = createDial({
   root: $('#dial'), list: $('#dial-items'), entries,
   onSelect: (id, kb) => {
-    const hash = id === 'all' ? '#/' : id === 'hearted' ? '#/hearted' : id === 'new' ? '#/new' : id === 'faq' ? '#/faq' : `#/c/${id}`;
+    const hash = id === 'all' ? '#/' : id === 'hearted' ? '#/hearted' : id === 'faq' ? '#/faq' : `#/c/${id}`;
     // already on the full list: a category (or the FAQ) just scrolls to its section (the hash follows without a history entry)
     if ((catById[id] || id === 'faq') && view === 'all') { history.replaceState(history.state, '', hash); scrollToCat(id, kb); return; }
     if (id === 'all' && view === 'all') { history.replaceState(history.state, '', hash); scrollTo({ top: 0, behavior: kb || reduce.matches ? 'instant' : 'smooth' }); return; }
@@ -57,7 +55,7 @@ crew = createCrew({
   bar: $('.bar'), dial: $('#dial'), sheet: $('.sheet'), grid,
   covered: () => !detailEl.hidden,                               // paused under the detail view
 });
-const refreshCounts = () => dial.setCounts({ all: ANIMS.length, new: NEW_SET.size, hearted: store.count(), ...Object.fromEntries(CATEGORIES.map(c => [c.id, ANIMS.filter(a => a.cat === c.id).length])) });
+const refreshCounts = () => dial.setCounts({ all: ANIMS.length, hearted: store.count(), ...Object.fromEntries(CATEGORIES.map(c => [c.id, ANIMS.filter(a => a.cat === c.id).length])) });
 refreshCounts();
 
 /* ───────── cards ───────── */
@@ -83,7 +81,6 @@ function cardEl(a) {
 
 function listFor(v) {
   if (v === 'hearted') return ANIMS.filter(a => store.isHearted(a.id));
-  if (v === 'new') return NEW.map(id => animById[id]).filter(Boolean);
   return v === 'all' ? ANIMS : ANIMS.filter(a => a.cat === v);
 }
 
@@ -98,7 +95,7 @@ async function render(animate = true) {
       { duration: 120, easing: ease, fill: 'forwards' }).finished.catch(() => {})));
     if (token !== swapToken) return;
   }
-  const name = view === 'all' ? t('All animations') : view === 'hearted' ? t('Hearted') : view === 'new' ? t('New') : catName(catById[view]);
+  const name = view === 'all' ? t('All animations') : view === 'hearted' ? t('Hearted') : catName(catById[view]);
   titleEl.textContent = name;
   document.title = view === 'all' ? 'Motion Library' : `${name} · Motion Library`;
   grid.replaceChildren(); toolsEl.replaceChildren(); emptyEl.hidden = true;
@@ -110,9 +107,8 @@ async function render(animate = true) {
   else list.forEach(a => grid.append(cardEl(a)));
   grid.style.display = view === 'hearted' || sectioned ? 'block' : '';
   faqEl.hidden = !sectioned;
-  // the full list opens with the front page: the live hero and the showpiece row take the title's place
-  headEl.hidden = sectioned; front.show(sectioned); spEl.hidden = !sectioned;
-  if (sectioned) renderShowpieces();
+  // the full list opens with the front page: the live hero takes the title's place
+  headEl.hidden = sectioned; front.show(sectioned);
   watchSections();
   crew?.refresh();                                                // new words on the page: the crew re-reads where they are
   if (animate && !reduce.matches) {
@@ -121,7 +117,7 @@ async function render(animate = true) {
     // the full list's own first screen is the front page: a fresh visit gets its headline reveal, a swap back from
     // another view brings the hero in with the cards
     const lead = sectioned ? front.enter(!rendered) : [];
-    const first = [...lead, ...spEl.querySelectorAll('.card'), ...grid.querySelectorAll('.card, .group-head')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight);
+    const first = [...lead, ...grid.querySelectorAll('.card, .group-head')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight);
     first.forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(12px) scale(.985)' }, { opacity: 1, transform: 'none' }],
       { duration: 240, delay: Math.min(i, 7) * 30, easing: ease, fill: 'backwards' }));
   }
@@ -130,28 +126,6 @@ async function render(animate = true) {
 }
 let rendered = false;
 
-// the editorial row above the catalogue: the hardest pieces, the first one large (js/showpieces.js)
-function renderShowpieces() {
-  spEl.innerHTML = `<div class="sp-head"><h2 id="sp-title"></h2><p class="sp-note"></p></div><div class="sp-grid"></div>`;
-  spEl.querySelector('h2').textContent = t('Showpieces');
-  spEl.querySelector('.sp-note').textContent = t('Real-time simulations and renders. Each one is still a single file.');
-  const g = spEl.querySelector('.sp-grid');
-  SHOWPIECES.map(id => animById[id]).filter(Boolean).forEach((a, i) => { const c = cardEl(a); c.classList.add('sp-card'); if (!i) c.classList.add('sp-big'); g.append(c); });
-  // scrolled to from the hero (once per visit), the row arrives in reading order: heading, note, then the tiles, 60 ms
-  // apart, rising 16 px. Already on screen (a short window), it came in with the first screen instead. Under reduced
-  // motion it is simply there.
-  spIO?.disconnect();
-  if (reduce.matches || spEl.getBoundingClientRect().top < innerHeight) return;
-  spIO = new IntersectionObserver(([en]) => {
-    if (!en.isIntersecting) return;
-    spIO.disconnect();
-    [spEl.querySelector('h2'), spEl.querySelector('.sp-note'), ...g.children].forEach((el, i) => el.animate(
-      [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
-      { duration: 420, delay: Math.min(i, 6) * 60, easing: ease, fill: 'backwards' }));
-  });
-  spIO.observe(spEl);
-}
-let spIO = null;
 // the full list: one section per category, in dial order, each with its own heading; the dial follows the scroll
 function renderSections(list) {
   for (const c of CATEGORIES) {
@@ -278,29 +252,25 @@ function tickTimecode() {
 }
 addEventListener('message', e => {
   if (e.data?.type === 'stage-ready' && live && e.source === live.iframe.contentWindow) { live.iframe.classList.add('live'); live.t0 = performance.now(); }
-  if (e.data?.type === 'stage-click' && live && e.source === live.iframe.contentWindow) { lastCard = live.card; openAnim(live.card.dataset.id); }
+  if (e.data?.type === 'stage-click' && live && e.source === live.iframe.contentWindow) openAnim(live.card.dataset.id);
 });
-for (const host of [grid, spEl]) {
-host.addEventListener('pointerover', e => {
+grid.addEventListener('pointerover', e => {
   const card = e.target.closest('.card'); if (!card || !canHover.matches || live?.card === card) return;
   clearTimeout(intent); intent = setTimeout(() => startPreview(card), 110);
 });
-host.addEventListener('pointerout', e => {
+grid.addEventListener('pointerout', e => {
   const card = e.target.closest('.card'); if (!card || card.contains(e.relatedTarget)) return;
   clearTimeout(intent); if (live?.card === card) stopPreview();
 });
 // keyboard focus plays the card (hover does it for the mouse). A mouse press also focuses the button, but it must not start a
 // preview mid-click: the playing preview sits above the button, so the release would land inside it and the click would be lost
-host.addEventListener('focusin', e => { const card = e.target.closest('.card'); if (card && e.target.matches('.card-hit:focus-visible')) startPreview(card); });
-host.addEventListener('focusout', e => { const card = e.target.closest('.card'); if (card && !card.contains(e.relatedTarget) && live?.card === card) stopPreview(); });
-host.addEventListener('click', e => {
+grid.addEventListener('focusin', e => { const card = e.target.closest('.card'); if (card && e.target.matches('.card-hit:focus-visible')) startPreview(card); });
+grid.addEventListener('focusout', e => { const card = e.target.closest('.card'); if (card && !card.contains(e.relatedTarget) && live?.card === card) stopPreview(); });
+grid.addEventListener('click', e => {
   const heart = e.target.closest('.heart'); const card = e.target.closest('.card');
   if (heart && card) { onHeartPress(heart, card.dataset.id, celebrate); return; }
-  if (e.target.closest('.card-hit') && card) { lastCard = card; openAnim(card.dataset.id); }
+  if (e.target.closest('.card-hit') && card) openAnim(card.dataset.id);
 });
-}
-// the same effect can sit in the showpiece row and in its category: the detail view grows out of the one that was clicked
-let lastCard = null;
 
 // Phones have no hover: play the card nearest the middle of the screen once scrolling settles.
 let centreT;
@@ -309,7 +279,7 @@ function watchCentre() {
   centreT = setTimeout(() => {
     if (canHover.matches) return;
     const mid = innerHeight / 2; let best = null, bd = Infinity;
-    for (const c of [...spEl.querySelectorAll('.card'), ...grid.querySelectorAll('.card')]) { const r = c.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = c; } }
+    for (const c of grid.querySelectorAll('.card')) { const r = c.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = c; } }
     if (best && bd < innerHeight / 2) startPreview(best);
   }, 260);
 }
@@ -327,44 +297,23 @@ store.onChange(() => {
   if (view === 'hearted' && !detail.isOpen) render(false);
 });
 
-/* ───────── surprise me ───────── */
-$('#surprise').addEventListener('click', () => {
-  const pool = listFor(view === 'hearted' && !store.count() ? 'all' : view);
-  const pick = (pool.length ? pool : ANIMS)[Math.floor(Math.random() * (pool.length || ANIMS.length))];
-  if (reduce.matches || !crew.visible) { openAnim(pick.id); return; }
-  const sheet = $('.sheet').getBoundingClientRect();
-  const x1 = sheet.left + sheet.width * 0.5, y1 = Math.max(sheet.top, 0) + Math.min(sheet.bottom - Math.max(sheet.top, 0), innerHeight) * 0.45;
-  const start = crew.toss({ x: x1, y: y1 });                      // the creature nearest the target throws it
-  const die = document.createElement('div'); die.className = 'die';
-  const face = 1 + Math.floor(Math.random() * 6), pips = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] }[face];
-  die.innerHTML = Array.from({ length: 9 }, (_, i) => pips.includes(i) ? '<i></i>' : '<span></span>').join('');
-  document.body.append(die);
-  const x0 = start.x - 17, y0 = start.y - 17;
-  die.animate([
-    { transform: `translate(${x0}px, ${y0}px) rotate(0deg) scale(.6)`, opacity: 0 },
-    { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 140}px) rotate(260deg) scale(1)`, opacity: 1, offset: .45 },
-    { transform: `translate(${x1}px, ${y1}px) rotate(540deg) scale(1)`, opacity: 1, offset: .85 },
-    { transform: `translate(${x1}px, ${y1 - 8}px) rotate(540deg) scale(1.08)`, opacity: 0 },
-  ], { duration: 760, easing: 'cubic-bezier(0.33, 1, 0.68, 1)' }).onfinish = () => { die.remove(); openAnim(pick.id); };
-});
-
 /* ───────── detail ───────── */
 function openAnim(id) { location.hash = `#/a/${id}`; }
 
 /* ───────── front page: the live hero (js/front.js) ───────── */
-const front = createFront({ toast, onOpen: href => { lastCard = null; location.hash = href; } });
+const front = createFront();
 
 /* ───────── search ───────── */
 // a palette over the page (js/search.js): the Search button, ⌘K / Ctrl+K, or "/"
 const search = createSearch({ onOpen: openAnim, newIds: NEW || [] });
 {
+  // an icon button: the magnifier alone, named for screen readers; ⌘K / Ctrl+K and "/" still open it, unadvertised
   const b = $('#search-btn');
-  b.querySelector('.lbl').textContent = t('Search');
-  b.querySelector('kbd').textContent = search.shortcut;
+  b.setAttribute('aria-label', t('Search'));
   b.setAttribute('aria-keyshortcuts', 'Meta+K Control+K /');
   b.addEventListener('click', e => search.open(e.detail > 0));     // a real click fades in; Enter or Space on the button doesn't
 }
-const listHash = () => view === 'all' ? '#/' : view === 'hearted' ? '#/hearted' : view === 'new' ? '#/new' : `#/c/${view}`;
+const listHash = () => view === 'all' ? '#/' : view === 'hearted' ? '#/hearted' : `#/c/${view}`;
 const detail = createDetail({
   celebrate, toast,
   onClose: () => { if (history.state?.fromList) history.back(); else location.hash = listHash(); },
@@ -388,8 +337,7 @@ function route() {
     if (!viewReady) setView(animById[arg].cat, false);
     stopPreview();
     front.setBusy('detail', true);
-    const card = lastCard?.dataset.id === arg && lastCard.isConnected ? lastCard : grid.querySelector(`.card[data-id="${arg}"]`);
-    lastCard = null;
+    const card = grid.querySelector(`.card[data-id="${arg}"]`);
     detail.open(animById[arg], card, query);
     return;
   }
@@ -402,7 +350,10 @@ function route() {
     viewReadyOnce = true; return;
   }
   viewReadyOnce = true;
-  setView(kind === 'hearted' ? 'hearted' : kind === 'new' && NEW_SET.size ? 'new' : 'all', !instant, true);
+  // anything else (#/, an unknown category) is the full list. New used to have its own dial entry: an old #/new link
+  // lands on the full list too, with the address tidied to match
+  if (kind === 'new' || (kind === 'c' && arg === 'new')) history.replaceState(history.state, '', '#/');
+  setView(kind === 'hearted' ? 'hearted' : 'all', !instant, true);
 }
 // remember when a detail view was opened from the list, so closing can go back in history
 addEventListener('hashchange', e => {
@@ -472,7 +423,6 @@ for (const [q, a] of FAQ[LANG] || FAQ.en) {
     else if (e.key === 'Tab') close(false);
   });
 }
-$('#surprise span').textContent = t('Surprise me');
 $('#foot-licence').textContent = t('Free to use, MIT-0');
 $('.skip').textContent = t('Skip to animations');
 $('#dial').setAttribute('aria-label', t('Categories'));

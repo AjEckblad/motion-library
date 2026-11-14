@@ -203,11 +203,16 @@ await page.evaluate(() => { location.hash = '#/a/squash-bounce'; }); await page.
 check('no Compare button and no sound button', await page.locator('#detail .d-compare, #sound, #tray, #compare').count() === 0);
 await page.keyboard.press('Escape'); await page.waitForTimeout(500);
 
-// surprise me
-await page.locator('.dial-item[data-id="all"]').click(); await page.waitForTimeout(600);
-await page.click('#surprise'); await page.waitForTimeout(1600);
-check('Surprise me opens a random design', /#\/a\//.test(page.url()));
-await page.keyboard.press('Escape'); await page.waitForTimeout(500);
+// the header (AJ, 2026-11-14): no Surprise me; Search is the magnifier alone, named for screen readers, no shortcut hint,
+// at least 40px to hit, and a click opens the palette
+{
+  const hb = await page.evaluate(() => { const b = document.querySelector('#search-btn'), r = b.getBoundingClientRect(), a = getComputedStyle(b, '::after');
+    return { surprise: !!document.querySelector('#surprise'), text: b.textContent.trim(), kbd: !!document.querySelector('.bar kbd'), label: b.getAttribute('aria-label'), hit: Math.round(r.width + 2 * -parseFloat(a.left)) }; });
+  check('header: no Surprise me, Search is an icon with a label, no shortcut hint, a hit area of 40px or more', !hb.surprise && hb.text === '' && !hb.kbd && hb.label === 'Search' && hb.hit >= 40, JSON.stringify(hb));
+  await page.click('#search-btn'); await page.waitForTimeout(400);
+  check('header: the magnifier opens the search palette', await page.locator('.pal').isVisible());
+  await page.keyboard.press('Escape'); await page.waitForTimeout(400);
+}
 check('no page errors during the run', page.errors.length === 0, [...new Set(page.errors)].join(' | '));
 await page.context().close();
 
@@ -284,6 +289,12 @@ await pf.context().close();
 const ph = await newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 await ph.goto(`${base}/index.html`); await ph.waitForTimeout(1200);
 check('phone: no horizontal overflow', await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+// the front page on a phone: the attractor on top, then the words, and the button on the first screen above the dial strip
+{
+  const f = await ph.evaluate(() => { const m = document.querySelector('#front-media').getBoundingClientRect(), t = document.querySelector('#front-title').getBoundingClientRect(), b = document.querySelector('#front-browse').getBoundingClientRect(), d = document.querySelector('#dial').getBoundingClientRect();
+    return { mediaAbove: m.bottom <= t.top, square: Math.round(m.height / m.width * 100) / 100, btnBottom: Math.round(b.bottom), dialTop: Math.round(d.top) }; });
+  check('phone: the attractor sits above the headline and the button is on the first screen', f.mediaAbove && f.square > 0.8 && f.btnBottom <= f.dialTop - 8, JSON.stringify(f));
+}
 // the full list opens on the live hero, so scroll into the catalogue first
 await ph.evaluate(() => scrollTo(0, document.querySelector('#sec-flow').getBoundingClientRect().top + scrollY + 200)); await ph.waitForTimeout(900);
 check('phone: the centred card plays without hover', await ph.locator('#grid iframe').count() === 1);
@@ -347,15 +358,16 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   await lp.keyboard.press('Escape'); await lp.waitForTimeout(700);
   const back = await lp.evaluate(() => ({ hash: location.hash, hidden: document.getElementById('detail').hidden }));
   check('next swaps the detail view in place, the path links to GitHub, Esc returns to the list', nx.hash !== '#/a/ferrofluid' && /^#\/a\//.test(nx.hash) && nx.src?.startsWith('https://github.com/AjEckblad/motion-library/blob/main/anims/') && back.hidden && !/^#\/a\//.test(back.hash), JSON.stringify({ ...nx, ...back }));
-  // New: the dial lists the effects js/versions.js marks as new, and their cards carry the chip
+  // New: the effects js/versions.js marks as new carry the chip on their cards in the full list. New has no dial entry
+  // (AJ, 2026-11-14), and an old #/new link lands on the full list with the address tidied to #/
   {
     const { NEW } = await import(pathToFileURL(path.join(ROOT, 'js/versions.js')).href + '?n=' + Date.now());
-    if (NEW.length) {
-      await lp.evaluate(() => { location.hash = '#/new'; }); await lp.waitForTimeout(900);
-      const nw = await lp.evaluate(() => ({ cards: [...document.querySelectorAll('#grid .card')].map(c => c.dataset.id), chips: document.querySelectorAll('#grid .card .new-chip').length }));
-      check('New lists the newest effects, each with its chip', nw.cards.join() === NEW.join() && nw.chips === NEW.length, `${nw.cards.length} cards, ${nw.chips} chips`);
-      await lp.evaluate(() => { location.hash = '#/'; }); await lp.waitForTimeout(700);
-    }
+    await lp.evaluate(() => { location.hash = '#/new'; }); await lp.waitForTimeout(900);
+    const nw = await lp.evaluate(() => ({ hash: location.hash, dialNew: !!document.querySelector('.dial-item[data-id="new"]'), front: !document.querySelector('#front').hidden,
+      sections: document.querySelectorAll('#grid .cat-sec').length, chips: [...document.querySelectorAll('#grid .card .new-chip')].map(b => b.closest('.card').dataset.id) }));
+    check('New: no dial entry, an old #/new link opens the full list, new cards carry the chip', nw.hash === '#/' && !nw.dialNew && nw.front && nw.sections > 10
+      && nw.chips.length === NEW.length && NEW.every(id => nw.chips.includes(id)), JSON.stringify({ ...nw, chips: nw.chips.length }));
+    await lp.evaluate(() => { location.hash = '#/'; }); await lp.waitForTimeout(700);
   }
   await lp.evaluate(() => scrollTo(0, 0)); await lp.waitForTimeout(400);
   // the language menu: closed at rest, opens from the globe button with four languages, the current one ticked

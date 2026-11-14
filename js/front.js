@@ -1,139 +1,101 @@
-// The front page's hero: one showpiece running live across the content column, with two of its real sliders.
-// It never delays first paint (the poster is plain HTML; the live stage mounts once the page has loaded and the
-// browser is idle), runs only while it is on screen and nothing else is playing, and frees its WebGL context after
-// a while off screen. Under reduced motion it stays the poster. A slider swaps in a retuned stage under the running
-// one and crossfades, so the picture never blanks while the shader compiles.
-import { animById, catById, srcOf } from '../anims/registry.js';
-import { HERO, HERO_KNOBS } from './showpieces.js';
-import { t, tr, tl, catName } from './i18n.js';
-import { readParams, formatValue, encodeParams } from './code.js';
+// The front page: a headline, one line, one button, and a live Clifford attractor filling the right of the first screen,
+// fading out under the words (on phones it sits on top as a square). The pointer steers it: the words above it let
+// pointer events through, except the button. It never delays first paint (the poster is plain HTML; the live stage
+// mounts once the page has loaded and the browser is idle), runs only while it is on screen and nothing else is
+// playing, and frees its WebGL context after a while off screen. Under reduced motion it stays the poster.
+import { ANIMS, animById, srcOf } from '../anims/registry.js';
+import { HERO, HERO_PARAMS, HEADLINE, HEADLINE_ACCENT } from './hero.js';
+import { t } from './i18n.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const FREE_AFTER = 30000;                                   // off screen this long: drop the iframe (and its GPU memory)
 
-export function createFront({ onOpen, toast }) {
+export function createFront() {
   const root = document.getElementById('front');
   const a = animById[HERO];
-  if (!root || !a) return { setBusy() {}, show() {} };
-  const media = root.querySelector('#front-media'), stageEl = root.querySelector('#front-stage');
+  if (!root || !a) return { setBusy() {}, show() {}, enter: () => [] };
+  const media = root.querySelector('#front-media');
 
   /* words, in the chosen language */
-  root.querySelector('#front-title').textContent = t('Showpiece web effects that run in any stack');
-  const n = document.querySelectorAll('[data-count]')[0]?.textContent || '';
-  root.querySelector('#front-lede').textContent = t('{n} live effects, from button springs to real-time ferrofluid and ocean. Every preview is the code itself running: what you see is what you copy.').replace('{n}', n);
-  const points = ['One plain-JS file each, no dependencies', 'Live sliders on every effect', 'Copy as prompt for your AI assistant'];
-  root.querySelectorAll('#front-points li').forEach((li, i) => { li.textContent = t(points[i]); });
-  root.querySelector('#front-browse > span').textContent = t('Browse all {n}').replace('{n}', n);
-  root.querySelector('#front-name').textContent = tr(a, 'title');
-  root.querySelector('#front-trick').textContent = tr(a, 'trick');
-  root.querySelector('.front-cap .cat-dot').setAttribute('title', catName(catById[a.cat]));
-  media.setAttribute('aria-label', `${tr(a, 'title')}: ${t('See the code')}`);
-
-  /* controls: two real sliders, pause, and the way into the detail view with the tuned values */
-  const ctl = document.createElement('div'); ctl.className = 'front-ctl';
-  const knobs = HERO_KNOBS.filter(k => a.params[k]);
-  ctl.innerHTML = knobs.map(k => `<div class="knob"><label for="fk-${k}"></label><output for="fk-${k}"></output><input id="fk-${k}" type="range" data-k="${k}" min="${a.params[k].min}" max="${a.params[k].max}" step="${a.params[k].step}"></div>`).join('')
-    + `<button class="pb-btn front-pause" type="button" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="i-pause" d="M5 3.5v9M11 3.5v9"/><path class="i-play" d="M5 3v10l8-5z"/></svg><span></span></button>`
-    + `<a class="pb-btn front-open" href="#/a/${a.id}"><span></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5"/></svg></a>`;
-  knobs.forEach(k => { ctl.querySelector(`label[for="fk-${k}"]`).textContent = tl(a.params[k].label); });
-  const pauseBtn = ctl.querySelector('.front-pause'), openLink = ctl.querySelector('.front-open');
-  openLink.querySelector('span').textContent = t('See the code');
-  root.querySelector('.front-cap').append(ctl);
-
-  let defaults = {}, values = {};
-  const query = () => Object.keys(defaults).length ? encodeParams(values, defaults, a.params) : '';
-  // the install line follows the sliders: the CLI takes the same keys as flags and writes them into the file it copies
-  const npx = root.querySelector('#front-npx'), npxCode = npx.querySelector('code');
-  const npxCommand = () => { const q = query(); return `npx motion-library add ${a.id}${q ? ' ' + q.split('&').map(p => '--' + p.replace('=', ' ')).join(' ') : ''}`; };
-  const syncLinks = () => { const q = query(); openLink.href = `#/a/${a.id}${q ? '?' + q : ''}`; npxCode.textContent = npxCommand(); };
-  npx.setAttribute('title', t('Copy'));
-  npx.addEventListener('click', () => {
-    navigator.clipboard?.writeText(npxCommand()).then(() => toast?.(t('Command copied: run it in your project folder')), () => {});
-  });
-  fetch(srcOf(a) + (a.v ? '?v=' + a.v : '')).then(r => r.text()).then(src => {
-    defaults = readParams(src); values = { ...defaults };
-    for (const k of knobs) {
-      const input = ctl.querySelector(`#fk-${k}`), out = ctl.querySelector(`output[for="fk-${k}"]`);
-      input.value = values[k]; out.textContent = formatValue(values[k], a.params[k].step);
-      input.addEventListener('input', () => { values[k] = +input.value; out.textContent = formatValue(values[k], a.params[k].step); syncLinks(); retune(); });
-    }
-    syncLinks();
-  }).catch(() => {});
-  // the stage itself opens the effect too (the iframe relays a click as stage-click)
-  media.addEventListener('click', e => { e.preventDefault(); onOpen(openLink.getAttribute('href')); });
-  openLink.addEventListener('click', e => { e.preventDefault(); onOpen(openLink.getAttribute('href')); });
+  // the headline, its accent phrase in an <em> (Instrument Serif italic, pink): the same markup the static build writes
+  const title = root.querySelector('#front-title'), head = t(HEADLINE), acc = t(HEADLINE_ACCENT), at = acc ? head.indexOf(acc) : -1;
+  if (at < 0) title.textContent = head;
+  else { const em = document.createElement('em'); em.textContent = acc; title.replaceChildren(head.slice(0, at), em, head.slice(at + acc.length)); }
+  root.querySelector('#front-sub').textContent = t('Each one is a single JavaScript file. Adjust it with the sliders, then copy the code.');
+  root.querySelector('#front-browse').textContent = t('Browse all {n}').replace('{n}', ANIMS.length);
+  root.querySelector('#front-cap').textContent = t('Free and open source');
+  media.setAttribute('aria-label', t('A live Clifford attractor: move the pointer over it to reshape it'));
 
   /* the live stage */
-  let frame = null, next = null, inView = false, busy = new Set(), userPaused = false, loaded = false, freeT = 0, retuneT = 0;
-  const src = p => `stage.html?src=${srcOf(a)}${a.v ? '&v=' + a.v : ''}&mode=preview${p ? '&p=' + encodeURIComponent(p) : ''}`;
-  const wants = () => loaded && inView && !busy.size && !userPaused && !reduce.matches && !document.hidden;
-  function mountFrame(p) {
-    const f = document.createElement('iframe');
-    f.src = src(p); f.title = tr(a, 'title'); f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
-    media.append(f);
-    return f;
-  }
+  let frame = null, inView = false, busy = new Set(), loaded = false, freeT = 0;
+  // mode=hero: no click-to-open relay (a click here steers the attractor); HERO_PARAMS sets its point count
+  const src = `stage.html?src=${srcOf(a)}${a.v ? '&v=' + a.v : ''}&mode=hero&p=${encodeURIComponent(HERO_PARAMS)}`;
+  const wants = () => loaded && inView && !busy.size && !reduce.matches && !document.hidden;
   function sync() {
     const run = wants();
-    stageEl.dataset.state = !frame ? 'poster' : run ? 'live' : 'paused';
-    pauseBtn.setAttribute('aria-pressed', String(userPaused));
-    pauseBtn.querySelector('span').textContent = t(userPaused ? 'Play' : 'Pause');
-    if (reduce.matches) { stageEl.dataset.state = 'poster'; return; }
+    media.dataset.state = !frame || reduce.matches ? 'poster' : run ? 'live' : 'paused';
+    if (reduce.matches) return;
     clearTimeout(freeT);
     if (run) {
-      if (!frame) { frame = mountFrame(query()); stageEl.dataset.state = 'live'; }
-      else post(frame, 'play');
+      if (!frame) {
+        frame = document.createElement('iframe');
+        frame.src = src; frame.title = a.title; frame.tabIndex = -1; frame.setAttribute('aria-hidden', 'true');
+        media.append(frame); media.dataset.state = 'live';
+      } else post('play');
     } else if (frame) {
-      post(frame, 'pause'); post(next, 'pause');
+      post('pause');
       // a long way off screen: give the GPU back; the poster stays and the stage comes back when it is in view again
       if (!inView) freeT = setTimeout(drop, FREE_AFTER);
     }
   }
-  const post = (f, type) => f?.contentWindow?.postMessage({ type }, location.origin);
-  function drop() { frame?.remove(); next?.remove(); frame = next = null; stageEl.dataset.state = 'poster'; }
-  function retune() {
-    clearTimeout(retuneT);
-    retuneT = setTimeout(() => { if (!frame) return; next?.remove(); next = mountFrame(query()); next.classList.add('is-next'); }, 260);
-  }
+  const post = type => frame?.contentWindow?.postMessage({ type }, location.origin);
+  function drop() { frame?.remove(); frame = null; media.dataset.state = 'poster'; }
   addEventListener('message', e => {
-    if (e.data?.type === 'stage-ready') {
-      if (frame && e.source === frame.contentWindow) { frame.classList.add('live'); if (!wants()) post(frame, 'pause'); }
-      else if (next && e.source === next.contentWindow) {
-        // give the new stage two real frames to draw before it covers the old one, then fade it in and drop the old
-        const n = next;
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          if (n !== next) return;
-          n.classList.add('live');
-          setTimeout(() => { if (n !== next) return; frame?.remove(); frame = n; next = null; frame.classList.remove('is-next'); if (!wants()) post(frame, 'pause'); }, 320);
-        }));
-      }
-    }
-    if (e.data?.type === 'stage-click' && (e.source === frame?.contentWindow || e.source === next?.contentWindow)) onOpen(openLink.getAttribute('href'));
+    if (e.data?.type === 'stage-ready' && frame && e.source === frame.contentWindow) { frame.classList.add('live'); if (!wants()) post('pause'); }
   });
-  pauseBtn.addEventListener('click', () => { userPaused = !userPaused; sync(); });
   new IntersectionObserver(([en]) => { inView = en.isIntersecting && en.intersectionRatio > 0.15; sync(); }, { threshold: [0, 0.15, 0.5] }).observe(media);
   document.addEventListener('visibilitychange', sync);
   reduce.addEventListener('change', () => { if (reduce.matches) drop(); sync(); });
-  // first paint never waits on WebGL: mount after load, when the main thread is idle
+  // first paint never waits on WebGL: mount after load and after the first contentful paint (a slow font or a busy
+  // machine can put that paint after load), when the main thread is idle
+  const painted = new Promise(res => {
+    if (performance.getEntriesByName('first-contentful-paint').length) return res();
+    try { new PerformanceObserver((l, o) => { if (l.getEntriesByName('first-contentful-paint').length) { o.disconnect(); res(); } }).observe({ type: 'paint', buffered: true }); } catch { res(); }
+    setTimeout(res, 3000);                                   // no Paint Timing in this browser: the hero still comes
+  });
   const ready = () => { loaded = true; sync(); };
-  const idle = () => (window.requestIdleCallback ? requestIdleCallback(ready, { timeout: 1500 }) : setTimeout(ready, 400));
+  const idle = () => painted.then(() => (window.requestIdleCallback ? requestIdleCallback(ready, { timeout: 1500 }) : setTimeout(ready, 400)));
   if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
   sync();
 
   /* entrances. On a fresh visit the headline's lines rise from behind their own baselines (the one authored moment on
-     the page), then the words and the stage settle in. Coming back from another view, everything uses the grid's
-     entrance instead (240 ms, 30 ms apart), so the swap feels like one system. The text is in the HTML at rest: if the
-     script never runs, nothing is hidden. */
+     the page), then the line, the button and the attractor settle in. Coming back from another view, everything uses
+     the grid's entrance instead (240 ms, 30 ms apart), so the swap feels like one system. The text is in the HTML at
+     rest: if the script never runs, nothing is hidden. */
   const ease = 'cubic-bezier(0.23, 1, 0.32, 1)';
-  const parts = () => [root.querySelector('.front-lede'), root.querySelector('.front-side'), stageEl];
+  const parts = () => [root.querySelector('#front-sub'), root.querySelector('#front-browse'), media];
   function lines() {
-    // wrap each rendered line of the headline in a mask, measured from the words' tops (works in every language)
+    // wrap each rendered line of the headline in a mask, measured from the words' tops (works in every language). The
+    // accent phrase keeps its <em> on whichever lines it lands.
     const h = root.querySelector('#front-title'), text = h.textContent;
-    const cjk = /[\u3000-\u9fff]/.test(text), toks = cjk ? [...text] : text.split(/(\s+)/);
-    h.replaceChildren(...toks.map(w => { const s = document.createElement('span'); s.textContent = w; return s; }));
-    const rows = [];
-    for (const s of h.children) { const top = s.offsetTop; let r = rows.find(x => Math.abs(x.top - top) < 4); if (!r) rows.push(r = { top, words: [] }); r.words.push(s.textContent); }
-    h.replaceChildren(...rows.map(r => { const m = document.createElement('span'); m.className = 'front-line'; const i = document.createElement('span'); i.textContent = r.words.join(''); m.append(i); return m; }));
+    const cjk = /[　-鿿]/.test(text);
+    // (in Chinese the accent phrase is one unbreakable piece, as the CSS sets it)
+    const toks = [...h.childNodes].flatMap(n => { const em = n.nodeName === 'EM', s = n.textContent; return (cjk ? (em ? [s] : [...s]) : s.split(/(\s+)/)).filter(Boolean).map(w => ({ w, em })); });
+    h.replaceChildren(...toks.map(tk => { const s = document.createElement(tk.em ? 'em' : 'span'); s.textContent = tk.w; tk.el = s; return s; }));
+    // the serif phrase is set a little larger, so its top sits a few px higher: group by top within a third of the size
+    const tol = parseFloat(getComputedStyle(h).fontSize) / 3, rows = [];
+    for (const tk of toks) { const top = tk.el.offsetTop; let r = rows.find(x => Math.abs(x.top - top) < tol); if (!r) rows.push(r = { top, toks: [] }); r.toks.push(tk); }
+    h.replaceChildren(...rows.map(r => {
+      const m = document.createElement('span'); m.className = 'front-line'; const i = document.createElement('span');
+      // consecutive tokens of the same kind join into one text run or one <em>
+      for (const tk of r.toks) {
+        const last = i.lastChild, isEm = last?.nodeName === 'EM';
+        if (last && isEm === tk.em) last.textContent += tk.w;
+        else if (tk.em) { const e = document.createElement('em'); e.textContent = tk.w; i.append(e); }
+        else i.append(tk.w);
+      }
+      m.append(i); return m;
+    }));
     h.setAttribute('aria-label', text);
     return [...h.querySelectorAll('.front-line > span')];
   }

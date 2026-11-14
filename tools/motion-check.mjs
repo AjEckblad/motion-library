@@ -12,7 +12,7 @@ await ctx.addInitScript(() => {
   window.__anims = [];
   const orig = Element.prototype.animate;
   Element.prototype.animate = function (k, o) {
-    if (this.closest?.('#grid, #showpieces, #front')) window.__anims.push({ d: o?.duration, delay: o?.delay ?? 0, easing: o?.easing });
+    if (this.closest?.('#grid, #front')) window.__anims.push({ d: o?.duration, delay: o?.delay ?? 0, easing: o?.easing });
     return orig.call(this, k, o);
   };
 });
@@ -23,12 +23,12 @@ await page.waitForSelector('.card');
 await page.waitForTimeout(1500);
 const take = () => page.evaluate(() => { const a = window.__anims; window.__anims = []; return a; });
 
-// 1. arrow keys on the dial: New -> Hearted swaps instantly to the top; Hearted -> first category jumps straight to its section
-//    (starts on New when the dial has it: All, New, Hearted, categories)
+// 1. arrow keys on the dial: All -> Hearted swaps instantly to the top; Hearted -> first category jumps straight to its section
+//    (the dial: All, Hearted, the categories, FAQ)
 await take();
 await page.evaluate(() => scrollTo(0, 0));
 await page.waitForTimeout(150);
-await page.focus(await page.$('.dial-item[data-id="new"]') ? '.dial-item[data-id="new"]' : '.dial-item[data-id="all"]');
+await page.focus('.dial-item[data-id="all"]');
 const h0 = await page.evaluate(() => location.hash);
 await page.keyboard.press('ArrowDown');
 await page.waitForTimeout(40);
@@ -91,7 +91,7 @@ check('exit uses the strong ease-out token', ex.every(a => a.easing === 'cubic-b
 check('exit leaves all at once (no stagger holding the new view back)', ex.every(a => !a.delay), { exitDelays: [...new Set(ex.map(a => a.delay))] });
 // 2b. All: every card on the first screen gets an entrance, none below it
 const all = ent;
-const firstScreen = await page.evaluate(() => [...document.querySelectorAll('#front-title, .front-lede, .front-side, #front-stage, #showpieces .card, #grid .card')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight).length);
+const firstScreen = await page.evaluate(() => [...document.querySelectorAll('#front-title, #front-sub, #front-browse, #front-media, #grid .card')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight).length);
 check('All: each first-screen card animates, none below', all.length === firstScreen && Math.max(...all.map(a => a.delay)) === Math.min(firstScreen - 1, 7) * 30, { entrances: all.length, firstScreen, maxDelay: Math.max(...all.map(a => a.delay)) });
 
 // 4. pressing a card heart with the mouse shows the press
@@ -238,8 +238,9 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   check('detail previous/next: keyboard steps swap instantly, clicks fade ≤120 ms', kb === 0 && ptr.length === 1 && ptr[0] <= 120, { keyboard: kb, pointer: ptr });
   await page.keyboard.press('Escape'); await page.waitForTimeout(600);
 }
-// the front page's live hero (js/front.js): it never delays first paint, runs only while it is on screen and nothing
-// else plays, stays its poster under reduced motion, and deep links go straight to their target without it
+// the front page's live hero (js/front.js), the Clifford attractor: it never delays first paint, runs only while it is
+// on screen and nothing else plays, stays its poster under reduced motion, and deep links go straight to their target
+// without it. The words over it let the pointer through to it, except the button.
 {
   const hp = await ctx.newPage();
   await hp.addInitScript(() => {
@@ -252,7 +253,19 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   const t = await hp.evaluate(() => ({ at: Math.round(window.__heroAt), load: Math.round(performance.getEntriesByType('navigation')[0].loadEventEnd), fcp: Math.round(performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 0) }));
   check('hero: the live stage mounts after load and first paint, over a poster that is plain HTML', t.at > t.load && t.at > t.fcp && t.fcp > 0
     && await hp.evaluate(() => !!document.querySelector('#front-media img[fetchpriority="high"]')), t);
-  const clock = () => hp.evaluate(() => ({ paused: document.querySelector('#front-media iframe')?.contentWindow?.__clock?.paused ?? null, state: document.querySelector('#front-stage').dataset.state }));
+  const clock = () => hp.evaluate(() => ({ paused: document.querySelector('#front-media iframe')?.contentWindow?.__clock?.paused ?? null, state: document.querySelector('#front-media').dataset.state }));
+  // the piece is the Clifford attractor at the hero's own point count, and nothing but the headline, one line, the
+  // button and the caption sits over it (no lede, bullets, npx line or slider row)
+  const what = await hp.evaluate(() => {
+    const src = document.querySelector('#front-media iframe')?.getAttribute('src') || '', b = document.querySelector('#front-browse').getBoundingClientRect(), h = document.querySelector('#front-title').getBoundingClientRect();
+    const m = document.querySelector('#front-media').getBoundingClientRect();
+    // a point on the headline that is also over the attractor's box: the pointer must reach the attractor there
+    const x = Math.max(h.left + 4, m.left + 8), y = h.top + h.height / 2;
+    const under = document.elementFromPoint(x, y), onBtn = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    return { clifford: /src=anims\/generative\/clifford-attractor\.js/.test(src), points: /[?&]p=points%3D0\.4\b/.test(src), extras: document.querySelectorAll('#front .front-lede, #front .front-points, #front-npx, #front .front-ctl').length,
+      through: !!under?.closest('#front-media'), button: !!onBtn?.closest('#front-browse'), cap: document.querySelector('#front-cap').textContent };
+  });
+  check('hero: the Clifford attractor at 0.4M points, the words let the pointer through (not the button), nothing else on it', what.clifford && what.points && what.extras === 0 && what.through && what.button && what.cap === 'Free and open source', what);
   const on = await clock();
   await hp.evaluate(() => document.querySelector('#sec-chrome').scrollIntoView()); await hp.waitForTimeout(600);
   const off = await clock();
@@ -261,8 +274,8 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   check('hero: runs in view, pauses off screen, resumes on return', on.paused === false && off.paused === true && off.state === 'paused' && back.paused === false, { on, off, back });
   // a card preview takes over: the hero waits while it plays (one live WebGL picture at a time)
   await hp.evaluate(() => scrollTo(0, 420)); await hp.waitForTimeout(500);
-  const sp = hp.locator('#showpieces .card').nth(1); await sp.hover(); await hp.waitForTimeout(900);
-  const during = await clock(), previews = await hp.locator('#showpieces iframe').count();
+  const card = hp.locator('#grid .card').first(); await card.hover(); await hp.waitForTimeout(900);
+  const during = await clock(), previews = await hp.locator('#grid iframe').count();
   await hp.mouse.move(5, 300); await hp.waitForTimeout(600);
   const after = await clock();
   check('hero: pauses while a card preview plays, then picks up again', previews === 1 && during.paused === true && after.paused === false, { previews, during, after });
@@ -273,12 +286,12 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   check('hero: paused under the detail view', under.paused === true, under);
   await hp.close();
 
-  // reduced motion: the poster, no live stage, no reveal, no sliders
+  // reduced motion: the poster, no live stage, no reveal
   const rc = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const rp = await rc.newPage(); await rp.goto(base + '/index.html#/'); await rp.waitForTimeout(3000);
-  const r = await rp.evaluate(() => ({ frames: document.querySelectorAll('#front-media iframe').length, poster: document.querySelector('#front-media img').complete, state: document.querySelector('#front-stage').dataset.state,
-    knobs: [...document.querySelectorAll('.front-ctl .knob')].filter(k => k.offsetParent).length, lines: document.querySelectorAll('.front-line').length }));
-  check('hero: reduced motion shows the poster (no live stage, no reveal, no sliders)', r.frames === 0 && r.poster && r.state === 'poster' && r.knobs === 0 && r.lines === 0, r);
+  const r = await rp.evaluate(() => ({ frames: document.querySelectorAll('#front-media iframe').length, poster: document.querySelector('#front-media img').complete && /clifford-attractor\.webp/.test(document.querySelector('#front-media img').src),
+    state: document.querySelector('#front-media').dataset.state, lines: document.querySelectorAll('.front-line').length }));
+  check('hero: reduced motion shows the poster (no live stage, no reveal)', r.frames === 0 && r.poster && r.state === 'poster' && r.lines === 0, r);
   await rc.close();
 
   // deep links: straight to the target, the hero neither reveals nor runs

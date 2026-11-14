@@ -1,8 +1,8 @@
-/* Bricolage Grotesque (one weight, 600, with its optical-size axis) for every headline, Wix Madefor Text for every UI
-   word and the reading text, JetBrains Mono for code. All three SIL OFL 1.1 (fonts/OFL.txt), self-hosted Latin
-   subsets; Chinese falls back to the system faces. */
-@font-face { font-family: "Wix Madefor Text"; src: url(../fonts/wix-madefor-text-latin.woff2) format("woff2"); font-weight: 400 800; font-display: swap; }
-@font-face { font-family: "Bricolage Grotesque"; src: url(../fonts/bricolage-grotesque-latin.woff2) format("woff2"); font-weight: 600; font-display: swap; }
+/* One face for the whole site, Instrument Sans (variable, 400 to 700), for every UI word, the reading text and every
+   headline; Instrument Serif Italic only for the accent phrase in the front headline; JetBrains Mono for code. All three
+   SIL OFL 1.1 (fonts/OFL.txt), self-hosted Latin subsets; Chinese falls back to the system faces. */
+@font-face { font-family: "Instrument Sans"; src: url(../fonts/instrument-sans-latin.woff2) format("woff2"); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: "Instrument Serif"; src: url(../fonts/instrument-serif-italic-latin.woff2) format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
 @font-face { font-family: "JetBrains Mono"; src: url(../fonts/jetbrains-mono-latin.woff2) format("woff2"); font-weight: 400 600; font-display: swap; }
 
 :root {
@@ -17,8 +17,8 @@
   --ink-2: #c6c6ca;
   --muted: #8a8c92;
   --accent: #7cc0ff;
-  --heart: #ff4d6d;
-  --heart-soft: #ffb3c8;
+  --pop: #ff5fa2;       /* hot pink, the one pop: the headline phrase, Browse all, the bullets, the dial's chosen line, hearts */
+  --pop-ink: #22040f;   /* text on a pop fill */
   --focus: #a6d4ff;
   --code-bg: #0f0f11;
 
@@ -34,14 +34,15 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
-  --font: "Wix Madefor Text", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque", var(--font);
+  --font: "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: var(--font);
+  --font-accent: "Instrument Serif", Georgia, serif;   /* italic 400 only: the front headline's accent phrase */
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 
   /* one type ramp, named by role: six sizes, three weights (400 / 500 / 600) */
-  --fs-hero: clamp(34px, 3.8vw, 64px);   /* the front page headline, two lines */
-  --fs-display: 32px;   /* the page title of the other views (Hearted, New) */
-  --fs-h1: clamp(26px, 2.1vw, 32px);     /* section headings: showpieces, categories, FAQ */
+  --fs-hero: clamp(38px, 5.2vw, 72px);   /* the front page headline: three lines on desktop, two on phones */
+  --fs-display: 32px;   /* the page title of the other views (Hearted, a category) */
+  --fs-h1: clamp(26px, 2.1vw, 32px);     /* section headings: categories, FAQ */
   --fs-lede: 18px;      /* the front page's one sentence */
   --fs-h2: 20px;        /* detail title, group names, empty state */
   --fs-title: 16px;     /* card titles, panel headings, FAQ questions */
@@ -49,7 +50,7 @@
   --fs-label: 14px;     /* buttons, the dial, descriptions under cards */
   --fs-meta: 13px;      /* counts, kinds, timecodes, compact panel controls, code */
   --display-w: 600;     /* the display face's weight and tracking, set once for every headline */
-  --display-track: -0.02em;
+  --display-track: -0.025em;
   color-scheme: dark;
 }
 
@@ -110,7 +111,7 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
   padding: 22px var(--pad) 40px;
 }
 .sheet-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 40px; min-height: 40px; }
-.sheet-head h1 { margin: 0; font-family: var(--font-display); font-size: var(--fs-display); line-height: 1.1; font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; }
+.sheet-head h1 { margin: 0; font-family: var(--font-display); font-size: var(--fs-display); line-height: 1.1; font-weight: 600; letter-spacing: var(--display-track); text-wrap: balance; }
 .count { margin: 0; color: var(--muted); font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
 .head-tools { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
@@ -153,7 +154,7 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 
 .heart { position: absolute; z-index: 5; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(12, 12, 14, .72); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: scale(.9); transition: opacity .15s var(--ease-out), transform .16s var(--ease-out), translate .25s ease; }
 .heart svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; transition: fill .15s, stroke .15s; }
-.heart[aria-pressed="true"] svg { fill: var(--heart); stroke: var(--heart); }
+.heart[aria-pressed="true"] svg { fill: var(--pop); stroke: var(--pop); }
 .card:focus-within .heart, .heart[aria-pressed="true"] { opacity: 1; transform: none; }
 @media (hover: hover) and (pointer: fine) { .card:hover .heart { opacity: 1; transform: none; } }
 /* after the reveal rules and as specific as them: a plain .heart:active lost to .card:hover .heart, so the press never showed */
@@ -191,9 +192,9 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 .dial-item .dot { display: none; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--hue); }
 @media (hover: hover) and (pointer: fine) { .dial-item:hover { color: var(--ink); } }
 .dial-item[aria-checked="true"] { color: var(--ink); font-weight: 500; }
-.dial-item[aria-checked="true"] .lbl { border-bottom-color: var(--accent); }
+.dial-item[aria-checked="true"] .lbl { border-bottom-color: var(--pop); }
 /* Hearted is the one personal entry in the list: its word is set in a soft pink, at rest and when chosen */
-.dial-item[data-id="hearted"] { color: var(--heart-soft); }   /* placed after the hover and chosen rules, same specificity, so it wins */
+.dial-item[data-id="hearted"] { color: var(--pop); }   /* placed after the hover and chosen rules, same specificity, so it wins */
 .dial-item:focus-visible { outline: none; }
 .dial-item:focus-visible .lbl { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 4px; }
 
@@ -334,10 +335,6 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 .toast { position: fixed; z-index: 70; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; padding: 9px 14px; border-radius: 10px; background: var(--ink); color: var(--frame); font-weight: 500; font-size: var(--fs-label); transition: opacity .2s var(--ease-out), transform .25s var(--ease-out); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* the die thrown by Surprise me */
-.die { position: fixed; z-index: 80; width: 34px; height: 34px; border-radius: 8px; background: var(--ink); border: 0; pointer-events: none; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; gap: 1px; }
-.die i { width: 6px; height: 6px; border-radius: 50%; background: var(--frame); align-self: center; justify-self: center; }
-
 /* ───────── responsive ───────── */
 @media (max-width: 1280px) { .layout { --dial-w: 190px; } }
 @media (max-width: 1100px) {
@@ -354,7 +351,7 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
   .layout { --dial-w: 0px; padding-bottom: 150px; }
   .sheet { margin: 0; padding: 18px 18px 40px; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 12px; }
-  .dial { top: auto; left: 0; height: 150px; width: auto; background: var(--sheet); }
+  .dial { top: auto; left: 0; height: 150px; width: auto; background: var(--frame); border-top: 1px solid var(--edge); }
   .d-top { padding: 0 10px; gap: 8px; }
   .d-crumb .cat, .d-crumb .sep { display: none; }
   .d-actions .lbl { display: none; }
@@ -426,7 +423,7 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 /* the pre-rendered catalogue (tools/build-static.mjs) is plain links until the app takes over */
 .card-link { display: block; color: inherit; text-decoration: none; }
 .lang-btn { white-space: nowrap; }
-/* phones: the bar keeps the logo, Surprise and the language switch */
+/* phones: compact buttons in the bar and the view header */
 @media (max-width: 560px) {
   .bar-actions { gap: 6px; }
   .bar .btn span, #head-tools .btn span { display: none; }
@@ -438,11 +435,12 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 /* the whole install command stays visible, wrapping at the flags rather than scrolling */
 .npx-cmd { white-space: normal; overflow-wrap: anywhere; overflow-x: visible; }
 
-/* ───────── search: a pill in the bar and a palette over the page (js/search.js) ───────── */
-.search-btn { color: var(--ink-2); padding: 0 7px 0 14px; }
-.search-btn kbd, .pal-esc, .pal-foot kbd { font: 500 var(--fs-meta)/1 var(--font); color: var(--muted); border: 1px solid var(--edge); border-radius: 6px; background: var(--raised); }
-.search-btn kbd { padding: 5px 6px; margin-left: 4px; }
-@media (hover: hover) and (pointer: fine) { .search-btn:hover { background: var(--raised); color: var(--ink); } }
+/* ───────── search: a magnifier in the bar and a palette over the page (js/search.js) ───────── */
+/* icon only, like GitHub beside it: 38px to look at, 46px to hit (the hit area reaches 4px into the 8px gaps) */
+.search-btn { position: relative; color: var(--ink); }
+.search-btn::after { content: ""; position: absolute; inset: -4px; border-radius: 999px; }
+.search-btn svg { stroke: currentColor; stroke-width: 1.8; }
+.pal-esc, .pal-foot kbd { font: 500 var(--fs-meta)/1 var(--font); color: var(--muted); border: 1px solid var(--edge); border-radius: 6px; background: var(--raised); }
 .pal { position: fixed; inset: 0; z-index: 80; display: flex; justify-content: center; align-items: flex-start; padding: min(14vh, 120px) 16px 16px; }
 .pal[hidden] { display: none; }
 .pal-scrim { position: absolute; inset: 0; background: rgba(4, 4, 6, .66); }
@@ -466,10 +464,8 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 .pal-empty { margin: 0; padding: 28px 18px 32px; color: var(--muted); font-size: var(--fs-label); text-align: center; overflow-wrap: anywhere; }
 .pal-foot { flex: none; display: flex; gap: 18px; padding: 10px 18px; border-top: 1px solid var(--line); font-size: var(--fs-meta); color: var(--muted); }
 .pal-foot kbd { display: inline-block; min-width: 20px; padding: 3px 5px; margin-right: 3px; text-align: center; color: var(--ink-2); }
-@media (hover: none), (pointer: coarse) { .search-btn kbd, .pal-foot, .pal-esc { display: none; } }
+@media (hover: none), (pointer: coarse) { .pal-foot, .pal-esc { display: none; } }
 @media (max-width: 640px) {
-  .search-btn { width: 38px; padding: 0; justify-content: center; }
-  .search-btn .lbl, .search-btn kbd { display: none; }
   .pal { padding-top: 10px; }
   .pal-cat { display: none; }
   .pal-list li { grid-template-columns: 48px minmax(0, 1fr); }
@@ -493,107 +489,61 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 /* narrow phones: with Search in the bar the brand needs the language button's chevron space to stay on one line */
 .brand span { white-space: nowrap; }
 @media (max-width: 420px) { .lang-chev { display: none; } .lang-btn { padding: 0 9px; } }
-/* the bar needs 383px with all five controls: below that GitHub steps out of it (it is in the footer too), and on the
-   narrowest phones Surprise me does as well */
-@media (max-width: 382px) { .bar .gh-btn { display: none; } }
-@media (max-width: 338px) { .bar #surprise { display: none; } }
+/* the bar needs 340px with all four controls (in 中文, the widest language button): below that GitHub steps out of it
+   (it is in the footer too) */
+@media (max-width: 339px) { .bar .gh-btn { display: none; } }
 
-/* ───────── front page: the live hero and the showpiece row (js/front.js, js/showpieces.js) ───────── */
-/* The full list opens on one showpiece running live across the content column: a two-line headline and what makes the
-   library different above it, the effect's own sliders under it. Then the hardest pieces at a larger size, then the
-   catalogue. Text never sits on the moving picture. */
-.front { margin: 6px 0 0; }
-.front-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 27rem); gap: 20px 48px; align-items: end; margin-bottom: 28px; }
-.front-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-hero); line-height: 1.02; font-weight: var(--display-w); letter-spacing: var(--display-track); text-wrap: balance; }
-.front-intro { display: grid; gap: 18px; }
-.front-side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; justify-items: start; }
-.front-lede { margin: 0; font-size: var(--fs-lede); line-height: 1.5; color: var(--ink-2); max-width: 58ch; text-wrap: pretty; }
-.front-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; color: var(--ink-2); font-size: var(--fs-body); line-height: 1.45; }
-.front-points li { display: flex; gap: 10px; align-items: baseline; }
-.front-points li::before { content: ""; flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); transform: translateY(-3px); }
-.front-actions { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin-top: 4px; max-width: 100%; }
-.front-browse { height: 44px; padding: 0 18px 0 20px; text-decoration: none; font-size: var(--fs-body); }
-.front-browse svg { width: 18px; height: 18px; stroke-width: 1.8; }
-.front-npx { height: 44px; padding: 0 16px; border: 1px solid var(--edge); border-radius: 999px; background: var(--code-bg); color: var(--ink-2); cursor: copy; transition: transform .16s var(--ease-out), color .15s, border-color .15s; max-width: 100%; }
-.front-npx code { font: 400 var(--fs-meta)/1 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.front-npx:active { transform: scale(.97); }
-@media (hover: hover) and (pointer: fine) { .front-npx:hover { color: var(--ink); border-color: var(--control); } }
-
-.front-stage { margin: 0; }
-.front-media { position: relative; display: block; height: clamp(300px, calc(100dvh - var(--bar-h) - 400px), 640px); min-height: 300px; border-radius: var(--r-sheet); overflow: hidden; background: var(--raised); }
-.front-media img, .front-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; }
+/* ───────── front page: the live hero (js/front.js) ───────── */
+/* The full list opens on a headline, one line and one button, with a live Clifford attractor filling the right of the
+   first screen straight on the page black (no box, no corners) and fading out under the words. The words let the
+   pointer through to it (it steers the attractor), except the button. Then the catalogue. */
+.front { position: relative; min-height: min(78vh, 700px); display: grid; align-content: center; }
+/* the attractor: the right 68% of the column, from the bar down. Its own black is a touch darker than the page, so
+   it is lightened onto a page-black backing (lighten keeps the brighter of the two), and the whole picture fades in
+   from the left under the headline. */
+.front-media { position: absolute; top: -22px; right: calc(-1 * var(--pad)); width: 68%; height: calc(100% + 22px); background: var(--frame);
+  /* the right and bottom edges fade too, over the attractor's empty margin, so a creature passing behind the picture
+     slips under it instead of being cut by an invisible edge */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32%, #000 95%, transparent), linear-gradient(#000 91%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 32%, #000 95%, transparent), linear-gradient(#000 91%, transparent);
+  mask-composite: intersect; }
+.front-media img, .front-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; mix-blend-mode: lighten; }
+/* the handover: the live stage fades in over the poster, which softens and then goes (under lighten a poster left
+   underneath would show through the live picture's dark parts) */
 .front-media iframe { opacity: 0; transition: opacity .4s var(--ease-out); }
-/* the handover: the poster softens while the live stage fades in over it, so two different frames of the flight never
-   overlap sharply (the detail view's stage does the same) */
-.front-media img { transition: filter .4s var(--ease-out); }
-.front-media:has(iframe.live) img { filter: blur(2px); }
+.front-media img { transition: filter .4s var(--ease-out), opacity .3s var(--ease-out) .25s; }
+.front-media:has(iframe.live) img { filter: blur(2px); opacity: 0; }
 .front-media iframe.live { opacity: 1; }
-.front-media iframe.is-next { z-index: 1; }
-.front-media:focus-visible { outline-offset: 3px; }
-.front-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding: 14px 2px 0; }
-.front-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: var(--fs-title); }
-.front-trick { color: var(--muted); font-size: var(--fs-label); flex: 1 1 260px; min-width: 0; }
-.front-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin-left: auto; }
-.front-ctl .knob { width: 168px; gap: 2px 10px; }
-.front-ctl .pb-btn { height: 36px; text-decoration: none; color: var(--ink); }
-.front-ctl .pb-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.front-pause .i-play { display: none; fill: currentColor; stroke: none; }
-.front-pause[aria-pressed="true"] .i-play { display: block; }
-.front-pause[aria-pressed="true"] .i-pause { display: none; }
-/* reduced motion: the hero is its poster, so there is nothing to tune or pause */
-.front-stage[data-state="poster"] .front-pause { display: none; }
-@media (prefers-reduced-motion: reduce) { .front-ctl .knob { display: none; } }
+.front-copy { position: relative; z-index: 1; max-width: min(620px, 52%); display: grid; gap: 22px; justify-items: start; pointer-events: none; }
+.front-copy .front-browse { pointer-events: auto; }
+.front-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-hero); line-height: 1.02; font-weight: var(--display-w); letter-spacing: var(--display-track); text-wrap: balance; }
+/* the accent phrase: the real italic cut of Instrument Serif (never a slanted or bolded sans), a touch larger to match
+   the sans's x-height, in the pop pink. Chinese has no italic serif: there it is only the pink. */
+.front-title em { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-synthesis: none; font-size: 1.08em; letter-spacing: -0.01em; color: var(--pop); }
+:lang(zh) .front-title em { font-family: inherit; font-style: normal; font-weight: inherit; font-size: 1em; letter-spacing: inherit; white-space: nowrap; }   /* and the phrase never splits across lines */
+:lang(zh) .front-title { word-break: keep-all; }   /* Chinese breaks only after the comma: 网页特效， / 直接放进任何网站 */
+.front-sub { margin: 0; font-size: var(--fs-lede); line-height: 1.5; color: var(--ink-2); max-width: 44ch; text-wrap: pretty; }
+.front-browse { height: 48px; padding: 0 22px; text-decoration: none; font-size: var(--fs-body); font-weight: 600; }
+.btn-ink.front-browse { background: var(--pop); border-color: var(--pop); color: var(--pop-ink); }
+@media (hover: hover) and (pointer: fine) { .btn-ink.front-browse:hover { background: #ff7cb4; border-color: #ff7cb4; } }
+.front-cap { position: absolute; right: 0; bottom: 18px; z-index: 1; margin: 0; font-size: var(--fs-label); color: var(--muted); pointer-events: none; }
 
-.showpieces { margin-top: 120px; }
-.sp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin: 0 0 24px; }
-.sp-head h2 { margin: 0; font-family: var(--font-display); font-size: var(--fs-h1); line-height: 1.1; font-weight: var(--display-w); letter-spacing: var(--display-track); }
-.sp-note { margin: 0; color: var(--muted); font-size: var(--fs-label); }
-/* big, then dense: the first piece takes two columns and two rows, four smaller ones fill the right */
-.sp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px var(--gap); }
-.sp-big { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; }
-.sp-big .card-media { aspect-ratio: auto; flex: 1; min-height: 0; }
-.sp-big .card-title { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: var(--display-w); letter-spacing: var(--display-track); line-height: 1.15; }
-.sp-big .card-title .cat-dot { margin-top: 10px; }
-.sp-big .trick { font-size: var(--fs-body); color: var(--ink-2); }
-.showpieces + .grid { padding-top: 120px; }
-@media (max-width: 1100px) {
-  .front-head { grid-template-columns: 1fr; gap: 22px; }
-  .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sp-big { grid-row: auto; }
-  .sp-big .card-media { aspect-ratio: 16 / 9; flex: none; }
-}
+/* the catalogue follows the hero after a long breath (80px on phones) */
+.front:not([hidden]) ~ .grid { padding-top: 120px; }
 @media (max-width: 860px) {
-  /* phones: the headline, then the live effect, then the words: the picture belongs on the first screen */
-  .front { display: flex; flex-direction: column; }
-  .front-head, .front-intro { display: contents; }
-  .front-title { order: 0; margin-bottom: 18px; font-size: clamp(25px, 7.9vw, 40px); }
-  .front-stage { order: 1; }
-  .front-lede { order: 2; margin-top: 28px; }
-  .front-side { order: 3; margin-top: 18px; }
-  .front-media { height: auto; aspect-ratio: 4 / 3; min-height: 0; }
-  .front-ctl { margin-left: 0; width: 100%; }
-  .front-ctl .knob { flex: 1 1 140px; width: auto; }
-  .showpieces { margin-top: 80px; }
-  .showpieces + .grid { padding-top: 80px; }
-  .sp-grid { gap: 44px 12px; }
-}
-@media (max-width: 560px) {
-  .sp-grid { grid-template-columns: 1fr; }
-  .sp-big { grid-column: auto; }
-  .front-npx { width: 100%; }
+  /* phones: the attractor on top, nearly square, short enough that the button is on the first screen above the dial
+     strip (bar, sheet padding, the 150px dial and about 300px of words, room for a three-line French headline) */
+  .front { display: block; min-height: 0; }
+  .front-media { position: relative; top: auto; right: auto; width: 100%; height: min(calc(100vw - 36px), calc(100svh - var(--bar-h) - 18px - 150px - 300px)); min-height: 200px; margin-bottom: 18px; -webkit-mask-image: none; mask-image: none; }
+  .front-copy { max-width: none; gap: 18px; }
+  .front-title { font-size: clamp(28px, 9.4vw, 40px); }
+  .front-sub { font-size: var(--fs-body); }
+  .front-cap { position: static; margin-top: 22px; }
+  .front:not([hidden]) ~ .grid { padding-top: 80px; }
 }
 
-/* the dial's arc, drawn (js/dial.js): a hairline track, a hue dot per entry on it, the chosen dot ringed */
-.dial-arc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.dial-track { fill: none; stroke: var(--edge); stroke-width: 1.5; stroke-linecap: round; }
-/* desktop: each entry's hue dot sits on the track, 17px right of its word; the chosen one becomes a ring */
-.dial:not(.is-mobile) .dial-item .dot { display: block; position: absolute; top: 50%; right: -21px; width: 8px; height: 8px; margin-top: -4px; transition: transform .2s var(--ease-out), background-color .2s var(--ease-out), box-shadow .2s var(--ease-out); }
-.dial:not(.is-mobile) .dial-item[aria-checked="true"] .dot { transform: scale(1.5); background: var(--frame); box-shadow: inset 0 0 0 1.75px var(--hue); }
-.dial.is-mobile { transition: transform .28s var(--ease-drawer); }
-.dial.is-mobile.is-tucked { transform: translateY(100%); }
 /* the headline's lines, wrapped by js/front.js for the reveal: each line clips its own rise; a little room below for descenders */
 .front-line { display: block; overflow: clip; padding-bottom: .1em; margin-bottom: -.1em; }
 .front-line > span { display: inline-block; }
-/* French runs a little longer per line: the same two lines at a slightly smaller size */
-:lang(fr) .front-title { font-size: calc(var(--fs-hero) * .92); }
-@media (max-width: 860px) { :lang(fr) .front-title { font-size: clamp(24px, 7.4vw, 38px); } }
+

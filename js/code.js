@@ -65,7 +65,7 @@ export function promptFor(anim, code, catName = anim.cat) {
     `Help me fit this animation into my project. Adapt it to my stack and my design; keep the motion itself as it is unless I ask.`,
     ``,
     `Animation: ${anim.title} (Motion Library, ${catName})`,
-    `The trick: ${anim.trick}`,
+    `What it looks like: ${anim.trick}`,
     `Draws with: ${KIND[anim.kind] || anim.kind}`,
     ``,
     `How it works:`,

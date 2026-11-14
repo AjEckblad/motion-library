@@ -1,4 +1,4 @@
-// English, 中文, Español, Français. The English text is the key: t('Surprise me') returns the chosen language's text.
+// English, 中文, Español, Français. The English text is the key: t('Search') returns the chosen language's text.
 // Per-animation text (title, trick, notes) comes from anims/i18n-<code>.js, loaded only for the chosen language;
 // anything missing falls back to English. The code, the CLI and the code comments stay English.
 export const LANGS = [
@@ -75,7 +75,6 @@ const S = { zh: {
   'All': '全部',
   'Hearted': '收藏',
   'All animations': '全部动画',
-  'Surprise me': '随便看看',
   'Skip to animations': '跳到动画',
   'Categories': '分类',
   'Language': '语言',
@@ -109,15 +108,12 @@ const S = { zh: {
   'Previous': '上一个',
   'Next': '下一个',
   'View source on GitHub': '在 GitHub 上查看源码',
-  "Showpiece web effects that run in any stack": "高水准网页特效，放进任何技术栈都能运行",
-  "{n} live effects, from button springs to real-time ferrofluid and ocean. Every preview is the code itself running: what you see is what you copy.": "{n} 个实时运行的效果，从按钮弹簧到实时铁磁流体和海洋。每个预览都是代码本身在运行：所见即所复制。",
-  "One plain-JS file each, no dependencies": "每个效果一个纯 JS 文件，没有依赖",
-  "Live sliders on every effect": "每个效果都有实时滑块",
-  "Copy as prompt for your AI assistant": "一键复制为提示词，交给你的 AI 助手",
+  "Web effects you can drop into any site": "网页特效，直接放进任何网站",
+  "any site": "任何网站",   // the headline's accent phrase: must appear word for word in the line above
+  "Each one is a single JavaScript file. Adjust it with the sliders, then copy the code.": "每个效果都只是一个 JavaScript 文件。用滑块调好，再复制代码。",
+  "Free and open source": "免费开源",
+  "A live Clifford attractor: move the pointer over it to reshape it": "实时运行的 Clifford 吸引子：把指针移到上面，它会随之变形",
   "Browse all {n}": "浏览全部 {n} 个",
-  "See the code": "查看代码",
-  "Showpieces": "精选力作",
-  "Real-time simulations and renders. Each one is still a single file.": "实时模拟与渲染，每一个仍然只是一个文件。",
 },
 es: {
   "Pause": "Pausar",
@@ -131,7 +127,6 @@ es: {
   "All": "Todas",
   "Hearted": "Favoritos",
   "All animations": "Todas las animaciones",
-  "Surprise me": "Sorpréndeme",
   "Skip to animations": "Ir a las animaciones",
   "Categories": "Categorías",
   "Language": "Idioma",
@@ -179,15 +174,12 @@ es: {
   "Previous": "Anterior",
   "Next": "Siguiente",
   "View source on GitHub": "Ver el código en GitHub",
-  "Showpiece web effects that run in any stack": "Efectos web de lujo para cualquier stack",
-  "{n} live effects, from button springs to real-time ferrofluid and ocean. Every preview is the code itself running: what you see is what you copy.": "{n} efectos en vivo, desde muelles de botón hasta ferrofluido y océano en tiempo real. Cada vista previa es el propio código ejecutándose: lo que ves es lo que copias.",
-  "One plain-JS file each, no dependencies": "Un solo archivo de JS puro, sin dependencias",
-  "Live sliders on every effect": "Controles en vivo en cada efecto",
-  "Copy as prompt for your AI assistant": "Cópialo como prompt para tu asistente de IA",
+  "Web effects you can drop into any site": "Efectos web que puedes añadir a cualquier sitio",
+  "any site": "cualquier sitio",   // the headline's accent phrase: must appear word for word in the line above
+  "Each one is a single JavaScript file. Adjust it with the sliders, then copy the code.": "Cada efecto es un único archivo JavaScript. Ajústalo con los controles deslizantes y copia el código.",
+  "Free and open source": "Gratis y de código abierto",
+  "A live Clifford attractor: move the pointer over it to reshape it": "Un atractor de Clifford en vivo: mueve el puntero sobre él para cambiar su forma",
   "Browse all {n}": "Explorar los {n}",
-  "See the code": "Ver el código",
-  "Showpieces": "Piezas destacadas",
-  "Real-time simulations and renders. Each one is still a single file.": "Simulaciones y renders en tiempo real. Cada uno sigue siendo un solo archivo.",
 },
 fr: {
   "Pause": "Pause",
@@ -201,7 +193,6 @@ fr: {
   "All": "Toutes",
   "Hearted": "Favoris",
   "All animations": "Toutes les animations",
-  "Surprise me": "Surprends-moi",
   "Skip to animations": "Aller aux animations",
   "Categories": "Catégories",
   "Language": "Langue",
@@ -249,15 +240,12 @@ fr: {
   "Previous": "Précédent",
   "Next": "Suivant",
   "View source on GitHub": "Voir le code sur GitHub",
-  "Showpiece web effects that run in any stack": "Effets web d’exception, pour toute stack",
-  "{n} live effects, from button springs to real-time ferrofluid and ocean. Every preview is the code itself running: what you see is what you copy.": "{n} effets en direct, des ressorts de bouton au ferrofluide et à l’océan en temps réel. Chaque aperçu est le code lui-même qui tourne : ce que vous voyez est ce que vous copiez.",
-  "One plain-JS file each, no dependencies": "Un seul fichier JS natif, sans dépendance",
-  "Live sliders on every effect": "Des curseurs en direct sur chaque effet",
-  "Copy as prompt for your AI assistant": "Copier en prompt pour votre assistant IA",
+  "Web effects you can drop into any site": "Des effets web à glisser dans n’importe quel site",
+  "any site": "n’importe quel site",   // the headline's accent phrase: must appear word for word in the line above
+  "Each one is a single JavaScript file. Adjust it with the sliders, then copy the code.": "Chaque effet tient dans un seul fichier JavaScript. Réglez-le avec les curseurs, puis copiez le code.",
+  "Free and open source": "Gratuit et open source",
+  "A live Clifford attractor: move the pointer over it to reshape it": "Un attracteur de Clifford en direct : passez le pointeur dessus pour le remodeler",
   "Browse all {n}": "Parcourir les {n}",
-  "See the code": "Voir le code",
-  "Showpieces": "Pièces maîtresses",
-  "Real-time simulations and renders. Each one is still a single file.": "Simulations et rendus en temps réel. Chacun tient toujours en un seul fichier.",
 } };
 export const t = s => S[lang]?.[s] || s;
 export const catName = c => CATS[lang]?.[c.id] || c.name;
