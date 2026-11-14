@@ -494,28 +494,44 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 @media (max-width: 339px) { .bar .gh-btn { display: none; } }
 
 /* ───────── front page: the live hero (js/front.js) ───────── */
-/* The full list opens on a headline, one line and one button, with a live Clifford attractor filling the right of the
-   first screen straight on the page black (no box, no corners) and fading out under the words. The words let the
-   pointer through to it (it steers the attractor), except the button. Then the catalogue. */
+/* The full list opens on a headline, one line and one button, with a live Clifford attractor to their right, captioned
+   like a picture on a wall. The attractor is light only (its Clear background): no box and no backing, so the page and
+   the creatures passing behind it show through everywhere it isn't drawn. The words let the pointer through to it (it
+   steers the attractor), except the button. Then the catalogue. */
 .front { position: relative; min-height: min(78vh, 700px); display: grid; align-content: center; }
-/* the attractor: the right 68% of the column, from the bar down. Its own black is a touch darker than the page, so
-   it is lightened onto a page-black backing (lighten keeps the brighter of the two), and the whole picture fades in
-   from the left under the headline. */
-.front-media { position: absolute; top: -22px; right: calc(-1 * var(--pad)); width: 68%; height: calc(100% + 22px); background: var(--frame);
-  /* the right and bottom edges fade too, over the attractor's empty margin, so a creature passing behind the picture
-     slips under it instead of being cut by an invisible edge */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 32%, #000 95%, transparent), linear-gradient(#000 91%, transparent);
+/* the picture and its caption share the grid cell with the words, at the right of the column (out to the dial). The
+   attractor fits its shape to 90% of the box's height, or of its width when the shape is the wider one, and centres
+   it. Its outline drifts from about 0.8 to 1.5 times as wide as tall, so a 3:2 box keeps it fitted by height nearly
+   all the time: its lowest point then stays 5% of the box above the box's bottom, and the caption can sit a steady
+   distance under it. The box is sized so the shape stays clear of the words and, with the caption, inside the hero. */
+.front-art { grid-area: 1 / 1; justify-self: end; align-self: center; position: relative; margin: 0 calc(-1 * var(--pad)) 0 0;
+  width: min(76%, calc((min(78vh, 700px) - 90px) * 1.5)); }
+.front-media { position: relative; width: 100%; aspect-ratio: 3 / 2; --fade-l: 32%;
+  /* the picture fades in from the left under the headline. The other edges fade over the outer 5%, outside the fitted
+     shape: steered hard into a corner the attractor can outgrow its own framing, and then it thins out at the edge
+     instead of being cut by a straight line */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-l), #000 95%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent, #000 32%, #000 95%, transparent), linear-gradient(#000 91%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-l), #000 95%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
   mask-composite: intersect; }
-.front-media img, .front-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; mix-blend-mode: lighten; }
-/* the handover: the live stage fades in over the poster, which softens and then goes (under lighten a poster left
-   underneath would show through the live picture's dark parts) */
+/* the poster (the same light, rendered with a transparent background) is fitted the same way the live attractor fits
+   itself, so the handover doesn't jump. The live stage is a transparent page in a dark one: color-scheme light on the
+   iframe matches the stage's own, or the browser paints an opaque backdrop behind it. */
+.front-media img, .front-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: contain; }
+.front-media iframe { color-scheme: light; }
+/* the handover: the live stage fades in over the poster, which softens and then goes (both are see-through, so a
+   poster left underneath would show through the live picture) */
 .front-media iframe { opacity: 0; transition: opacity .4s var(--ease-out); }
 .front-media img { transition: filter .4s var(--ease-out), opacity .3s var(--ease-out) .25s; }
 .front-media:has(iframe.live) img { filter: blur(2px); opacity: 0; }
 .front-media iframe.live { opacity: 1; }
-.front-copy { position: relative; z-index: 1; max-width: min(620px, 52%); display: grid; gap: 22px; justify-items: start; pointer-events: none; }
+/* the caption: what you are looking at, then the line about the library, centred under the picture. The shape's
+   lowest point is 5% of the box's height above its bottom (3.33% of the width at 3:2; a vertical margin in % is of
+   the width); the caption's top sits about 32px under that. It hugs its words, so the creatures, which keep clear of
+   words, keep clear of just those. */
+.front-cap { width: fit-content; margin: calc(33px - 3.333%) auto 0; text-align: center; font-size: var(--fs-label); line-height: 1.5; color: var(--ink); pointer-events: none; }
+.front-cap b { font-weight: 500; }
+.front-copy { grid-area: 1 / 1; align-self: center; position: relative; z-index: 1; max-width: min(620px, 52%); display: grid; gap: 22px; justify-items: start; pointer-events: none; }
 .front-copy .front-browse { pointer-events: auto; }
 .front-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-hero); line-height: 1.02; font-weight: var(--display-w); letter-spacing: var(--display-track); text-wrap: balance; }
 /* the accent phrase: the real italic cut of Instrument Serif (never a slanted or bolded sans), a touch larger to match
@@ -527,19 +543,23 @@ a.icon-btn { color: var(--ink); text-decoration: none; }
 .front-browse { height: 48px; padding: 0 22px; text-decoration: none; font-size: var(--fs-body); font-weight: 600; }
 .btn-ink.front-browse { background: var(--pop); border-color: var(--pop); color: var(--pop-ink); }
 @media (hover: hover) and (pointer: fine) { .btn-ink.front-browse:hover { background: #ff7cb4; border-color: #ff7cb4; } }
-.front-cap { position: absolute; right: 0; bottom: 18px; z-index: 1; margin: 0; font-size: var(--fs-label); color: var(--muted); pointer-events: none; }
 
 /* the catalogue follows the hero after a long breath (80px on phones) */
 .front:not([hidden]) ~ .grid { padding-top: 120px; }
 @media (max-width: 860px) {
-  /* phones: the attractor on top, nearly square, short enough that the button is on the first screen above the dial
-     strip (bar, sheet padding, the 150px dial and about 300px of words, room for a three-line French headline) */
+  /* phones: the attractor on top with its caption right under it, short enough that the button is on the first screen
+     above the dial strip (bar, sheet padding, the 150px dial, the caption and about 300px of words, room for a
+     three-line French headline); at least 180px tall, which still leaves the button clear at 375x667 */
   .front { display: block; min-height: 0; }
-  .front-media { position: relative; top: auto; right: auto; width: 100%; height: min(calc(100vw - 36px), calc(100svh - var(--bar-h) - 18px - 150px - 300px)); min-height: 200px; margin-bottom: 18px; -webkit-mask-image: none; mask-image: none; }
+  .front-art { justify-self: stretch; width: auto; margin: 0 0 18px;
+    --mh: max(180px, min(calc(100vw - 36px), calc(100svh - var(--bar-h) - 18px - 150px - 300px - 34px))); }
+  .front-media { aspect-ratio: auto; height: var(--mh); --fade-l: 5%; }
+  /* fitted by height (most of the time here too), the shape's lowest point is 5% of the box's height above its
+     bottom: the caption sits 12px under that */
+  .front-cap { margin-top: calc(12px - var(--mh) * .05); }
   .front-copy { max-width: none; gap: 18px; }
   .front-title { font-size: clamp(28px, 9.4vw, 40px); }
   .front-sub { font-size: var(--fs-body); }
-  .front-cap { position: static; margin-top: 22px; }
   .front:not([hidden]) ~ .grid { padding-top: 80px; }
 }
 

@@ -578,10 +578,10 @@ export const FR = {
  },
  "terrain-flyover": {
   "title": "Survol de terrain",
-  "trick": "Des couches de bruit amorties par la pente sculptent des crêtes d’érosion",
+  "trick": "Survolez un fjord entre des sommets enneigés reflétés dans l’eau calme",
   "notes": [
-   "La caméra survole des crêtes enneigées, des parois rocheuses et un lac dans une brume qui s’épaissit.",
-   "Champ de hauteurs en raymarching fait de couches de bruit amorties par la pente cumulée (l’astuce de la dérivée) pour des crêtes d’érosion ; les rayons avancent d’une fraction de leur hauteur au-dessus du sol."
+   "Un vol de drone le long d’un fjord : forêt sur les rives, parois rocheuses creusées de ravines, neige sur les sommets et montagnes reflétées dans l’eau calme. La hauteur du soleil va du crépuscule à midi.",
+   "Le terrain est construit une fois au départ : de larges montagnes, une vallée creusée le long du trajet et des ravines qui descendent la pente, avec les ombres douces du soleil et la part de ciel que voit chaque point. La diffusion de l’air donne au ciel sa couleur et aux crêtes lointaines leur brume bleue, et les images, dessinées plus petites, se mêlent au fil du temps pour des bords nets."
   ]
  },
  "volumetric-clouds": {
@@ -2157,5 +2157,8 @@ export const LABELS = {
  "Yarn relief": "Relief du fil",
  "Zoom": "Zoom",
  "p (turns around)": "p (tours autour)",
- "q (turns through)": "q (tours à travers)"
+ "q (turns through)": "q (tours à travers)",
+ "Background": "Fond",
+ "Dark": "Sombre",
+ "Clear": "Transparent"
 };

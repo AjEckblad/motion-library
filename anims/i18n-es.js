@@ -578,10 +578,10 @@ export const ES = {
  },
  "terrain-flyover": {
   "title": "Vuelo sobre el terreno",
-  "trick": "Capas de ruido amortiguadas por la pendiente tallan crestas como de erosión",
+  "trick": "Vuela por un fiordo entre picos nevados reflejados en agua en calma",
   "notes": [
-   "La cámara sobrevuela crestas nevadas, paredes rocosas y un lago en una bruma cada vez más densa.",
-   "Campo de alturas con raymarching hecho de capas de ruido amortiguadas por la pendiente acumulada (el truco de la derivada) para crestas como de erosión; los rayos avanzan una fracción de su altura sobre el suelo."
+   "Un vuelo de dron por un fiordo: bosque en las orillas, paredes de roca surcadas de barrancos, nieve en las cumbres y las montañas reflejadas en el agua en calma. La altura del sol va del anochecer al mediodía.",
+   "El terreno se construye una vez al empezar: montañas amplias, un valle excavado a lo largo de la ruta de vuelo y barrancos que bajan por la pendiente, con las sombras suaves del sol y cuánto cielo ve cada punto. La dispersión del aire da al cielo su color y a las crestas lejanas su bruma azul, y los fotogramas, dibujados más pequeños, se mezclan en el tiempo para dar bordes limpios."
   ]
  },
  "volumetric-clouds": {
@@ -2157,5 +2157,8 @@ export const LABELS = {
  "Yarn relief": "Relieve hilo",
  "Zoom": "Zoom",
  "p (turns around)": "p (vueltas alrededor)",
- "q (turns through)": "q (vueltas a través)"
+ "q (turns through)": "q (vueltas a través)",
+ "Background": "Fondo",
+ "Dark": "Oscuro",
+ "Clear": "Transparente"
 };

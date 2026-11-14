@@ -81,7 +81,7 @@
 - [Black hole](https://ajeckblad.github.io/motion-library/fx/black-hole.html): A bright disc arches over and under the shadow, like Interstellar. `npx motion-library add black-hole`
 - [Tesseract](https://ajeckblad.github.io/motion-library/fx/tesseract.html): A four-dimensional cube turns and seems to flip inside out. `npx motion-library add tesseract`
 - [Soap bubble](https://ajeckblad.github.io/motion-library/fx/soap-bubble.html): Wobbles in the air as rainbow colours swirl over its skin. `npx motion-library add soap-bubble`
-- [Terrain flyover](https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html): Slope-damped noise layers carve erosion-like ridges. `npx motion-library add terrain-flyover`
+- [Terrain flyover](https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html): Fly up a fjord between snowy peaks mirrored in calm water. `npx motion-library add terrain-flyover`
 - [Volumetric clouds](https://ajeckblad.github.io/motion-library/fx/volumetric-clouds.html): Drift through a sunlit sky with dark bellies and bright edges. `npx motion-library add volumetric-clouds`
 - [Brilliant-cut diamond](https://ajeckblad.github.io/motion-library/fx/gem.html): Turns under strip lights, flashing white and coloured fire. `npx motion-library add gem`
 - [Klein bottle](https://ajeckblad.github.io/motion-library/fx/klein-bottle.html): A see-through shape whose neck passes through its own side. `npx motion-library add klein-bottle`

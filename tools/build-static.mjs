@@ -13,7 +13,7 @@ import { ANIMS, CATEGORIES, catById, srcOf } from '../anims/registry.js';
 import { ZH } from '../anims/i18n-zh.js';
 import { FAQ } from '../js/faq.js';
 import { readParams, formatValue } from '../js/code.js';
-import { HERO, HEADLINE, HEADLINE_ACCENT } from '../js/hero.js';
+import { HERO, HERO_POSTER, HEADLINE, HEADLINE_ACCENT, CAPTION } from '../js/hero.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = (process.env.SITE_URL || '').replace(/\/$/, '');
@@ -164,13 +164,14 @@ const siteLd = [
 ];
 let index = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 // the front page: the headline (its accent phrase in an <em>, as js/front.js sets it), the count on the button, the
-// hero's poster
+// hero's poster (with its own content hash) and the caption under it (the piece's title first, as js/front.js sets it)
 {
   const at = HEADLINE.indexOf(HEADLINE_ACCENT);
   const headline = at < 0 ? esc(HEADLINE) : `${esc(HEADLINE.slice(0, at))}<em>${esc(HEADLINE_ACCENT)}</em>${esc(HEADLINE.slice(at + HEADLINE_ACCENT.length))}`;
   index = index.replace(/(<h1 id="front-title" class="front-title">)[\s\S]*?(<\/h1>)/, `$1${headline}$2`)
     .replace(/<span data-count>\d+<\/span>/g, `<span data-count>${ANIMS.length}</span>`)
-    .replace(/(<div class="front-media" id="front-media"[^>]*><img src=")[^"]*"/, `$1${posterUrl(HERO)}"`);
+    .replace(/(<div class="front-media" id="front-media"[^>]*><img src=")[^"]*"/, `$1${HERO_POSTER}${hashOf(HERO_POSTER) ? '?v=' + hashOf(HERO_POSTER) : ''}"`)
+    .replace(/(<figcaption class="front-cap" id="front-cap">)[\s\S]*?(<\/figcaption>)/, `$1<b>${esc(ANIMS.find(a => a.id === HERO).title)}</b> · ${esc(CAPTION)}$2`);
 }
 index = replaceBetween(index, '<!--static:grid-->', '<!--/static:grid-->', `\n${sections}\n`);
 index = replaceBetween(index, '<!--static:faq-->', '<!--/static:faq-->', faqHtml);

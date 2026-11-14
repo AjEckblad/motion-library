@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { ROOT, serve, launch } from './lib.mjs';
 import { animById, ANIMS } from '../anims/registry.js';
 import { standalone } from '../js/code.js';
+import { HERO } from '../js/hero.js';
 
 const { server, base } = await serve();
 const browser = await launch();
@@ -289,11 +290,12 @@ await pf.context().close();
 const ph = await newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 await ph.goto(`${base}/index.html`); await ph.waitForTimeout(1200);
 check('phone: no horizontal overflow', await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-// the front page on a phone: the attractor on top, then the words, and the button on the first screen above the dial strip
+// the front page on a phone: the attractor on top with its caption right under it, then the words, and the button on
+// the first screen above the dial strip
 {
-  const f = await ph.evaluate(() => { const m = document.querySelector('#front-media').getBoundingClientRect(), t = document.querySelector('#front-title').getBoundingClientRect(), b = document.querySelector('#front-browse').getBoundingClientRect(), d = document.querySelector('#dial').getBoundingClientRect();
-    return { mediaAbove: m.bottom <= t.top, square: Math.round(m.height / m.width * 100) / 100, btnBottom: Math.round(b.bottom), dialTop: Math.round(d.top) }; });
-  check('phone: the attractor sits above the headline and the button is on the first screen', f.mediaAbove && f.square > 0.8 && f.btnBottom <= f.dialTop - 8, JSON.stringify(f));
+  const f = await ph.evaluate(() => { const m = document.querySelector('#front-media').getBoundingClientRect(), c = document.querySelector('#front-cap').getBoundingClientRect(), t = document.querySelector('#front-title').getBoundingClientRect(), b = document.querySelector('#front-browse').getBoundingClientRect(), d = document.querySelector('#dial').getBoundingClientRect();
+    return { mediaAbove: m.bottom <= t.top, capBetween: c.top > m.top + m.height / 2 && c.bottom <= t.top, square: Math.round(m.height / m.width * 100) / 100, btnBottom: Math.round(b.bottom), dialTop: Math.round(d.top) }; });
+  check('phone: the attractor and its caption sit above the headline and the button is on the first screen', f.mediaAbove && f.capBetween && f.square > 0.8 && f.btnBottom <= f.dialTop - 8, JSON.stringify(f));
 }
 // the full list opens on the live hero, so scroll into the catalogue first
 await ph.evaluate(() => scrollTo(0, document.querySelector('#sec-flow').getBoundingClientRect().top + scrollY + 200)); await ph.waitForTimeout(900);
@@ -399,6 +401,9 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   const links = await nj.locator('#grid .card-link').count();
   check('with JavaScript off, the catalogue is real HTML', links === ANIMS.length, `${links} links`);
   check('with JavaScript off, the FAQ questions are headings', await nj.locator('#faq summary h3').count() >= 6);
+  // the hero's caption names the effect first, in the static HTML too (tools/build-static.mjs writes it)
+  const cap = await nj.evaluate(() => ({ text: document.querySelector('#front-cap')?.textContent, name: document.querySelector('#front-cap b')?.textContent }));
+  check('with JavaScript off, the hero caption starts with the effect\'s title', cap.name === animById[HERO].title && cap.text === `${animById[HERO].title} · Free and open source`, JSON.stringify(cap));
   const ld = await nj.evaluate(() => [...document.querySelectorAll('script[type="application/ld+json"]')].map(s => { try { return JSON.parse(s.textContent).map(x => x['@type']).join(','); } catch { return 'BAD'; } }).join('|'));
   check('the JSON-LD parses (WebSite, ItemList, FAQPage)', ld === 'WebSite,ItemList,FAQPage', ld);
   const one = ANIMS[0];

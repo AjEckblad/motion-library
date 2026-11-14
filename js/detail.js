@@ -117,6 +117,10 @@ export function createDetail({ celebrate, toast, onClose }) {
     const q = query(values) || query(shared);
     iframe.src = `stage.html?src=${srcOf(cur)}${cur.v ? '&v=' + cur.v : ''}&mode=detail${cur.pointer ? '' : '&paused=1'}${q ? '&p=' + encodeURIComponent(q) : ''}`;
     iframe.title = `Live animation: ${cur.title}`;
+    // a piece with a Background choice can draw on a clear background (light only, for laying over a page): the stage
+    // then shows its own surface through it. The stage page is light-scheme and this one dark, and on a mismatch the
+    // browser paints an opaque white backdrop behind the frame; matching the frame's scheme to the stage's leaves it clear
+    if (cur.params.background) iframe.style.colorScheme = 'light';
     box.prepend(iframe);
   }
   addEventListener('message', e => {

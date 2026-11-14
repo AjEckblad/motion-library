@@ -2703,14 +2703,14 @@
    "category": "Chrome & 3D",
    "categoryId": "chrome",
    "renderer": "WebGL",
-   "description": "Slope-damped noise layers carve erosion-like ridges",
-   "descriptionZh": "按坡度衰减的噪声层，刻出类似侵蚀的山脊",
+   "description": "Fly up a fjord between snowy peaks mirrored in calm water",
+   "descriptionZh": "沿峡湾飞行，雪峰倒映在平静的水面上",
    "page": "https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/terrain-flyover",
    "npx": "npx motion-library add terrain-flyover",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 9926,
+   "bytes": 40299,
    "settings": [
     {
      "key": "speed",
@@ -2724,11 +2724,11 @@
     {
      "key": "sun",
      "flag": "--sun",
-     "label": "Sun height",
-     "default": 0.13,
-     "min": 0.08,
-     "max": 0.9,
-     "step": 0.01
+     "label": "Sun height (°)",
+     "default": 9,
+     "min": 2,
+     "max": 50,
+     "step": 1
     }
    ]
   },
@@ -4240,7 +4240,7 @@
    "npx": "npx motion-library add clifford-attractor",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 10112,
+   "bytes": 10687,
    "settings": [
     {
      "key": "points",
@@ -4268,6 +4268,19 @@
      "min": 0.2,
      "max": 4,
      "step": 0.05
+    },
+    {
+     "key": "background",
+     "flag": "--background",
+     "label": "Background",
+     "default": 0,
+     "min": 0,
+     "max": 1,
+     "step": 1,
+     "options": [
+      "Dark",
+      "Clear"
+     ]
     }
    ]
   },

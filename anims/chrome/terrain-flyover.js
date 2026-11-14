@@ -1,113 +1,551 @@
-// Terrain flyover: mountains that exist only as a function, height(x, z), built from layers of noise. Each layer adds
-// finer detail, and layers are damped where the slope is already steep (the derivative trick), which carves sharp
-// ridges and smooth valleys like real erosion. A ray steps forward until it drops below the ground. Snow sits on high,
-// flat ground; rock shows on steep faces; a lake fills the lowest valleys; haze grows with distance and the sun is low.
-// Smooth flight: the camera height is worked out on the CPU from the same terrain, looking 320 units ahead, and eased
-// by a critically damped spring, so it glides over ridges instead of riding every bump (and never dips into the lake).
-// Layers finer than about three pixels fade out with distance, so far slopes don't shimmer as they scroll past.
-const PARAMS = { speed: 1, sun: 0.13 };
+// Terrain flyover: a drone flight up a fjord, drawn like a photograph. The land is an 8 km square that tiles both ways,
+// baked into textures once at the start: smooth massifs, a U-shaped glacial valley carved along the flight path, then
+// erosion noise (stripes that run down the current slope, octave by octave, each steering the next so gullies branch;
+// it only carves, so ridges stay sharp). The same bake stores the sun's soft shadows and a shadow ceiling for the air
+// above each spot (the sun's height is fixed per run), how much sky each spot sees, and a max-height pyramid.
+// Light: a small table of Rayleigh, Mie and ozone scattering through a round atmosphere gives the sky and the sky light;
+// the haze on far land integrates the same air along each view ray, darker where mountains shade it.
+// Each frame a ray jumps through the pyramid while it is far above the land, then steps by its height and bisects the
+// crossing. The ground is shaded by slope, height and gullies (rock with wet streaks, scree, forest, meadow, heath,
+// snow, a wet shore) with B-spline smoothed normals up close and finer bumps that fade before they would shimmer. The
+// water reflects sky and mountains through wind-aligned ripples (Fresnel, a sun glint, a tint over the shallows).
+// Frames are drawn smaller with a sub-pixel jitter and gathered over time into the full-size picture, reprojected with
+// the camera and clamped to the new frame, which gives clean edges; reduced motion gathers 32 frames of one moment.
+// The camera is a pure function of time: along the fjord, gently rising and falling, banking into the bends.
+const PARAMS = { speed: 1, sun: 9 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
   stage.append(canvas);
-  const gl = canvas.getContext('webgl2', { antialias: false });
-  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
-  const vs = `#version 300 es
-  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
-  const fs = `#version 300 es
-  precision highp float; in vec2 uv; out vec4 o;
-  uniform vec2 R; uniform vec3 RO, TA; uniform float SUN;
-  float hash(vec2 p) { p = 50. * fract(p * .3183099 + vec2(.71, .113)); return -1. + 2. * fract(p.x * p.y * (p.x + p.y)); }
-  vec3 noised(vec2 x) {                                                   // value noise with its analytic derivative
-    vec2 i = floor(x), f = fract(x), u = f * f * f * (f * (f * 6. - 15.) + 10.), du = 30. * f * f * (f * (f - 2.) + 1.);
-    float a = hash(i), b = hash(i + vec2(1, 0)), c = hash(i + vec2(0, 1)), d = hash(i + 1.);
-    return vec3(a + (b - a) * u.x + (c - a) * u.y + (a - b - c + d) * u.x * u.y, du * (vec2(b - a, c - a) + (a - b - c + d) * u.yx));
-  }
-  const mat2 M = mat2(.8, -.6, .6, .8);
-  float terrain(vec2 x, float lod) {                                      // lod = layers; the last one fades in
-    vec2 p = x * .0035; float a = 0., b = 1.; vec2 d = vec2(0);
-    for (int i = 0; i < 11; i++) { float w = clamp(lod - float(i), 0., 1.); if (w <= 0.) break; vec3 n = noised(p); d += w * n.yz; a += w * b * n.x / (1. + dot(d, d)); b *= .5; p = M * p * 2.; }
-    return 120. * a;
-  }
-  float lodAt(float t) { return log2(R.y * 76.2 / t); }                   // layers whose wavelength is still >= 3 px
-  float ground(vec2 x, float lod) { return max(terrain(x, lod), -18.); }  // a lake fills the lowest ground
-  vec3 nrm(vec3 p, float t, float lod) { vec2 e = vec2(.002 * t, 0); return normalize(vec3(terrain(p.xz - e.xy, lod) - terrain(p.xz + e.xy, lod), 2. * e.x, terrain(p.xz - e.yx, lod) - terrain(p.xz + e.yx, lod))); }
-  vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
-  void main() {
-    vec2 q = (uv * 2. - 1.) * vec2(R.x / R.y, 1.);
-    vec3 ro = RO, f = normalize(TA - ro), r = normalize(cross(vec3(0, 1, 0), f)), u = cross(f, r), rd = normalize(f * 1.6 + r * q.x + u * q.y);
-    vec3 sd = normalize(vec3(-.8, SUN, .6));
-    // a low sun turns the day into dusk: deep blue overhead, an ember band on the horizon, alpenglow on the peaks
-    float dusk = smoothstep(.4, .1, SUN);
-    vec3 sky = mix(vec3(.95, .72, .52), vec3(.32, .48, .72), pow(max(rd.y, 0.), .5)) + vec3(1., .7, .4) * pow(max(dot(rd, sd), 0.), 40.) * .8;
-    vec3 skyDusk = mix(vec3(.6, .24, .14), vec3(.018, .026, .075), pow(smoothstep(-.02, .28, rd.y), .55)) + vec3(1., .42, .16) * (pow(max(dot(rd, sd), 0.), 40.) * 1.4 + pow(max(dot(rd, sd), 0.), 6.) * .25);
-    sky = mix(sky, skyDusk, dusk);
-    vec3 col = sky;
-    float t = 1.; bool hit = false;
-    for (int i = 0; i < 200; i++) { vec3 p = ro + rd * t; float h = p.y - ground(p.xz, min(lodAt(t) - .5, 8.)); if (h < .002 * t) break; t += .5 * h; if (t > 2800.) break; }
-    hit = t < 2800.;                                                       // out of steps near a grazing ridge counts as ground
-    if (hit) {
-      vec3 p = ro + rd * t; float lod = min(lodAt(t), 11.);
-      bool water = terrain(p.xz, min(lod, 8.)) <= -18.;                    // the lake is wherever the clamp holds
-      vec3 n = water ? vec3(0, 1, 0) : nrm(p, t, lod);
-      float dif = max(dot(n, sd), 0.);
-      // shadow: step from the ground toward the sun
-      float sh = 1.; for (float s = 4.; s < 300.; s *= 1.35) { vec3 sp = p + sd * s; float hh = sp.y - ground(sp.xz, 6.); sh = min(sh, 14. * hh / s); if (sh < 0.) break; } sh = clamp(sh, 0., 1.);
-      vec3 rock = mix(vec3(.18, .14, .11), vec3(.32, .27, .22), smoothstep(-1., 1., sin(p.y * .3 + p.x * .02)));
-      vec3 grass = vec3(.16, .2, .08);
-      vec3 mat = mix(grass, rock, smoothstep(.65, .85, 1. - n.y) + smoothstep(10., 40., p.y) * .6);
-      float snow = smoothstep(35., 55., p.y + 8. * n.y) * smoothstep(.55, .8, n.y);
-      mat = mix(mat, vec3(.92, .94, 1.), snow);
-      col = mat * (dif * sh * mix(vec3(1.6, 1.25, .95), vec3(2.2, 1., .5), dusk) + (.5 + .5 * n.y) * mix(vec3(.18, .24, .34), vec3(.035, .045, .09), dusk));
-      if (water) col = mix(vec3(.04, .08, .1), sky * .9, .25 + .6 * pow(1. - max(-rd.y, 0.), 6.));
-      col = mix(col, sky * (.95 - .4 * dusk) + vec3(.05) * (1. - dusk), 1. - exp(-t * .0011 * (1. - .35 * dusk)));   // aerial haze
-    }
-    col = aces(col);
-    o = vec4(pow(col, vec3(1. / 2.2)) + (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - .5) / 255., 1);   // fixed dither: no banding in the haze
-  }`;
-  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
-  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog); gl.useProgram(prog);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  const U = {}; ['R', 'RO', 'TA', 'SUN'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
-  const resize = () => { const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, Math.max(0.6, Math.sqrt(260000 / (w * h)))); canvas.width = w * d | 0; canvas.height = h * d | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, powerPreference: 'high-performance' });
+  if (!gl || !gl.getExtension('EXT_color_buffer_float')) { stage.textContent = 'This needs WebGL2 with float render targets.'; return () => canvas.remove(); }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ro = new ResizeObserver(() => { resize(); if (reduce) draw(); }); ro.observe(stage); resize();   // reduced motion: redraw the still
-  // the shader's terrain on the CPU (float32 hash so heights match), for the camera height along the flight path
-  const f32 = Math.fround, fr = x => x - Math.floor(x);
-  const hash = (x, y) => { x = f32(50 * fr(f32(x * .3183099 + .71))); y = f32(50 * fr(f32(y * .3183099 + .113))); return -1 + 2 * fr(f32(f32(x * y) * f32(x + y))); };
-  const terrain = (x, z, oct) => {
-    let px = x * .0035, py = z * .0035, a = 0, b = 1, dx = 0, dy = 0;
-    for (let i = 0; i < oct; i++) {
-      const ix = Math.floor(px), iy = Math.floor(py), fx = px - ix, fy = py - iy;
-      const ux = fx * fx * fx * (fx * (fx * 6 - 15) + 10), uy = fy * fy * fy * (fy * (fy * 6 - 15) + 10), dux = 30 * fx * fx * (fx * (fx - 2) + 1), duy = 30 * fy * fy * (fy * (fy - 2) + 1);
-      const ha = hash(ix, iy), hb = hash(ix + 1, iy), hc = hash(ix, iy + 1), k = ha - hb - hc + hash(ix + 1, iy + 1);
-      dx += dux * (hb - ha + k * uy); dy += duy * (hc - ha + k * ux); a += b * (ha + (hb - ha) * ux + (hc - ha) * uy + k * ux * uy) / (1 + dx * dx + dy * dy);
-      b *= .5; const nx = 2 * (.8 * px + .6 * py); py = 2 * (.8 * py - .6 * px); px = nx;
-    }
-    return 120 * a;
-  };
-  const pathX = z => Math.sin(z * .002) * 300;
-  // the height to aim for: clear every ridge in the next 320 units by 44, on a 0.3 glide slope, through a soft max
-  const aim = z => { const h = []; let m = -1e9, s = 0; for (let k = -3; k <= 16; k++) { const d = k * 20, v = Math.max(terrain(pathX(z + d), z + d, 6), -18) + 44 - .3 * Math.max(0, d - 30); h.push(v); m = Math.max(m, v); } for (const v of h) s += Math.exp((v - m) / 6); return m + 6 * Math.log(s / 1.5); };
-  // a critically damped spring over distance flown (not time), solved exactly, so velocity and acceleration stay continuous at any speed
-  const W = 1 / 50;
-  let z = 0, y = aim(0), vy = 0, sdt = 1 / 60, spd = PARAMS.speed;
-  const fly = dz => { const T = aim(z), c1 = y - T, c2 = vy + W * c1, e = Math.exp(-W * dz); y = T + (c1 + c2 * dz) * e; vy = (c2 - W * (c1 + c2 * dz)) * e; z += dz; };
-  const draw = () => {
-    gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform1f(U.SUN, PARAMS.sun);
-    gl.uniform3f(U.RO, pathX(z), y, z); gl.uniform3f(U.TA, pathX(z + 120), y - 18 + 36 * vy, z + 120);   // nose follows the climb a little
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-  };
-  let raf, last = performance.now();
-  function frame(now) {
-    sdt += (Math.min(0.05, Math.max(0, now - last) / 1000) - sdt) * 0.12; last = now;   // smoothed frame time: one late frame doesn't lurch
-    spd += (PARAMS.speed - spd) * 0.06; fly(sdt * 45 * spd);                               // the speed slider eases too
-    draw();
-    raf = requestAnimationFrame(frame);
+
+  const L = 8192, N = 2048, TX = L / N, HMAX = 2300, V = 55, Z0 = 2690, FL = 1.5;
+  const A1 = 520, A2 = 170, F1 = 0.3, F2 = 1.9, W = 2 * Math.PI / L;
+  const path = z => A1 * Math.sin(W * z + F1) + A2 * Math.sin(2 * W * z + F2);
+  const pathD = z => A1 * W * Math.cos(W * z + F1) + 2 * A2 * W * Math.cos(2 * W * z + F2);
+  const pathDD = z => -A1 * W * W * Math.sin(W * z + F1) - 4 * A2 * W * W * Math.sin(2 * W * z + F2);
+  const alt = z => 520 + 70 * Math.sin(3 * W * z + 1.1);
+  const el = Math.max(1, PARAMS.sun) * Math.PI / 180, az = -0.95;
+  const SD = [Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az)];
+  const MIE = 3.2;
+
+  // sun light's path through a round atmosphere to sea level, summed once (Rayleigh, Mie and ozone column lengths)
+  const ODS = (() => { const R = 6360e3; let r = 0, m = 0, oz = 0; const ds = 250;
+    for (let i = 0; i < 4000; i++) { const s = (i + 0.5) * ds, h = Math.hypot(s * Math.cos(el), R + s * Math.sin(el)) - R; if (h > 6e4) break; r += Math.exp(-h / 8000) * ds; m += Math.exp(-h / 1200) * ds; oz += Math.max(0, 1 - Math.abs(h - 25000) / 15000) * ds; }
+    return [r, m, oz]; })();
+  const BR = [5.802e-6, 13.558e-6, 33.1e-6], BO = [0.65e-6, 1.881e-6, 0.085e-6], BME = 4.4e-6 * MIE;
+  const ST0 = BR.map((b, i) => Math.exp(-(b * ODS[0] + BME * ODS[1] + BO[i] * ODS[2])));
+  const sunLum = 0.2126 * ST0[0] + 0.7152 * ST0[1] + 0.0722 * ST0[2];
+  const EXPO = 6.5 / (0.05 + sunLum * (0.4 + 0.6 * Math.sin(el)));
+
+  const VS = `#version 300 es
+  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
+  const COMMON = `#version 300 es
+  precision highp float; precision highp int; precision highp sampler2D;
+  in vec2 uv; out vec4 o;
+  #define PI 3.14159265
+  const float L_ = ${L}., TX = ${TX}., HMAX = ${HMAX}., HR = 8000., HM = 1200., G = .8;
+  const int N = ${N};
+  const vec3 BR = vec3(5.802, 13.558, 33.1) * 1e-6, BO = vec3(.65, 1.881, .085) * 1e-6, BMS = vec3(${(3.996e-6 * MIE).toExponential(4)}), BME = vec3(${BME.toExponential(4)});
+  uniform vec3 SD;
+  uint hu(uvec2 q, uint s) { uint n = q.x * 1597334677u ^ q.y * 3812015801u ^ s * 2654435769u; n ^= n >> 16; n *= 2246822519u; n ^= n >> 13; n *= 3266489917u; n ^= n >> 16; return n; }
+  vec2 h2(ivec2 q, int P, uint s) { q = (q + P * 4096) % P; uint n = hu(uvec2(q), s); return vec2(float(n), float(hu(uvec2(n, 7u), s))) * (1. / 4294967296.); }
+  vec2 gr(ivec2 q, int P, uint s) { q = (q + P * 4096) % P; uint n = hu(uvec2(q), s); return vec2(float(n & 65535u), float(n >> 16)) * (2. / 65535.) - 1.; }
+  // gradient noise with its analytic derivative; it repeats every P cells, so the baked land tiles
+  vec3 gn(vec2 p, int P, uint s) {
+    ivec2 i = ivec2(floor(p)); vec2 f = fract(p);
+    vec2 u = f * f * f * (f * (f * 6. - 15.) + 10.), du = 30. * f * f * (f * (f - 2.) + 1.);
+    vec2 ga = gr(i, P, s), gb = gr(i + ivec2(1, 0), P, s), gc = gr(i + ivec2(0, 1), P, s), gd = gr(i + 1, P, s);
+    float va = dot(ga, f), vb = dot(gb, f - vec2(1, 0)), vc = dot(gc, f - vec2(0, 1)), vd = dot(gd, f - 1.), k = va - vb - vc + vd;
+    return vec3(va + u.x * (vb - va) + u.y * (vc - va) + u.x * u.y * k, ga + u.x * (gb - ga) + u.y * (gc - ga) + u.x * u.y * (ga - gb - gc + gd) + du * (u.yx * k + vec2(vb, vc) - va));
   }
-  if (reduce) { for (let i = 0; i < 150; i++) fly(45 / 60); draw(); }            // reduced motion: the view 2.5 s in, held
-  else raf = requestAnimationFrame(frame);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+  vec2 gq(ivec2 q) { uint n = hu(uvec2(q + 1048576), 3u); return vec2(float(n & 65535u), float(n >> 16)) * (2. / 65535.) - 1.; }
+  vec3 gnd(vec2 p) {                                                      // the same noise without tiling, for detail
+    ivec2 i = ivec2(floor(p)); vec2 f = fract(p);
+    vec2 u = f * f * f * (f * (f * 6. - 15.) + 10.), du = 30. * f * f * (f * (f - 2.) + 1.);
+    vec2 ga = gq(i), gb = gq(i + ivec2(1, 0)), gc = gq(i + ivec2(0, 1)), gd = gq(i + 1);
+    float va = dot(ga, f), vb = dot(gb, f - vec2(1, 0)), vc = dot(gc, f - vec2(0, 1)), vd = dot(gd, f - 1.), k = va - vb - vc + vd;
+    return vec3(va + u.x * (vb - va) + u.y * (vc - va) + u.x * u.y * k, ga + u.x * (gb - ga) + u.y * (gc - ga) + u.x * u.y * (ga - gb - gc + gd) + du * (u.yx * k + vec2(vb, vc) - va));
+  }
+  float pathX(float z) { return ${A1}. * sin(${W} * z + ${F1}) + ${A2}. * sin(${2 * W} * z + ${F2}); }
+  float pathD(float z) { return ${A1 * W} * cos(${W} * z + ${F1}) + ${2 * A2 * W} * cos(${2 * W} * z + ${F2}); }
+  float mieP(float mu) { float g2 = G * G; return .1193662 * (1. - g2) * (1. + mu * mu) / ((2. + g2) * pow(1. + g2 - 2. * G * mu, 1.5)); }
+  vec2 skyUV(vec3 d) { float e = asin(clamp(d.y, -1., 1.)); return vec2(atan(d.x, d.z) * (.5 / PI) + .5, sqrt(clamp((e + .1) / (PI * .5 + .1), 0., 1.))); }
+  `;
+
+  // 1. massifs and the fjord: smooth noise layers, damped where already steep, and a glacial U carved along the path
+  const BASE = COMMON + `
+  float smin(float a, float b, float k) { float h = max(k - abs(a - b), 0.) / k; return min(a, b) - h * h * k * .25; }
+  void main() {
+    vec2 q = gl_FragCoord.xy / float(N), p = q * L_;
+    float m = 0., a = 1., as = 0.; vec2 d = vec2(0);
+    for (int i = 0; i < 4; i++) { int P = 3 << i; vec3 n = gn(q * float(P), P, uint(i) + 1u); d += n.yz; m += a * n.x / (1. + .3 * dot(d, d)); as += a; a *= .42; }
+    float M = 760. + 2300. * m / as;
+    float w = 2. * PI / L_, z = p.y, dx = p.x - pathX(z); dx -= L_ * floor(dx / L_ + .5);
+    float dd = abs(dx) / sqrt(1. + pathD(z) * pathD(z));
+    float Wv = 1150. + 260. * sin(2. * w * z + .7) + 160. * sin(5. * w * z + 2.1), x = dd / Wv;
+    float Vf = -75. + 25. * sin(3. * w * z + 1.3) + 760. * (.45 * x * x + .55 * x * x * x * x);
+    o = vec4(smin(M, Vf, 260.), 0, 0, 1);
+  }`;
+  // 2. erosion: per octave, stripes running down the current slope at random cell points, blended; each octave's own
+  // slope steers the next, so gullies branch. It only carves, so ridgelines stay sharp and flats stay flat.
+  const ERODE = COMMON + `
+  uniform sampler2D B;
+  float hb(ivec2 c) { return texelFetch(B, (c + N) % N, 0).r; }
+  vec3 ero(vec2 p, int P, vec2 dir, uint s) {
+    ivec2 ip = ivec2(floor(p)); vec2 fp = fract(p); vec3 va = vec3(0); float wt = 0.;
+    for (int i = -2; i <= 1; i++) for (int j = -2; j <= 1; j++) {
+      ivec2 o = ivec2(i, j); vec2 pp = fp + vec2(o) - (h2(ip - o, P, s) - .5);
+      float w = exp(-2. * dot(pp, pp)), m = dot(pp, dir) * 2. * PI;
+      va += vec3(cos(m), -sin(m) * dir) * w; wt += w;
+    }
+    return va / wt;
+  }
+  void main() {
+    ivec2 c = ivec2(gl_FragCoord.xy); float H0 = hb(c);
+    vec2 g = vec2(hb(c + ivec2(1, 0)) - hb(c - ivec2(1, 0)), hb(c + ivec2(0, 1)) - hb(c - ivec2(0, 1))) / (2. * TX);
+    vec2 q = (vec2(c) + .5) / float(N);
+    float e = 0., a = 1., as = 0.; vec2 de = vec2(0);
+    float STR = 40. * (.6 + .5 * gn(q * 6., 6, 99u).x), SL = 1.6 + .7 * gn(q * 12., 12, 98u).x;
+    vec2 wq = q + vec2(gn(q * 24., 24, 97u).x, gn(q * 24., 24, 96u).x) * .012;    // warp: no two gullies alike
+    for (int i = 0; i < 5; i++) {
+      int P = 16 << i; vec2 s = g + .9 * de;
+      vec3 r = ero(wq * float(P), P, vec2(s.y, -s.x) * SL, uint(i) + 11u);
+      e += a * (r.x - 1.); de += a * STR * r.yz * (2. * PI * float(P) / L_); as += a; a *= .5;
+    }
+    float mask = smoothstep(-30., 140., H0);
+    o = vec4(H0 + STR * e * mask, -e / (2. * as) * mask, 0, 1);
+  }`;
+  // 3. pack: height split in two halves for exact filtering in half floats, plus its slope
+  const PACK = COMMON + `
+  uniform sampler2D E;
+  float he(ivec2 c) { return texelFetch(E, (c + N) % N, 0).r; }
+  void main() {
+    ivec2 c = ivec2(gl_FragCoord.xy); float H = he(c), hi = floor(H / 16.) * 16.;
+    o = vec4(hi, H - hi, vec2(he(c + ivec2(1, 0)) - he(c - ivec2(1, 0)), he(c + ivec2(0, 1)) - he(c - ivec2(0, 1))) / (2. * TX));
+  }`;
+  // 4. light that never changes in a run: soft sun visibility, the shadow ceiling above each spot, and how much sky it sees
+  const AUX = COMMON + `
+  uniform sampler2D T0, E;
+  float Ht(vec2 p, float l) { vec4 s = textureLod(T0, p / L_, l); return s.x + s.y; }
+  void main() {
+    ivec2 c = ivec2(gl_FragCoord.xy); vec2 p = (vec2(c) + .5) * TX;
+    vec4 s0 = texelFetch(T0, c, 0); float H = s0.x + s0.y, Hw = max(H, 0.) + 1.;
+    vec2 sx = normalize(SD.xz); float te = SD.y / length(SD.xz);
+    float clr = 1., ceil_ = -2000., s = 5.;
+    for (int i = 0; i < 80; i++) {
+      float hs = Ht(p + sx * s, clamp(log2(s / 400.), 0., 5.)), ray = Hw + s * te;
+      clr = min(clr, (ray - hs) / s); ceil_ = max(ceil_, hs - s * te);
+      s *= 1.11; if (ray > HMAX || s > 24000.) break;
+    }
+    float sv = 0.;
+    for (int k = 0; k < 12; k++) {
+      float an = (float(k) + .5) * PI / 6.; vec2 dr = vec2(cos(an), sin(an)); float mx = 0., d = 6.;
+      for (int j = 0; j < 15; j++) { mx = max(mx, (Ht(p + dr * d, clamp(log2(d / 150.), 0., 5.)) - Hw) / d); d *= 1.45; }
+      float se = mx / sqrt(1. + mx * mx); sv += 1. - se * se;
+    }
+    o = vec4(smoothstep(-.012, .012, clr), ceil_, sv / 12., texelFetch(E, c, 0).g);
+  }`;
+  // 4b. a max-height pyramid for the ray to jump with: block maxima, then each level widened by two cells
+  const BLOCK = COMMON + `
+  uniform sampler2D S; uniform int K;
+  void main() { ivec2 c = ivec2(gl_FragCoord.xy) * K; float m = -1e4; for (int y = 0; y < K; y++) for (int x = 0; x < K; x++) { vec4 v = texelFetch(S, c + ivec2(x, y), 0); m = max(m, v.r + v.g); } o = vec4(m, 0, 0, 1); }`;
+  const DILATE = COMMON + `
+  uniform sampler2D S; uniform int K;
+  void main() { ivec2 c = ivec2(gl_FragCoord.xy); float m = -1e4; for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) m = max(m, texelFetch(S, (c + ivec2(x, y) + 4 * K) % K, 0).r); o = vec4(m, 0, 0, 1); }`;
+  // 5. the sky: single scattering through a round atmosphere (Rayleigh, Mie, ozone), plus a soft multiple-scatter term
+  const SKYP = COMMON + `
+  const float RP = 6360e3, RA = 6460e3;
+  vec3 dens(float h) { return vec3(exp(-h / HR), exp(-h / HM), max(0., 1. - abs(h - 25000.) / 15000.)); }
+  float far_(vec3 o, vec3 d, float r) { float b = dot(o, d), c = dot(o, o) - r * r, D = b * b - c; return D < 0. ? -1. : -b + sqrt(D); }
+  float gnd_(vec3 o, vec3 d) { float b = dot(o, d), c = dot(o, o) - RP * RP, D = b * b - c; return (D < 0. || b > 0.) ? -1. : -b - sqrt(D); }
+  vec3 sunTr(vec3 p) {
+    if (gnd_(p, SD) > 0.) return vec3(0);
+    float tm = far_(p, SD, RA); vec3 od = vec3(0);
+    for (int i = 0; i < 10; i++) { float a = float(i) / 10., b = float(i + 1) / 10.; od += dens(length(p + SD * tm * (a + b) * (a + b) * .25) - RP) * tm * (b * b - a * a); }
+    return exp(-(BR * od.x + BME * od.y + BO * od.z));
+  }
+  void main() {
+    float az = (uv.x - .5) * 2. * PI, e = uv.y * uv.y * (PI * .5 + .1) - .1;
+    vec3 rd = vec3(cos(e) * sin(az), sin(e), cos(e) * cos(az)), ro = vec3(0, RP + 350., 0);
+    float tm = far_(ro, rd, RA), tg = gnd_(ro, rd); if (tg > 0.) tm = tg;
+    float mu = dot(rd, SD), pr = .0596831 * (1. + mu * mu), pm = mieP(mu);
+    vec3 Lx = vec3(0), od = vec3(0);
+    for (int i = 0; i < 48; i++) {
+      float a = float(i) / 48., b = float(i + 1) / 48., dt = tm * (b * b - a * a), t = tm * (a + b) * (a + b) * .25;
+      vec3 p = ro + rd * t, dn = dens(length(p) - RP);
+      vec3 Tv = exp(-(BR * (od.x + .5 * dn.x * dt) + BME * (od.y + .5 * dn.y * dt) + BO * (od.z + .5 * dn.z * dt)));
+      vec3 Ts = sunTr(p);
+      Lx += Tv * Ts * ((BR * dn.x * pr + BMS * dn.y * pm) + (BR * dn.x + BMS * dn.y) * (.9 / (4. * PI))) * dt;
+      od += dn * dt;
+    }
+    o = vec4(Lx, 1);
+  }`;
+  // 6. sky light on a surface of any tilt, as two spherical-harmonic bands, read back once
+  const IRRP = COMMON + `
+  uniform sampler2D SKY; uniform vec3 ST0;
+  void main() {
+    int k = int(gl_FragCoord.x); vec3 acc = vec3(0);
+    for (int i = 0; i < 64; i++) for (int j = 0; j < 32; j++) {
+      float ph = (float(i) + .5) / 64. * 2. * PI, ct = 1. - 2. * (float(j) + .5) / 32., st = sqrt(1. - ct * ct);
+      vec3 d = vec3(st * sin(ph), ct, st * cos(ph));
+      vec3 Lr = d.y > 0. ? texture(SKY, skyUV(d)).rgb : .1 * texture(SKY, skyUV(vec3(d.x, -d.y, d.z))).rgb + .1 / PI * ST0 * max(SD.y, 0.) * vec3(.8, 1., .7);
+      acc += Lr * (k == 0 ? .282095 : .488603 * (k == 1 ? d.x : k == 2 ? d.y : d.z));
+    }
+    acc *= 4. * PI / 2048.;
+    o = vec4(acc * (k == 0 ? PI * .282095 : 2. * PI / 3. * .488603), 1);
+  }`;
+  // 7. the frame
+  const SCENE = COMMON + `
+  uniform sampler2D T0, T1, SKY, MX, IR;
+  uniform vec3 CP, ODS;
+  float HTOP; vec3 IA, IX, IY, IZ;
+  uniform mat3 CB;
+  uniform vec2 RES, J;
+  uniform float FL, PA, TM, EXPO, FN;
+  vec3 irr(vec3 n) { return max(IA + n.x * IX + n.y * IY + n.z * IZ, 0.); }
+  vec3 sunT2(float dr, float dm) { return exp(-(BR * ODS.x * dr + BME * ODS.y * dm + BO * ODS.z)); }
+  vec3 sunT(float h) { return sunT2(exp(-h / HR), exp(-h / HM)); }
+  float hgt(vec2 p, float l) { vec4 s = textureLod(T0, p * (1. / L_), l); return s.x + s.y; }
+  vec3 sky(vec3 d) { return texture(SKY, skyUV(d)).rgb; }
+  float rnd;
+  // step through the height map (the water counts as ground); bisect the last step for an exact crossing
+  // step through the height map (the water counts as ground for the eye, not for reflections). Far from the land the
+  // ray jumps by the max-height pyramid: above the highest point within 2 cells it can't hit anything that far, so it
+  // takes that whole step and tries a coarser level; near the land it steps by its height and bisects the crossing.
+  float march(vec3 ro, vec3 rd, float tmax, float l0, float fl, float k, int n, out bool hit) {
+    float t = 1., tp = 0., rxz = max(length(rd.xz), 1e-3); int lv = 2;
+    if (ro.y > HTOP) { if (rd.y >= 0.) { hit = false; return tmax; } t = (HTOP - ro.y) / rd.y; tp = t; }
+    for (int i = 0; i < n; i++) {
+      vec3 p = ro + rd * t;
+      if ((p.y > HTOP && rd.y >= 0.) || t > tmax) { hit = false; return t; }
+      if (lv >= 0) {
+        float M = max(textureLod(MX, p.xz * (1. / L_), float(lv)).r, fl) + 1.;
+        if (p.y > M) { float st = 32. * exp2(float(lv)) / rxz; if (rd.y < 0.) st = min(st, (p.y - M) / -rd.y); tp = t; t += max(st, 1.); lv = min(lv + 1, 6); }
+        else lv--;
+        continue;
+      }
+      float l = max(log2(t * PA / TX), 0.) + l0, d = p.y - max(hgt(p.xz, l), fl);
+      if (d < 0.) {
+        for (int j = 0; j < 5; j++) { float tm = .5 * (tp + t); vec3 q = ro + rd * tm; if (q.y - max(hgt(q.xz, l), fl) < 0.) t = tm; else tp = tm; }
+        hit = true; return t;
+      }
+      tp = t; t += max(k * d, .004 * t + .3);
+      if (d > 40.) lv = 0;
+    }
+    hit = t < tmax; return t;
+  }
+  // haze: the air along the ray scatters sunlight (unless that air is in a mountain's shadow) and sky light
+  vec3 aerial(vec3 ro, vec3 rd, float t, vec3 col, int n) {
+    float mu = dot(rd, SD), pr = .0596831 * (1. + mu * mu), pm = mieP(mu), dt = t / float(n);
+    vec3 od = vec3(0), Lx = vec3(0);
+    for (int i = 0; i < 8; i++) {
+      if (i >= n) break;
+      vec3 x = ro + rd * ((float(i) + rnd) * dt); float h = max(x.y, 0.), dr = exp(-h / HR), dm = exp(-h / HM);
+      vec3 e = BR * dr + BME * dm, Tv = exp(-(od + e * dt * .5)), Ts = sunT2(dr, dm);
+      float lit = smoothstep(-40., 40., x.y - textureLod(T1, x.xz / L_, 2.).y);
+      Lx += Tv * Ts * ((BR * dr * pr + BMS * dm * pm) * lit + (BR * dr + BMS * dm) * (.9 / (4. * PI))) * dt;
+      od += e * dt;
+    }
+    return col * exp(-od) + Lx;
+  }
+  vec3 sunDisk(vec3 rd) {
+    float c = dot(rd, SD), a = acos(min(c, 1.)), r = a / .0047;
+    vec3 T = sunT(400.);
+    float disk = smoothstep(1.08, .92, r) * (1. - .55 * (1. - sqrt(max(1. - r * r, 0.))));
+    return T * (disk * 1.2e4 + 3. * exp(-a * 60.) + .4 * exp(-a * 12.));
+  }
+  vec4 bsp(vec2 uv) {                                   // B-spline filtered slopes: smooth normals up close, no texel creases
+    vec2 st = uv * float(N) - .5, i = floor(st), f = st - i;
+    vec4 qx = vec4(1, 2, 3, 4) - f.x, qy = vec4(1, 2, 3, 4) - f.y; qx *= qx * qx; qy *= qy * qy;
+    vec4 cx = vec4(qx.x, qx.y - 4. * qx.x, qx.z - 4. * qx.y + 6. * qx.x, 0), cy = vec4(qy.x, qy.y - 4. * qy.x, qy.z - 4. * qy.y + 6. * qy.x, 0);
+    cx.w = 6. - cx.x - cx.y - cx.z; cy.w = 6. - cy.x - cy.y - cy.z;
+    vec4 sm = vec4(cx.xz + cx.yw, cy.xz + cy.yw), of = (i.xxyy + vec2(-.5, 1.5).xyxy + vec4(cx.yw, cy.yw) / sm) / float(N);
+    float wx = sm.x / (sm.x + sm.y), wy = sm.z / (sm.z + sm.w);
+    return mix(mix(textureLod(T0, of.yw, 0.), textureLod(T0, of.xw, 0.), wx), mix(textureLod(T0, of.yz, 0.), textureLod(T0, of.xz, 0.), wx), wy);
+  }
+  vec3 terrain(vec3 p, vec3 rd, float t, bool full) {
+    float fp = t * PA, l = max(log2(fp / TX), 0.);
+    vec2 uv = p.xz / L_;
+    vec4 s = textureLod(T0, uv, l), ax = textureLod(T1, uv, l);
+    float H = s.x + s.y;
+    if (full && l < 1.) s.zw = mix(bsp(uv).zw, s.zw, l);
+    vec3 n = normalize(vec3(-s.z, 1., -s.w));
+    float cv = full ? hgt(p.xz, l + 3.) - H : 0.;                      // > 0 in hollows, < 0 on ridges
+    float n1 = gnd(p.xz * .0019).x, n2 = gnd(p.xz * .011).x, n3 = full ? gnd(p.xz * .06).x * clamp(10. / fp - 1., 0., 1.) : 0.;
+    float ny = n.y, gy = ax.w;
+    // vegetation below a ragged tree line on gentle ground; part of it forest
+    float tl = 760. + 170. * n1 - 120. * smoothstep(.3, .9, gy);
+    float vg = smoothstep(.7, .82, ny + .05 * n2) * smoothstep(tl + 70., tl - 70., H);
+    float fo = smoothstep(-.25, .2, n2 + .5 * n1 + .25 * n3 + .2);
+    // detail: three finer layers of bumps (tree crowns in the forest), each fading out before it would shimmer
+    vec3 nd = n; float dh = 0., cr = 0.;
+    if (full) {
+      vec2 dg = vec2(0); float wl = 22., am = .55;
+      for (int i = 0; i < 3; i++) { float w = clamp(wl / (3. * fp) - 1., 0., 1.); if (w <= 0.) break; vec3 g = gnd(p.xz / wl + float(i) * 17.); float k = i == 0 ? 1. - .75 * vg : 1.; dg += w * am * k * g.yz; dh += w * am * k * g.x; if (i > 0) cr += w * g.x; wl /= 2.7; am *= .8; }
+      nd = normalize(n - vec3(dg.x, 0, dg.y) * mix(mix(.35, 1., smoothstep(.85, .6, ny)), 1.4, vg * fo));
+    }
+    // rock: granite and darker gneiss, lichen-warm in places, dark wet streaks down the gullies and down steep faces
+    vec3 rock = mix(vec3(.07, .066, .062), vec3(.26, .245, .225), smoothstep(-.7, .7, n2 * 1.3 + .4 * n3 + .6 * dh));
+    if (full && ny < .8 && fp < 6.) {
+      float hc = mix(p.x, p.z, smoothstep(.3, .7, abs(n.x) / (abs(n.x) + abs(n.z) + 1e-4)));
+      rock *= 1. - .45 * smoothstep(.05, .5, gnd(vec2(hc * .09, p.y * .01)).x) * smoothstep(.8, .65, ny) * smoothstep(6., 2., fp);
+    }
+    rock = mix(rock, vec3(.2, .16, .11), .3 * smoothstep(.1, .7, n1));
+    rock *= 1. - .5 * smoothstep(.25, .85, gy);
+    // scree in the hollows under the cliffs
+    float scree = smoothstep(.6, .72, ny) * smoothstep(.9, .8, ny) * smoothstep(1., 12., cv + 6. * n2);
+    vec3 alb = mix(rock, vec3(.27, .26, .245) * (.85 + .3 * n3), scree);
+    vec3 forest = mix(vec3(.016, .028, .014), vec3(.045, .065, .026), smoothstep(-.3, .6, n3 + .4 * n1)) * (.5 + 1. * smoothstep(-.3, .3, cr + .3 * dh));
+    vec3 meadow = mix(vec3(.07, .09, .034), vec3(.1, .09, .05), smoothstep(-.4, .5, n2 + .4 * dh));
+    alb = mix(alb, mix(meadow, forest, fo), vg);
+    float alp = smoothstep(.8, .92, ny + .04 * n3) * smoothstep(1520., 1280., H + 80. * n1) * (1. - vg);
+    alb = mix(alb, mix(vec3(.075, .078, .042), vec3(.12, .105, .072), smoothstep(-.3, .4, n2 + .3 * n3)), alp * .9 * smoothstep(-.5, .1, n2 + .6 * dh));
+    // snow: above a ragged line on anything not too steep; lower in hollows and on faces turned from the sun
+    float sl = 1150. + 170. * n1 - 260. * smoothstep(0., 18., cv) + 150. * smoothstep(-.3, .6, dot(n.xz, normalize(SD.xz))) - 60. * dh;
+    float snow = smoothstep(sl - 30., sl + 30., H + 30. * n3) * smoothstep(.45, .6, ny + .12 * n2 + .05 * n3 + .1 * dh);
+    alb = mix(alb, vec3(.86, .88, .92), snow);
+    // the shore: wet dark rock just above the water
+    float wet = smoothstep(2.5, .4, H);
+    alb *= 1. - .5 * wet;
+    float cav = full ? clamp(1. + .6 * dh, .5, 1.2) : 1.;
+    // light: the sun through the air down to this height, the baked soft shadow, and sky light where sky is visible
+    vec3 Es = sunT(H) * ax.x * max(dot(nd, SD), 0.) * mix(1., .7, vg * fo * (1. - SD.y)) * sqrt(cav);
+    float ao = ax.z * (full ? clamp(1. - .015 * cv, .55, 1.15) : 1.) * cav;
+    vec3 col = alb * (Es + irr(nd) * ao) / PI;
+    if (full) { vec3 hv = normalize(SD - rd); col += sunT(H) * ax.x * snow * .12 * pow(max(dot(nd, hv), 0.), 60.) * max(dot(nd, SD), 0.); }
+    return col;
+  }
+  vec3 water(vec3 p, vec3 rd, float t) {
+    float fp = t * PA;
+    // ripples in patches of wind that drift across the water; ripples too small for a pixel become roughness
+    const vec2 WD = vec2(.6, .8), WP = vec2(-.8, .6);
+    vec2 wq = vec2(dot(p.xz, WD), dot(p.xz, WP));
+    float gust = smoothstep(-.15, .35, gnd(wq * vec2(.0025, .0009) - vec2(TM * .012, 0)).x + .4 * gnd(p.xz * .0006 + 7.).x);
+    // crests run across the wind: the noise is stretched along them, and slides downwind
+    vec2 dg = vec2(0); float wl = 6., am = .012 + .03 * gust, lost = 0.;
+    for (int i = 0; i < 3; i++) {
+      float w = clamp(wl / (4. * fp) - 1., 0., 1.); if (w <= 0.) { lost += am * (1. - pow(.85, float(3 - i))) / .15; break; }
+      vec3 g = gnd(wq / wl * vec2(1., .3) - vec2(TM * 1.2 / sqrt(wl), 0) + float(i) * 31.);
+      vec2 sl = g.yz * vec2(1., .3); dg += w * am * (WD * sl.x + WP * sl.y); lost += (1. - w) * am; wl /= 2.3; am *= .85;
+    }
+    vec3 n = normalize(vec3(-dg.x, 1., -dg.y)), v = -rd;
+    float rough = clamp(.04 + .8 * (lost + .015 + .04 * gust), .04, .11);
+    vec3 r = reflect(rd, n); r.y = max(r.y, .002);
+    float F = .02 + .98 * pow(1. - max(dot(v, n), 0.), 5.);
+    vec4 ax = textureLod(T1, p.xz / L_, 0.);
+    bool hit; float tr = march(p, r, 22000., 1., -1e4, .75, 56, hit);
+    vec3 rc = hit ? aerial(p, r, tr, terrain(p + r * tr, r, t + tr, false), 3) : sky(r);
+    vec3 hv = normalize(SD + v); float nh = max(dot(n, hv), 0.), a2 = rough * rough * rough * rough, dd = nh * nh * (a2 - 1.) + 1.;
+    vec3 spec = sunT(0.) * ax.x * a2 / (PI * dd * dd) * F * .25 / max(dot(n, v), .1) * max(SD.y + .02, 0.) * 6.;
+    float depth = max(-hgt(p.xz, 0.), 0.);
+    vec3 E = sunT(0.) * ax.x * max(SD.y, 0.) + irr(vec3(0, 1, 0)) * ax.z, att = exp(-vec3(.5, .16, .12) * depth * 2.5);
+    vec3 body = E / PI * (vec3(.002, .006, .007) * (1. - att) + vec3(.06, .055, .042) * att);
+    return mix(body, rc, F) + spec;
+  }
+  void main() {
+    vec2 q = (gl_FragCoord.xy + J - RES * .5) / RES.y;
+    HTOP = texelFetch(MX, ivec2(0), 9).r + 5.;                            // the highest point of the land, from the pyramid's top
+    IA = texelFetch(IR, ivec2(0, 0), 0).rgb; IX = texelFetch(IR, ivec2(1, 0), 0).rgb; IY = texelFetch(IR, ivec2(2, 0), 0).rgb; IZ = texelFetch(IR, ivec2(3, 0), 0).rgb;
+    rnd = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(.06711056, .00583715))) + .618034 * FN);
+    vec3 rd = normalize(CB * vec3(q, FL)), ro = CP, col;
+    bool hit; float t = march(ro, rd, 40000., 0., 0., .5, 200, hit);
+    if (!hit) { col = sky(rd) + sunDisk(rd); t = 6e4; }
+    else {
+      vec3 p = ro + rd * t;
+      if (rd.y < 0. && hgt(p.xz, 0.) < 0.) { t = -ro.y / rd.y; p = ro + rd * t; col = water(p, rd, t); }
+      else col = terrain(p, rd, t, true);
+      col = aerial(ro, rd, t, col, 6);
+    }
+    col *= EXPO;
+    const mat3 I = mat3(.59719, .07600, .02840, .35458, .90834, .13383, .04823, .01566, .83777);
+    const mat3 O = mat3(1.60475, -.10208, -.00327, -.53108, 1.10813, -.07276, -.07367, -.00605, 1.07602);
+    vec3 c = I * col, a = c * (c + .0245786) - .000090537, b = c * (.983729 * c + .4329510) + .238081;
+    o = vec4(clamp(O * (a / b), 0., 1.), t);
+  }`;
+  // 8. gather over time: reproject last frame's picture with the camera, clamp it to this frame's neighbourhood
+  const RESOLVE = COMMON + `
+  uniform sampler2D C, Hs;
+  uniform vec2 IR, OR, J;
+  uniform vec3 CP, PP; uniform mat3 CB, PB; uniform float FL, WMAX;
+  vec3 yc(vec3 c) { return vec3(.25 * c.r + .5 * c.g + .25 * c.b, .5 * c.r - .5 * c.b, -.25 * c.r + .5 * c.g - .25 * c.b); }
+  vec3 rgb(vec3 y) { return vec3(y.x + y.y - y.z, y.x + y.z, y.x - y.y - y.z); }
+  vec4 cubic(vec2 uv) {                                             // Catmull-Rom from 5 bilinear taps
+    vec2 sp = uv * OR, tp = floor(sp - .5) + .5, f = sp - tp, w0 = f * (-.5 + f * (1. - .5 * f)), w1 = 1. + f * f * (-2.5 + 1.5 * f), w2 = f * (.5 + f * (2. - 1.5 * f)), w3 = f * f * (-.5 + .5 * f);
+    vec2 w12 = w1 + w2, t0 = (tp - 1.) / OR, t3 = (tp + 2.) / OR, t12 = (tp + w2 / w12) / OR;
+    vec4 r = texture(Hs, vec2(t12.x, t0.y)) * w12.x * w0.y + texture(Hs, vec2(t0.x, t12.y)) * w0.x * w12.y + texture(Hs, t12) * w12.x * w12.y + texture(Hs, vec2(t3.x, t12.y)) * w3.x * w12.y + texture(Hs, vec2(t12.x, t3.y)) * w12.x * w3.y;
+    return r / (w12.x * w0.y + w0.x * w12.y + w12.x * w12.y + w3.x * w12.y + w12.x * w3.y);
+  }
+  void main() {
+    vec2 op = gl_FragCoord.xy, ip = op * IR / OR - .5 - J; ivec2 c = ivec2(floor(ip + .5));
+    vec3 sum = vec3(0), m1 = vec3(0), m2 = vec3(0); float ws = 0., wmax = 0., dmin = 1e9;
+    for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+      ivec2 k = clamp(c + ivec2(x, y), ivec2(0), ivec2(IR) - 1); vec4 s = texelFetch(C, k, 0);
+      vec2 d = vec2(c + ivec2(x, y)) - ip; float w = exp(-2.3 * dot(d, d));
+      sum += s.rgb * w; ws += w; wmax = max(wmax, w); vec3 y3 = yc(s.rgb); m1 += y3; m2 += y3 * y3; dmin = min(dmin, s.a);
+    }
+    vec3 cur = sum / ws, mu = m1 / 9., sg = sqrt(max(m2 / 9. - mu * mu, 0.));
+    vec3 rd = normalize(CB * vec3((op - OR * .5) / OR.y, FL)), v = transpose(PB) * (CP + rd * dmin - PP);
+    vec2 puv = (v.xy / v.z * FL * OR.y + OR * .5) / OR;
+    float Wh = 0.; vec3 hist = cur;
+    if (v.z > 0. && all(greaterThan(puv, vec2(0))) && all(lessThan(puv, vec2(1)))) {
+      float vel = length(puv * OR - op);
+      vec4 h = cubic(puv); Wh = min(h.a, mix(WMAX, min(WMAX, 2.5), smoothstep(.5, 4., vel)));
+      vec3 hy = yc(max(h.rgb, 0.)), lo = mu - sg - .002, hi = mu + sg + .002, ce = .5 * (lo + hi), ex = .5 * (hi - lo), dv = hy - ce, ra = abs(dv / ex);
+      float m = max(ra.x, max(ra.y, ra.z)); if (m > 1.) { hy = ce + dv / m; Wh *= mix(1., .5, clamp(m - 1., 0., 1.)); }
+      hist = rgb(hy);
+    }
+    float a = wmax / (Wh + wmax);
+    o = vec4(mix(hist, cur, a), min(Wh + wmax, max(WMAX, wmax)));
+  }`;
+  // 9. to the screen: a light sharpen, sRGB, and a dither so the sky never bands
+  const PRESENT = COMMON + `
+  uniform sampler2D Hs; uniform vec2 OR;
+  void main() {
+    ivec2 c = ivec2(gl_FragCoord.xy), m = ivec2(OR) - 1;
+    vec3 a = texelFetch(Hs, c, 0).rgb, b = texelFetch(Hs, clamp(c + ivec2(1, 0), ivec2(0), m), 0).rgb + texelFetch(Hs, clamp(c - ivec2(1, 0), ivec2(0), m), 0).rgb + texelFetch(Hs, clamp(c + ivec2(0, 1), ivec2(0), m), 0).rgb + texelFetch(Hs, clamp(c - ivec2(0, 1), ivec2(0), m), 0).rgb;
+    vec3 col = clamp(a + .18 * (a - b * .25), 0., 1.);
+    col = mix(col * 12.92, 1.055 * pow(col, vec3(1. / 2.4)) - .055, step(.0031308, col));
+    float n = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(.06711056, .00583715)))) + fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 1.;
+    o = vec4(col + n / 255., 1);
+  }`;
+
+  // shaders compile in the background (KHR_parallel_shader_compile) and are only checked once they are done, so the
+  // page never waits on the compiler; without the extension each step checks just the programs it needs
+  const par = gl.getExtension('KHR_parallel_shader_compile'), progs = [], linked = new Set();
+  const mk = fs => {
+    const pr = gl.createProgram();
+    [[gl.VERTEX_SHADER, VS], [gl.FRAGMENT_SHADER, fs]].forEach(([t, src]) => { const x = gl.createShader(t); gl.shaderSource(x, src); gl.compileShader(x); gl.attachShader(pr, x); gl.deleteShader(x); });
+    gl.bindAttribLocation(pr, 0, 'p'); gl.linkProgram(pr); progs.push(pr); return pr;
+  };
+  const ready = pr => {
+    if (linked.has(pr)) return true;
+    if (par && !gl.getProgramParameter(pr, par.COMPLETION_STATUS_KHR)) return false;
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getAttachedShaders(pr).map(x => gl.getShaderInfoLog(x)).join('\n') || gl.getProgramInfoLog(pr));
+    linked.add(pr); return true;
+  };
+  const Pg = { base: mk(BASE), erode: mk(ERODE), pack: mk(PACK), aux: mk(AUX), blk: mk(BLOCK), dil: mk(DILATE), sky: mk(SKYP), irr: mk(IRRP), scene: mk(SCENE), resolve: mk(RESOLVE), present: mk(PRESENT) };
+  const ul = new WeakMap(), u = (pr, n) => { let m = ul.get(pr); if (!m) ul.set(pr, m = {}); return n in m ? m[n] : (m[n] = gl.getUniformLocation(pr, n)); };
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const texs = [], fbos = [];
+  const tex = (w, h, fmt, filt, wrap, levels = 1) => {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texStorage2D(gl.TEXTURE_2D, levels, fmt, w, h);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, levels > 1 ? gl.LINEAR_MIPMAP_LINEAR : filt); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filt);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap === gl.REPEAT && h < 200 ? gl.CLAMP_TO_EDGE : wrap);
+    texs.push(t); return t;
+  };
+  const fbo = (t, level = 0) => { const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, level); fbos.push(f); return f; };
+  const drop = (t, f) => { gl.deleteTexture(t); gl.deleteFramebuffer(f); texs.splice(texs.indexOf(t), 1); fbos.splice(fbos.indexOf(f), 1); };
+  const bindT = (unit, t) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); };
+  const pass = (pr, f, w, h) => { gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.viewport(0, 0, w, h); gl.useProgram(pr); gl.uniform3fv(u(pr, 'SD'), SD); };
+  const draw = () => gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  // the bake, one step per idle moment: land, erosion, packed height, light in four bands, the max-height pyramid
+  // (down to one cell, the highest point), sky and sky light. Nothing is read back to the CPU.
+  const LV = Math.log2(N) + 1, ML = 10;
+  const base = tex(N, N, gl.R32F, gl.NEAREST, gl.REPEAT), baseF = fbo(base);
+  const ero = tex(N, N, gl.RG32F, gl.NEAREST, gl.REPEAT), eroF = fbo(ero);
+  const T0 = tex(N, N, gl.RGBA16F, gl.LINEAR, gl.REPEAT, LV), T0F = fbo(T0);
+  const T1 = tex(N, N, gl.RGBA16F, gl.LINEAR, gl.REPEAT, LV), T1F = fbo(T1);
+  const SKY = tex(256, 128, gl.RGBA16F, gl.LINEAR, gl.REPEAT), SKYF = fbo(SKY);
+  const IRR = tex(4, 1, gl.RGBA32F, gl.NEAREST, gl.CLAMP_TO_EDGE), IRRF = fbo(IRR);
+  const MX = tex(512, 512, gl.R32F, gl.NEAREST, gl.REPEAT, ML); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+  const steps = [
+    [[Pg.base], () => { pass(Pg.base, baseF, N, N); draw(); }],
+    [[Pg.erode], () => { pass(Pg.erode, eroF, N, N); bindT(0, base); gl.uniform1i(u(Pg.erode, 'B'), 0); draw(); }],
+    [[Pg.pack], () => { pass(Pg.pack, T0F, N, N); bindT(0, ero); gl.uniform1i(u(Pg.pack, 'E'), 0); draw(); bindT(0, T0); gl.generateMipmap(gl.TEXTURE_2D); }],
+    ...[0, 1, 2, 3].map(b => [[Pg.aux], () => {
+      pass(Pg.aux, T1F, N, N); bindT(0, T0); bindT(1, ero); gl.uniform1i(u(Pg.aux, 'T0'), 0); gl.uniform1i(u(Pg.aux, 'E'), 1);
+      gl.enable(gl.SCISSOR_TEST); gl.scissor(0, b * N / 4, N, N / 4); draw(); gl.disable(gl.SCISSOR_TEST);
+      if (b === 3) { bindT(0, T1); gl.generateMipmap(gl.TEXTURE_2D); }
+    }]),
+    [[Pg.blk, Pg.dil, Pg.sky, Pg.irr], () => {
+      const U = [];
+      for (let i = 0; i < ML; i++) {
+        const n = 512 >> i, t = tex(n, n, gl.R32F, gl.NEAREST, gl.REPEAT), f = fbo(t); U.push([t, f]);
+        pass(Pg.blk, f, n, n); bindT(0, i ? U[i - 1][0] : T0); gl.uniform1i(u(Pg.blk, 'S'), 0); gl.uniform1i(u(Pg.blk, 'K'), i ? 2 : 4); draw();
+        const mf = fbo(MX, i); pass(Pg.dil, mf, n, n); bindT(0, t); gl.uniform1i(u(Pg.dil, 'S'), 0); gl.uniform1i(u(Pg.dil, 'K'), n); draw();
+        gl.deleteFramebuffer(mf); fbos.splice(fbos.indexOf(mf), 1);
+      }
+      pass(Pg.sky, SKYF, 256, 128); draw();
+      pass(Pg.irr, IRRF, 4, 1); bindT(0, SKY); gl.uniform1i(u(Pg.irr, 'SKY'), 0); gl.uniform3fv(u(Pg.irr, 'ST0'), ST0); draw();
+      U.forEach(([t, f]) => drop(t, f)); drop(base, baseF); drop(ero, eroF);
+      [Pg.base, Pg.erode, Pg.pack, Pg.aux, Pg.blk, Pg.dil, Pg.sky, Pg.irr].forEach(p => { gl.deleteProgram(p); progs.splice(progs.indexOf(p), 1); });
+    }],
+    [[Pg.scene, Pg.resolve, Pg.present], () => start()],
+  ];
+  const scene = Pg.scene, resolve = Pg.resolve, present = Pg.present;
+
+  // targets: the frame at a capped resolution, two full-size histories
+  let iw = 0, ih = 0, ow = 0, oh = 0, cur = null, curF = null, hist = [], histF = [], k = 0, frameN = 0, prev = null;
+  const resize = () => {
+    const cw = stage.clientWidth || 1, ch = stage.clientHeight || 1, d = Math.max(0.5, Math.min(devicePixelRatio, 2, Math.sqrt(1.8e6 / (cw * ch))));
+    const w = Math.max(1, cw * d | 0), h = Math.max(1, ch * d | 0);
+    if (w === ow && h === oh) return false;
+    canvas.width = ow = w; canvas.height = oh = h;
+    const s = Math.min(1, Math.sqrt(0.66e6 / (ow * oh))); iw = Math.max(1, Math.round(ow * s)); ih = Math.max(1, Math.round(oh * s));
+    if (cur) { drop(cur, curF); hist.forEach((t, i) => drop(t, histF[i])); }
+    cur = tex(iw, ih, gl.RGBA16F, gl.NEAREST, gl.CLAMP_TO_EDGE); curF = fbo(cur);
+    hist = [0, 1].map(() => tex(ow, oh, gl.RGBA16F, gl.LINEAR, gl.CLAMP_TO_EDGE)); histF = hist.map(t => fbo(t));
+    histF.forEach(f => { gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); });
+    prev = null; return true;
+  };
+
+  // the camera: along the fjord, at a gently varying height, looking ahead and a little down, banking into the bends
+  const norm = v => { const l = Math.hypot(...v); return v.map(x => x / l); };
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const cam = t => {
+    const z = Z0 + V * PARAMS.speed * t, y = alt(z), x = path(z), za = z + 900;
+    const f = norm([path(za) - x, alt(za) - 105 - y, za - z]);
+    const r0 = norm(cross([0, 1, 0], f)), u0 = cross(f, r0);
+    const kap = pathDD(z) / Math.pow(1 + pathD(z) ** 2, 1.5), roll = Math.max(-0.1, Math.min(0.1, kap * (V * PARAMS.speed) ** 2 * 0.035));
+    const c = Math.cos(roll), s = Math.sin(roll), r = r0.map((v, i) => v * c - u0[i] * s), up = u0.map((v, i) => v * c + r0[i] * s);
+    return { p: [x, y, z], b: [...r, ...up, ...f] };
+  };
+  const halton = (i, b) => { let f = 1, r = 0; while (i > 0) { f /= b; r += f * (i % b); i = Math.floor(i / b); } return r; };
+
+  const render = (t, wmax) => {
+    const c = cam(t), ox = Math.floor(c.p[0] / L) * L, oz = Math.floor(c.p[2] / L) * L;    // keep the camera inside one tile
+    const P = [c.p[0] - ox, c.p[1], c.p[2] - oz], pc = prev ? { p: [prev.p[0] - ox, prev.p[1], prev.p[2] - oz], b: prev.b } : null;
+    const j = [halton(frameN % 16 + 1, 2) - 0.5, halton(frameN % 16 + 1, 3) - 0.5];
+    pass(scene, curF, iw, ih); bindT(0, T0); bindT(1, T1); bindT(2, SKY); bindT(3, MX); bindT(4, IRR);
+    gl.uniform3fv(u(scene, 'CP'), P); gl.uniformMatrix3fv(u(scene, 'CB'), false, c.b);
+    gl.uniform2f(u(scene, 'RES'), iw, ih); gl.uniform2fv(u(scene, 'J'), j); gl.uniform1f(u(scene, 'PA'), 1 / (oh * FL));
+    gl.uniform1f(u(scene, 'TM'), t); gl.uniform1f(u(scene, 'FN'), frameN % 64);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    pass(resolve, histF[1 - k], ow, oh); bindT(0, cur); bindT(1, hist[k]);
+    gl.uniform1i(u(resolve, 'C'), 0); gl.uniform1i(u(resolve, 'Hs'), 1);
+    gl.uniform2f(u(resolve, 'IR'), iw, ih); gl.uniform2f(u(resolve, 'OR'), ow, oh); gl.uniform2fv(u(resolve, 'J'), j);
+    gl.uniform3fv(u(resolve, 'CP'), P); gl.uniform3fv(u(resolve, 'PP'), pc ? pc.p : P);
+    gl.uniformMatrix3fv(u(resolve, 'CB'), false, c.b); gl.uniformMatrix3fv(u(resolve, 'PB'), false, pc ? pc.b : c.b);
+    gl.uniform1f(u(resolve, 'FL'), FL); gl.uniform1f(u(resolve, 'WMAX'), pc ? wmax : 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    k = 1 - k;
+    pass(present, null, ow, oh); bindT(0, hist[k]); gl.uniform1i(u(present, 'Hs'), 0); gl.uniform2f(u(present, 'OR'), ow, oh);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    prev = c; frameN++;
+  };
+  // reduced motion: one moment of the flight, gathered from 32 jittered frames into a clean still
+  const still = () => { prev = null; for (let i = 0; i < 32; i++) render(2.5, 64); };
+  let raf, idle, dead = false, live = false; const t0 = performance.now();
+  const ro = new ResizeObserver(() => { if (resize() && live && reduce) still(); }); ro.observe(stage); resize();
+  function frame(now) { render((now - t0) / 1000, 8); raf = requestAnimationFrame(frame); }
+  function start() {
+    gl.useProgram(scene);
+    [['T0', 0], ['T1', 1], ['SKY', 2], ['MX', 3], ['IR', 4]].forEach(([n, i]) => gl.uniform1i(u(scene, n), i));
+    gl.uniform3fv(u(scene, 'ODS'), ODS); gl.uniform1f(u(scene, 'EXPO'), EXPO); gl.uniform1f(u(scene, 'FL'), FL);
+    live = true;
+    // a first picture right away (also while the clock is paused), then the flight
+    if (reduce) still(); else { const t = (performance.now() - t0) / 1000; for (let i = 0; i < 4; i++) render(t, 8); raf = requestAnimationFrame(frame); }
+  }
+  // idle callbacks keep going while a host pauses requestAnimationFrame, so the bake always finishes
+  const later = f => (globalThis.requestIdleCallback ? requestIdleCallback(f, { timeout: 40 }) : setTimeout(f, 16));
+  let si = 0;
+  const boot = () => { if (dead) return; const [need, run] = steps[si]; if (need.every(ready)) { run(); si++; } if (si < steps.length) idle = later(boot); };
+  idle = later(boot);
+  return () => { dead = true; (globalThis.cancelIdleCallback || clearTimeout)(idle); cancelAnimationFrame(raf); ro.disconnect(); texs.forEach(t => gl.deleteTexture(t)); fbos.forEach(f => gl.deleteFramebuffer(f)); progs.forEach(p => gl.deleteProgram(p)); gl.deleteBuffer(buf); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
 }

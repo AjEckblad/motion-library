@@ -4,7 +4,8 @@
 // float buffer; the buffer fades a little each frame, so it holds many millions of hits. A log tone map turns hit
 // counts into brightness, and colour comes from how far each point jumped. a, b, c, d drift, so the shape flows.
 // The pointer sets a (left to right) and d (bottom to top), so the attractor reshapes under your hand.
-const PARAMS = { points: 1, drift: 1, exposure: 1 };
+// Background: Clear draws only the light, for laying it over your own page.
+const PARAMS = { points: 1, drift: 1, exposure: 1, background: 0 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
@@ -41,7 +42,7 @@ export default function (stage) {
   precision highp float; out vec4 o; void main() { o = vec4(0); }`);
   // pass 3: tone map hit counts to the screen
   const showProg = link(quadVS, `#version 300 es
-  precision highp float; out vec4 o; uniform sampler2D A; uniform float K;
+  precision highp float; out vec4 o; uniform sampler2D A; uniform float K, CLEAR;
   void main() {
     vec4 s = texelFetch(A, ivec2(gl_FragCoord.xy), 0);
     float n = s.r, j = n > 0. ? s.g / n : 0.;
@@ -51,8 +52,11 @@ export default function (stage) {
     float h = clamp(j / 2.6, 0., 1.);
     vec3 cool = vec3(.28, .38, 1.), mid = vec3(.95, .3, .55), hot = vec3(1., .78, .4);
     vec3 c = mix(mix(cool, mid, smoothstep(0., .55, h)), hot, smoothstep(.5, 1., h));
-    vec3 col = vec3(.03, .028, .045) + c * pow(v, 1.15) * 1.15 + vec3(1.) * pow(v, 5.) * .55;
-    o = vec4(col, 1);
+    // Dark: the light on a near-black ground. Clear: the light alone, its brightest channel as the alpha (the context
+    // isn't premultiplied, so the colour is the light divided by it), and the page shows through everywhere else
+    vec3 col = (CLEAR > .5 ? vec3(0.) : vec3(.03, .028, .045)) + c * pow(v, 1.15) * 1.15 + vec3(1.) * pow(v, 5.) * .55;
+    float a = clamp(max(col.r, max(col.g, col.b)), 0., 1.);
+    o = CLEAR > .5 ? vec4(a > 0. ? col / a : vec3(0), a) : vec4(col, 1);
   }`);
   const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const vao = gl.createVertexArray(); gl.bindVertexArray(vao); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
@@ -90,7 +94,7 @@ export default function (stage) {
   let still = 0;   // reduced motion: frames the parameters have been at rest (the still image is rebuilt after a change)
   const U = n => gl.getUniformLocation(ptsProg, n);
   const uP = U('P'), uSeed = U('SEED'), uScale = U('SCALE'), uCtr = U('CTR');
-  const uA = gl.getUniformLocation(showProg, 'A'), uK = gl.getUniformLocation(showProg, 'K');
+  const uA = gl.getUniformLocation(showProg, 'A'), uK = gl.getUniformLocation(showProg, 'K'), uClear = gl.getUniformLocation(showProg, 'CLEAR');
   let raf, frameNo = 0, last = performance.now(); const t0 = performance.now();
   function frame(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -125,7 +129,7 @@ export default function (stage) {
     gl.useProgram(showProg); gl.bindVertexArray(vao); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(uA, 0);
     // exposure normalised by how many hits a pixel gets on average, so it looks the same at any size or count
     const per = n / (canvas.width * canvas.height) / (1 - (hold ? .0 : .86) || 1 / 12);
-    gl.uniform1f(uK, PARAMS.exposure * 3 / Math.max(.05, per));
+    gl.uniform1f(uK, PARAMS.exposure * 3 / Math.max(.05, per)); gl.uniform1f(uClear, PARAMS.background >= .5 ? 1 : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     frameNo++; if (hold) still++;
     raf = requestAnimationFrame(frame);

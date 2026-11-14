@@ -2,6 +2,8 @@
 // entrance is 240 ms with a stagger capped at 210 ms, the heart press shows, hover motion is gated, the language menu reopens mid-fade, a resting mouse keeps the magnet / tank. node tools/motion-check.mjs
 import path from 'node:path';
 import { ROOT, serve, launch } from './lib.mjs';
+import { ANIMS } from '../anims/registry.js';
+import { HERO } from '../js/hero.js';
 const { server, base } = await serve();
 const browser = await launch();
 const results = [];
@@ -91,7 +93,7 @@ check('exit uses the strong ease-out token', ex.every(a => a.easing === 'cubic-b
 check('exit leaves all at once (no stagger holding the new view back)', ex.every(a => !a.delay), { exitDelays: [...new Set(ex.map(a => a.delay))] });
 // 2b. All: every card on the first screen gets an entrance, none below it
 const all = ent;
-const firstScreen = await page.evaluate(() => [...document.querySelectorAll('#front-title, #front-sub, #front-browse, #front-media, #grid .card')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight).length);
+const firstScreen = await page.evaluate(() => [...document.querySelectorAll('#front-title, #front-sub, #front-browse, #front-art, #grid .card')].filter(c => c.getBoundingClientRect().top + scrollY < innerHeight).length);
 check('All: each first-screen card animates, none below', all.length === firstScreen && Math.max(...all.map(a => a.delay)) === Math.min(firstScreen - 1, 7) * 30, { entrances: all.length, firstScreen, maxDelay: Math.max(...all.map(a => a.delay)) });
 
 // 4. pressing a card heart with the mouse shows the press
@@ -263,9 +265,16 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
     const x = Math.max(h.left + 4, m.left + 8), y = h.top + h.height / 2;
     const under = document.elementFromPoint(x, y), onBtn = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
     return { clifford: /src=anims\/generative\/clifford-attractor\.js/.test(src), points: /[?&]p=points%3D0\.4\b/.test(src), extras: document.querySelectorAll('#front .front-lede, #front .front-points, #front-npx, #front .front-ctl').length,
-      through: !!under?.closest('#front-media'), button: !!onBtn?.closest('#front-browse'), cap: document.querySelector('#front-cap').textContent };
+      through: !!under?.closest('#front-media'), button: !!onBtn?.closest('#front-browse'), cap: document.querySelector('#front-cap').textContent, name: document.querySelector('#front-cap b')?.textContent,
+      // light only: the Clear background, no backing behind it, and the frame in the stage's own color scheme (on a
+      // mismatch the browser paints an opaque backdrop behind a transparent frame)
+      clear: /background%3D1\b/.test(src), backing: getComputedStyle(document.querySelector('#front-media')).backgroundColor, scheme: getComputedStyle(document.querySelector('#front-media iframe')).colorScheme };
   });
-  check('hero: the Clifford attractor at 0.4M points, the words let the pointer through (not the button), nothing else on it', what.clifford && what.points && what.extras === 0 && what.through && what.button && what.cap === 'Free and open source', what);
+  check('hero: the Clifford attractor at 0.4M points, the words let the pointer through (not the button), nothing else on it', what.clifford && what.points && what.extras === 0 && what.through && what.button, what);
+  check('hero: light only, no box (Clear background, no backing, the frame matches the stage\'s color scheme)', what.clear && what.backing === 'rgba(0, 0, 0, 0)' && what.scheme === 'light', { clear: what.clear, backing: what.backing, scheme: what.scheme });
+  // the caption names what you are looking at first: the effect's own title, then the line about the library
+  const heroTitle = ANIMS.find(x => x.id === HERO).title;
+  check('hero: the caption starts with the effect\'s title', what.name === heroTitle && what.cap.startsWith(heroTitle + ' · ') && what.cap === `${heroTitle} · Free and open source`, { cap: what.cap, title: heroTitle });
   const on = await clock();
   await hp.evaluate(() => document.querySelector('#sec-chrome').scrollIntoView()); await hp.waitForTimeout(600);
   const off = await clock();
@@ -289,9 +298,9 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   // reduced motion: the poster, no live stage, no reveal
   const rc = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const rp = await rc.newPage(); await rp.goto(base + '/index.html#/'); await rp.waitForTimeout(3000);
-  const r = await rp.evaluate(() => ({ frames: document.querySelectorAll('#front-media iframe').length, poster: document.querySelector('#front-media img').complete && /clifford-attractor\.webp/.test(document.querySelector('#front-media img').src),
+  const r = await rp.evaluate(() => ({ frames: document.querySelectorAll('#front-media iframe').length, poster: document.querySelector('#front-media img').complete && /hero-clifford\.webp/.test(document.querySelector('#front-media img').src),
     state: document.querySelector('#front-media').dataset.state, lines: document.querySelectorAll('.front-line').length }));
-  check('hero: reduced motion shows the poster (no live stage, no reveal)', r.frames === 0 && r.poster && r.state === 'poster' && r.lines === 0, r);
+  check('hero: reduced motion shows the transparent poster (no live stage, no reveal)', r.frames === 0 && r.poster && r.state === 'poster' && r.lines === 0, r);
   await rc.close();
 
   // deep links: straight to the target, the hero neither reveals nor runs

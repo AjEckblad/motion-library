@@ -1,11 +1,11 @@
-// The front page: a headline, one line, one button, and a live Clifford attractor filling the right of the first screen,
-// fading out under the words (on phones it sits on top as a square). The pointer steers it: the words above it let
+// The front page: a headline, one line, one button, and a live Clifford attractor on the right of the first screen with
+// a caption under it, light only, fading out under the words (on phones it sits on top, caption and all). The pointer steers it: the words above it let
 // pointer events through, except the button. It never delays first paint (the poster is plain HTML; the live stage
 // mounts once the page has loaded and the browser is idle), runs only while it is on screen and nothing else is
 // playing, and frees its WebGL context after a while off screen. Under reduced motion it stays the poster.
 import { ANIMS, animById, srcOf } from '../anims/registry.js';
-import { HERO, HERO_PARAMS, HEADLINE, HEADLINE_ACCENT } from './hero.js';
-import { t } from './i18n.js';
+import { HERO, HERO_PARAMS, HEADLINE, HEADLINE_ACCENT, CAPTION } from './hero.js';
+import { t, tr } from './i18n.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const FREE_AFTER = 30000;                                   // off screen this long: drop the iframe (and its GPU memory)
@@ -14,7 +14,7 @@ export function createFront() {
   const root = document.getElementById('front');
   const a = animById[HERO];
   if (!root || !a) return { setBusy() {}, show() {}, enter: () => [] };
-  const media = root.querySelector('#front-media');
+  const media = root.querySelector('#front-media'), art = root.querySelector('#front-art');
 
   /* words, in the chosen language */
   // the headline, its accent phrase in an <em> (Instrument Serif italic, pink): the same markup the static build writes
@@ -23,7 +23,9 @@ export function createFront() {
   else { const em = document.createElement('em'); em.textContent = acc; title.replaceChildren(head.slice(0, at), em, head.slice(at + acc.length)); }
   root.querySelector('#front-sub').textContent = t('Each one is a single JavaScript file. Adjust it with the sliders, then copy the code.');
   root.querySelector('#front-browse').textContent = t('Browse all {n}').replace('{n}', ANIMS.length);
-  root.querySelector('#front-cap').textContent = t('Free and open source');
+  // the caption names what you are looking at first (the same markup the static build writes)
+  const name = document.createElement('b'); name.textContent = tr(a, 'title');
+  root.querySelector('#front-cap').replaceChildren(name, ` · ${t(CAPTION)}`);
   media.setAttribute('aria-label', t('A live Clifford attractor: move the pointer over it to reshape it'));
 
   /* the live stage */
@@ -73,7 +75,7 @@ export function createFront() {
      the grid's entrance instead (240 ms, 30 ms apart), so the swap feels like one system. The text is in the HTML at
      rest: if the script never runs, nothing is hidden. */
   const ease = 'cubic-bezier(0.23, 1, 0.32, 1)';
-  const parts = () => [root.querySelector('#front-sub'), root.querySelector('#front-browse'), media];
+  const parts = () => [root.querySelector('#front-sub'), root.querySelector('#front-browse'), art];   // the picture comes in with its caption
   function lines() {
     // wrap each rendered line of the headline in a mask, measured from the words' tops (works in every language). The
     // accent phrase keeps its <em> on whichever lines it lands.

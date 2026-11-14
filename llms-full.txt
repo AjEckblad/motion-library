@@ -713,14 +713,14 @@ Renderer: WebGL. Size: 6.0 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Terrain flyover
 
-Terrain flyover is a WebGL effect: slope-damped noise layers carve erosion-like ridges. One plain JavaScript file with no dependencies; add it with npx motion-library add terrain-flyover.
+Terrain flyover is a WebGL effect: fly up a fjord between snowy peaks mirrored in calm water. One plain JavaScript file with no dependencies; add it with npx motion-library add terrain-flyover.
 
-The camera flies over snowy ridges, rocky faces and a lake in thickening haze.
+A drone flight up a fjord: forest on the shores, rock walls cut by gullies, snow on the tops and the mountains mirrored in calm water. Sun height goes from dusk to midday.
 
-Raymarched height field of noise layers damped by the running slope (the derivative trick) for erosion-like ridges; rays step by a fraction of their height above ground.
+The land is built once when it starts: broad mountains, a valley carved along the flight path and gullies that run downhill, with the sun’s soft shadows and how much sky each spot sees. Air scattering gives the sky its colour and far ridges their blue haze, and frames drawn smaller are blended over time for clean edges.
 
-Settings: --speed 1 (0 to 3, step 0.05; Flight speed); --sun 0.13 (0.08 to 0.9, step 0.01; Sun height).
-Renderer: WebGL. Size: 9.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html
+Settings: --speed 1 (0 to 3, step 0.05; Flight speed); --sun 9 (2 to 50, step 1; Sun height (°)).
+Renderer: WebGL. Size: 39.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html
 
 ### Volumetric clouds
 
@@ -1121,8 +1121,8 @@ A silky self-crossing ribbon of light reshapes as its four parameters drift. Poi
 
 Each vertex iterates the Clifford map 24 times from a hashed gl_VertexID start, then splats additively into a decaying half-float buffer mapped by log(1 + k·n).
 
-Settings: --points 1 (0.1 to 3, step 0.1; Points (millions/frame)); --drift 1 (0 to 4, step 0.05; Drift); --exposure 1 (0.2 to 4, step 0.05; Exposure).
-Renderer: WebGL. Size: 9.9 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/clifford-attractor.html
+Settings: --points 1 (0.1 to 3, step 0.1; Points (millions/frame)); --drift 1 (0 to 4, step 0.05; Drift); --exposure 1 (0.2 to 4, step 0.05; Exposure); --background 0 (0 to 1, step 1; Background).
+Renderer: WebGL. Size: 10.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/clifford-attractor.html
 
 ### Barnsley fern
 
