@@ -1,4 +1,34 @@
-# Resume here (2026-11-14 morning): ALL SHIPPED (ferrofluid, ripples, honey, front-door redesign 3a99c85); nothing running
+# Resume here (2026-11-15 ~03:45): overnight run DONE. Caption + see-through attractor, fjord terrain, CLAUDE.md, 3 saved agents
+
+Nothing in progress. Tonight's whole list is done and committed to main locally (the overnight script pushes after
+its test gate; if it didn't, push from main).
+- d8cba84 (shipped): hero caption "**Clifford attractor** · Free and open source", white, centred under the art;
+  the attractor draws light only (new `background` param on clifford-attractor: Dark/Clear, Dark pixel-identical),
+  so the page and the creatures show through it, with its own transparent poster posters/hero-clifford.webp.
+  Terrain flyover is now a realistic fjord (drone flight, forest shores, gullied rock walls, snow tops, mirrored
+  water; sun slider in degrees 2-50, default 9; new card line in 4 languages). GPU: terrain 7.48 ms at 1440x620 on
+  2x (tools/gpu.mjs, now committed); hero attractor 6.52 ms on a full 1440x900 canvas on 2x (an upper bound: the hero box
+  is smaller; the helper measured 4.5 ms at the real hero size). check 92/92, motion-check 34/34. cli/anims
+  rebuilt locally (224) for the next npm publish.
+- Commit after d8cba84: CLAUDE.md at the repo root (project rules every session and helper loads: layout, tools, shipping,
+  AJ's quality rules, word rules, the saved agents).
+- .claude/agents/ (gitignored, local only): effect-builder.md (opus, effort high: skills to call, method, 8 ms
+  budget, report format), site-ui.md (sonnet, medium), copywriter.md (sonnet, low). They show up in the Agent type
+  list from the next session on (not tested by a dry run tonight: this session's list was fixed at start).
+- For the lead / AJ:
+  - Remove the old terrain worktree and branch (branch -D is blocked overnight):
+    `git worktree remove .claude/worktrees/agent-abcd06af666fc9ccf && git branch -D worktree-agent-abcd06af666fc9ccf`.
+  - Save a memory note (memory writes were off tonight): helpers use the effect-builder / site-ui / copywriter agent
+    types, and briefs only say what is specific to the job.
+  - Dry run one saved agent, e.g. copywriter on one card line, and check it follows the rules and report format.
+  - Calls made for AJ (reversible): site-ui and copywriter run on Sonnet as the resume note said (the plan had
+    site-ui on Opus); CLAUDE.md lists "no AI image generators" and the creature hands-off rule as project rules.
+  - Known small thing: the 2 new French terrain notes use U+202F before ":" where most of the file uses U+00A0
+    (both are correct typography; left as is).
+- Waiting on AJ: `/review-animations` (front page hero, caption and see-through light; the fjord terrain); npm
+  publish of CLI 0.3.5 (`cd ~/Downloads/motion-library/cli && npm login && npm publish`).
+
+# Before (2026-11-14 morning): ALL SHIPPED (ferrofluid, ripples, honey, front-door redesign 3a99c85)
 
 Coordinator protocol works (AJ's option 1): the lead hands big chunks to ONE fresh helper agent at a time, reviews its
 screenshots/frames, runs check + motion-check itself, ships via commit/push. Hand off at 40% context as usual.
