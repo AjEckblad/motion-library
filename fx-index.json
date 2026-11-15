@@ -1,6 +1,6 @@
 {
  "name": "Motion Library",
- "count": 224,
+ "count": 223,
  "license": "MIT-0",
  "install": "npx motion-library add <id> [--setting value]",
  "effects": [
@@ -278,8 +278,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/physarum",
    "npx": "npx motion-library add physarum",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 12679,
+   "reducedMotion": true,
+   "bytes": 13685,
    "settings": [
     {
      "key": "agents",
@@ -360,7 +360,7 @@
    "npx": "npx motion-library add iron-filings",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 9468,
+   "bytes": 11377,
    "settings": [
     {
      "key": "filings",
@@ -449,8 +449,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/pin-art",
    "npx": "npx motion-library add pin-art",
    "interactive": true,
-   "reducedMotion": false,
-   "bytes": 14796,
+   "reducedMotion": true,
+   "bytes": 23165,
    "settings": [
     {
      "key": "pins",
@@ -494,8 +494,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/confetti",
    "npx": "npx motion-library add confetti",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 2791,
+   "reducedMotion": true,
+   "bytes": 4325,
    "settings": [
     {
      "key": "pieces",
@@ -782,8 +782,8 @@
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/calligraphy",
    "npx": "npx motion-library add calligraphy",
    "interactive": false,
-   "reducedMotion": false,
-   "bytes": 9118,
+   "reducedMotion": true,
+   "bytes": 9649,
    "settings": [
     {
      "key": "pressure",
@@ -1163,14 +1163,14 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "A photo ripples like water; move over it to stir it harder",
-   "descriptionZh": "照片像水面一样荡漾；在上面移动可搅得更厉害",
+   "description": "Water over an orange slice; move through it to send out rings",
+   "descriptionZh": "一片橙子泡在水下；在上面移动会荡开水纹",
    "page": "https://ajeckblad.github.io/motion-library/fx/liquid-distort.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/liquid-distort",
    "npx": "npx motion-library add liquid-distort",
    "interactive": true,
-   "reducedMotion": false,
-   "bytes": 4870,
+   "reducedMotion": true,
+   "bytes": 12770,
    "settings": [
     {
      "key": "strength",
@@ -1315,55 +1315,6 @@
      "min": 0.5,
      "max": 1.5,
      "step": 0.1
-    }
-   ]
-  },
-  {
-   "id": "ferrofluid",
-   "title": "Ferrofluid",
-   "titleZh": "磁流体",
-   "category": "Fluid",
-   "categoryId": "fluid",
-   "renderer": "WebGL",
-   "description": "Black oil spikes over a magnet; move it, or tap to switch it off",
-   "descriptionZh": "黑色油液在磁铁上竖起尖刺；移动指针拖动磁铁，点击可关掉它",
-   "page": "https://ajeckblad.github.io/motion-library/fx/ferrofluid.html",
-   "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ferrofluid",
-   "npx": "npx motion-library add ferrofluid",
-   "interactive": true,
-   "reducedMotion": true,
-   "bytes": 28894,
-   "settings": [
-    {
-     "key": "spikes",
-     "flag": "--spikes",
-     "label": "Spikes",
-     "default": 260,
-     "min": 80,
-     "max": 500,
-     "step": 10
-    },
-    {
-     "key": "strength",
-     "flag": "--strength",
-     "label": "Magnet strength",
-     "default": 1,
-     "min": 0,
-     "max": 2,
-     "step": 0.05
-    },
-    {
-     "key": "magnet",
-     "flag": "--magnet",
-     "label": "Magnet",
-     "default": 0,
-     "min": 0,
-     "max": 1,
-     "step": 1,
-     "options": [
-      "On",
-      "Off"
-     ]
     }
    ]
   },
@@ -1653,22 +1604,22 @@
    "category": "Fluid",
    "categoryId": "fluid",
    "renderer": "WebGL",
-   "description": "Grey, windy waves roll in; move to slide the sun’s glow",
-   "descriptionZh": "灰色海浪迎风涌来；移动指针可挪动阳光的亮斑",
+   "description": "Raise the wind from a sparkling calm to a grey gale",
+   "descriptionZh": "把风从闪闪发光的平静海面加大到灰色大风浪",
    "page": "https://ajeckblad.github.io/motion-library/fx/ocean.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/ocean",
    "npx": "npx motion-library add ocean",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 36781,
+   "bytes": 45911,
    "settings": [
     {
      "key": "wind",
      "flag": "--wind",
      "label": "Wind (m/s)",
      "default": 10,
-     "min": 5,
-     "max": 13,
+     "min": 2,
+     "max": 20,
      "step": 0.5
     },
     {
@@ -1684,10 +1635,10 @@
      "key": "sun",
      "flag": "--sun",
      "label": "Sun height (°)",
-     "default": 10,
-     "min": 1,
-     "max": 20,
-     "step": 0.5
+     "default": 20,
+     "min": 2,
+     "max": 50,
+     "step": 1
     }
    ]
   },
@@ -2710,7 +2661,7 @@
    "npx": "npx motion-library add terrain-flyover",
    "interactive": false,
    "reducedMotion": true,
-   "bytes": 40299,
+   "bytes": 41805,
    "settings": [
     {
      "key": "speed",
@@ -5469,15 +5420,15 @@
    "titleZh": "泥裂",
    "category": "Simulation",
    "categoryId": "simulation",
-   "renderer": "Canvas",
-   "description": "Wet clay dries into curled plates; drag to wet a patch again",
-   "descriptionZh": "湿泥干成卷边的泥片；拖动可再次打湿一块",
+   "renderer": "WebGL",
+   "description": "Wet clay dries into curled plates under a low sun; drag to wet it again",
+   "descriptionZh": "湿泥在低斜的阳光下干成卷边泥片；拖动可再次打湿",
    "page": "https://ajeckblad.github.io/motion-library/fx/mud-cracks.html",
    "live": "https://ajeckblad.github.io/motion-library/index.html#/a/mud-cracks",
    "npx": "npx motion-library add mud-cracks",
    "interactive": true,
    "reducedMotion": true,
-   "bytes": 15199,
+   "bytes": 21184,
    "settings": [
     {
      "key": "spacing",

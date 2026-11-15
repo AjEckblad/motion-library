@@ -1,6 +1,6 @@
 # Motion Library
 
-> 224 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 223 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -42,11 +42,10 @@
 ## Fluid
 
 - [Ink fluid](https://ajeckblad.github.io/motion-library/fx/ink-fluid.html): Move through the water to push glowing dye into swirls. `npx motion-library add ink-fluid`
-- [Liquid image distortion](https://ajeckblad.github.io/motion-library/fx/liquid-distort.html): A photo ripples like water; move over it to stir it harder. `npx motion-library add liquid-distort`
+- [Liquid image distortion](https://ajeckblad.github.io/motion-library/fx/liquid-distort.html): Water over an orange slice; move through it to send out rings. `npx motion-library add liquid-distort`
 - [Lava lamp](https://ajeckblad.github.io/motion-library/fx/lava-lamp.html): Warm wax stretches off the pool, rises, cools and sinks. `npx motion-library add lava-lamp`
 - [Fire & smoke](https://ajeckblad.github.io/motion-library/fx/fire-smoke.html): Flames lick stacked logs as sparks rise into the night. `npx motion-library add fire-smoke`
 - [Lava flow](https://ajeckblad.github.io/motion-library/fx/lava-flow.html): Molten rock pours from a crater and runs down the gullies. `npx motion-library add lava-flow`
-- [Ferrofluid](https://ajeckblad.github.io/motion-library/fx/ferrofluid.html): Black oil spikes over a magnet; move it, or tap to switch it off. `npx motion-library add ferrofluid`
 - [Paper marbling](https://ajeckblad.github.io/motion-library/fx/marbling.html): Bands of paint swirl after the stylus as you move over them. `npx motion-library add marbling`
 - [Rain on glass](https://ajeckblad.github.io/motion-library/fx/raindrops-glass.html): Drops slide down a window, each holding the city upside down. `npx motion-library add raindrops-glass`
 - [Dripping text](https://ajeckblad.github.io/motion-library/fx/dripping-text.html): Paint drips off the letters, stretches thin and snaps. `npx motion-library add dripping-text`
@@ -54,7 +53,7 @@
 - [Kelvin–Helmholtz clouds](https://ajeckblad.github.io/motion-library/fx/billow-clouds.html): A sunset sky rolls up into a row of breaking waves. `npx motion-library add billow-clouds`
 - [Paint swirl](https://ajeckblad.github.io/motion-library/fx/paint-swirl.html): Colour rings wind into spirals; circle over them to stir. `npx motion-library add paint-swirl`
 - [SPH water tank](https://ajeckblad.github.io/motion-library/fx/sph-water.html): Waves roll end to end in a rocking glass box; move to tilt it. `npx motion-library add sph-water`
-- [Open ocean](https://ajeckblad.github.io/motion-library/fx/ocean.html): Grey, windy waves roll in; move to slide the sun’s glow. `npx motion-library add ocean`
+- [Open ocean](https://ajeckblad.github.io/motion-library/fx/ocean.html): Raise the wind from a sparkling calm to a grey gale. `npx motion-library add ocean`
 - [Honey pour](https://ajeckblad.github.io/motion-library/fx/honey-coil.html): A golden thread coils into a column; drag to move the spoon. `npx motion-library add honey-coil`
 
 ## Chrome & 3D
@@ -154,7 +153,7 @@
 - [Lenia](https://ajeckblad.github.io/motion-library/fx/lenia.html): Soft lifelike blobs glide, spin and heal; drag to wound one. `npx motion-library add lenia`
 - [Differential growth](https://ajeckblad.github.io/motion-library/fx/diff-growth.html): An ink line outgrows the page and folds into a maze. `npx motion-library add diff-growth`
 - [Snowflake growth](https://ajeckblad.github.io/motion-library/fx/snowflake.html): Ice grows six branching arms, then a fresh crystal starts. `npx motion-library add snowflake`
-- [Mud cracks](https://ajeckblad.github.io/motion-library/fx/mud-cracks.html): Wet clay dries into curled plates; drag to wet a patch again. `npx motion-library add mud-cracks`
+- [Mud cracks](https://ajeckblad.github.io/motion-library/fx/mud-cracks.html): Wet clay dries into curled plates under a low sun; drag to wet it again. `npx motion-library add mud-cracks`
 
 ## Retro & signal
 

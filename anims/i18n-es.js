@@ -18,10 +18,10 @@ export const ES = {
  },
  "ocean": {
   "title": "Mar abierto",
-  "trick": "Olas grises avanzan con el viento; mueve el puntero para desplazar el brillo del sol",
+  "trick": "Sube el viento de una calma brillante a un temporal gris",
   "notes": [
-   "Un mar abierto, gris y con viento, bajo un cielo cubierto: cuatro FFT en la GPU convierten cada fotograma un espectro JONSWAP, concentrado en un abanico estrecho alrededor del viento, en olas de Gerstner de cresta larga que ruedan hacia ti, y la espuma se forma donde la superficie se pliega y se estira en vetas a favor del viento.",
-   "El viento fija la altura de las olas y la frecuencia de las rompientes, el oleaje afila las crestas y el sol es la altura del sol oculto tras las nubes; el puntero mueve su zona luminosa a lo largo del horizonte."
+   "El mar abierto desde un barco pequeño. Con poco viento el cielo está despejado, el agua es azul profundo y el sol se rompe en miles de destellos; al subir el viento llegan nubes y espuma, y al máximo olas altas y grises tapan el horizonte bajo un cielo gris.",
+   "Cuatro FFT en la GPU convierten un espectro de olas para ese viento en olas que se mueven, y la espuma se forma donde la superficie se pliega. Cada trozo de agua sortea cuántas facetas diminutas reflejan el sol, así que el brillo llega en puntos sueltos. El viento fija el mar y el tiempo, la picadura afila las crestas y la altura del sol su posición; mueve el puntero para desplazarlo."
   ]
  },
  "honey-coil": {
@@ -156,7 +156,7 @@ export const ES = {
   "title": "Limaduras de hierro",
   "trick": "Astillas de acero saltan en lazos alrededor de un imán oculto; arrástralo",
   "notes": [
-   "Limaduras de acero sobre papel, encima de un imán de barra oculto, saltan con cada golpecito y se asientan en los clásicos lazos de polo a polo; arrastra el imán.",
+   "Limaduras de acero sobre papel, con un imán de barra oculto debajo, saltan con cada golpecito y se ordenan en los clásicos lazos de polo a polo. Toca el papel o desliza el imán, y se queda donde lo dejes.",
    "Cada limadura se alinea con el campo local y es atraída hacia la curva de nivel más cercana de la función de flujo del imán: la suma de la carga de cada polo por el coseno de su ángulo respecto al eje de la barra."
   ]
  },
@@ -173,7 +173,7 @@ export const ES = {
   "trick": "Una mano y una cara surgen en relieve de acero; presiona para hundirlas",
   "notes": [
    "Una mano, una cara y una onda surgen en relieve entre agujas de acero; pulsa para empujarlas hacia atrás.",
-   "Cilindros instanciados con cabeza abombada que solo se mueven hacia delante, así que las huellas permanecen hasta que un barrido las reinicia; una luz rasante hace que las agujas altas sombreen a las bajas."
+   "Cada alfiler es una malla cromada instanciada, iluminada como una foto de producto: una caja de luz arriba a la izquierda, una tira de luz a la derecha y un mapa de sombras para que los más altos sombreen a sus vecinos. Solo avanzan, así que la huella queda hasta que un barrido la borra."
   ]
  },
  "confetti": {
@@ -306,10 +306,10 @@ export const ES = {
  },
  "liquid-distort": {
   "title": "Distorsión líquida de imagen",
-  "trick": "Una foto ondula como el agua; pasa por encima para agitarla más",
+  "trick": "Agua sobre una rodaja de naranja; pasa por encima para crear ondas",
   "notes": [
-   "Una imagen ondula como el agua, con más fuerza donde el puntero la atraviesa.",
-   "Cada píxel lee la textura en un punto desplazado por ruido animado, y el desplazamiento crece cerca del puntero."
+   "Una capa fina de agua se mueve sobre una rodaja de naranja en un fondo azul liso; el puntero lanza ondas que doblan la rodaja y atrapan la luz.",
+   "El agua es un campo de alturas: olas lentas que se cruzan más los anillos que deja el rastro del puntero, calculado a un cuarto de resolución; cada píxel ve la imagen desplazada según la pendiente, el rojo un poco menos que el azul, y la curvatura añade cáusticas y brillos."
   ]
  },
  "lava-lamp": {
@@ -334,14 +334,6 @@ export const ES = {
   "notes": [
    "Un volcán al anochecer: la lava al rojo vivo brota del cráter y baja por los barrancos en canales incandescentes, con balsas oscuras de costra a la deriva, y su luz tiñe las laderas y la columna.",
    "Una simulación de espesor y calor corre sobre la montaña trazada por rayos; el cráter da pulsos, las placas de costra cuajan cada una a su edad y viajan con el flujo, y el color sigue la ley de Planck."
-  ]
- },
- "ferrofluid": {
-  "title": "Ferrofluido",
-  "trick": "Un aceite negro se eriza sobre un imán; muévelo o toca para apagarlo",
-  "notes": [
-   "Un aceite magnético negro y brillante forma un charco sobre una mesa de estudio y trepa por un imán cuadrado que está dentro, rompiéndose en una corona de agujas afiladas unidas por valles suaves, más altas e inclinadas hacia fuera en bordes y esquinas; mueve el puntero para deslizar el imán por el charco (arrastra el aceite) y haz clic o toca para apagarlo y ver cómo las agujas se funden y el aceite resbala.",
-   "Campo de distancias con raymarching: el charco unido suavemente con una película sobre el bloque y conos cóncavos en una red hexagonal girada y desplazada al azar (cada muestra visita su punto más cercano y sus seis vecinos, buscados deshaciendo la inclinación), sombreado solo con reflejos de estudio; el charco refleja la corona."
   ]
  },
  "marbling": {
@@ -1786,10 +1778,10 @@ export const ES = {
  },
  "mud-cracks": {
   "title": "Grietas de barro",
-  "trick": "La arcilla mojada se seca en placas curvadas; arrastra para volver a mojar una zona",
+  "trick": "La arcilla mojada se seca en placas curvadas con el sol rasante; arrastra para volver a mojarla",
   "notes": [
-   "La arcilla húmeda y brillante se seca de forma desigual y se parte en placas de bordes curvados; las grietas se ensanchan al encogerse. Luego la lluvia la empapa y se cierran. Mantén pulsado y arrastra para mojar una zona.",
-   "Al encoger por igual, la arcilla se rompe en polígonos, así que la red es un diagrama de Voronoi deformado con ruido; cada pared se abre desde el centro cuando se seca su zona, y una transformada de distancia sombrea huecos y bordes."
+   "La arcilla oscura y mojada se seca de forma desigual bajo un sol rasante y se parte en placas curvadas: primero grietas grandes que se unen en forma de Y, luego otras menores que dividen las placas y se detienen en las primeras. La lluvia la marca con hoyitos, la empapa y cierra las grietas. Mantén pulsado y arrastra para mojar una zona.",
+   "Las grietas son un diagrama de Voronoi deformado con ruido, medido como la distancia exacta a la pared más cercana, y cada celda se divide otra vez por paredes entre semillas propias. Una grieta se abre donde la humedad baja de su umbral; la placa se levanta hacia ella, y el sol rasante ilumina las paredes que lo miran y proyecta en los huecos la sombra de los bordes."
   ]
  }
 };

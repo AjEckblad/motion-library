@@ -16,8 +16,8 @@ site (GitHub Pages, npm CLI `motion-library`) looking for an effect to use, or t
 assistants that read llms.txt and "Copy as prompt".
 
 ## Product Purpose
-A public catalogue of 224 live web effects in 15 categories, from UI basics to real-time simulations and renders
-(ferrofluid, ocean, terrain flyover, snow globe). Each card plays the real effect; each detail view shows how it works,
+A public catalogue of 223 live web effects in 15 categories, from UI basics to real-time simulations and renders
+(ocean, terrain flyover, honey pour, snow globe). Each card plays the real effect; each detail view shows how it works,
 live sliders, the code, Copy / Copy as prompt / Download .html, and an `npx motion-library add <id>` line. Success: a
 first-time visitor understands within seconds what makes it different and stays to explore; anyone finds the right
 effect in seconds and leaves with code that runs in their own stack.
@@ -34,7 +34,7 @@ React component libraries (Animata, Aceternity, Magic UI).
 - The owner develops on an M1 Mac; the site runs locally with run.sh on port 4321.
 
 ## Capabilities and Constraints
-- 224 effects; each one is a single plain-JS file with a cleanup function and PARAMS for live sliders.
+- 223 effects; each one is a single plain-JS file with a cleanup function and PARAMS for live sliders.
 - Live previews run one at a time, so the frame rate stays smooth and WebGL contexts stay few.
 - Four languages: English, 中文, Español, Français.
 - Static files only, no build step at serve time (tools/build-static.mjs pre-renders the grid and fx/ pages).

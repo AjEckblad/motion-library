@@ -1,3 +1,25 @@
+# Resume here (2026-11-15 afternoon): AJ's 10-item batch SHIPPED; nothing in progress
+
+Shipped in the commit after 4d051bf (check 92/92, motion-check 30/30, 223 effects):
+- Ferrofluid removed (file, entry, translations, poster, fx page); tests retargeted to honey-coil; the ferrofluid
+  switch/touch checks went with it (motion-check 34 -> 30).
+- Ocean: weather follows the wind (2-20 m/s, default 10): clear sky + deep blue + sun glitter when calm, clouds and
+  whitecaps in the middle, overcast slate gale with foam at the top; camera rides a boat; FFT 72 -> 16 passes;
+  7.1-7.8 ms. Sun slider 2-50 deg, default 20. New card line + notes in 4 languages.
+- Terrain flyover: summit "turrets" fixed (erosion carved nothing on flat tops); snow caps the gentler tops and fills
+  gullies; cliff detail no longer stretched down steep faces; 8.0-8.1 ms.
+- Pin art: chrome pins, studio light, shadow map, bevelled frame, whole frame in view, reduced-motion still;
+  7.7 ms at default, 10.6 ms at the 110-pin maximum (over budget only at the extreme; could cap at ~96).
+- Mud cracks: rebuilt in WebGL2 (Y then T cracks, curled plates, low sun, silt floors, rain pits); 6.8 ms.
+- Iron filings: 7 bugs fixed (edge wrap popping, magnet snapping back, taps ignored, swivelling, 120 Hz shake,
+  unseeded random, reduced-motion settle). Liquid distortion: orange slice on plain blue, real ripple surface, 2.4 ms.
+  Physarum on black (no dish), calligraphy pale gold on black, confetti on black (all seeded, reduced-motion stills).
+- Reservations: ocean storm surface a little streaky, calm glitter mostly in the left third, clouds/foam change only
+  on slider remount; physarum shows a faint round boundary; mud viewed straight down so curl reads less; calligraphy's
+  long down stroke very dry (as before).
+- Waiting on AJ: /review-animations on the reworked pieces; npm publish of the CLI (rebuild cli/anims first:
+  cd cli && node build.mjs; now 223).
+
 # Resume here (2026-11-15 ~03:45): overnight run DONE. Caption + see-through attractor, fjord terrain, CLAUDE.md, 3 saved agents
 
 Nothing in progress. Tonight's whole list is done and committed to main locally (the overnight script pushes after

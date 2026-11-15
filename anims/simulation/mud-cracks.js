@@ -1,209 +1,282 @@
-// Mud cracks: a flat of wet clay dries in the sun and tears into curled plates, then rain closes it up and it begins
-// again. The wet mud is dark and glossy and holds the sky; it dries unevenly, edges and high spots first, and as the
-// drying front passes, the shrinking surface tears. Clay shrinks the same in every direction, so it breaks into
-// polygons of a fairly even size: the network is a Voronoi diagram of jittered seeds, its edges warped by noise so they
-// wander like real cracks. Each edge tears open from its middle, where the stress is greatest, and runs out to the
-// junctions; some edges open later and stay thinner. Older cracks keep widening as the clay shrinks, and every plate
-// curls up at its rim: lit on the sunward side, shaded on the other, with a dark gap below. Then rain darkens the
-// clay drop by drop, the plates soak and swell and the cracks close, and the next drying starts on a new pattern.
-// Press and drag to wet a patch: its cracks close, and open again as it dries.
-// Canvas 2D on a 2 px raster: a distance transform from every open crack pixel (carrying that crack's age and
-// strength) tells each pixel how far it is from a gap, how wide that gap is, and which way it lies; the plate's curl
-// is a height that rises toward the gap, shaded by a low sun from the upper left.
+// Mud cracks: a flat of wet clay dries under a low sun and tears into curled plates, then rain closes it up and it
+// begins again. Wet mud is dark and glossy; it dries unevenly, edges and high spots first, and as the drying front
+// passes it pales to a grey-tan crust and tears. Clay shrinks the same way in every direction, so it breaks into
+// plates of a fairly even size whose cracks meet in Y-junctions; later, smaller cracks run in from those first cracks
+// and stop against them in T-junctions, splitting the big plates; last, a fine crazing appears on the driest tops.
+// Each crack opens from its middle and runs out to the junctions, and keeps widening as the clay shrinks. Each plate
+// curls up at its rim. The sun is low, from the upper left: rims and crack walls that face it light up, the walls
+// that face away go dark, and the lifted rims throw hard shadows into the cracks, so cracks that run across the light
+// are black and cracks that run along it show their pale silt floor. Then rain falls drop by drop, darkening the
+// clay and pitting it with small craters; the plates soak and the cracks close, and the next drying starts on a new
+// pattern, the raindrop pits still printed in it. Press and drag to wet a patch: its cracks close, and open as it dries.
+// WebGL2, one fragment shader, no textures but a small moisture map. The crack network is a noise-warped Voronoi
+// diagram measured as the exact distance to the nearest cell wall (so its edges are smooth at any size); each cell
+// then splits into two or three by the walls between a few seeds of its own, which end where they meet the cell's
+// walls. A crack is open where the local moisture has fallen below its threshold (later toward its ends, later for
+// the small cracks, later still the farther they reach into a plate), and its width grows with the dryness. The
+// plate height rises toward each open crack (the curl); its slope, a fine grain and the V-shaped crack walls are lit
+// by the low sun, and a crack floor is in shadow when the rim on its sunward side stands taller than the sun's ray.
 const PARAMS = { spacing: 1, speed: 1, curl: 1 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;background:#3a3129';
   stage.append(canvas);
-  const ctx = canvas.getContext('2d');
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
+  if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const TAU = Math.PI * 2, INF = 1e9;
 
-  let w = 1, h = 1, dpr = 1, rw = 0, rh = 0, MW = 0, MH = 0, RS = 2;          // RS: CSS px per raster cell
-  let ground, groundData, moist, dryRate, wetC, wg, wetImg, sheen, sg, skyImg, shadeC, shadeX, shadeImg;
-  let crackT, crackW, dist, dAge, dWt, T = 0, phase = 'dry', phaseT = 0, drops = [], seed = 3;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const hash = (x, y) => { const k = Math.sin(x * 127.1 + y * 311.7 + seed * 0.0007) * 43758.5453; return k - Math.floor(k); };
-  const vn = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
-    return (hash(xi, yi) * (1 - u) + hash(xi + 1, yi) * u) * (1 - v) + (hash(xi, yi + 1) * (1 - u) + hash(xi + 1, yi + 1) * u) * v; };
-  const DRY = 0.11;                                                   // moisture lost per second at dry rate 1
+  const vs = `#version 300 es
+  in vec2 p; void main() { gl_Position = vec4(p, 0, 1); }`;
+  const fs = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform vec2 R, OFF, ROFF, MOS; uniform float DPR, S, CURL, RT, IMP; uniform sampler2D MO;
+  vec2 h22(vec2 p) { vec3 q = fract(vec3(p.xyx) * vec3(.1031, .103, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xx + q.yz) * q.zy); }
+  float h12(vec2 p) { return h22(p).x; }
+  // value noise with its derivative (a cheap arithmetic hash is plenty here)
+  float hq(vec2 p) { vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  vec3 nd(vec2 x) { vec2 i = floor(x), f = fract(x), u = f * f * (3. - 2. * f), du = 6. * f * (1. - f);
+    float a = hq(i), b = hq(i + vec2(1, 0)), c = hq(i + vec2(0, 1)), d = hq(i + 1.);
+    return vec3(a + (b - a) * u.x + (c - a) * u.y + (a - b - c + d) * u.x * u.y, du * (vec2(b - a, c - a) + (a - b - c + d) * u.yx)); }
+  vec2 jit(vec2 c) { return .5 + (h22(c + OFF) - .5) * .78; }
+  vec3 lin(vec3 c) { return c * c; }
 
-  function paintGround() {
-    // dry clay at the raster's resolution: two octaves of noise, a little grain, faint bleached patches
-    ground = document.createElement('canvas'); ground.width = rw; ground.height = rh;
-    const g = ground.getContext('2d'), im = g.createImageData(rw, rh), d = im.data;
-    for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
-      const X = x * RS / 2, Y = y * RS / 2, n = vn(X / 40, Y / 40) * 0.6 + vn(X / 9, Y / 9) * 0.3 + hash(x, y) * 0.1, b = vn(X / 120 + 7, Y / 120) * 0.5;
-      const o = (y * rw + x) * 4, k = 0.82 + n * 0.3 + b * 0.12;
-      d[o] = 192 * k; d[o + 1] = 160 * k; d[o + 2] = 118 * k; d[o + 3] = 255;
-    }
-    g.putImageData(im, 0, 0); groundData = d;
+  // the first cracks: distance to the nearest Voronoi wall (cell units), the normal into this cell, the wall's id
+  // hash, how far along the wall from its middle, and this cell
+  float dP, dP2, ehP, alP; vec2 nP, cellA, seedA;
+  void primary(vec2 x) {
+    vec2 n = floor(x), f = fract(x), mr = vec2(0), mg = vec2(0), mb = vec2(1, 0), bg = vec2(1, 0); float md = 8., md2 = 8.;
+    for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) { vec2 g = vec2(i, j), r = g + jit(n + g) - f; float d = dot(r, r); if (d < md) { md = d; mr = r; mg = g; } }
+    md = 8.;
+    for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) { vec2 g = mg + vec2(i, j), r = g + jit(n + g) - f, dr = r - mr;   // 3x3 is enough: seeds keep to the middle of their cells
+      if (dot(dr, dr) > 1e-5) { float d = dot(.5 * (mr + r), normalize(dr)); if (d < md) { md2 = md; md = d; mb = r; bg = g; } else if (d < md2) md2 = d; } }
+    vec2 e = normalize(mb - mr), A = n + mg, B = n + bg, mid = .5 * (mr + mb);
+    dP = md; dP2 = md2; nP = -e; alP = abs(dot(mid, vec2(-e.y, e.x)));
+    ehP = h12(vec2(A.x + B.x + 211. * abs(A.y - B.y), A.y + B.y + 157. * abs(A.x - B.x)) + OFF * 1.7);
+    cellA = A; seedA = x + mr;
   }
-
-  // the crack network for one drying: which raster pixels are crack, when each one tears open, and how strong it is
-  function network() {
-    const S = 78 * PARAMS.spacing * Math.min(1.15, Math.max(0.65, Math.sqrt(w * h / (1280 * 760)))) / RS;   // seed spacing in raster cells
-    const cw = Math.ceil(rw / S) + 2, ch = Math.ceil(rh / S) + 2, seeds = new Float32Array(cw * ch * 2);
-    for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) { const k = (j * cw + i) * 2; seeds[k] = (i - 1 + 0.15 + rnd() * 0.7) * S; seeds[k + 1] = (j - 1 + 0.15 + rnd() * 0.7) * S; }
-    crackT.fill(INF);
-    const ox = rnd() * 100, oy = rnd() * 100;
-    for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
-      // warp the point, so the cell walls wander
-      const qx = x + (vn(x * RS / 44 + ox, y * RS / 44) - 0.5) * S * 0.34 + (vn(x * RS / 12, y * RS / 12 + oy) - 0.5) * 4.4 / RS;
-      const qy = y + (vn(x * RS / 44, y * RS / 44 + oy) - 0.5) * S * 0.34 + (vn(x * RS / 12 + ox, y * RS / 12) - 0.5) * 4.4 / RS;
-      const gi = Math.floor(qx / S) + 1, gj = Math.floor(qy / S) + 1;
-      let d1 = INF, d2 = INF, a = -1, b = -1;
-      for (let j = gj - 1; j <= gj + 1; j++) for (let i = gi - 1; i <= gi + 1; i++) {
-        if (i < 0 || j < 0 || i >= cw || j >= ch) continue;
-        const k = j * cw + i, dx = seeds[k * 2] - qx, dy = seeds[k * 2 + 1] - qy, dd = dx * dx + dy * dy;
-        if (dd < d1) { d2 = d1; b = a; d1 = dd; a = k; } else if (dd < d2) { d2 = dd; b = k; }
-      }
-      // on a wall: the two nearest seeds are about equally near
-      if (b < 0 || Math.sqrt(d2) - Math.sqrt(d1) > 4.6 / RS) continue;
-      const lo = Math.min(a, b), hi = Math.max(a, b), eh = hash(lo, hi);
-      const mx = (seeds[a * 2] + seeds[b * 2]) / 2, my = (seeds[a * 2 + 1] + seeds[b * 2 + 1]) / 2;
-      const along = Math.hypot(qx - mx, qy - my) * RS;                // CSS px from the wall's middle
-      const i = y * rw + x, mi = Math.min(MH - 1, (y * RS / 8) | 0) * MW + Math.min(MW - 1, (x * RS / 8) | 0);
-      const tDry = Math.max(0, (moist[mi] - 0.5) / (DRY * PARAMS.speed * dryRate[mi]));
-      const late = eh < 0.3 ? 2.5 + eh * 6 : 0;                         // a few walls tear late, and stay thin
-      crackT[i] = tDry + (late + along / 55) / PARAMS.speed;
-      crackW[i] = eh < 0.3 ? 0.45 + eh : 0.85 + (eh - 0.3) * 0.5;
+  // the later cracks: walls between two or three seeds of this cell only, so they stop at its walls
+  float d2, eh2; vec2 n2;
+  void secondary(vec2 x) {
+    float hk = h12(cellA * 1.31 + OFF + 71.); int k = hk < .2 ? 1 : hk < .72 ? 2 : 3;
+    vec2 s[3]; for (int j = 0; j < 3; j++) s[j] = seedA + (h22(cellA * 3.1 + float(j) * 17.3 + OFF + 5.) - .5) * .9;
+    int a = 0; float best = 9.;
+    for (int j = 0; j < 3; j++) if (j < k) { float d = dot(s[j] - x, s[j] - x); if (d < best) { best = d; a = j; } }
+    d2 = 9.; n2 = vec2(0, 1); eh2 = 0.;
+    for (int b = 0; b < 3; b++) if (b < k && b != a) {
+      vec2 ra = s[a] - x, rb = s[b] - x, e = normalize(rb - ra); float d = dot(.5 * (ra + rb), e);
+      if (d < d2) { d2 = d; n2 = -e; eh2 = h12(cellA * 5.3 + float(a + b) * 13.1 + OFF + 3.); }
     }
   }
+  // the finest crazing on the driest tops: a plain F2 - F1 network
+  float craze(vec2 x) {
+    vec2 n = floor(x), f = fract(x); float f1 = 8., f2 = 8.;
+    for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) { vec2 g = vec2(i, j), r = g + .5 + (h22(n + g + OFF * 2.3) - .5) * .9 - f; float d = dot(r, r);
+      if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d; }
+    return sqrt(f2) - sqrt(f1);
+  }
+  // raindrops: one per cell per layer, landing at a hashed time; returns the wet darkening and the pit's slope
+  vec3 drops(vec2 p, float C, vec2 salt) {
+    vec2 c = floor(p / C), hh = h22(c + ROFF + salt); vec2 pos = (c + .22 + .56 * hh) * C;
+    float r = 1.8 + 3.4 * h12(c + ROFF + salt + 3.), tl = h12(c + ROFF + salt + 7.) * 5.2, age = (RT > 0. ? RT : 9.) - tl;
+    if (age < 0. || h12(c + ROFF + salt + 11.) > .7) return vec3(0);
+    vec2 q = p - pos; float d = length(q);
+    float spot = smoothstep(r * 1.9, r * .9, d) * clamp(age * 5., 0., 1.);
+    // a crater: a bowl with a low raised lip
+    float u = d / r, s = u < 1. ? 2. * u / r * .9 : (u < 1.5 ? -(1.5 - u) / r * 1.6 : 0.);
+    return vec3(spot, (d > 1e-4 ? q / d : vec2(0)) * s);
+  }
 
-  function reset() {
-    drops = []; phase = 'dry'; phaseT = 0; T = 0;
-    seed = 1 + Math.floor(Math.random() * 2147483646);
+  // inset from a plate's edge, with its corner between two walls rounded off
+  float rmin(float a, float b, float r) { return (a < r && b < r) ? r - length(vec2(r) - vec2(a, b)) : min(a, b); }
+  void main() {
+    vec2 p = vec2(gl_FragCoord.x, R.y - gl_FragCoord.y) / DPR;           // CSS px, y down
+    // moisture: 1 soaked, 0 just dry, < 0 shrinking; read from the coarse map with a smoothed lookup, so no blocks
+    vec2 mc = p / MOS * vec2(textureSize(MO, 0)) + .5, mi = floor(mc), mf = fract(mc); mf = mf * mf * (3. - 2. * mf);
+    float m = texture(MO, (mi + mf - .5) / vec2(textureSize(MO, 0))).r * 2.5 - 1.5;
+    // warp the point so the walls wander and bow, plus a fine jag
+    vec3 w1 = nd(p / (S * .8) + OFF * .37), w2 = nd(p / (S * .8) + 31.7 + OFF * .29);
+    vec3 w3 = nd(p / (S * .3) + 5.1 + OFF * .41), w4 = nd(p / (S * .3) + 47.3 + OFF * .23);
+    vec3 j1 = nd(p / 4.5), j2 = nd(p / 4.5 + 9.3);
+    vec2 q = p + S * .26 * (vec2(w1.x, w2.x) - .5) + S * .07 * (vec2(w3.x, w4.x) - .5) + 1.7 * (vec2(j1.x, j2.x) - .5);
+    vec2 x = q / S;
+    primary(x);
+    secondary(x + .06 * vec2(w3.x - w4.x, w3.x + w4.x - 1.));
+    float DP = dP * S, DP2 = dP2 * S, D2 = d2 * S;
+    // when each crack is open, and how wide
+    float aN = clamp(alP / .55, 0., 1.);
+    float oP = clamp((.34 - .3 * ehP - .42 * aN * aN - m) / .75, 0., 1.); oP = 1. - (1. - oP) * (1. - oP);
+    float o2 = clamp((.02 - .42 * eh2 - 1.25 * min(dP, .5) - m) / .6, 0., 1.); o2 = 1. - (1. - o2) * (1. - o2);
+    float hwP = oP * S * .048 * (.6 + .5 * ehP) * (.75 + .5 * w2.x);
+    float hw2 = o2 * S * .03 * (.55 + .6 * eh2) * (.75 + .5 * w1.x);
+    // inset from each crack's lip; plate corners round off as they shrink, so the junctions open into pits
+    float eP = rmin(DP - hwP, DP2 - hwP, S * .05 * oP + .5), e2 = D2 - hw2;
+    float E = rmin(eP, e2, S * .035 * o2 + .5);
+    // the curl: the plate rises toward each open crack
+    float RcP = S * .16, Rc2 = S * .11, LP = CURL * oP * S * .06, L2 = CURL * o2 * S * .04;
+    float lP = LP * exp(-max(eP, 0.) / RcP), l2 = L2 * exp(-max(e2, 0.) / Rc2);
+    vec2 gh = -(lP / RcP) * nP - (l2 / Rc2) * n2;
+    // surface: blotchy drying front, rims dry first
+    vec3 mt = vec3(w1.x * .6 + w4.x * .4), mt2 = nd(p / 17. + 11.);
+    float ml = m + .16 * (w1.x - .5) + .08 * (mt2.x - .5) + .07 * (j1.x - .5) - .3 * oP * exp(-max(eP, 0.) / (S * .2)) - .2 * o2 * exp(-max(e2, 0.) / (S * .14));
+    float wet = smoothstep(.12, .62, ml), damp = smoothstep(-.42, .12, ml);
+    // raindrops falling now, and the pits left by the last rain
+    vec3 dr = vec3(0);
+    if (RT > 0. || IMP > 0.) dr = drops(p, 21., vec2(0));
+    float rainNow = RT > 0. ? 1. : 0.;
+    wet = max(wet, dr.x * rainNow * .75);
+    // grain: fine silt bumps that a raking sun picks out; wet mud is smoother
+    vec3 g1 = vec3(hq(floor(p * 1.3)), hq(floor(p * 1.3) + 7.) - .5, hq(floor(p * 1.3) + 3.) - .5), g2 = nd(p / 5.5 + 4.), g3 = nd(p / 16. + 8.);
+    vec2 gg = (g1.yz * .18 + g2.yz / 5.5 * 1. + g3.yz / 16. * 1.8) * mix(1., .3, wet);
+    gg += dr.yz * (rainNow + IMP) * .8;
+    vec3 N = normalize(vec3(-(gh + gg), 1.));
+    const vec2 Lh = vec2(-.74, -.67); const float el = .44;                 // toward the sun, upper left; about 25 degrees up
+    vec3 L = normalize(vec3(Lh * cos(el), sin(el))); float tanE = tan(el);
+    vec3 sun = vec3(1., .9, .76) * 2.35, sky = vec3(.55, .58, .64) * .62;
+    // albedo: pale grey-tan crust, darker damp clay, dark wet mud; mottling and a little salt bloom on the dry tops
+    vec3 dry = lin(vec3(.75, .68, .58)) * (.84 + .24 * mt.x + .08 * mt2.x);
+    dry = mix(dry, lin(vec3(.86, .83, .78)), smoothstep(.62, .8, mt.x * .7 + g3.x * .3) * .5 * (1. - damp));
+    vec3 alb = mix(dry, lin(vec3(.47, .4, .33)), damp);
+    alb = mix(alb, lin(vec3(.27, .2, .14)), wet);
+    float czk = smoothstep(-.5, -1.2, m) * smoothstep(.45, .7, mt2.x) * (1. - wet) * smoothstep(0., 6., E);
+    if (czk > 0.) alb *= 1. - .32 * smoothstep(.045, .0, craze(x * 5.2 + .03 * vec2(j1.x, j2.x))) * czk;
+    // shadow on the plate from a lifted rim between it and the sun
+    float sh = 1.;
+    { float c = dot(Lh, nP), t = c > 0. ? max(eP, 0.) / max(c, 1e-3) : (max(eP, 0.) + 2. * hwP) / max(-c, 1e-3);
+      sh = min(sh, mix(1., smoothstep(-1.2, 1.2, t * tanE - (LP - lP) * 1.2), smoothstep(.3, 2., LP))); }
+    { float c = dot(Lh, n2), t = c > 0. ? max(e2, 0.) / max(c, 1e-3) : (max(e2, 0.) + 2. * hw2) / max(-c, 1e-3);
+      sh = min(sh, mix(1., smoothstep(-1.2, 1.2, t * tanE - (L2 - l2) * 1.2), smoothstep(.3, 2., L2))); }
+    float dif = max(dot(N, L), 0.);
+    vec3 col = alb * (sun * dif * sh + sky * (.55 + .45 * N.z));
+    // wet mud holds the sky: a soft sheen and glints off the grain
+    vec3 rf = reflect(vec3(0, 0, -1), N);
+    float gl1 = pow(max(dot(rf, normalize(vec3(-Lh * .55, .83))), 0.), 30.);
+    col += wet * (vec3(.5, .45, .4) * (.012 + .025 * smoothstep(.3, .9, ml)) + vec3(1., .93, .84) * gl1 * .45) * (.6 + .4 * sh);
+    // a raindrop's splash: a brief bright ring
+    if (RT > 0.) { vec2 c = floor(p / 21.); float tl = h12(c + ROFF + 7.) * 5.2, a = RT - tl;
+      if (a > 0. && a < .2 && h12(c + ROFF + 11.) < .7) { vec2 pos = (c + .22 + .56 * h22(c + ROFF)) * 21.; float rr = (1.8 + 3.4 * h12(c + ROFF + 3.)) * (1. + a * 9.);
+        col += vec3(.5, .52, .55) * (1. - a / .2) * smoothstep(1.2, 0., abs(length(p - pos) - rr)); } }
+
+    // the cracks: V-shaped, walls lit or dark by which way they face, the floor in the rim's shadow or not
+    bool sec = e2 < eP;
+    float hw = sec ? hw2 : hwP, L0 = sec ? L2 : LP; vec2 n = sec ? n2 : nP;
+    float aa = .75 / DPR + .3, hwv = max(hw, .5);
+    float cover = smoothstep(aa, -aa, E) * clamp(hw * 2.2, 0., 1.);
+    if (cover > 0.) {
+      float u = clamp(1. + E / hwv, 0., 1.), Dp = hw * .75 + 1.5 + L0 * .35;   // a thin crust; a curled rim stands higher over the floor
+      float z = Dp * clamp((1. - u) / .55, 0., 1.);                       // depth below the rim here: the walls slope in
+      float c = dot(Lh, n), t = c > 0. ? max(-E, 0.) / max(c, 1e-3) : max(2. * hwv + E, 0.) / max(-c, 1e-3);
+      float lit = smoothstep(-.8 - t * .12, .8 + t * .12, t * tanE - z);   // both rims stand about as high
+      bool wall = u > .45;
+      vec3 Nw = wall ? normalize(vec3(-n * (1.1 + .6 * u), 1.)) : vec3(0, 0, 1);
+      float ao = mix(.25, 1., smoothstep(1., 10., hw)) * mix(.6, 1., u) * (.8 + .2 * smoothstep(0., hwv, t * abs(c)));
+      vec3 silt = lin(vec3(.68, .62, .52)) * (.7 + .6 * g2.x) * (.85 + .3 * g1.x);
+      vec3 cc = wall ? mix(alb, lin(vec3(.52, .45, .37)), .5) : silt;
+      vec3 gcol = cc * (sun * max(dot(Nw, L), 0.) * lit + sky * .45 + vec3(.2, .15, .1) * .25) * ao;   // skylight and light bounced off the plates
+      gcol *= mix(1., .35, wet);
+      col = mix(col, gcol, cover);
+    }
+    // a hint of falloff toward the corners, and the tone curve
+    vec2 v = gl_FragCoord.xy / R - .5; col *= 1. - .28 * dot(v, v);
+    col = col / (1. + col * .62) * 1.25;
+    o = vec4(sqrt(max(col, 0.)), 1);
+  }`;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const vsh = sh(gl.VERTEX_SHADER, vs), fsh = sh(gl.FRAGMENT_SHADER, fs);
+  const prog = gl.createProgram(); gl.attachShader(prog, vsh); gl.attachShader(prog, fsh); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; for (const k of ['R', 'OFF', 'ROFF', 'MOS', 'DPR', 'S', 'CURL', 'RT', 'IMP', 'MO']) U[k] = gl.getUniformLocation(prog, k);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+  // ── the moisture map: one cell per 8 CSS px, moisture from 1 (soaked) down to -1.5 (long dry, still shrinking)
+  const CELL = 8, DRY = 0.095;
+  let w = 1, h = 1, dpr = 1, MW = 1, MH = 1, moist = new Float32Array(1), rate = new Float32Array(1), bytes = new Uint8Array(1);
+  let T = 0, phase = 'dry', phaseT = 0, cycle = 0, imp = 0, rainSalt = 0;
+  const hash = (x, y, s) => { const k = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453; return k - Math.floor(k); };
+  const vn = (x, y, s) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+    return (hash(xi, yi, s) * (1 - u) + hash(xi + 1, yi, s) * u) * (1 - v) + (hash(xi, yi + 1, s) * (1 - u) + hash(xi + 1, yi + 1, s) * u) * v; };
+  function newCycle() {
+    // a fresh flat of mud: soaked, with spots that will dry faster (the margins and the high ground)
+    phase = 'dry'; phaseT = 0; const s = cycle * 1.37 + 0.5;
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
       const e = Math.min(x, MW - 1 - x, y, MH - 1 - y) / Math.max(MW, MH);
-      dryRate[y * MW + x] = 0.8 + vn(x / 14, y / 14) * 0.7 + vn(x / 5 + 3, y / 5) * 0.2 - e * 0.6;
-      moist[y * MW + x] = 0.8;
+      rate[y * MW + x] = 0.85 + vn(x / 16, y / 16, s) * 0.65 + vn(x / 5 + 3, y / 5, s) * 0.18 - e * 0.5;
+      moist[y * MW + x] = 0.85;
     }
-    network();
   }
-
-  function resize() {
-    w = stage.clientWidth || 1; h = stage.clientHeight || 1; dpr = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-    RS = w * h > 520000 ? 3 : 2; rw = Math.ceil(w / RS); rh = Math.ceil(h / RS);
-    MW = Math.ceil(w / 8); MH = Math.ceil(h / 8); moist = new Float32Array(MW * MH); dryRate = new Float32Array(MW * MH);
-    crackT = new Float32Array(rw * rh); crackW = new Float32Array(rw * rh); dist = new Float32Array(rw * rh); dAge = new Float32Array(rw * rh); dWt = new Float32Array(rw * rh);
-    wetC = document.createElement('canvas'); wetC.width = MW; wetC.height = MH; wg = wetC.getContext('2d'); wetImg = wg.createImageData(MW, MH);
-    shadeC = document.createElement('canvas'); shadeC.width = rw; shadeC.height = rh; shadeX = shadeC.getContext('2d'); shadeImg = shadeX.createImageData(rw, rh);
-    sheen = document.createElement('canvas'); sheen.width = Math.ceil(w / 4); sheen.height = Math.ceil(h / 4); sg = sheen.getContext('2d');
-    skyImg = document.createElement('canvas'); skyImg.width = sheen.width; skyImg.height = sheen.height;
-    { const k = skyImg.getContext('2d'), sw = skyImg.width, sh = skyImg.height, gr = k.createLinearGradient(0, 0, 0, sh);
-      gr.addColorStop(0, '#c9d6e2'); gr.addColorStop(0.5, '#6e7d8c'); gr.addColorStop(1, '#2c333b'); k.fillStyle = gr; k.fillRect(0, 0, sw, sh);
-      for (let i = 0; i < 7; i++) { const x = hash(i, 1) * sw, y = hash(i, 2) * sh * 0.5, r = (0.18 + hash(i, 3) * 0.2) * sw; const c = k.createRadialGradient(x, y, 0, x, y, r); c.addColorStop(0, 'rgba(255,255,255,.22)'); c.addColorStop(1, 'rgba(255,255,255,0)'); k.fillStyle = c; k.fillRect(0, 0, sw, sh); } }
-    paintGround(); reset();
-    if (reduce) { for (let i = 0; i < 600; i++) sim(1 / 30); distances(); shade(); draw(); }
-  }
-
   function sim(dt) {
     T += dt; phaseT += dt;
     if (phase === 'dry') {
-      for (let i = 0; i < MW * MH; i++) moist[i] = Math.max(0, moist[i] - dt * DRY * PARAMS.speed * dryRate[i]);
+      const k = dt * DRY * PARAMS.speed;
+      for (let i = 0; i < moist.length; i++) moist[i] = Math.max(-1.5, moist[i] - k * rate[i]);
+      imp = Math.max(0.35 * (imp > 0 ? 1 : 0), imp - dt * 0.04);
       if (phaseT > 26 / PARAMS.speed) { phase = 'hold'; phaseT = 0; }
     } else if (phase === 'hold') {
-      if (phaseT > 4) { phase = 'rain'; phaseT = 0; }
+      if (phaseT > 4) { phase = 'rain'; phaseT = 0; rainSalt = (cycle * 53 + 17) % 997; }
     } else if (phase === 'rain') {
-      // drops land and spread as dark spots, then the whole flat soaks and the cracks close
-      for (let k = 0; k < Math.round(dt * 90); k++) drops.push({ x: rnd() * w, y: rnd() * h, t: T, r: 6 + rnd() * 10 });
-      for (let i = 0; i < MW * MH; i++) moist[i] = Math.min(1, moist[i] + dt * (0.06 + phaseT * 0.05));
-      if (phaseT > 6.5) reset();
+      // the flat soaks: slowly at first while the drops land, then all at once
+      for (let i = 0; i < moist.length; i++) moist[i] = Math.min(1, moist[i] + dt * (0.08 + phaseT * phaseT * 0.05) * (0.8 + rate[i] * 0.2));
+      if (phaseT > 6.5) { cycle++; imp = 0.9; newCycle(); }
     }
   }
-
-  // the gaps and plates, from a distance transform of every open crack pixel (each carrying its age and strength)
-  function distances() {
-    const N = rw * rh;
-    for (let i = 0; i < N; i++) {
-      const t0 = crackT[i];
-      if (t0 < T) { dist[i] = 0; dAge[i] = T - t0; dWt[i] = crackW[i]; } else { dist[i] = INF; dAge[i] = 0; dWt[i] = 0; }
-    }
-    const relax = (i, j, c) => { if (dist[j] + c < dist[i]) { dist[i] = dist[j] + c; dAge[i] = dAge[j]; dWt[i] = dWt[j]; } };
-    for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) { const i = y * rw + x; if (x > 0) relax(i, i - 1, 1); if (y > 0) { relax(i, i - rw, 1); if (x > 0) relax(i, i - rw - 1, 1.414); if (x < rw - 1) relax(i, i - rw + 1, 1.414); } }
-    for (let y = rh - 1; y >= 0; y--) for (let x = rw - 1; x >= 0; x--) { const i = y * rw + x; if (x < rw - 1) relax(i, i + 1, 1); if (y < rh - 1) { relax(i, i + rw, 1); if (x < rw - 1) relax(i, i + rw + 1, 1.414); if (x > 0) relax(i, i + rw - 1, 1.414); } }
+  function resize() {
+    // up to 2x, but no more than about 2.6 million pixels: the shader is the whole cost, and past that the grain is
+    // already finer than the eye resolves
+    w = stage.clientWidth || 1; h = stage.clientHeight || 1; dpr = Math.min(devicePixelRatio || 1, 2, Math.sqrt(2.6e6 / (w * h)));
+    canvas.width = Math.max(1, Math.round(w * dpr)); canvas.height = Math.max(1, Math.round(h * dpr));
+    MW = Math.ceil(w / CELL) + 1; MH = Math.ceil(h / CELL) + 1;
+    moist = new Float32Array(MW * MH); rate = new Float32Array(MW * MH); bytes = new Uint8Array(MW * MH);
+    // start over and run the clock up to where it was, so a resize keeps the moment (and posters stay exact)
+    const t = T; T = 0; cycle = 0; imp = 0; rainSalt = 0; newCycle();
+    for (let s = 0; s < t - 1e-6; s += 1 / 30) sim(Math.min(1 / 30, t - s));
+    draw();
   }
-  function shade() {
-    const maxW = 6.2 * Math.min(1.2, Math.max(0.7, w / 1100)) * PARAMS.spacing;
-    const out = shadeImg.data, Lx = -0.55, Ly = -0.62, Lz = 0.56, Rc = 5.5, curl = 1.5 * PARAMS.curl;
-    for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
-      const i = y * rw + x, o = i * 4, d = dist[i] * RS;
-      // the gap's half-width: it opens over a few seconds, keeps widening as the clay shrinks, and closes when wet
-      const m = moist[Math.min(MH - 1, (y * RS / 8) | 0) * MW + Math.min(MW - 1, (x * RS / 8) | 0)];
-      const age = dAge[i], wet = Math.max(0, Math.min(1, (m - 0.25) / 0.35));
-      const hw = dist[i] >= INF ? 0 : maxW * 0.5 * dWt[i] * Math.min(1, age / 2.5) * (0.5 + 0.5 * Math.min(1, age / 18)) * (1 - wet);
-      let r = groundData[o], g = groundData[o + 1], b = groundData[o + 2];
-      const edge = Math.max(0, Math.min(1, (hw - d) / 2 + 0.5));             // a pixel-wide blend across the rim
-      if (hw > 0.2 && edge < 1) {
-        // the plate: its height rises toward the gap (it curls), so the normal tips away from it
-        const e = d - hw, C = curl * Math.min(1, hw / 2.2), s = C / Rc * Math.exp(-e / Rc);
-        const gx = x > 0 && x < rw - 1 ? (dist[i + 1] - dist[i - 1]) * 0.5 : 0, gy = y > 0 && y < rh - 1 ? (dist[i + rw] - dist[i - rw]) * 0.5 : 0;
-        const nx = s * gx, ny = s * gy, lam = (nx * Lx + ny * Ly + Lz) / Math.sqrt(nx * nx + ny * ny + 1) / Lz;
-        const sh = Math.max(0.42, Math.min(1.4, lam)) * (0.93 + 0.07 * Math.min(1, e / 14));
-        r *= sh; g *= sh; b *= sh;
-      }
-      if (edge > 0 && hw > 0.2) {
-        // the gap: dark, its floor a little lighter toward the middle
-        const f = Math.min(1, d / Math.max(0.5, hw)), k = 0.2 + 0.12 * (1 - f);
-        r += (230 * k - r) * edge; g += (160 * k - g) * edge; b += (100 * k - b) * edge;
-      }
-      out[o] = r; out[o + 1] = g; out[o + 2] = b; out[o + 3] = 255;
-    }
-    shadeX.putImageData(shadeImg, 0, 0);
-  }
-
   function draw() {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(shadeC, 0, 0, w, h);
-    // wetness: dark mud where it is still wet, fading as it dries (drawn small, scaled up smooth)
-    const im = wetImg, d = im.data;
-    for (let i = 0; i < MW * MH; i++) { const m = moist[i], a = m * m * (3 - 2 * m); d[i * 4] = 52; d[i * 4 + 1] = 38; d[i * 4 + 2] = 26; d[i * 4 + 3] = a * 240; }
-    wg.putImageData(im, 0, 0);
-    ctx.drawImage(wetC, 0, 0, w, h);
-    // the sheen of wet mud: the sky reflected only where it is still wet
-    sg.globalCompositeOperation = 'copy'; sg.drawImage(wetC, 0, 0, sheen.width, sheen.height);
-    sg.globalCompositeOperation = 'source-in'; sg.drawImage(skyImg, 0, 0, sheen.width, sheen.height);
-    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.38; ctx.drawImage(sheen, 0, 0, w, h); ctx.restore();
-    // rain: each drop a dark spot that spreads and soaks in, with a brief bright ring where it lands
-    for (let i = drops.length - 1; i >= 0; i--) {
-      const dr = drops[i], age = T - dr.t; if (age > 1.6) { drops.splice(i, 1); continue; }
-      const r = dr.r * (0.4 + Math.min(1, age * 3) * 0.8);
-      ctx.fillStyle = `rgba(50,36,24,${0.5 * (1 - age / 1.6)})`; ctx.beginPath(); ctx.arc(dr.x, dr.y, r, 0, TAU); ctx.fill();
-      if (age < 0.25) { ctx.strokeStyle = `rgba(230,236,240,${0.6 * (1 - age / 0.25)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(dr.x, dr.y, r * 1.3, 0, TAU); ctx.stroke(); }
-    }
-    // a warm low sun from the top left and a soft vignette
-    const vg = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
-    vg.addColorStop(0, 'rgba(255,230,190,.10)'); vg.addColorStop(1, 'rgba(20,12,6,.45)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < moist.length; i++) bytes[i] = Math.max(0, Math.min(255, Math.round((moist[i] + 1.5) / 2.5 * 255)));
+    gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, MW, MH, 0, gl.RED, gl.UNSIGNED_BYTE, bytes);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    const S = 150 * PARAMS.spacing * Math.min(1.12, Math.max(0.62, Math.sqrt(w * h / (1280 * 720))));
+    const off = (cycle * 373) % 997, offY = (cycle * 719) % 991;
+    gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform1f(U.DPR, canvas.width / w); gl.uniform1f(U.S, S); gl.uniform1f(U.CURL, PARAMS.curl);
+    gl.uniform2f(U.OFF, off, offY); gl.uniform2f(U.MOS, MW * CELL, MH * CELL); gl.uniform1i(U.MO, 0);
+    const raining = phase === 'rain';
+    gl.uniform2f(U.ROFF, rainSalt, (rainSalt * 61) % 89);   // the drops of this rain, or the pits of the last one
+    gl.uniform1f(U.RT, raining ? phaseT : -1); gl.uniform1f(U.IMP, raining ? 0 : imp);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  // ── pointer: press and drag to wet a patch
+  // ── pointer: press and drag to wet a patch (a tap wets a spot)
   let down = false;
-  const wetAt = e => { const b = canvas.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, R = 60;
-    for (let my = Math.max(0, ((y - R) / 8) | 0); my <= Math.min(MH - 1, ((y + R) / 8) | 0); my++) for (let mx = Math.max(0, ((x - R) / 8) | 0); mx <= Math.min(MW - 1, ((x + R) / 8) | 0); mx++) {
-      const d = Math.hypot(mx * 8 + 4 - x, my * 8 + 4 - y); if (d < R) moist[my * MW + mx] = Math.max(moist[my * MW + mx], 1 - d / R * 0.6); }
-    if (phase === 'hold') { phase = 'dry'; phaseT = 0; } };
+  const wetAt = e => { const b = canvas.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, Rr = 60;
+    for (let my = Math.max(0, ((y - Rr) / CELL) | 0); my <= Math.min(MH - 1, ((y + Rr) / CELL) | 0); my++) for (let mx = Math.max(0, ((x - Rr) / CELL) | 0); mx <= Math.min(MW - 1, ((x + Rr) / CELL) | 0); mx++) {
+      const d = Math.hypot(mx * CELL - x, my * CELL - y); if (d < Rr) { const i = my * MW + mx, f = 1 - d / Rr, k = f * f * (3 - 2 * f); moist[i] = Math.max(moist[i], moist[i] + (1 - moist[i]) * k * 0.45, -0.6 + 1.55 * k); } }
+    if (phase === 'hold') { phase = 'dry'; phaseT = 0; }
+    if (reduce) draw(); };
   const onDown = e => { down = true; canvas.setPointerCapture?.(e.pointerId); wetAt(e); };
   const onMove = e => { if (down) wetAt(e); };
   const onUp = () => { down = false; };
   canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointercancel', onUp);
 
-  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
-  let raf = 0, last = performance.now(), n = 0;
+  // reduced motion: a still of the flat well into its drying
+  if (reduce) T = 21;
+  const ro = new ResizeObserver(resize); ro.observe(stage);
+  let raf = 0, last = performance.now();
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    sim(dt);
-    if (n++ % 2 === 0) distances(); else shade();                   // the two halves of a refresh on alternate frames
-    draw();
+    sim(dt); draw();
     raf = requestAnimationFrame(frame);
   }
   if (!reduce) raf = requestAnimationFrame(frame);
   return () => {
     cancelAnimationFrame(raf); ro.disconnect();
     canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp);
-    canvas.remove();
+    gl.deleteTexture(tex); gl.deleteBuffer(buf); gl.deleteVertexArray(vao); gl.deleteProgram(prog); gl.deleteShader(vsh); gl.deleteShader(fsh);
+    gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
   };
 }

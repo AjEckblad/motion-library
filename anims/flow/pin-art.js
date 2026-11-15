@@ -1,8 +1,12 @@
-// Pin art: the pin-screen toy, in 3D. Three thousand steel pins slide through a frame. Something pushes up from
+// Pin art: the pin-screen toy, in 3D. Three thousand chrome pins slide through a black frame. Something pushes up from
 // behind (a hand, then a face, then a ripple) and every pin it touches slides forward, so the shape appears in relief.
-// The pins only move one way: when the shape pulls back, its imprint stays. Then a sweep flattens the board for the
-// next one. Each pin is an instanced cylinder with a domed head, shaded like polished steel, and darkened where taller
-// neighbours shade it. Press with the pointer to push pins back in and draw into the relief.
+// The pins only move one way: when the shape pulls back, its imprint stays. Then a palm sweeps the board flat for the
+// next one. Press with the pointer to push pins back in and draw into the relief.
+// The trick: every pin is one instanced mesh (a twelve-sided shaft and a domed head) placed by its height. They are
+// lit like a product shot: polished steel mirrors a small studio worked out in the shader (a big softbox up and to the
+// left, a strip light on the right, a dark room), and a shadow map from the softbox's side, sampled softly, lets taller
+// pins shade their neighbours and the board. Shafts darken where they sink between their neighbours, so the gaps read
+// as depth. Under reduced motion the hand stands in the board, still.
 const PARAMS = { pins: 72, depth: 1.2, speed: 1 };
 
 export default function (stage) {
@@ -11,8 +15,9 @@ export default function (stage) {
   stage.append(canvas);
   const gl = canvas.getContext('webgl2', { antialias: true });
   if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const NX = Math.max(16, Math.round(PARAMS.pins)), NY = Math.round(NX * 0.68), N = NX * NY, HMAX = 8 * PARAMS.depth;
-  const h = new Float32Array(N), occ = new Float32Array(N);
+  const h = new Float32Array(N), nb = new Float32Array(N);
 
   // the shapes that push from behind, as height fields over the board (x across −1..1, y up −0.68..0.68)
   const cap = (px, py, ax, ay, bx, by, r) => { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))), qx = px - ax - dx * t, qy = py - ay - dy * t, d2 = qx * qx + qy * qy; return d2 < r * r ? Math.sqrt(r * r - d2) / r : 0; };
@@ -34,104 +39,198 @@ export default function (stage) {
     },
     (x, y) => { const r = Math.hypot(x, y); return r > 0.62 ? 0 : (0.5 + 0.5 * Math.cos(r * 26)) * (1 - r / 0.62) * 0.9; },   // a ripple
   ];
-  const ptr = { x: 0, y: 0, down: false };
+  const ptr = { sx: 0, sy: 0, down: false };
   let shape = 0, phaseT = 0;
 
-  // GL
+  // ---------------------------------------------------------------- GL
   const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const progs = [];
   const prog = (vs, fs) => {
-    const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+    const p = gl.createProgram(), a = sh(gl.VERTEX_SHADER, vs), b = sh(gl.FRAGMENT_SHADER, fs);
+    gl.attachShader(p, a); gl.attachShader(p, b); gl.linkProgram(p);
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    gl.deleteShader(a); gl.deleteShader(b); progs.push(p);
     const u = {}; for (let i = 0, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i < n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
     return { p, u };
   };
-  const ENV = `
-  // a studio: dark floor, soft grey walls, one big window up and to the left
-  vec3 env(vec3 r) {
-    vec3 c = mix(vec3(.012, .012, .015), vec3(.11, .115, .13), smoothstep(-.3, .6, r.y));
-    c += vec3(2.6, 2.45, 2.2) * smoothstep(.82, .93, dot(r, normalize(vec3(-.55, .65, .5))));   // the key: a big softbox up-left
-    c += vec3(.55, .42, .3) * smoothstep(.72, .95, dot(r, normalize(vec3(.85, .05, .5))));       // a warm kicker from the right
+  // the studio, as the chrome sees it: a dark room, a big softbox up and to the left (the key, which casts the shadows),
+  // a tall strip light on the right, a faint bounce from the floor
+  const LIGHT = `
+  precision highp float; precision highp sampler2DShadow;
+  uniform vec3 KD; uniform sampler2DShadow SM; uniform vec2 SMT;
+  float box(vec3 r, vec3 d, vec2 s, float soft) {
+    float c = dot(r, d); if (c <= 0.) return 0.;
+    vec3 u = normalize(cross(d, vec3(0, 1, 0))), v = cross(u, d);
+    vec2 q = abs(vec2(dot(r, u), dot(r, v)) / c) / s;
+    return smoothstep(1., 1. - soft, q.x) * smoothstep(1., 1. - soft, q.y) * (.85 + .15 * (1. - q.x * q.x));
+  }
+  vec3 room(vec3 r) {
+    vec3 c = mix(vec3(.006, .006, .007), vec3(.16, .165, .175), smoothstep(-.4, .9, r.y));       // a pale grey studio above, dark below
+    c += vec3(.05, .045, .04) * smoothstep(-.2, -.7, r.y);                                   // the floor's bounce
+    c += vec3(1.9, 1.82, 1.7) * box(r, normalize(vec3(.92, .1, .38)), vec2(.09, .75), .35);  // the strip light on the right
+    c += vec3(.25, .27, .3) * box(r, normalize(vec3(.1, .25, 1.)), vec2(.9, .45), .9);      // a soft fill from the camera side
     return c;
-  }`;
+  }
+  vec3 key(vec3 r) { return vec3(4.2, 4.05, 3.8) * box(r, KD, vec2(.8, .6), .6); }
+  float shadow(vec4 ls) {
+    vec3 p = ls.xyz / ls.w * .5 + .5; float s = 0.;
+    for (int y = 0; y < 2; y++) for (int x = 0; x < 2; x++) s += texture(SM, vec3(p.xy + (vec2(x, y) - .5) * SMT * 2., p.z - .0015));
+    return s / 4.;
+  }
+  vec3 tone(vec3 c) { c = c * (2.51 * c + .03) / (c * (2.43 * c + .59) + .14); return pow(clamp(c, 0., 1.), vec3(1. / 2.2)); }
+  `;
   const pinVS = `#version 300 es
   layout(location = 0) in vec3 P; layout(location = 1) in vec3 Nrm;    // unit pin: shaft along z 0..1, head beyond
-  layout(location = 2) in vec2 G; layout(location = 3) in float Hh; layout(location = 4) in float O;
-  uniform mat4 M; uniform float SP; out vec3 n; out vec3 w; out float oc; out float head;
+  layout(location = 2) in vec2 G; layout(location = 3) in float Hh; layout(location = 4) in float Nb;
+  uniform mat4 M, LM; out vec3 n; out vec3 w; out vec4 ls; out float head; out float nb;
   void main() {
-    vec3 p = vec3(G * SP, 0) + vec3(P.xy, P.z <= 1. ? P.z * (Hh + 1.) : Hh + 1. + (P.z - 1.));
-    n = Nrm; w = p; oc = O; head = step(1.001, P.z);
+    vec3 p = vec3(G, 0) + vec3(P.xy, P.z <= 1. ? P.z * (Hh + 1.) : Hh + 1. + (P.z - 1.));
+    n = Nrm; w = p; head = step(1.001, P.z); nb = Nb;
+    ls = LM * vec4(p + Nrm * .06, 1);
     gl_Position = M * vec4(p, 1);
   }`;
   const pinFS = `#version 300 es
-  precision highp float; in vec3 n; in vec3 w; in float oc; in float head; out vec4 o; uniform vec3 E;
-  ${ENV}
+  ${LIGHT}
+  in vec3 n; in vec3 w; in vec4 ls; in float head; in float nb; out vec4 o; uniform vec3 E; uniform float HM;
   void main() {
     vec3 N = normalize(n), V = normalize(E - w), R = reflect(-V, N);
-    float fr = .55 + .45 * pow(1. - max(dot(N, V), 0.), 5.);
-    vec3 c = env(R) * vec3(.82, .84, .88) * fr;
-    c *= mix(1., .12, oc) * mix(.7, 1., head) * (.7 + .5 * clamp(w.z / 8., 0., 1.));   // shadowed by taller neighbours; the furthest-out pins catch the most light
-    o = vec4(pow(c / (1. + c * .3), vec3(1. / 2.2)), 1);
+    float nv = max(dot(N, V), 0.), s = shadow(ls);
+    // a shaft sunk between taller neighbours sees little of the room: dark down in the gaps, bright where it stands clear
+    float clear = mix(1., smoothstep(-1.2, 1.2, w.z - nb), 1. - head);
+    float ao = mix(.18, 1., clear) * (head > .5 ? 1. : .55 + .45 * smoothstep(0., 1.2, w.z));
+    vec3 F0 = vec3(.94, .93, .9), Fr = F0 + (1. - F0) * pow(1. - nv, 5.);
+    // the softbox is close: pins that stand further out are nearer it and catch more of its light, as on the real toy
+    float near = mix(.5, 1.25, clamp(w.z / HM, 0., 1.));
+    vec3 c = Fr * (room(R) * ao * mix(.75, 1.1, clamp(w.z / HM, 0., 1.)) + key(R) * s * near * mix(.35, 1., clear));
+    c += vec3(.02) * max(dot(N, KD), 0.) * s;                                                 // a touch of diffuse: fine scratches
+    o = vec4(tone(c * 1.15), 1);
   }`;
-  const boardFS = `#version 300 es
-  precision highp float; in vec2 v; out vec4 o; uniform vec2 R;
-  void main() { vec2 q = v; vec3 c = mix(vec3(.012, .012, .014), vec3(.003, .003, .004), length(q * vec2(.7, 1.))); o = vec4(pow(c, vec3(1. / 2.2)), 1); }`;
-  const plateP = prog(`#version 300 es
-  layout(location = 0) in vec3 P; uniform mat4 M; out vec2 g; void main() { g = P.xy; gl_Position = M * vec4(P, 1); }`, `#version 300 es
-  precision highp float; in vec2 g; out vec4 o; uniform vec2 S;
-  void main() { vec2 k = g / S; float edge = max(abs(k.x), abs(k.y)); vec3 c = vec3(.04, .04, .045) * (1. - .3 * length(k)) * (edge > .97 ? 1.8 : 1.); o = vec4(pow(c, vec3(1. / 2.2)), 1); }`);
-  const pinP = prog(pinVS, pinFS), boardP = prog(`#version 300 es
-  in vec2 p; out vec2 v; void main() { v = p; gl_Position = vec4(p, .9999, 1); }`, boardFS);
+  const shadowVS = `#version 300 es
+  layout(location = 0) in vec3 P; layout(location = 2) in vec2 G; layout(location = 3) in float Hh;
+  uniform mat4 LM;
+  void main() { vec3 p = vec3(G, 0) + vec3(P.xy, P.z <= 1. ? P.z * (Hh + 1.) : Hh + 1. + (P.z - 1.)); gl_Position = LM * vec4(p, 1); }`;
+  const shadowFS = `#version 300 es
+  precision mediump float; out vec4 o; void main() { o = vec4(1); }`;
+  // the board (matte black plastic with a hole for every pin) and the frame around it (satin black, bevelled)
+  const solidVS = `#version 300 es
+  layout(location = 0) in vec3 P; layout(location = 1) in vec3 Nrm;
+  uniform mat4 M, LM; out vec3 w; out vec3 n; out vec4 ls;
+  void main() { w = P; n = Nrm; ls = LM * vec4(P + Nrm * .06, 1); gl_Position = M * vec4(P, 1); }`;
+  const solidFS = `#version 300 es
+  ${LIGHT}
+  in vec3 w; in vec3 n; in vec4 ls; out vec4 o; uniform vec3 E; uniform float BRD; uniform vec2 HALF;
+  void main() {
+    vec3 N = normalize(n), V = normalize(E - w), R = reflect(-V, N);
+    float s = shadow(ls), nv = max(dot(N, V), 0.), F = .04 + .96 * pow(1. - nv, 5.);
+    vec3 base = vec3(.012, .012, .013);
+    float hole = 0.;
+    if (BRD > .5) {                                                          // the holes the pins slide through
+      vec2 g = fract(w.xy + HALF) - .5;
+      hole = smoothstep(.36, .3, length(g));
+      if (any(greaterThan(abs(w.xy), HALF))) hole = 0.;
+    }
+    vec3 diff = base * (vec3(1.8) * max(dot(N, KD), 0.) * s + room(N) * 2.);
+    vec3 spec = F * (room(R) + key(R) * s) * (BRD > .5 ? .35 : .8);              // satin: a soft sheen
+    vec3 c = mix(diff + spec, vec3(0), hole * .85);
+    o = vec4(tone(c * 1.15), 1);
+  }`;
+  const backFS = `#version 300 es
+  precision highp float; in vec2 v; out vec4 o;
+  void main() { vec3 c = mix(vec3(.034, .034, .038), vec3(.008, .008, .01), smoothstep(.1, 1.3, length(v * vec2(.75, 1.) - vec2(-.15, .2)))); o = vec4(pow(c, vec3(1. / 2.2)), 1); }`;
+  const pinP = prog(pinVS, pinFS), shP = prog(shadowVS, shadowFS), solidP = prog(solidVS, solidFS);
+  const backP = prog(`#version 300 es
+  in vec2 p; out vec2 v; void main() { v = p; gl_Position = vec4(p, .9999, 1); }`, backFS);
 
-  // one pin: an 10-sided shaft and a rounded head, a little wider
-  const SEG = 10, R0 = 0.26, RH = 0.47, verts = [];
-  const ring = (z, r, nz) => Array.from({ length: SEG + 1 }, (_, i) => { const a = (i / SEG) * Math.PI * 2; return [Math.cos(a) * r, Math.sin(a) * r, z, Math.cos(a) * (1 - Math.abs(nz)), Math.sin(a) * (1 - Math.abs(nz)), nz]; });
+  // ---------------------------------------------------------------- geometry
+  // one pin: a twelve-sided shaft (eight when there are so many that each is tiny), then a domed head a little wider
+  const SEG = NX > 84 ? 8 : 12, R0 = 0.2, RH = 0.44, verts = [];
+  const ring = (z, r, nz) => Array.from({ length: SEG + 1 }, (_, i) => { const a = (i / SEG) * Math.PI * 2, k = Math.sqrt(1 - nz * nz); return [Math.cos(a) * r, Math.sin(a) * r, z, Math.cos(a) * k, Math.sin(a) * k, nz]; });
   const band = (A, B) => { for (let i = 0; i < SEG; i++) verts.push(...A[i], ...B[i], ...A[i + 1], ...A[i + 1], ...B[i], ...B[i + 1]); };
-  band(ring(0, R0, 0), ring(1, R0, 0));                                   // shaft
-  band(ring(1.0001, R0, -0.6), ring(1.05, RH, -0.2)); band(ring(1.05, RH, 0), ring(1.3, RH, 0));                      // head: flare, side
-  const dome = [0.3, 0.6, 0.85, 1].map((k, j) => ring(1.3 + Math.sin(k * Math.PI / 2) * 0.22, RH * Math.cos(k * Math.PI / 2) + 0.001, Math.sin(k * Math.PI / 2)));
-  band(ring(1.3, RH, 0.05), dome[0]); band(dome[0], dome[1]); band(dome[1], dome[2]); band(dome[2], dome[3]);
+  band(ring(0, R0, 0), ring(1, R0, 0));                                                          // shaft
+  band(ring(1.0001, R0, -0.7), ring(1.06, RH, -0.5));                                            // the underside of the head
+  band(ring(1.06, RH, 0), ring(1.2, RH, 0));                                                     // its rim
+  const dome = [0.25, 0.55, 0.8, 1].map(k => { const a = k * Math.PI / 2; return ring(1.2 + Math.sin(a) * 0.2, RH * Math.cos(a) + 0.001, Math.sin(a)); });
+  band(ring(1.2, RH, 0), dome[0]); for (let i = 0; i < 3; i++) band(dome[i], dome[i + 1]);
   const mesh = new Float32Array(verts), VCOUNT = mesh.length / 6;
   const grid = new Float32Array(N * 2); for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) grid.set([i - (NX - 1) / 2, j - (NY - 1) / 2], (j * NX + i) * 2);
-  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
-  const buf = (data, loc, size, stride, off, div, usage = gl.STATIC_DRAW) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, usage); return b; };
-  const mb = buf(mesh); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
+  const bufs = [], vaos = [];
+  const buf = (data, usage = gl.STATIC_DRAW) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, usage); bufs.push(b); return b; };
+  const vao = gl.createVertexArray(); vaos.push(vao); gl.bindVertexArray(vao);
+  buf(mesh); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
   buf(grid); gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(2, 1);
-  const hb = buf(h.byteLength, 0, 0, 0, 0, 0, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(3, 1);
-  const ob = buf(occ.byteLength, 0, 0, 0, 0, 0, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(4); gl.vertexAttribPointer(4, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(4, 1);
+  const hb = buf(h.byteLength, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(3, 1);
+  const nbb = buf(nb.byteLength, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(4); gl.vertexAttribPointer(4, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(4, 1);
   gl.bindVertexArray(null);
-  const bx = NX / 2 + 1.2, by = NY / 2 + 1.2;
-  const pv = gl.createVertexArray(); gl.bindVertexArray(pv); buf(new Float32Array([-bx, -by, 0, bx, -by, 0, -bx, by, 0, bx, -by, 0, bx, by, 0, -bx, by, 0])); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
-  const qv = gl.createVertexArray(); gl.bindVertexArray(qv); buf(new Float32Array([-1, -1, 3, -1, -1, 3])); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+  // the board and a bevelled frame standing proud of it
+  const hx = NX / 2 + 0.4, hy = NY / 2 + 0.4, FW = 2.2, FH = 2.6, BV = 0.5, solid = [];
+  const quad = (a, b, c, d, nrm) => solid.push(...a, ...nrm, ...b, ...nrm, ...c, ...nrm, ...a, ...nrm, ...c, ...nrm, ...d, ...nrm);
+  quad([-hx, -hy, 0], [hx, -hy, 0], [hx, hy, 0], [-hx, hy, 0], [0, 0, 1]);
+  const BOARD_VERTS = solid.length / 6;
+  const ox = hx + FW, oy = hy + FW;
+  for (const s of [1, -1]) {                                                 // top and bottom bars, then the sides
+    const yi = s * hy, yo = s * oy, nIn = [0, -s, 0], bev = [0, s * 0.6, 0.8];
+    quad([-hx, yi, 0], [hx, yi, 0], [hx, yi, FH - BV], [-hx, yi, FH - BV], nIn);
+    quad([-hx, yi, FH - BV], [hx, yi, FH - BV], [hx + BV, yi + s * BV, FH], [-hx - BV, yi + s * BV, FH], [0, -s * 0.6, 0.8]);
+    quad([-hx - BV, yi + s * BV, FH], [hx + BV, yi + s * BV, FH], [ox - BV, yo - s * BV, FH], [-ox + BV, yo - s * BV, FH], [0, 0, 1]);
+    quad([-ox + BV, yo - s * BV, FH], [ox - BV, yo - s * BV, FH], [ox, yo, FH - BV], [-ox, yo, FH - BV], bev);
+    quad([-ox, yo, FH - BV], [ox, yo, FH - BV], [ox, yo, -1], [-ox, yo, -1], [0, s, 0]);
+    const xi = s * hx, xo = s * ox, nX = [-s, 0, 0], bx = [s * 0.6, 0, 0.8];
+    quad([xi, -hy, 0], [xi, hy, 0], [xi, hy, FH - BV], [xi, -hy, FH - BV], nX);
+    quad([xi, -hy, FH - BV], [xi, hy, FH - BV], [xi + s * BV, hy + BV, FH], [xi + s * BV, -hy - BV, FH], [-s * 0.6, 0, 0.8]);
+    quad([xi + s * BV, -hy - BV, FH], [xi + s * BV, hy + BV, FH], [xo - s * BV, oy - BV, FH], [xo - s * BV, -oy + BV, FH], [0, 0, 1]);
+    quad([xo - s * BV, -oy + BV, FH], [xo - s * BV, oy - BV, FH], [xo, oy, FH - BV], [xo, -oy, FH - BV], bx);
+    quad([xo, -oy, FH - BV], [xo, oy, FH - BV], [xo, oy, -1], [xo, -oy, -1], [s, 0, 0]);
+  }
+  const SOLID_VERTS = solid.length / 6;
+  const sv = gl.createVertexArray(); vaos.push(sv); gl.bindVertexArray(sv);
+  buf(new Float32Array(solid)); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
+  gl.bindVertexArray(null);
+  const qv = gl.createVertexArray(); vaos.push(qv); gl.bindVertexArray(qv); buf(new Float32Array([-1, -1, 3, -1, -1, 3])); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+
+  // the shadow map, from the key light's side
+  const SMS = 2048, smTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, smTex);
+  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.DEPTH_COMPONENT24, SMS, SMS);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+  const smF = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, smF); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, smTex, 0);
+  gl.drawBuffers([gl.NONE]); gl.readBuffer(gl.NONE); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+  // ---------------------------------------------------------------- matrices
+  const norm = v => { const l = Math.hypot(...v); return v.map(x => x / l); };
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const mul = (A, B) => { const o = new Float32Array(16); for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) { let s = 0; for (let k = 0; k < 4; k++) s += A[k * 4 + r] * B[c * 4 + k]; o[c * 4 + r] = s; } return o; };
+  const lookAt = (eye, at, upv) => { const f = norm(at.map((v, i) => v - eye[i])), r = norm(cross(f, upv)), u = cross(r, f); return [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -dot(r, eye), -dot(u, eye), dot(f, eye), 1]; };
+  const KD = norm([-0.62, 0.72, 0.62]);                                       // toward the key softbox, up and to the left
+  const LM = (() => {
+    const V = lookAt(KD.map(v => v * 200), [0, 0, 0], [0, 1, 0]), r = Math.hypot(ox, oy, HMAX + FH) + 2;
+    const n = 200 - r, f = 200 + r, P = [1 / r, 0, 0, 0, 0, 1 / r, 0, 0, 0, 0, -2 / (f - n), 0, 0, 0, -(f + n) / (f - n), 1];
+    return mul(P, V);
+  })();
 
   let W = 1, H = 1;
-  const resize = () => { const d = Math.min(devicePixelRatio, 2); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
+  const resize = () => { const d = Math.min(devicePixelRatio, 2, Math.max(1, Math.sqrt(2.6e6 / ((stage.clientWidth || 1) * (stage.clientHeight || 1))))); W = canvas.width = Math.max(1, (stage.clientWidth * d) | 0); H = canvas.height = Math.max(1, (stage.clientHeight * d) | 0); };
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
-  // camera: in front of the board, a little left and above, so the relief reads
-  const SP = 1;
-  let EYE = [0, 0, 0];
+  // camera: in front of the board, a little left and above so the relief reads, the whole frame always in view
+  let EYE = [0, 0, 1];
   const matrix = t => {
-    const az = -0.5 + 0.12 * Math.sin(t * 0.21), el = 0.32, dist = NX * 1.02;
-    EYE = [Math.sin(az) * Math.cos(el) * dist, Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist];
-    const T = [0, 0, HMAX * 0.25], f = EYE.map((v, i) => T[i] - v), fl = Math.hypot(...f); f.forEach((v, i) => f[i] = v / fl);
-    const rl0 = Math.hypot(f[2], f[0]), r = [-f[2] / rl0, 0, f[0] / rl0];   // right = forward × up
-    const u = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
-    const V = [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -(r[0] * EYE[0] + r[1] * EYE[1] + r[2] * EYE[2]), -(u[0] * EYE[0] + u[1] * EYE[1] + u[2] * EYE[2]), f[0] * EYE[0] + f[1] * EYE[1] + f[2] * EYE[2], 1];
-    const F = 1 / Math.tan(0.36), A = W / H, n = 1, fa = 600, nf = 1 / (n - fa);
-    const P = [F / A, 0, 0, 0, 0, F, 0, 0, 0, 0, (fa + n) * nf, -1, 0, 0, 2 * fa * n * nf, 0], out = new Float32Array(16);
-    for (let c = 0; c < 4; c++) for (let rr = 0; rr < 4; rr++) { let s = 0; for (let k = 0; k < 4; k++) s += P[k * 4 + rr] * V[c * 4 + k]; out[c * 4 + rr] = s; }
-    return out;
+    const az = -0.42 + 0.1 * Math.sin(t * 0.21), el = 0.3, A = W / H, F = 1 / Math.tan(0.34);
+    const fit = Math.max(ox * Math.cos(az) * 1.12 * F / A, oy * 1.14 * F) + HMAX * 0.5, dist = fit / Math.cos(Math.max(0, az * 0.35));
+    const T = [0, -oy * 0.02, HMAX * 0.2];
+    EYE = [T[0] + Math.sin(az) * Math.cos(el) * dist, T[1] + Math.sin(el) * dist, T[2] + Math.cos(az) * Math.cos(el) * dist];
+    const V = lookAt(EYE, T, [0, 1, 0]), n = 1, fa = 800, nf = 1 / (n - fa);
+    return mul([F / A, 0, 0, 0, 0, F, 0, 0, 0, 0, (fa + n) * nf, -1, 0, 0, 2 * fa * n * nf, 0], V);
   };
-  // pointer: find the pin under it (on the board plane, at mid relief) and press nearby pins back
-  const move = e => {
-    const r = canvas.getBoundingClientRect(); ptr.sx = ((e.clientX - r.left) / r.width) * 2 - 1; ptr.sy = 1 - ((e.clientY - r.top) / r.height) * 2;
-  };
+
+  // pointer: press and drag to push pins back in (projected onto the board at mid relief)
+  const move = e => { const r = canvas.getBoundingClientRect(); ptr.sx = ((e.clientX - r.left) / r.width) * 2 - 1; ptr.sy = 1 - ((e.clientY - r.top) / r.height) * 2; };
   const down = e => { ptr.down = true; move(e); canvas.setPointerCapture(e.pointerId); };
   const up = () => { ptr.down = false; };
   canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
 
-  let raf, last = performance.now(), t = 0, M = null;
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000) * PARAMS.speed; last = now; t += dt; phaseT += dt;
+  const step = dt => {
+    phaseT += dt;
     // a cycle: push in (3 s), pull back leaving the imprint (hold 3 s), then sweep the board flat (1.5 s)
     const f = SHAPES[shape], push = phaseT < 3 ? phaseT / 3 : phaseT < 4 ? 1 - (phaseT - 3) : 0;
     const sweep = phaseT > 6.2 ? (phaseT - 6.2) / 1.5 : -1;
@@ -143,39 +242,62 @@ export default function (stage) {
       const target = f(x, y) * HMAX * (0.25 + 0.75 * pushE) * (push > 0 ? 1 : 0);
       if (target > h[k]) h[k] += Math.min(target - h[k], dt * 26);   // pins only ever get pushed forward
     }
-    if (ptr.down && M) {                                           // press: pins near the pointer go back in
-      for (let k = 0; k < N; k++) {
-        const gx = grid[k * 2], gy = grid[k * 2 + 1], z = h[k] + 1.5;
-        const cx = M[0] * gx + M[4] * gy + M[8] * z + M[12], cy = M[1] * gx + M[5] * gy + M[9] * z + M[13], cw = M[3] * gx + M[7] * gy + M[11] * z + M[15];
-        const d = Math.hypot(cx / cw - ptr.sx, (cy / cw - ptr.sy) * H / W);
-        if (d < 0.05) h[k] = Math.max(0, h[k] - dt * 30 * (1 - d / 0.05));
-      }
+  };
+  const press = (dt, M) => {
+    for (let k = 0; k < N; k++) {
+      const gx = grid[k * 2], gy = grid[k * 2 + 1], z = h[k] + 1.5;
+      const cx = M[0] * gx + M[4] * gy + M[8] * z + M[12], cy = M[1] * gx + M[5] * gy + M[9] * z + M[13], cw = M[3] * gx + M[7] * gy + M[11] * z + M[15];
+      const d = Math.hypot(cx / cw - ptr.sx, (cy / cw - ptr.sy) * H / W);
+      if (d < 0.05) h[k] = Math.max(0, h[k] - dt * 30 * (1 - d / 0.05));
     }
-    // occlusion: a pin standing lower than its neighbours sits in their shade
+  };
+  const draw = t => {
+    // each pin's neighbours: how high the pins around it stand, so its shaft can darken where it sinks between them
     for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
-      const k = j * NX + i; let m = 0, c = 0;
-      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { const ii = i + di, jj = j + dj; if (ii < 0 || jj < 0 || ii >= NX || jj >= NY || (!di && !dj)) continue; m += h[jj * NX + ii]; c++; }
-      // and a raking light from the upper left: a taller pin a step or three that way casts this one into shadow
-      let sh = 0; for (let st = 1; st <= 4; st++) { const ii = i - st, jj = j + st; if (ii < 0 || jj >= NY) break; sh = Math.max(sh, (h[jj * NX + ii] - h[k] - st * 0.9) / 1.5); }
-      occ[k] = Math.min(1, Math.max(0, (m / c - h[k]) / 2.2, sh));
+      let m = 0, c = 0;
+      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { const ii = i + di, jj = j + dj; if ((!di && !dj) || ii < 0 || jj < 0 || ii >= NX || jj >= NY) continue; m += h[jj * NX + ii]; c++; }
+      nb[j * NX + i] = m / c + 1;
     }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
-    gl.clearColor(0.03, 0.03, 0.035, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); gl.enable(gl.DEPTH_TEST);
-    gl.useProgram(boardP.p); gl.bindVertexArray(qv); gl.drawArrays(gl.TRIANGLES, 0, 3);
-    M = matrix(t);
-    gl.useProgram(plateP.p); gl.uniformMatrix4fv(plateP.u.M, false, M); gl.uniform2f(plateP.u.S, bx, by); gl.bindVertexArray(pv); gl.drawArrays(gl.TRIANGLES, 0, 6);
-    gl.useProgram(pinP.p); gl.uniformMatrix4fv(pinP.u.M, false, M); gl.uniform1f(pinP.u.SP, SP); gl.uniform3f(pinP.u.E, ...EYE);
-    gl.bindVertexArray(vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, hb); gl.bufferSubData(gl.ARRAY_BUFFER, 0, h);
-    gl.bindBuffer(gl.ARRAY_BUFFER, ob); gl.bufferSubData(gl.ARRAY_BUFFER, 0, occ);
-    gl.drawArraysInstanced(gl.TRIANGLES, 0, VCOUNT, N);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nbb); gl.bufferSubData(gl.ARRAY_BUFFER, 0, nb);
+    // shadows: the pins seen from the key light
+    gl.bindFramebuffer(gl.FRAMEBUFFER, smF); gl.viewport(0, 0, SMS, SMS); gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(shP.p); gl.uniformMatrix4fv(shP.u.LM, false, LM); gl.bindVertexArray(vao); gl.drawArraysInstanced(gl.TRIANGLES, 0, VCOUNT, N);
+    // the picture
+    const M = matrix(t);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    gl.clearColor(0.02, 0.02, 0.022, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(backP.p); gl.bindVertexArray(qv); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, smTex);
+    for (const pr of [solidP, pinP]) {
+      gl.useProgram(pr.p); gl.uniformMatrix4fv(pr.u.M, false, M); gl.uniformMatrix4fv(pr.u.LM, false, LM); gl.uniform3f(pr.u.E, ...EYE);
+      gl.uniform3fv(pr.u.KD, KD); gl.uniform1i(pr.u.SM, 0); gl.uniform2f(pr.u.SMT, 1 / SMS, 1 / SMS);
+    }
+    gl.useProgram(solidP.p); gl.uniform2f(solidP.u.HALF, NX / 2, NY / 2); gl.bindVertexArray(sv);
+    gl.uniform1f(solidP.u.BRD, 1); gl.drawArrays(gl.TRIANGLES, 0, BOARD_VERTS);
+    gl.uniform1f(solidP.u.BRD, 0); gl.drawArrays(gl.TRIANGLES, BOARD_VERTS, SOLID_VERTS - BOARD_VERTS);
+    gl.useProgram(pinP.p); gl.uniform1f(pinP.u.HM, HMAX + 1); gl.bindVertexArray(vao); gl.drawArraysInstanced(gl.TRIANGLES, 0, VCOUNT, N);
     gl.bindVertexArray(null); gl.disable(gl.DEPTH_TEST);
+    return M;
+  };
+
+  let raf, last = performance.now(), t = 0, M = null;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000) * PARAMS.speed; last = now;
+    if (reduce) { if (ptr.down && M) press(1 / 60, M); M = draw(0); raf = requestAnimationFrame(frame); return; }
+    t += dt; step(dt);
+    if (ptr.down && M) press(dt, M);
+    M = draw(t);
     raf = requestAnimationFrame(frame);
   }
+  // reduced motion: the hand pressed fully into the board, held still (pressing still draws into it)
+  if (reduce) for (let i = 0; i < 160; i++) step(1 / 60);
   raf = requestAnimationFrame(frame);
   return () => {
     cancelAnimationFrame(raf); ro.disconnect();
     canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move); canvas.removeEventListener('pointerup', up); canvas.removeEventListener('pointercancel', up);
+    bufs.forEach(b => gl.deleteBuffer(b)); vaos.forEach(v => gl.deleteVertexArray(v)); progs.forEach(p => gl.deleteProgram(p));
+    gl.deleteTexture(smTex); gl.deleteFramebuffer(smF);
     gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
   };
 }

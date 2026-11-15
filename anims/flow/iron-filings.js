@@ -3,9 +3,11 @@
 // paper is tapped the filings hop and settle onto field lines: loops that leave one pole and arc round to the other,
 // fanning out from each pole, and only loosely combed far away where the field is weak. They are pulled across the
 // field toward the nearest contour of the flux function (for two poles of a bar magnet, the sum of each pole's charge
-// times the cosine of the angle from the bar's axis), which is where real filings chain up end to end. Left alone the
-// magnet turns a little now and then and the paper is tapped again; drag the magnet and the filings follow on the
-// next tap.
+// times the cosine of the angle from the bar's axis), which is where real filings chain up end to end. Between taps
+// they lie still (only right by a pole is the pull strong enough to swing them). Left alone the magnet sways a little
+// and the paper is tapped every few seconds; tap the paper yourself, or press near the magnet and slide it, and it
+// stays where you leave it while the filings rearrange on the next taps. Filings that hop off the edge bounce back in.
+// The randomness is seeded, so a given moment always looks the same.
 const PARAMS = { filings: 7000, lines: 16, taps: 0.45 };
 
 export default function (stage) {
@@ -15,12 +17,15 @@ export default function (stage) {
   const ctx = canvas.getContext('2d');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let W = 1, H = 1, D = 1, paper = null;
+  // a seeded random, so the same moment always looks the same (posters, frame stepping)
+  let rs = 1;
+  const rnd = () => { rs = (rs + 0x6D2B79F5) | 0; let t = Math.imul(rs ^ (rs >>> 15), 1 | rs); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   // paper: warm white, a little fibre, a soft vignette, all drawn once
   const makePaper = () => {
     paper = document.createElement('canvas'); paper.width = canvas.width; paper.height = canvas.height;
     const g = paper.getContext('2d'); g.setTransform(D, 0, 0, D, 0, 0);
     g.fillStyle = '#e8e3d7'; g.fillRect(0, 0, W, H);
-    for (let i = 0; i < W * H / 70; i++) { g.fillStyle = `rgba(${Math.random() < 0.5 ? '90,80,60' : '255,255,250'},${Math.random() * 0.07})`; g.fillRect(Math.random() * W, Math.random() * H, 1 + Math.random() * 3, 0.6); }
+    for (let i = 0; i < W * H / 70; i++) { g.fillStyle = `rgba(${rnd() < 0.5 ? '90,80,60' : '255,255,250'},${rnd() * 0.07})`; g.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 3, 0.6); }
     const v = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75); v.addColorStop(0, 'rgba(60,50,30,0)'); v.addColorStop(1, 'rgba(60,50,30,.2)');
     g.fillStyle = v; g.fillRect(0, 0, W, H);
   };
@@ -28,16 +33,19 @@ export default function (stage) {
   const fx = new Float32Array(N), fy = new Float32Array(N), fa = new Float32Array(N), fl = new Float32Array(N), shade = new Uint8Array(N);
   // a smaller sheet gets fewer filings, so a phone is not busier than a desktop
   let n = N;
-  const scatter = () => { n = Math.max(400, Math.min(N, Math.round(N * W * H / (1280 * 760) * 1.25))); for (let i = 0; i < n; i++) { fx[i] = Math.random() * W; fy[i] = Math.random() * H; fa[i] = Math.random() * Math.PI; fl[i] = 2 + Math.random() * 3; shade[i] = (Math.random() * 3) | 0; } };
+  const scatter = () => { n = Math.max(400, Math.min(N, Math.round(N * W * H / (1280 * 760) * 1.25))); for (let i = 0; i < n; i++) { fx[i] = rnd() * W; fy[i] = rnd() * H; fa[i] = rnd() * Math.PI; fl[i] = 2 + rnd() * 3; shade[i] = (rnd() * 3) | 0; } };
   // one bar magnet: a north and a south pole a bar-length apart
-  const mag = { x: 0, y: 0, a: 0, len: 0, tx: 0, ty: 0, ta: 0 };
-  function place() { const s = Math.min(W, H); Object.assign(mag, { x: W / 2, y: H / 2, tx: W / 2, ty: H / 2, a: 0, ta: 0, len: Math.min(s * 0.42, W * 0.36) }); }
+  // hx, hy: where it rests (the middle, until you move it); left alone it sways a little around that spot
+  const mag = { x: 0, y: 0, a: 0, len: 0, tx: 0, ty: 0, ta: 0, hx: 0, hy: 0 };
+  function place() { const s = Math.min(W, H); Object.assign(mag, { x: W / 2, y: H / 2, tx: W / 2, ty: H / 2, hx: W / 2, hy: H / 2, a: 0, ta: 0, len: Math.min(s * 0.42, W * 0.36) }); }
   let raf, last = performance.now(), time = 0, tapAt = 0.6, nextTap = 0.6, drag = null;
+  // reduced motion: tap the paper a few times and let it settle at once, then keep that still
+  const settle = () => { for (let i = 0; i < 420; i++) { if (i % 60 === 0 && i < 360) tapAt = time; simulate(1 / 60); } tapAt = -9; };
   const resize = () => {
     D = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
-    canvas.width = Math.max(1, (W * D) | 0); canvas.height = Math.max(1, (H * D) | 0); ctx.setTransform(D, 0, 0, D, 0, 0); makePaper(); scatter(); place();
-    // reduced motion: tap the paper twice, let it settle, and keep that still
-    if (reduce) { for (let i = 0; i < 420; i++) { if (i % 60 === 0 && i < 360) tapAt = time; simulate(1 / 60); } tapAt = -9; }
+    canvas.width = Math.max(1, (W * D) | 0); canvas.height = Math.max(1, (H * D) | 0); ctx.setTransform(D, 0, 0, D, 0, 0);
+    rs = 1; makePaper(); scatter(); place();
+    if (reduce) { settle(); draw(0); }
   };
 
   function simulate(dt) {
@@ -58,40 +66,55 @@ export default function (stage) {
       const b = Math.hypot(bx, by) + 1e-12, bs = b * s * s;
       // turn toward the field (a filing has no head or tail, so the nearest of the two directions)
       let da = Math.atan2(by, bx) - fa[i]; da -= Math.PI * Math.round(da / Math.PI);
-      fa[i] += da * Math.min(1, dt * (1.5 + 24 * hop) * Math.min(1, bs * 0.4));
+      // lying on paper, a filing only turns while the tap has it loose, or where the field is strong enough near a
+      // pole to swing it anyway
+      fa[i] += da * Math.min(1, dt * (24 * hop + 3 * Math.max(0, Math.min(1, (bs - 25) / 40))) * Math.min(1, bs * 0.4));
       if (hop > 0.01) {
         // psi runs from -2 (between the poles) to 0 (the axis outside them): K lines, evenly spaced in flux. A gentle
         // pull across the field toward the nearest one, lost in the shake far away where the field is weak
         const g = Math.hypot(gpx, gpy) + 1e-9, pull = -Math.sin(Math.PI * K * psi / 2), grip = Math.min(1, bs * 0.22);
         const across = Math.max(-1, Math.min(1, pull * 1.5)) * 0.75 * grip * hop * Math.min(1, g * s * 0.08) * Math.min(1, near / (s * 0.14));   // (not at the poles: they stay a dense burst)
-        fx[i] += (gpx / g) * across + (Math.random() - 0.5) * hop * 1.8;
-        fy[i] += (gpy / g) * across + (Math.random() - 0.5) * hop * 1.8;
-        const along = (Math.random() - 0.5) * 2.4 * hop;
+        // (the steps are per 60th of a second, scaled by the real frame time so a 120 Hz screen shakes no harder)
+        const k = dt * 60, kr = Math.sqrt(k);
+        fx[i] += (gpx / g) * across * k + (rnd() - 0.5) * hop * 1.8 * kr;
+        fy[i] += (gpy / g) * across * k + (rnd() - 0.5) * hop * 1.8 * kr;
+        const along = (rnd() - 0.5) * 2.4 * hop * kr;
         fx[i] += (bx / b) * along; fy[i] += (by / b) * along;
-        if (fx[i] < 0) fx[i] += W; else if (fx[i] > W) fx[i] -= W; if (fy[i] < 0) fy[i] += H; else if (fy[i] > H) fy[i] -= H;
+        // the paper's edge: a filing that hops off bounces back in (it used to wrap round and pop in on the far side)
+        if (fx[i] < 0) fx[i] = -fx[i]; else if (fx[i] > W) fx[i] = 2 * W - fx[i];
+        if (fy[i] < 0) fy[i] = -fy[i]; else if (fy[i] > H) fy[i] = 2 * H - fy[i];
       }
     }
     return hop;
   }
-  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
-  // drag the magnet (under the paper: grab anywhere near it)
+  // pointer: a tap anywhere taps the paper; press near the magnet (it is under the paper) and move to slide it. A
+  // press only becomes a drag once it has moved a few pixels, so a tap on the magnet is still a tap
   const at = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
-  const down = e => { const [x, y] = at(e); if (Math.hypot(x - mag.x, y - mag.y) < Math.max(mag.len * 0.75, 40)) { drag = { dx: mag.x - x, dy: mag.y - y }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; } };
-  const move = e => { if (!drag) return; const [x, y] = at(e); mag.tx = x + drag.dx; mag.ty = y + drag.dy; };
-  const up = () => { if (drag) tapAt = time; drag = null; canvas.style.cursor = 'grab'; };
+  let press = null;
+  const down = e => {
+    const [x, y] = at(e);
+    press = { id: e.pointerId, x, y, near: Math.hypot(x - mag.x, y - mag.y) < Math.max(mag.len * 0.75, 40), dx: mag.x - x, dy: mag.y - y };
+    canvas.setPointerCapture?.(e.pointerId);
+  };
+  const move = e => {
+    if (!press || e.pointerId !== press.id) return;
+    const [x, y] = at(e);
+    if (!drag && press.near && Math.hypot(x - press.x, y - press.y) > 6) { drag = { dx: press.dx, dy: press.dy }; canvas.style.cursor = 'grabbing'; }
+    if (drag) { mag.tx = mag.hx = Math.max(0, Math.min(W, x + drag.dx)); mag.ty = mag.hy = Math.max(0, Math.min(H, y + drag.dy)); }
+  };
+  const up = e => {
+    if (!press || (e && e.pointerId !== press.id)) return;
+    press = null; drag = null; canvas.style.cursor = 'grab';
+    tapAt = time;                                                   // let go, or a plain tap: the paper is tapped
+    if (reduce) { mag.x = mag.tx; mag.y = mag.ty; settle(); draw(0); }
+  };
   canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
 
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    // left alone, the magnet turns a little between taps, and the paper is tapped every few seconds
-    if (!reduce && !drag) { mag.ta = 0.18 * Math.sin(time * 0.11) + 0.07 * Math.sin(time * 0.07 + 1); mag.tx = W / 2 + Math.min(W, H) * 0.03 * Math.sin(time * 0.09); mag.ty = H / 2; }
-    mag.x += (mag.tx - mag.x) * Math.min(1, dt * 6); mag.y += (mag.ty - mag.y) * Math.min(1, dt * 6); mag.a += (mag.ta - mag.a) * Math.min(1, dt * 0.8);
-    if (!reduce && time > nextTap) { tapAt = time; nextTap = time + 2.4 / Math.max(0.2, PARAMS.taps); }
-    const hop = reduce && !drag ? 0 : simulate(dt);
-    // draw: the paper (it jumps a pixel when tapped), the magnet's faint shadow through it, then the filings
+  function draw(hop) {
+    // the paper (it jumps a pixel when tapped), the magnet's faint shadow through it, then the filings
     const j = hop * 1.2;
-    ctx.save(); ctx.translate((Math.random() - 0.5) * j, (Math.random() - 0.5) * j);
+    ctx.save(); ctx.translate((rnd() - 0.5) * j, (rnd() - 0.5) * j);
     ctx.drawImage(paper, 0, 0, W, H);
     ctx.save(); ctx.translate(mag.x, mag.y); ctx.rotate(mag.a);
     const w = mag.len * 1.12, h = mag.len * 0.22;
@@ -112,9 +135,19 @@ export default function (stage) {
       ctx.stroke();
     }
     ctx.restore();
+  }
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    // left alone, the magnet sways a little round where it rests, and the paper is tapped every few seconds
+    if (!drag) { mag.ta = 0.18 * Math.sin(time * 0.11) + 0.07 * Math.sin(time * 0.07 + 1); mag.tx = mag.hx + Math.min(W, H) * 0.03 * Math.sin(time * 0.09); mag.ty = mag.hy; }
+    mag.x += (mag.tx - mag.x) * Math.min(1, dt * 6); mag.y += (mag.ty - mag.y) * Math.min(1, dt * 6); mag.a += (mag.ta - mag.a) * Math.min(1, dt * 0.8);
+    if (time > nextTap) { tapAt = time; nextTap = time + 2.4 / Math.max(0.2, PARAMS.taps); }
+    draw(simulate(dt));
     raf = requestAnimationFrame(frame);
   }
-  raf = requestAnimationFrame(frame);
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  if (!reduce) raf = requestAnimationFrame(frame);
   return () => {
     cancelAnimationFrame(raf); ro.disconnect();
     canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move); canvas.removeEventListener('pointerup', up); canvas.removeEventListener('pointercancel', up);

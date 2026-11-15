@@ -2,26 +2,34 @@
 // strokes. The brush is forty bristles in a teardrop footprint that turns with the stroke and grows with pressure.
 // Each bristle carries its own ink and lays it down as it moves, so as a stroke runs long the outer bristles run dry
 // first and leave the streaked "flying white" (飛白). Where the brush slows, at a turn or the end of a stroke, ink
-// pools darker; a quick flick lifts it to a sharp point. Then the seal goes on, and a fresh sheet.
+// pools denser; a quick flick lifts it to a sharp point. Then the seal goes on, and a fresh sheet. It writes in pale
+// gold on black paper, as on the old gilded sutras.
 const PARAMS = { pressure: 1, ink: 1, speed: 1 };
+const INK = '240,214,150';                                          // pale gold, as on the old gilded sutras: warm on the black page
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;background:#0f0d14';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;background:#0c0c0e';
   stage.append(canvas);
   const ctx = canvas.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // a seeded random: every sheet differs, but a given moment always looks the same (posters, frame stepping)
+  let rs = 11;
+  const rnd = () => { rs = (rs + 0x6D2B79F5) | 0; let t = Math.imul(rs ^ (rs >>> 15), 1 | rs); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   let W = 1, H = 1, paper = null, ink = null, ig = null, box = { x: 0, y: 0, s: 1 };
   const resize = () => {
     const d = Math.min(devicePixelRatio, 2); W = stage.clientWidth || 1; H = stage.clientHeight || 1;
     canvas.width = Math.max(1, (W * d) | 0); canvas.height = Math.max(1, (H * d) | 0); ctx.setTransform(d, 0, 0, d, 0, 0);
-    // dark indigo sutra paper (written in gold, as on the old illuminated sutras): a little uneven, with fibres
+    // black paper, the page's own near-black, with only the faintest fibres where the light catches them
     paper = document.createElement('canvas'); paper.width = canvas.width; paper.height = canvas.height;
-    const g = paper.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); g.fillStyle = '#0f0d14'; g.fillRect(0, 0, W, H);
-    for (let i = 0; i < W * H / 40; i++) { g.fillStyle = `rgba(${Math.random() < 0.5 ? '0,0,0' : '170,160,200'},${Math.random() * 0.06})`; g.fillRect(Math.random() * W, Math.random() * H, 1 + Math.random() * 2, 1 + Math.random() * 2); }
-    g.lineWidth = 0.6; for (let i = 0; i < W * H / 900; i++) { const x = Math.random() * W, y = Math.random() * H, a = Math.random() * 6.28, l = 6 + Math.random() * 18; g.strokeStyle = `rgba(150,140,185,${0.04 + Math.random() * 0.05})`; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a + 0.5) * l * 0.5, y + Math.sin(a + 0.5) * l * 0.5, x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
+    const g = paper.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); g.fillStyle = '#0c0c0e'; g.fillRect(0, 0, W, H);
+    rs = 11;
+    g.lineWidth = 0.6; for (let i = 0; i < W * H / 1400; i++) { const x = rnd() * W, y = rnd() * H, a = rnd() * 6.28, l = 6 + rnd() * 18; g.strokeStyle = `rgba(150,145,140,${0.02 + rnd() * 0.03})`; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a + 0.5) * l * 0.5, y + Math.sin(a + 0.5) * l * 0.5, x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
     ink = document.createElement('canvas'); ink.width = canvas.width; ink.height = canvas.height; ig = ink.getContext('2d'); ig.setTransform(d, 0, 0, d, 0, 0);
     const s = Math.min(W, H) * 0.78; box = { x: (W - s) / 2 - s * 0.05, y: (H - s) / 2, s };
     restart();
+    // reduced motion: write the whole character and press the seal at once, then keep that still
+    if (reduce) { for (let i = 0; i < 4000 && state !== 'seal'; i++) update(1 / 60); seal = 1; draw(); }
   };
 
   // 永, stroke by stroke: points are [x, y, pressure] in a unit square, y downward
@@ -37,7 +45,7 @@ export default function (stage) {
   let paths = [];
   function prepare() {
     paths = STROKES.map(k => {
-      const pts = k.map(([x, y, p]) => [x + (Math.random() - 0.5) * 0.012, y + (Math.random() - 0.5) * 0.012, p]);
+      const pts = k.map(([x, y, p]) => [x + (rnd() - 0.5) * 0.012, y + (rnd() - 0.5) * 0.012, p]);
       const out = [];
       for (let i = 0; i < pts.length - 1; i++) {
         const a = pts[Math.max(0, i - 1)], b = pts[i], c = pts[i + 1], d = pts[Math.min(pts.length - 1, i + 2)];
@@ -50,13 +58,12 @@ export default function (stage) {
   }
   const NB = 40;
   const bristles = Array.from({ length: NB }, (_, i) => {
-    const a = Math.random() * 6.283, r = Math.sqrt(Math.random());
-    return { ox: Math.cos(a) * r, oy: Math.sin(a) * r, edge: r, ink: 1, px: 0, py: 0, on: false, w: 0.7 + Math.random() * 0.6 };
+    const a = rnd() * 6.283, r = Math.sqrt(rnd());
+    return { ox: Math.cos(a) * r, oy: Math.sin(a) * r, edge: r, ink: 1, px: 0, py: 0, on: false, w: 0.7 + rnd() * 0.6 };
   });
   let si = 0, sd = 0, state = 'write', stateT = 0, seal = 0;
   function restart() { ig.clearRect(0, 0, W, H); prepare(); si = 0; sd = 0; state = 'write'; stateT = 0; seal = 0; dip(); }
-  function dip() { for (const b of bristles) { b.ink = PARAMS.ink * (1.1 - b.edge * 0.35) * (0.85 + Math.random() * 0.3); b.on = false; } }
-  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  function dip() { for (const b of bristles) { b.ink = PARAMS.ink * (1.1 - b.edge * 0.35) * (0.85 + rnd() * 0.3); b.on = false; } }
 
   // where the brush is along the current stroke, at arc length s
   const at = (path, s) => {
@@ -73,18 +80,18 @@ export default function (stage) {
       const bx = X + c * along - s * across, by = Y + s * along + c * across;
       if (b.on && b.ink > 0.02) {
         const dist = Math.hypot(bx - b.px, by - b.py), a = Math.min(0.9, b.ink * 0.5 * (0.6 + 0.4 * slow));
-        ig.strokeStyle = `rgba(240,214,150,${a})`; ig.lineWidth = Math.max(0.8, R * 0.2 * b.w);
+        ig.strokeStyle = `rgba(${INK},${a})`; ig.lineWidth = Math.max(0.8, R * 0.2 * b.w);
         ig.beginPath(); ig.moveTo(b.px, b.py); ig.lineTo(bx, by); ig.stroke();
-        if (b.ink > 0.4 && Math.random() < 0.15) { ig.fillStyle = `rgba(240,214,150,${0.04 * slow})`; ig.beginPath(); ig.arc(bx, by, R * 0.35, 0, 7); ig.fill(); }   // wet ink feathers into the paper
-        b.ink -= dist / box.s * (0.45 + b.edge * 1.5) * (0.8 + Math.random() * 0.4);   // edge bristles run dry first
+        if (b.ink > 0.4 && rnd() < 0.15) { ig.fillStyle = `rgba(${INK},${0.04 * slow})`; ig.beginPath(); ig.arc(bx, by, R * 0.35, 0, 7); ig.fill(); }   // wet ink feathers into the paper
+        b.ink -= dist / box.s * (0.45 + b.edge * 1.5) * (0.8 + rnd() * 0.4);   // edge bristles run dry first
       }
       b.px = bx; b.py = by; b.on = true;
     }
   }
 
   let raf, last = performance.now();
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000) * PARAMS.speed; last = now; stateT += dt;
+  function update(dt) {
+    stateT += dt;
     if (state === 'write') {
       const path = paths[si], L = path[path.length - 1][3];
       // speed along the stroke: settle in slowly, run through the middle, slow again into the end (except flicks)
@@ -96,21 +103,27 @@ export default function (stage) {
     } else if (state === 'lift' && stateT > 0.32) { state = 'write'; stateT = 0; }
     else if (state === 'seal') { seal = Math.min(1, stateT / 0.25); if (stateT > 4.2) { state = 'fade'; stateT = 0; } }
     else if (state === 'fade' && stateT > 1) restart();
-
+  }
+  function draw() {
     ctx.globalAlpha = 1; ctx.drawImage(paper, 0, 0, W, H);
     ctx.globalAlpha = state === 'fade' ? 1 - stateT : 1; ctx.drawImage(ink, 0, 0, W, H);
     if (seal > 0) {                                                // the red seal, pressed in at the lower right
       const s = box.s * 0.1, x = box.x + box.s * 1.13, y = box.y + box.s * 0.95, k = 1 + (1 - seal) * 0.25;
       ctx.save(); ctx.translate(x, y); ctx.scale(k, k); ctx.globalAlpha *= seal * 0.92;
       ctx.fillStyle = '#d8382a'; ctx.beginPath(); ctx.roundRect(-s / 2, -s / 2, s, s, s * 0.08); ctx.fill();
-      ctx.strokeStyle = '#0f0d14'; ctx.lineWidth = s * 0.07; ctx.lineCap = 'square';
+      ctx.strokeStyle = '#0c0c0e'; ctx.lineWidth = s * 0.07; ctx.lineCap = 'square';
       const g = [[-0.3, -0.3, 0.3, -0.3], [0, -0.3, 0, 0.32], [-0.3, 0, 0.3, 0], [-0.3, 0.32, -0.05, 0.12], [0.3, 0.32, 0.05, 0.12]];   // carved lines
       ctx.beginPath(); for (const [a, b, c, d] of g) { ctx.moveTo(a * s, b * s); ctx.lineTo(c * s, d * s); } ctx.stroke();
       ctx.restore();
     }
     ctx.globalAlpha = 1;
+  }
+  function frame(now) {
+    update(Math.min(0.05, (now - last) / 1000) * PARAMS.speed); last = now;
+    draw();
     raf = requestAnimationFrame(frame);
   }
-  raf = requestAnimationFrame(frame);
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  if (!reduce) raf = requestAnimationFrame(frame);
   return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
 }

@@ -154,10 +154,10 @@ check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT })
   check('language menu: a click mid-fade reopens it', st.expanded === 'true' && !st.hidden, st);
   await page.keyboard.press('Escape'); await page.waitForTimeout(200);
 }
-// 6b. Ferrofluid's magnet and SPH water's tilt stay under a resting mouse (they used to wander off after ~2 s)
+// 6b. SPH water's tilt stays under a resting mouse (they used to wander off after ~2 s)
 {
   const sp = await ctx.newPage(); sp.on('pageerror', e => errors.push('stage: ' + e.message));
-  for (const [id, probe] of [['fluid/ferrofluid', 'S.m'], ['fluid/sph-water', 'ang']]) {
+  for (const [id, probe] of [['fluid/sph-water', 'ang']]) {
     const src = await (await fetch(base + '/anims/' + id + '.js')).text();
     await sp.route('**/anims/' + id + '.js', r => r.fulfill({ body: src.replace('function frame(now) {', `function frame(now) { window.__v = ${probe};`), contentType: 'text/javascript' }));
     await sp.goto(base + '/stage.html?src=anims/' + id + '.js'); await sp.waitForTimeout(1500);
@@ -172,66 +172,15 @@ check('logo turn is .24 s', brandT.split(',')[0].trim() === '0.24s', { brandT })
   await sp.close();
 }
 
-// 6c. Ferrofluid's switch, frame by frame: a click mid-way never makes the film or the needles jump (they used to pop
-// when the switch was reversed during a transition), and with the magnet off the puddle stays put while the block
-// slides through it (it used to follow the magnet as if the field still pulled it)
-{
-  const sp = await ctx.newPage(); sp.on('pageerror', e => errors.push('ferro switch: ' + e.message));
-  const src = await (await fetch(base + '/anims/fluid/ferrofluid.js')).text();
-  const hook = 'gl.drawArrays(gl.TRIANGLES, 0, 3);\n    raf';
-  await sp.route('**/anims/fluid/ferrofluid.js', r => r.fulfill({ body: src.replace(hook, '(window.__f ||= []).push([CON, SON, S.m, S.pc]); ' + hook), contentType: 'text/javascript' }));
-  await sp.goto(base + '/stage.html?src=anims/fluid/ferrofluid.js&mode=detail&paused=1');
-  await sp.waitForFunction(() => window.__ready === true, null, { timeout: 20000 });
-  const run = (n, act) => sp.evaluate(async ([n, act]) => {
-    const c = document.querySelector('canvas'), b = c.getBoundingClientRect();
-    if (act === 'click') c.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    for (let i = 0; i < n; i++) {
-      if (act) c.dispatchEvent(new PointerEvent('pointermove', { clientX: b.left + b.width * (0.5 + (act === 'drag' ? 0.06 * Math.sin(i * Math.PI / 90) : 0)), clientY: b.top + b.height * 0.55, pointerType: 'mouse', bubbles: true }));
-      window.__clock.step(); if (i % 30 === 29) await new Promise(r => window.__clock.realRAF(r));
-    }
-  }, [n, act]);
-  // off; back on while the oil is a third of the way down (where the old switch popped); off again on the way up
-  await run(360); await run(132, 'click'); await run(60, 'click'); await run(300, 'click');
-  const sw = await sp.evaluate(() => window.__f.slice(360));
-  let jc = 0, js = 0; for (let i = 1; i < sw.length; i++) { jc = Math.max(jc, Math.abs(sw[i][0] - sw[i - 1][0])); js = Math.max(js, Math.abs(sw[i][1] - sw[i - 1][1])); }
-  check('ferrofluid: reversing the switch mid-way never jumps the film or the needles', jc < 0.05 && js < 0.12, { filmStep: +jc.toFixed(3), needleStep: +js.toFixed(3) });
-  // the magnet held over the middle of the puddle with the field on (so the puddle centres under it), switched off,
-  // then slid slowly to and fro, 3 s a swing: the old puddle followed it most of the way
-  await sp.evaluate(() => { document.querySelector('canvas').dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-  await run(300, 'hold'); await run(300, 'click');
-  await run(90, 'drag'); const n0 = await sp.evaluate(() => window.__f.length); await run(360, 'drag');
-  const dr = await sp.evaluate(n0 => window.__f.slice(n0), n0), span = k => Math.max(...dr.map(f => f[k])) - Math.min(...dr.map(f => f[k]));
-  const mag = span(2), pud = span(3);
-  check('ferrofluid: with the magnet off the puddle stays while the block slides', mag > 0.1 && pud < 0.25 * mag, { magnet: +mag.toFixed(3), puddle: +pud.toFixed(3) });
-  await sp.close();
-}
-
 // 7. touch phone: hearts stay visible without hover
 const m = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 const mp = await m.newPage(); mp.on('pageerror', e => errors.push('mobile: ' + e.message));
 await mp.goto(base + '/index.html#/'); await mp.waitForSelector('.card'); await mp.waitForTimeout(1200);
 const mob = await mp.evaluate(() => ({ fine: matchMedia('(hover: hover) and (pointer: fine)').matches, op: getComputedStyle(document.querySelector('.card .heart')).opacity, tf: getComputedStyle(document.querySelector('.card .heart')).transform }));
 check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && mob.tf === 'none', mob);
-// ferrofluid on touch: a tap switches the magnet without yanking it to the finger; a drag moves it without switching it
-{
-  const fp = await m.newPage(); fp.on('pageerror', e => errors.push('ferro touch: ' + e.message));
-  const src = await (await fetch(base + '/anims/fluid/ferrofluid.js')).text();
-  await fp.route('**/anims/fluid/ferrofluid.js', r => r.fulfill({ body: src.replace('function frame(now) {', 'function frame(now) { window.__s = { on: onTarget, px, py };'), contentType: 'text/javascript' }));
-  await fp.goto(base + '/stage.html?src=anims/fluid/ferrofluid.js'); await fp.waitForTimeout(1500);
-  const c = await fp.evaluate(() => { const r = document.querySelector('canvas').getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
-  const st = () => fp.evaluate(() => ({ ...window.__s }));
-  const cdp = await m.newCDPSession(fp), touch = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
-  const s0 = await st(); await fp.touchscreen.tap(c.x + c.w * 0.8, c.y + c.h * 0.8); await fp.waitForTimeout(400); const s1 = await st();
-  await touch('touchStart', c.x + 100, c.y + c.h * 0.6);
-  for (let i = 1; i <= 12; i++) { await touch('touchMove', c.x + 100 + i * 10, c.y + c.h * 0.6); await fp.waitForTimeout(16); }
-  await touch('touchEnd'); await fp.waitForTimeout(400); const s2 = await st();
-  check('ferrofluid touch: a tap switches without moving, a drag moves without switching', s1.on !== s0.on && s1.px === s0.px && s2.on === s1.on && s2.px !== s1.px, { s0, s1, s2 });
-  await fp.close();
-}
-
 // previous / next: a keyboard step (Enter on the focused pager link) swaps the detail view at once; a click softens it
 {
-  await page.evaluate(() => { location.hash = '#/a/ferrofluid'; }); await page.waitForTimeout(1200);
+  await page.evaluate(() => { location.hash = '#/a/honey-coil'; }); await page.waitForTimeout(1200);
   await page.focus('.d-next'); await page.keyboard.press('Enter'); await page.waitForTimeout(30);
   const kb = await page.evaluate(() => document.getAnimations().filter(a => a.effect?.target?.classList?.contains('d-body')).length);
   await page.waitForTimeout(600);
@@ -307,7 +256,7 @@ check('touch: hearts visible at rest', mob.fine === false && mob.op === '1' && m
   const dc = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const dp = await dc.newPage(); await dp.goto(base + '/index.html#/c/text'); await dp.waitForTimeout(3000);
   const d1 = await dp.evaluate(() => ({ top: Math.round(document.querySelector('#sec-text').getBoundingClientRect().top), frames: document.querySelectorAll('#front-media iframe').length, lines: document.querySelectorAll('.front-line').length }));
-  await dp.goto(base + '/index.html?x=1#/a/ferrofluid'); await dp.waitForTimeout(3000);
+  await dp.goto(base + '/index.html?x=1#/a/honey-coil'); await dp.waitForTimeout(3000);
   const d2 = await dp.evaluate(() => ({ open: !document.querySelector('#detail').hidden, frames: document.querySelectorAll('#front-media iframe').length, lines: document.querySelectorAll('.front-line').length }));
   check('deep links skip the hero: a category lands on its section, an effect opens, the hero stays still', d1.top >= 0 && d1.top < 140 && d1.frames === 0 && d1.lines === 0 && d2.open && d2.frames === 0 && d2.lines === 0, { d1, d2 });
   await dc.close();

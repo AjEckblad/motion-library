@@ -1,6 +1,6 @@
 # Motion Library
 
-> 224 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
+> 223 hand-made web animations and effects. Each one is a single plain JavaScript file with no dependencies: watch it live, read how it works, tune it with sliders, then copy the code or install it with `npx motion-library add <id>`. Every slider is also a CLI flag, so `npx motion-library add confetti --pieces 300` installs it already tuned. Licence: MIT-0.
 
 ## Install
 
@@ -87,7 +87,7 @@ A slime mould grows a network between the cities around Tokyo, tightening into t
 Each agent senses trail ahead-left, ahead and ahead-right, turns toward the strongest and deposits more; the trail diffuses and decays, so only used routes survive.
 
 Settings: --agents 384 (128 to 768, step 64; Grid (agents = grid²)); --sensor 0.39 (0.15 to 1, step 0.01; Sensor angle); --decay 0.9 (0.8 to 0.98, step 0.005; Trail decay).
-Renderer: WebGL. Size: 12.4 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/physarum.html
+Renderer: WebGL. Size: 13.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/physarum.html
 
 ### Lightning arcs
 
@@ -104,12 +104,12 @@ Renderer: Canvas 2D. Size: 4.0 KB. Reduced motion: no. Page: https://ajeckblad.g
 
 Iron filings is a Canvas effect: steel slivers hop into loops round a hidden magnet; drag it. One plain JavaScript file with no dependencies; add it with npx motion-library add iron-filings.
 
-Steel filings on paper over one hidden bar magnet hop on each tap and settle into the classic loops from pole to pole; drag the magnet.
+Steel filings on paper over one hidden bar magnet hop on each tap and settle into the classic loops from pole to pole. Tap the paper, or slide the magnet and it stays where you leave it.
 
 Each filing aligns with the local field and is pulled toward the nearest contour of the bar's flux function, the sum of each pole's charge times the cosine of its angle from the bar's axis.
 
 Settings: --filings 7000 (2000 to 16000, step 500; Filings); --lines 16 (6 to 40, step 2; Field lines); --taps 0.45 (0.2 to 3, step 0.05; Tap rate).
-Renderer: Canvas 2D. Size: 9.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/iron-filings.html
+Renderer: Canvas 2D. Size: 11.1 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/iron-filings.html
 
 ### Galton board
 
@@ -128,10 +128,10 @@ Pin art is a WebGL effect: a hand and a face rise in steel relief; press to push
 
 A hand, a face and a ripple rise in relief through steel pins; press to push pins back.
 
-Instanced cylinders with domed heads move only forward, so imprints stay until a sweep resets them; a raking light lets taller pins shade lower ones.
+Each pin is one instanced chrome mesh lit like a product shot: a softbox up and to the left, a strip light on the right, and a shadow map so taller pins shade their neighbours. Pins only move forward, so imprints stay until a sweep resets them.
 
 Settings: --pins 72 (32 to 110, step 2; Pins across); --depth 1.2 (0.4 to 2, step 0.05; Relief depth); --speed 1 (0.4 to 2, step 0.1; Speed).
-Renderer: WebGL. Size: 14.4 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/pin-art.html
+Renderer: WebGL. Size: 22.6 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/pin-art.html
 
 ### 3D paper confetti
 
@@ -142,7 +142,7 @@ Paper confetti bursts from two cannons, tumbles and flutters down.
 Scaling each piece’s height by the cosine of its spin angle fakes the 3D tumble, and the sign picks front or back colour; heavy drag and flutter bring it down.
 
 Settings: --pieces 160 (40 to 400, step 10; Pieces); --gravity 1 (0.2 to 2, step 0.05; Gravity).
-Renderer: Canvas 2D. Size: 2.7 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/confetti.html
+Renderer: Canvas 2D. Size: 4.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/confetti.html
 
 ### Firefly sync
 
@@ -219,7 +219,7 @@ A brush writes 永 stroke by stroke, with dry streaks on long strokes and pooled
 The brush is forty bristles in a teardrop footprint that turns with the stroke and spreads with pressure; each carries its own ink and runs dry.
 
 Settings: --pressure 1 (0.5 to 1.6, step 0.05; Pressure); --ink 1 (0.4 to 2, step 0.05; Ink load); --speed 1 (0.4 to 2.5, step 0.1; Speed).
-Renderer: Canvas 2D. Size: 8.9 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/calligraphy.html
+Renderer: Canvas 2D. Size: 9.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/calligraphy.html
 
 ### Harmonograph
 
@@ -314,14 +314,14 @@ Renderer: WebGL. Size: 9.5 KB. Reduced motion: no. Page: https://ajeckblad.githu
 
 ### Liquid image distortion
 
-Liquid image distortion is a WebGL effect: a photo ripples like water; move over it to stir it harder. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-distort.
+Liquid image distortion is a WebGL effect: water over an orange slice; move through it to send out rings. One plain JavaScript file with no dependencies; add it with npx motion-library add liquid-distort.
 
-An image ripples like water, rippling harder where the pointer drags through it.
+A thin layer of water moves over an orange slice on a plain blue field; the pointer sends out rings that bend the slice and catch the light.
 
-Each pixel samples the texture at a spot shifted by animated noise, and the shift grows near the pointer.
+The water is a height field of slow crossing waves plus rings from the pointer’s trail, worked out at quarter resolution; each pixel sees the picture shifted by the slope, red a little less than blue, and the curve of the surface adds caustics and highlights.
 
 Settings: --strength 0.04 (0 to 0.12, step 0.002; Strength); --speed 0.4 (0 to 1.5, step 0.05; Flow speed).
-Renderer: WebGL. Size: 4.8 KB. Reduced motion: no. Page: https://ajeckblad.github.io/motion-library/fx/liquid-distort.html
+Renderer: WebGL. Size: 12.5 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/liquid-distort.html
 
 ### Lava lamp
 
@@ -355,17 +355,6 @@ A thickness-and-heat simulation runs on the raymarched mountain; the vent surges
 
 Settings: --flow 1 (0.5 to 1.6, step 0.05; Flow); --cooling 1 (0.4 to 2.5, step 0.1; Cooling); --speed 1 (0.5 to 1.5, step 0.1; Speed).
 Renderer: WebGL. Size: 30.3 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/lava-flow.html
-
-### Ferrofluid
-
-Ferrofluid is a WebGL effect: black oil spikes over a magnet; move it, or tap to switch it off. One plain JavaScript file with no dependencies; add it with npx motion-library add ferrofluid.
-
-Glossy black magnetic oil lies in a puddle on a studio table and climbs over a square magnet standing in it, breaking into a crown of sharp needles joined by smooth valleys, tallest and leaning out at the edges and corners; move the pointer to slide the magnet through the puddle (it drags the oil along), and click or tap to switch it off and watch the needles melt and the oil slide off.
-
-Raymarched distance field: the puddle smooth-unioned with a film on the block and concave cones on a turned, jittered hexagonal lattice (each sample visits its nearest lattice point and six neighbours, looked up with the lean undone), shaded only by studio reflections, the puddle mirroring the crown.
-
-Settings: --spikes 260 (80 to 500, step 10; Spikes); --strength 1 (0 to 2, step 0.05; Magnet strength); --magnet 0 (0 to 1, step 1; Magnet).
-Renderer: WebGL. Size: 28.2 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ferrofluid.html
 
 ### Paper marbling
 
@@ -446,14 +435,14 @@ Renderer: WebGL. Size: 27.4 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Open ocean
 
-Open ocean is a WebGL effect: grey, windy waves roll in; move to slide the sun’s glow. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
+Open ocean is a WebGL effect: raise the wind from a sparkling calm to a grey gale. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.
 
-A grey, windy open sea under an overcast sky: four GPU FFTs turn a JONSWAP wave spectrum, held in a narrow fan round the wind, into long-crested Gerstner waves that roll toward you, and foam forms and streaks downwind where the surface folds.
+The open sea from a small boat. In light air the sky is clear, the water deep blue and the sun breaks into thousands of sparkles; as the wind rises, clouds gather and whitecaps break, and at the top tall slate waves hide the horizon under a grey sky.
 
-Wind sets wave height and how often whitecaps break, chop sharpens the crests, sun is the height of the hidden sun behind the clouds; the pointer moves its bright patch along the horizon.
+Four GPU FFTs turn a wave spectrum for the wind into moving waves, and foam forms where the surface folds. Each patch of water draws how many tiny facets catch the sun, so the glitter comes as single points. Wind sets the sea and the weather, chop sharpens the crests, sun sets its height; move the pointer to slide it.
 
-Settings: --wind 10 (5 to 13, step 0.5; Wind (m/s)); --chop 1.15 (0.6 to 1.9, step 0.05; Choppiness); --sun 10 (1 to 20, step 0.5; Sun height (°)).
-Renderer: WebGL. Size: 35.9 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
+Settings: --wind 10 (2 to 20, step 0.5; Wind (m/s)); --chop 1.15 (0.6 to 1.9, step 0.05; Choppiness); --sun 20 (2 to 50, step 1; Sun height (°)).
+Renderer: WebGL. Size: 44.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/ocean.html
 
 ### Honey pour
 
@@ -720,7 +709,7 @@ A drone flight up a fjord: forest on the shores, rock walls cut by gullies, snow
 The land is built once when it starts: broad mountains, a valley carved along the flight path and gullies that run downhill, with the sun’s soft shadows and how much sky each spot sees. Air scattering gives the sky its colour and far ridges their blue haze, and frames drawn smaller are blended over time for clean edges.
 
 Settings: --speed 1 (0 to 3, step 0.05; Flight speed); --sun 9 (2 to 50, step 1; Sun height (°)).
-Renderer: WebGL. Size: 39.4 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html
+Renderer: WebGL. Size: 40.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/terrain-flyover.html
 
 ### Volumetric clouds
 
@@ -1426,14 +1415,14 @@ Renderer: WebGL. Size: 13.2 KB. Reduced motion: yes. Page: https://ajeckblad.git
 
 ### Mud cracks
 
-Mud cracks is a Canvas effect: wet clay dries into curled plates; drag to wet a patch again. One plain JavaScript file with no dependencies; add it with npx motion-library add mud-cracks.
+Mud cracks is a WebGL effect: wet clay dries into curled plates under a low sun; drag to wet it again. One plain JavaScript file with no dependencies; add it with npx motion-library add mud-cracks.
 
-Wet, glossy clay dries unevenly and tears into curled plates, the cracks widening as it shrinks; then rain soaks it and the cracks close. Press and drag to wet a patch.
+Dark wet clay dries unevenly under a low sun and tears into curled plates: first big cracks meeting in Y-shapes, then smaller ones that split the plates and stop at the first cracks. Rain pits it, soaks it and closes the cracks. Press and drag to wet a patch.
 
-Even shrinkage breaks clay into polygons, so the network is a noise-warped Voronoi diagram; each wall tears from its middle out when its spot dries, and a distance transform shades the gaps and curled rims.
+The cracks are a noise-warped Voronoi diagram measured as the exact distance to the nearest wall, and each cell splits again along walls between seeds of its own. A crack opens where the moisture falls below its own threshold; the plate rises toward it, and the low sun lights the walls that face it and casts the rims’ shadows into the gaps.
 
 Settings: --spacing 1 (0.6 to 1.6, step 0.05; Plate size); --speed 1 (0.3 to 2, step 0.05; Speed); --curl 1 (0 to 2, step 0.05; Curl).
-Renderer: Canvas 2D. Size: 14.8 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/mud-cracks.html
+Renderer: WebGL. Size: 20.7 KB. Reduced motion: yes. Page: https://ajeckblad.github.io/motion-library/fx/mud-cracks.html
 
 
 ## Retro & signal

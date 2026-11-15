@@ -18,10 +18,10 @@ export const FR = {
  },
  "ocean": {
   "title": "Pleine mer",
-  "trick": "Des vagues grises roulent sous le vent ; bougez pour déplacer la lueur du soleil",
+  "trick": "Montez le vent d’une mer calme et scintillante à un coup de vent gris",
   "notes": [
-   "Une mer ouverte, grise et ventée, sous un ciel couvert : quatre FFT sur le GPU transforment à chaque image un spectre JONSWAP, resserré en un étroit éventail autour du vent, en longues vagues de Gerstner qui roulent vers vous, et l’écume naît là où la surface se replie et s’étire en traînées sous le vent.",
-   "Le vent règle la hauteur des vagues et la fréquence des moutons, le clapot affûte les crêtes, le soleil est la hauteur du soleil caché derrière les nuages ; le pointeur déplace sa tache claire le long de l’horizon."
+   "La pleine mer vue d’un petit bateau. Par petit vent, le ciel est clair, l’eau d’un bleu profond et le soleil se brise en milliers d’éclats ; quand le vent forcit, les nuages arrivent et les moutons se forment, et au plus fort de hautes vagues gris ardoise cachent l’horizon sous un ciel gris.",
+   "Quatre FFT sur le GPU transforment un spectre de vagues pour ce vent en vagues qui bougent, et l’écume naît là où la surface se replie. Chaque bout d’eau tire au sort combien de facettes minuscules renvoient le soleil : le scintillement arrive en points séparés. Le vent règle la mer et le temps, le clapot affûte les crêtes, la hauteur du soleil le place ; bougez le pointeur pour le déplacer."
   ]
  },
  "honey-coil": {
@@ -156,7 +156,7 @@ export const FR = {
   "title": "Limaille de fer",
   "trick": "Des éclats d’acier sautent en boucles autour d’un aimant caché ; faites-le glisser",
   "notes": [
-   "Des limailles d’acier sur une feuille, au-dessus d’un aimant droit caché, sautent à chaque tapotement et se rangent en boucles classiques d’un pôle à l’autre ; faites glisser l’aimant.",
+   "Sur du papier posé sur un aimant droit caché, des limailles d’acier sautent à chaque tapotement et s’alignent en boucles d’un pôle à l’autre. Tapotez le papier, ou faites glisser l’aimant : il reste là où vous le laissez.",
    "Chaque limaille s’aligne sur le champ local et est attirée vers la ligne de niveau la plus proche de la fonction de flux de l’aimant : la somme de la charge de chaque pôle multipliée par le cosinus de son angle avec l’axe du barreau."
   ]
  },
@@ -173,7 +173,7 @@ export const FR = {
   "trick": "Une main et un visage surgissent en relief d’acier ; appuyez pour les repousser",
   "notes": [
    "Une main, un visage et une onde surgissent en relief à travers des aiguilles d’acier ; appuyez pour les repousser.",
-   "Des cylindres instanciés à tête bombée ne bougent que vers l’avant, si bien que les empreintes restent jusqu’à ce qu’un balayage les efface ; une lumière rasante fait que les aiguilles hautes ombrent les plus basses."
+   "Chaque épingle est un même maillage chromé instancié, éclairé comme une photo de produit : une boîte à lumière en haut à gauche, une bande lumineuse à droite et une carte d’ombres pour que les plus hautes ombrent leurs voisines. Elles n’avancent que vers l’avant : l’empreinte reste jusqu’à ce qu’un balayage l’efface."
   ]
  },
  "confetti": {
@@ -306,10 +306,10 @@ export const FR = {
  },
  "liquid-distort": {
   "title": "Distorsion liquide d’image",
-  "trick": "Une photo ondule comme de l’eau ; passez dessus pour la remuer davantage",
+  "trick": "De l’eau sur une tranche d’orange ; passez dessus pour faire des ronds",
   "notes": [
-   "Une image ondule comme de l’eau, plus fort là où le pointeur la traverse.",
-   "Chaque pixel lit la texture à un point décalé par un bruit animé, et le décalage augmente près du pointeur."
+   "Une fine couche d’eau bouge sur une tranche d’orange posée sur un fond bleu uni ; le pointeur lance des ronds qui courbent la tranche et accrochent la lumière.",
+   "L’eau est un champ de hauteurs : de lentes vagues croisées, plus les ronds laissés par la trace du pointeur, calculés au quart de la résolution ; chaque pixel voit l’image décalée selon la pente, le rouge un peu moins que le bleu, et la courbure ajoute caustiques et reflets."
   ]
  },
  "lava-lamp": {
@@ -334,14 +334,6 @@ export const FR = {
   "notes": [
    "Un volcan au crépuscule : la lave rouge vif jaillit du cratère et dévale les ravines en chenaux incandescents, des radeaux de croûte sombre dérivant dessus, sa lueur sur les pentes et le panache.",
    "Une simulation d’épaisseur et de chaleur tourne sur la montagne en raymarching ; le cratère pulse, chaque plaque de croûte fige à son âge et suit le courant, et la couleur suit la loi de Planck."
-  ]
- },
- "ferrofluid": {
-  "title": "Ferrofluide",
-  "trick": "Une huile noire se hérisse sur un aimant ; bougez-le, ou touchez pour l’éteindre",
-  "notes": [
-   "Une huile magnétique noire et brillante forme une flaque sur une table de studio et grimpe sur un aimant carré posé dedans, se hérissant en une couronne d’aiguilles fines reliées par des creux lisses, plus hautes et penchées vers l’extérieur aux bords et aux coins ; déplacez le pointeur pour faire glisser l’aimant dans la flaque (il entraîne l’huile), et cliquez ou touchez pour l’éteindre et voir les aiguilles fondre et l’huile glisser.",
-   "Champ de distance en raymarching : la flaque unie en douceur à un film sur le bloc et à des cônes concaves sur un réseau hexagonal tourné et décalé au hasard (chaque échantillon visite son point le plus proche et ses six voisins, cherchés en annulant l’inclinaison), éclairé seulement par les reflets du studio ; la flaque reflète la couronne."
   ]
  },
  "marbling": {
@@ -1786,10 +1778,10 @@ export const FR = {
  },
  "mud-cracks": {
   "title": "Craquelures de boue",
-  "trick": "L’argile mouillée sèche en plaques recourbées ; faites glisser pour remouiller une zone",
+  "trick": "L’argile mouillée sèche en plaques recourbées sous un soleil rasant ; faites glisser pour la remouiller",
   "notes": [
-   "L’argile mouillée et brillante sèche inégalement et se fend en plaques aux bords relevés, les fentes s’élargissant à mesure qu’elle rétrécit ; puis la pluie la détrempe et les fentes se referment. Maintenez et glissez pour mouiller une zone.",
-   "Un retrait uniforme casse l’argile en polygones : le réseau est donc un diagramme de Voronoï déformé par du bruit ; chaque paroi s’ouvre depuis son milieu quand sa zone sèche, et une transformée de distance ombre les fentes et les bords relevés."
+   "L’argile sombre et mouillée sèche inégalement sous un soleil rasant et se fend en plaques recourbées : d’abord de grandes fentes qui se rejoignent en Y, puis de plus petites qui partagent les plaques et s’arrêtent contre les premières. La pluie la crible de petits trous, la détrempe et referme les fentes. Maintenez et glissez pour mouiller une zone.",
+   "Les fentes forment un diagramme de Voronoï déformé par du bruit, mesuré comme la distance exacte à la paroi la plus proche, et chaque cellule se divise encore le long de parois entre ses propres germes. Une fente s’ouvre là où l’humidité passe sous son seuil ; la plaque se relève vers elle, et le soleil rasant éclaire les parois tournées vers lui et projette l’ombre des bords dans les fentes."
   ]
  }
 };

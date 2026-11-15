@@ -1,6 +1,6 @@
 # Motion Library: project rules
 
-A free, open-source catalogue of 224 live web effects, each one a single plain-JavaScript file you can tune with
+A free, open-source catalogue of 223 live web effects, each one a single plain-JavaScript file you can tune with
 sliders and copy. Live at https://ajeckblad.github.io/motion-library (repo AjEckblad/motion-library, public, GitHub
 Pages from main). The site is in English, 中文, Español and Français.
 

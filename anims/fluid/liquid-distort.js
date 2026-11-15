@@ -1,64 +1,174 @@
-// Liquid image distortion: the picture is a texture, and every pixel samples it from a spot shifted by
-// flowing noise. Near the pointer the shift grows, like a finger dragged through water.
+// Liquid image distortion: a thin layer of water over a picture. The picture is plain on purpose, one orange slice on
+// a deep blue field, so every bend in it is the water's doing. The water's surface is a height field: a slow swell of
+// flowing noise, plus rings that spread from wherever the pointer has just been (left alone, an unseen finger traces
+// a slow loop). Each pixel looks down through that surface and sees the picture shifted by the surface's slope, the
+// way a pool floor wobbles; red, green and blue bend by slightly different amounts, so sharp edges fringe a little.
+// Where the surface curves like a lens the light gathers into bright caustic threads, and the crests catch a highlight
+// from a light at the upper left, with a faint sky reflection at grazing slopes. The picture is drawn in the same
+// shader (the slice's rind, pith, segments, membranes and juice cells are all distances and angles), so it stays sharp
+// at any size and needs no image file.
 const PARAMS = { strength: 0.04, speed: 0.4 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;background:#0d2a4f';
   stage.append(canvas);
-  const gl = canvas.getContext('webgl2', { antialias: false });
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
   if (!gl) { stage.textContent = 'This needs WebGL2.'; return () => canvas.remove(); }
-
-  // The "image": painted once on a 2D canvas, then uploaded as a texture.
-  const pic = document.createElement('canvas'); pic.width = 1024; pic.height = 768;
-  const p = pic.getContext('2d');
-  const bands = ['#06070d', '#0a1636', '#0f2f78', '#1c6fd0', '#3fa0f5', '#ffc93b', '#ff7a1f'];   // night to glow, so it sits on a dark page
-  bands.forEach((c, i) => { p.fillStyle = c; p.fillRect(0, i * 768 / bands.length, 1024, 768 / bands.length + 1); });
-  p.fillStyle = '#ffffff'; p.font = '900 230px "Mona Sans", system-ui, sans-serif'; p.textAlign = 'center'; p.textBaseline = 'middle';
-  p.fillText('LIQUID', 512, 384);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NR = 32;                                                     // ring sources kept from the pointer's trail
 
   const vs = `#version 300 es
-  in vec2 p; out vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0, 1); }`;
-  const fs = `#version 300 es
-  precision highp float; in vec2 uv; out vec4 o;
-  uniform sampler2D img; uniform float T, S; uniform vec2 M, R;
-  vec2 hash(vec2 p) { p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return -1. + 2. * fract(sin(p) * 43758.5453); }
-  float noise(vec2 p) { vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f);
-    return mix(mix(dot(hash(i), f), dot(hash(i + vec2(1, 0)), f - vec2(1, 0)), u.x), mix(dot(hash(i + vec2(0, 1)), f - vec2(0, 1)), dot(hash(i + vec2(1, 1)), f - vec2(1, 1)), u.x), u.y); }
-  void main() {
-    vec2 q = uv * vec2(R.x / R.y, 1.);
-    vec2 n = vec2(noise(q * 2.2 + vec2(T, T * .7)), noise(q * 2.2 + vec2(-T * .8, T) + 7.3));
-    vec2 m = M * vec2(R.x / R.y, 1.); float near = exp(-dot(q - m, q - m) * 9.);
-    vec2 swirl = vec2(-(q - m).y, (q - m).x) * near * 1.6;
-    vec2 st = uv + n * S + swirl * S;
-    // cover-fit the 4:3 picture into the frame
-    vec2 ar = vec2(R.x / R.y / (4. / 3.), 1.); if (ar.x < 1.) ar = vec2(1., (4. / 3.) / (R.x / R.y));
-    vec2 tc = (st - .5) * (ar.x > 1. ? vec2(1., 1. / ar.x) : vec2(1. / ar.y, 1.)) + .5;
-    o = vec4(texture(img, vec2(tc.x, 1. - tc.y)).rgb, 1);
-  }`;
-  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
-  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog); gl.useProgram(prog);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pic);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
-  const U = n => gl.getUniformLocation(prog, n);
-  const uT = U('T'), uS = U('S'), uM = U('M'), uR = U('R');
+  in vec2 p; void main() { gl_Position = vec4(p, 0, 1); }`;
+  const COMMON = `#version 300 es
+  precision highp float; out vec4 o;
+  uniform vec2 R; uniform float T, TF, S; uniform vec4 P[${NR}];   // P: x, y (picture units), birth time, strength
+  uniform sampler2D HT; uniform vec2 HR;
+  float hq(vec2 p) { vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+  float vn(vec2 x) { vec2 i = floor(x), f = fract(x), u = f * f * (3. - 2. * f);
+    return mix(mix(hq(i), hq(i + vec2(1, 0)), u.x), mix(hq(i + vec2(0, 1)), hq(i + 1.), u.x), u.y); }
 
-  const resize = () => { const d = Math.min(devicePixelRatio, 1.5); canvas.width = stage.clientWidth * d | 0; canvas.height = stage.clientHeight * d | 0; gl.viewport(0, 0, canvas.width, canvas.height); };
-  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
-  let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5, lastMove = -1e9, raf;
-  const onMove = e => { const b = canvas.getBoundingClientRect(); tx = (e.clientX - b.left) / b.width; ty = 1 - (e.clientY - b.top) / b.height; lastMove = performance.now(); };
-  canvas.addEventListener('pointermove', onMove);
-  function frame(now) {
-    const t = now / 1000;
-    if (now - lastMove > 1500) { tx = 0.5 + Math.cos(t * 0.7) * 0.3; ty = 0.5 + Math.sin(t * 1.1) * 0.25; }
-    mx += (tx - mx) * 0.08; my += (ty - my) * 0.08;
-    gl.uniform1f(uT, t * PARAMS.speed); gl.uniform1f(uS, PARAMS.strength); gl.uniform2f(uM, mx, my); gl.uniform2f(uR, canvas.width, canvas.height);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-    raf = requestAnimationFrame(frame);
+  // the water's height at a point (picture units: the shorter side of the frame is 1)
+  float height(vec2 p) {
+    // the swell: a few long waves crossing at different angles and speeds, with their phases nudged by noise so the
+    // pattern never repeats
+    float ph = vn(p * 2.3 + vec2(TF * .2, 0.)) * 2.5, h = 0.;
+    h += .0075 * sin(dot(p, vec2(.8, .6)) * 9. - TF * 1.6 + ph);
+    h += .0055 * sin(dot(p, vec2(-.5, .87)) * 13. - TF * 2. + ph * 1.3);
+    h += .0035 * sin(dot(p, vec2(.97, -.26)) * 19. - TF * 2.5 + ph * .7);
+    h += .0018 * sin(dot(p, vec2(-.9, -.44)) * 29. - TF * 3.1 + ph * 1.7);
+    // rings from the pointer's trail: each one a wave packet running outward and dying away
+    for (int i = 0; i < ${NR}; i++) {
+      vec4 s = P[i]; float age = T - s.z; if (age < 0. || age > 3. || s.w <= 0.) continue;
+      float d = length(p - s.xy), front = age * .32;
+      float env = exp(-age * 1.5) * exp(-(d - front) * (d - front) * 60.) * s.w;
+      h += .009 * env * cos((d - front) * 70.);
+      h += .01 * s.w * exp(-age * 3.5) * exp(-d * d * 220.);        // the dimple where the finger pressed
+    }
+    return h;
   }
-  raf = requestAnimationFrame(frame);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove(); };
+  `;
+  // pass 1, at a quarter of the resolution: the water's height (it is smooth, so this loses nothing)
+  const fsH = COMMON + `
+  void main() { vec2 p = (gl_FragCoord.xy / HR * R - R * .5) / min(R.x, R.y); o = vec4(height(p) * 8. + .5, 0, 0, 1); }`;   // stored as 0.5 + 8h, so 8 bits would do too
+  // pass 2: look down through the water at the picture
+  const fs = COMMON + `
+
+  // the picture: one orange slice on a plain deep blue field
+  vec3 picture(vec2 p) {
+    vec3 field = vec3(.05, .17, .36) * (1. - .25 * dot(p, p) * .5) + vec3(.02, .05, .08) * (vn(p * 3. + 2.) - .5);
+    vec2 c = vec2(.16, .02); float Rr = .33;
+    vec2 d = p - c; float r = length(d), a = atan(d.y, d.x);
+    // a soft shadow under the slice, cast down and to the right
+    float shd = smoothstep(Rr + .09, Rr - .03, length(p - c - vec2(.03, -.04)));
+    field *= 1. - .45 * shd;
+    float aa = 1.5 / min(R.x, R.y);
+    float inside = smoothstep(Rr + aa, Rr - aa, r);
+    if (inside <= 0.) return field;
+    float u = r / Rr;
+    // rind: deep orange, pitted with oil glands; pith: a pale ring; flesh: eleven segments
+    vec3 rind = vec3(.95, .42, .06) * (.85 + .25 * vn(vec2(a * 40., u * 30.))) * (1. - .25 * smoothstep(.97, 1., u));
+    vec3 pith = vec3(.98, .9, .72) * (.92 + .08 * vn(d * 80.));
+    float n = 11., sa = a / 6.28318 * n + .06 * sin(u * 7. + a * 3.), seg = fract(sa) - .5;
+    float mem = abs(seg) * 6.28318 / n * r;                          // distance to the membrane between segments
+    // juice cells: long teardrops pointing to the core, each with a wet glint
+    vec2 jc = vec2(sa * 6., u * 12.); jc.x += floor(jc.y) * .5;      // staggered rows
+    vec2 ji = floor(jc), jf = fract(jc) - .5 - (vec2(hq(ji + 9.), hq(ji + 5.)) - .5) * .35;
+    float jit = hq(ji + 3.), cell = smoothstep(.5, .12, length(jf * vec2(1.15, .6) * (.8 + .4 * jit)));
+    float vs2 = vn(vec2(sa * 19., u * 51.) + 4.);
+    vec3 flesh = mix(vec3(.93, .4, .04), vec3(1., .66, .16), cell * (.5 + .5 * jit) * .8 + vs2 * .2);
+    flesh += vec3(1., .85, .55) * pow(cell, 6.) * .18 * jit;
+    flesh *= .78 + .3 * smoothstep(.05, .7, u) * (1. - abs(seg) * 1.2);
+    flesh = mix(flesh, vec3(1., .88, .66), smoothstep(.005, .0015, mem) * .85);  // the white membranes
+    flesh = mix(flesh, vec3(.98, .86, .62), smoothstep(.035, .015, r));           // the core
+    vec3 col = u > .93 ? rind : u > .86 ? pith : flesh;
+    col = mix(col, pith, smoothstep(.003, 0., abs(r - .86 * Rr)) * .5);
+    col = mix(col, rind * .8, smoothstep(.004, 0., abs(r - .93 * Rr)) * .6);
+    return mix(field, col, inside);
+  }
+
+  void main() {
+    float s = min(R.x, R.y);
+    vec2 p = (gl_FragCoord.xy - R * .5) / s;
+    // the surface: its slope and curvature from five reads of the height map, one of its texels apart
+    vec2 t = gl_FragCoord.xy / R, et = 1. / HR; float e = R.x / HR.x / s;
+    float h0 = texture(HT, t).r, hx = texture(HT, t + vec2(et.x, 0)).r, hy = texture(HT, t + vec2(0, et.y)).r, hx2 = texture(HT, t - vec2(et.x, 0)).r, hy2 = texture(HT, t - vec2(0, et.y)).r;
+    vec2 g = vec2(hx - hx2, hy - hy2) / (16. * e);
+    float lap = (hx + hx2 + hy + hy2 - 4. * h0) / (8. * e * e);
+    // look down through it: the picture shifts with the slope, a little more for blue than for red
+    vec2 off = -g * S * .06;
+    vec3 col = vec3(picture(p + off * .97).r, picture(p + off).g, picture(p + off * 1.04).b);
+    // caustics: where the surface curves like a lens the light below gathers
+    col *= 1. + clamp(-lap * S * .005, -.2, .55);
+    // a highlight on the crests from a light at the upper left, and a little sky at grazing slopes
+    vec3 N = normalize(vec3(-g * (.6 + .4 * S) * 1.4, 1.)), L = normalize(vec3(-.45, .55, .7)), H = normalize(L + vec3(0, 0, 1));
+    col += vec3(1., .97, .92) * pow(max(dot(N, H), 0.), 400.) * .7 + vec3(.6, .75, .95) * (1. - N.z) * 1.5;
+    col *= 1. - .18 * dot(gl_FragCoord.xy / R - .5, gl_FragCoord.xy / R - .5);
+    o = vec4(col, 1);
+  }`;
+  const sh = (t, src) => { const x = gl.createShader(t); gl.shaderSource(x, src); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const vsh = sh(gl.VERTEX_SHADER, vs), fsh = sh(gl.FRAGMENT_SHADER, fs);
+  const link = f => { const p = gl.createProgram(); gl.attachShader(p, vsh); gl.attachShader(p, f); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; };
+  const fshH = sh(gl.FRAGMENT_SHADER, fsH), progH = link(fshH), prog = link(fsh);
+  const half = !!gl.getExtension('EXT_color_buffer_float');            // else the heights go into 8 bits, coarser but fine
+  const htex = gl.createTexture(), hfb = gl.createFramebuffer(); let HW = 1, HH = 1;
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const loc = p => Object.fromEntries(['R', 'T', 'TF', 'S', 'P', 'HT', 'HR'].map(k => [k, gl.getUniformLocation(p, k)]));
+  const UH = loc(progH), UM = loc(prog);
+
+  let w = 1, h = 1;
+  const resize = () => {
+    // up to 2x, capped near 2.6 million pixels (the shader is the whole cost)
+    w = stage.clientWidth || 1; h = stage.clientHeight || 1; const d = Math.min(devicePixelRatio || 1, 2, Math.sqrt(2.6e6 / (w * h)));
+    canvas.width = Math.max(1, Math.round(w * d)); canvas.height = Math.max(1, Math.round(h * d));
+    HW = Math.max(1, Math.ceil(canvas.width / 4)); HH = Math.max(1, Math.ceil(canvas.height / 4));
+    gl.bindTexture(gl.TEXTURE_2D, htex);
+    if (half) gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, HW, HH, 0, gl.RED, gl.HALF_FLOAT, null); else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, HW, HH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, hfb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, htex, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (reduce) draw(6);
+  };
+
+  // the trail: a ring source every 45 ms while the pointer moves; when it has been still a while, an unseen finger
+  // traces a slow loop, its sources placed on a fixed time grid so a given moment always looks the same
+  const ring = new Float32Array(NR * 4); let head = 0, lastEmit = -1, lastMove = -1e9, px = 0, py = 0;
+  const toPic = (cx, cy) => { const s = Math.min(w, h); return [(cx - w / 2) / s, (h / 2 - cy) / s]; };
+  const emit = (x, y, t, k) => { ring.set([x, y, t, k], head * 4); head = (head + 1) % NR; };
+  const onMove = e => { const b = canvas.getBoundingClientRect(); const t = performance.now() / 1000; [px, py] = toPic(e.clientX - b.left, e.clientY - b.top);
+    if (lastMove < t - 1.2) ring.fill(0);                            // the loop's rings make way for yours
+    lastMove = t; if (t - lastEmit > 0.045) { emit(px, py, t, 1); lastEmit = t; } };
+  const onDown = e => { onMove(e); const t = performance.now() / 1000; emit(px, py, t, 1.6); lastEmit = t; };   // a tap drops a ring
+  canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onDown);
+  const idle = new Float32Array(NR * 4);
+  const loop = t => { const s = Math.min(w, h), ax = Math.min(0.62, w / s * 0.42); return [Math.sin(t * 0.5) * ax + 0.1, Math.sin(t * 0.83 + 0.6) * 0.27]; };
+
+  function draw(t) {
+    let src = ring;
+    if (t - lastMove > 1.5) {
+      // the unseen finger: sources every 0.1 s along its loop, back over the last 3 seconds
+      const k0 = Math.floor(t / 0.1); src = idle;
+      for (let i = 0; i < NR; i++) { const tt = (k0 - i) * 0.1, [x, y] = loop(tt * PARAMS.speed / 0.4); idle.set([x, y, tt, 0.6 * Math.min(1, (t - lastMove - 1.5) / 1.5)], i * 4); }
+    }
+    for (const [p, U, toScreen] of [[progH, UH, false], [prog, UM, true]]) {
+      gl.useProgram(p);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, toScreen ? null : hfb); gl.viewport(0, 0, toScreen ? canvas.width : HW, toScreen ? canvas.height : HH);
+      gl.uniform2f(U.R, canvas.width, canvas.height); gl.uniform2f(U.HR, HW, HH); gl.uniform1f(U.T, t); gl.uniform1f(U.TF, t * PARAMS.speed);
+      gl.uniform1f(U.S, PARAMS.strength / 0.04); gl.uniform4fv(U.P, src);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, toScreen ? htex : null); gl.uniform1i(U.HT, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+  }
+  const ro = new ResizeObserver(resize); ro.observe(stage); resize();
+  let raf = 0;
+  function frame(now) { draw(now / 1000); raf = requestAnimationFrame(frame); }
+  if (!reduce) raf = requestAnimationFrame(frame);
+  return () => {
+    cancelAnimationFrame(raf); ro.disconnect();
+    canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown);
+    gl.deleteBuffer(buf); gl.deleteVertexArray(vao); gl.deleteTexture(htex); gl.deleteFramebuffer(hfb);
+    for (const p of [prog, progH]) gl.deleteProgram(p); for (const x of [vsh, fsh, fshH]) gl.deleteShader(x);
+    gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
+  };
 }

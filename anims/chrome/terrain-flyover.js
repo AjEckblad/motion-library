@@ -1,13 +1,15 @@
 // Terrain flyover: a drone flight up a fjord, drawn like a photograph. The land is an 8 km square that tiles both ways,
 // baked into textures once at the start: smooth massifs, a U-shaped glacial valley carved along the flight path, then
 // erosion noise (stripes that run down the current slope, octave by octave, each steering the next so gullies branch;
-// it only carves, so ridges stay sharp). The same bake stores the sun's soft shadows and a shadow ceiling for the air
+// it only carves, so ridges stay sharp; where the ground is too gentle for stripes it sinks by their average carve, so a
+// summit never stands uncut like a turret). The same bake stores the sun's soft shadows and a shadow ceiling for the air
 // above each spot (the sun's height is fixed per run), how much sky each spot sees, and a max-height pyramid.
 // Light: a small table of Rayleigh, Mie and ozone scattering through a round atmosphere gives the sky and the sky light;
 // the haze on far land integrates the same air along each view ray, darker where mountains shade it.
 // Each frame a ray jumps through the pyramid while it is far above the land, then steps by its height and bisects the
 // crossing. The ground is shaded by slope, height and gullies (rock with wet streaks, scree, forest, meadow, heath,
-// snow, a wet shore) with B-spline smoothed normals up close and finer bumps that fade before they would shimmer. The
+// snow that fills the gullies and caps the gentler tops, a wet shore) with B-spline smoothed normals up close and finer
+// bumps that fade before they would shimmer, laid on the face itself on cliffs so they never stretch into streaks. The
 // water reflects sky and mountains through wind-aligned ripples (Fresnel, a sun glint, a tint over the shallows).
 // Frames are drawn smaller with a sub-pixel jitter and gathered over time into the full-size picture, reprojected with
 // the camera and clamped to the new frame, which gives clean edges; reduced motion gathers 32 frames of one moment.
@@ -108,16 +110,19 @@ export default function (stage) {
     ivec2 c = ivec2(gl_FragCoord.xy); float H0 = hb(c);
     vec2 g = vec2(hb(c + ivec2(1, 0)) - hb(c - ivec2(1, 0)), hb(c + ivec2(0, 1)) - hb(c - ivec2(0, 1))) / (2. * TX);
     vec2 q = (vec2(c) + .5) / float(N);
-    float e = 0., a = 1., as = 0.; vec2 de = vec2(0);
+    float e = 0., ec = 0., a = 1., as = 0.; vec2 de = vec2(0);
     float STR = 40. * (.6 + .5 * gn(q * 6., 6, 99u).x), SL = 1.6 + .7 * gn(q * 12., 12, 98u).x;
     vec2 wq = q + vec2(gn(q * 24., 24, 97u).x, gn(q * 24., 24, 96u).x) * .012;    // warp: no two gullies alike
     for (int i = 0; i < 5; i++) {
       int P = 16 << i; vec2 s = g + .9 * de;
       vec3 r = ero(wq * float(P), P, vec2(s.y, -s.x) * SL, uint(i) + 11u);
-      e += a * (r.x - 1.); de += a * STR * r.yz * (2. * PI * float(P) / L_); as += a; a *= .5;
+      // where the slope is gentle the stripes are too slow to carve (cos stays near 1), so a summit would stand uncut
+      // inside carved slopes like a turret; there the ground sinks by the stripes' average carve instead
+      float w = smoothstep(0., .5, length(s) * SL);
+      e += a * (r.x - 1.); ec += a * (r.x - 1. - (1. - w)); de += a * STR * r.yz * (2. * PI * float(P) / L_); as += a; a *= .5;
     }
     float mask = smoothstep(-30., 140., H0);
-    o = vec4(H0 + STR * e * mask, -e / (2. * as) * mask, 0, 1);
+    o = vec4(H0 + STR * ec * mask, -e / (2. * as) * mask, 0, 1);
   }`;
   // 3. pack: height split in two halves for exact filtering in half floats, plus its slope
   const PACK = COMMON + `
@@ -284,9 +289,22 @@ export default function (stage) {
     // detail: three finer layers of bumps (tree crowns in the forest), each fading out before it would shimmer
     vec3 nd = n; float dh = 0., cr = 0.;
     if (full) {
+      // on gentle ground the bumps are laid on the map; on steep faces that would stretch them down the fall line into
+      // long streaks, so there they are laid on the face itself (across it, and down it). In between each frame picks
+      // one or the other at random, by steepness, and gathering frames over time blends them
+      float wall = smoothstep(.8, .64, ny), sx = smoothstep(.3, .7, abs(n.x) / (abs(n.x) + abs(n.z) + 1e-4));
+      bool wf = fract(rnd * 7.13 + .37) < wall;
+      vec3 th = mix(vec3(1, 0, 0), vec3(0, 0, 1), sx); th = normalize(th - n * dot(th, n));
+      vec3 tv = normalize(vec3(0, -1, 0) + n * n.y);
+      vec2 q0 = wf ? vec2(mix(p.x, p.z, sx), -p.y) : p.xz;
       vec2 dg = vec2(0); float wl = 22., am = .55;
-      for (int i = 0; i < 3; i++) { float w = clamp(wl / (3. * fp) - 1., 0., 1.); if (w <= 0.) break; vec3 g = gnd(p.xz / wl + float(i) * 17.); float k = i == 0 ? 1. - .75 * vg : 1.; dg += w * am * k * g.yz; dh += w * am * k * g.x; if (i > 0) cr += w * g.x; wl /= 2.7; am *= .8; }
-      nd = normalize(n - vec3(dg.x, 0, dg.y) * mix(mix(.35, 1., smoothstep(.85, .6, ny)), 1.4, vg * fo));
+      for (int i = 0; i < 3; i++) {
+        float w = clamp(wl / (3. * fp) - 1., 0., 1.); if (w <= 0.) break;
+        vec3 g = gnd(q0 / wl + float(i) * 17.); float k = w * am * (i == 0 ? 1. - .75 * vg : 1.);
+        dg += k * g.yz; dh += k * g.x; if (i > 0) cr += w * g.x; wl /= 2.7; am *= .8;
+      }
+      vec3 pg = wf ? dg.x * th + dg.y * tv : vec3(dg.x, 0, dg.y);
+      nd = normalize(n - pg * mix(mix(.35, 1., smoothstep(.85, .6, ny)), 1.4, vg * fo));
     }
     // rock: granite and darker gneiss, lichen-warm in places, dark wet streaks down the gullies and down steep faces
     vec3 rock = mix(vec3(.07, .066, .062), vec3(.26, .245, .225), smoothstep(-.7, .7, n2 * 1.3 + .4 * n3 + .6 * dh));
@@ -304,9 +322,11 @@ export default function (stage) {
     alb = mix(alb, mix(meadow, forest, fo), vg);
     float alp = smoothstep(.8, .92, ny + .04 * n3) * smoothstep(1520., 1280., H + 80. * n1) * (1. - vg);
     alb = mix(alb, mix(vec3(.075, .078, .042), vec3(.12, .105, .072), smoothstep(-.3, .4, n2 + .3 * n3)), alp * .9 * smoothstep(-.5, .1, n2 + .6 * dh));
-    // snow: above a ragged line on anything not too steep; lower in hollows and on faces turned from the sun
-    float sl = 1150. + 170. * n1 - 260. * smoothstep(0., 18., cv) + 150. * smoothstep(-.3, .6, dot(n.xz, normalize(SD.xz))) - 60. * dh;
-    float snow = smoothstep(sl - 30., sl + 30., H + 30. * n3) * smoothstep(.45, .6, ny + .12 * n2 + .05 * n3 + .1 * dh);
+    // snow: above a ragged line on anything not too steep; lower in hollows, down the gullies (it fills them as long
+    // streaks) and on faces turned from the sun; the steepest ribs between the gullies stay bare rock
+    float gl = smoothstep(.15, .7, gy);
+    float sl = 1090. + 170. * n1 - 260. * smoothstep(0., 18., cv) - 300. * gl + 150. * smoothstep(-.3, .6, dot(n.xz, normalize(SD.xz))) - 60. * dh;
+    float snow = smoothstep(sl - 30., sl + 30., H + 30. * n3) * smoothstep(.45, .6, ny + .12 * n2 + .05 * n3 + .1 * dh + .18 * gl);
     alb = mix(alb, vec3(.86, .88, .92), snow);
     // the shore: wet dark rock just above the water
     float wet = smoothstep(2.5, .4, H);
@@ -487,7 +507,7 @@ export default function (stage) {
     const w = Math.max(1, cw * d | 0), h = Math.max(1, ch * d | 0);
     if (w === ow && h === oh) return false;
     canvas.width = ow = w; canvas.height = oh = h;
-    const s = Math.min(1, Math.sqrt(0.66e6 / (ow * oh))); iw = Math.max(1, Math.round(ow * s)); ih = Math.max(1, Math.round(oh * s));
+    const s = Math.min(1, Math.sqrt(0.62e6 / (ow * oh))); iw = Math.max(1, Math.round(ow * s)); ih = Math.max(1, Math.round(oh * s));
     if (cur) { drop(cur, curF); hist.forEach((t, i) => drop(t, histF[i])); }
     cur = tex(iw, ih, gl.RGBA16F, gl.NEAREST, gl.CLAMP_TO_EDGE); curF = fbo(cur);
     hist = [0, 1].map(() => tex(ow, oh, gl.RGBA16F, gl.LINEAR, gl.CLAMP_TO_EDGE)); histF = hist.map(t => fbo(t));

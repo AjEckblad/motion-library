@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Open ocean: Grey, windy waves roll in; move to slide the sun’s glow · Motion Library</title>
-<meta name="description" content="Open ocean is a WebGL effect: grey, windy waves roll in; move to slide the sun’s glow. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.">
+<title>Open ocean: Raise the wind from a sparkling calm to a grey gale · Motion Library</title>
+<meta name="description" content="Open ocean is a WebGL effect: raise the wind from a sparkling calm to a grey gale. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.">
 <link rel="canonical" href="https://ajeckblad.github.io/motion-library/fx/ocean.html">
 <meta name="theme-color" content="#0c0c0e">
 <meta property="og:title" content="Open ocean · Motion Library">
-<meta property="og:description" content="Grey, windy waves roll in; move to slide the sun’s glow">
+<meta property="og:description" content="Raise the wind from a sparkling calm to a grey gale">
 <meta property="og:image" content="https://ajeckblad.github.io/motion-library/posters/ocean.webp">
 <link rel="stylesheet" href="../css/static.css">
 <script type="application/ld+json">[
@@ -16,7 +16,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Open ocean",
-  "description": "Grey, windy waves roll in; move to slide the sun’s glow",
+  "description": "Raise the wind from a sparkling calm to a grey gale",
   "programmingLanguage": "JavaScript",
   "runtimePlatform": "Web browser",
   "license": "https://spdx.org/licenses/MIT-0.html",
@@ -61,15 +61,15 @@
 <main class="s-page">
 <article>
 <h1>Open ocean</h1>
-<p class="tldr">Open ocean is a WebGL effect: grey, windy waves roll in; move to slide the sun’s glow. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.</p>
-<figure><img src="../posters/ocean.webp?v=d9d19d6f" alt="Open ocean: Grey, windy waves roll in; move to slide the sun’s glow" width="1120" height="896"></figure>
+<p class="tldr">Open ocean is a WebGL effect: raise the wind from a sparkling calm to a grey gale. One plain JavaScript file with no dependencies; add it with npx motion-library add ocean.</p>
+<figure><img src="../posters/ocean.webp?v=0a15836e" alt="Open ocean: Raise the wind from a sparkling calm to a grey gale" width="1120" height="896"></figure>
 <p><a class="s-btn" href="../index.html#/a/ocean">Open it live, tune it and copy the code</a></p>
 
 <h2>What is Open ocean?</h2>
-<p>A grey, windy open sea under an overcast sky: four GPU FFTs turn a JONSWAP wave spectrum, held in a narrow fan round the wind, into long-crested Gerstner waves that roll toward you, and foam forms and streaks downwind where the surface folds.</p>
+<p>The open sea from a small boat. In light air the sky is clear, the water deep blue and the sun breaks into thousands of sparkles; as the wind rises, clouds gather and whitecaps break, and at the top tall slate waves hide the horizon under a grey sky.</p>
 
 <h2>How does Open ocean work?</h2>
-<p>Wind sets wave height and how often whitecaps break, chop sharpens the crests, sun is the height of the hidden sun behind the clouds; the pointer moves its bright patch along the horizon.</p>
+<p>Four GPU FFTs turn a wave spectrum for the wind into moving waves, and foam forms where the surface folds. Each patch of water draws how many tiny facets catch the sun, so the glitter comes as single points. Wind sets the sea and the weather, chop sharpens the crests, sun sets its height; move the pointer to slide it.</p>
 
 <h2>How do I add Open ocean to my website?</h2>
 <ol>
@@ -77,15 +77,15 @@
 <li>Import it and call it with a container element that has a size: <code>import fx from './animations/ocean.js'; const stop = fx(document.querySelector('#hero'));</code></li>
 <li>Call <code>stop()</code> to clean up, for example when a component unmounts.</li>
 </ol>
-<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add ocean --wind 13</code>.</p>
+<p>Every setting below is also a flag, so you can install it already tuned: <code>npx motion-library add ocean --wind 20</code>.</p>
 
 <h2>What settings can I tweak?</h2>
 <table>
 <thead><tr><th>Setting</th><th>Flag</th><th>Default</th><th>Range</th><th>Step</th></tr></thead>
 <tbody>
-<tr><td>Wind (m/s)</td><td><code>--wind</code></td><td>10</td><td>5 to 13</td><td>0.5</td></tr>
+<tr><td>Wind (m/s)</td><td><code>--wind</code></td><td>10</td><td>2 to 20</td><td>0.5</td></tr>
 <tr><td>Choppiness</td><td><code>--chop</code></td><td>1.15</td><td>0.6 to 1.9</td><td>0.05</td></tr>
-<tr><td>Sun height (°)</td><td><code>--sun</code></td><td>10</td><td>1 to 20</td><td>0.5</td></tr>
+<tr><td>Sun height (°)</td><td><code>--sun</code></td><td>20</td><td>2 to 50</td><td>1</td></tr>
 </tbody>
 </table>
 
@@ -94,7 +94,7 @@
 <dt>Renderer</dt><dd>WebGL</dd>
 <dt>Category</dt><dd>Fluid</dd>
 <dt>Dependencies</dt><dd>None</dd>
-<dt>File size</dt><dd>35.9 KB, unminified</dd>
+<dt>File size</dt><dd>44.8 KB, unminified</dd>
 <dt>Interactive</dt><dd>Yes: it responds to the pointer</dd>
 <dt>Reduced motion</dt><dd>Respects prefers-reduced-motion</dd>
 <dt>Licence</dt><dd>MIT-0: use it anywhere, no credit needed</dd>
@@ -102,20 +102,25 @@
 
 <h2>Source code</h2>
 <p><a href="https://github.com/AjEckblad/motion-library/blob/main/anims/fluid/ocean.js">anims/fluid/ocean.js on GitHub</a></p>
-<pre><code>// Open ocean: the open sea on a grey, windy day, seen from a few metres above the water. The wind has blown for a
-// while and the whole sea runs with it: long-crested waves roll toward the viewer and a little to the right (a narrow
-// directional fan round the wind, over a long swell from almost the same way), with high peaked crests and deep troughs,
-// smaller chop riding them in the same direction, whitecaps that break on the steepest crests and leave pale foam streaking downwind. An
-// overcast deck of stratocumulus hides the sun; where it is thinner the sky brightens and the water under it carries
-// a soft silver sheen, and the far sea fades into a misty horizon under a sky worked out from real scattering. Move
-// the pointer and the bright patch (the hidden sun) follows it along the horizon.
-// The trick: the surface is an FFT ocean (Tessendorf). A JONSWAP wind-sea spectrum plus a long swell, both held in a
-// narrow fan round the wind, gives a random amplitude to every wave vector; each frame those 196,000 waves are advanced in
-// time and turned into heights, sideways (Gerstner) shifts, slopes and stretch by inverse FFTs on the GPU, in three
-// tiles of different sizes so nothing visibly repeats. Where the sideways shifts fold the surface (the Jacobian dips
-// below a threshold) foam is injected and then fades. Slopes too small to see in a pixel are not lost: their spread
-// is kept as roughness (LEAN mapping), so the veiled sun's reflection widens into a soft sheen, as it does on real water.
-const PARAMS = { wind: 10, chop: 1.15, sun: 10 };
+<pre><code>// Open ocean: the open sea seen from a small boat, and the weather follows the wind. In light air the sky is clear and
+// pale blue, the water a deep ultramarine with small short-crested waves running every way, and the sun (up and off to
+// the left) breaks into thousands of separate sparkles on the facets that face it, thickest toward the horizon. As
+// the wind rises, clouds gather, the waves grow and line up with the wind, whitecaps break; at the top end it is a
+// gale under a flat grey overcast: steep dark slate waves taller than the boat that hide the horizon, thin crests
+// glowing bottle green where light passes through them, foam tumbling down their faces and streaking downwind. The
+// boat rides the long waves. Move the pointer and the sun (or, under cloud, its bright patch) follows it.
+// The trick: the surface is an FFT ocean (Tessendorf). A JONSWAP spectrum for the chosen wind and fetch (plus a swell
+// once the wind is up), spread round the wind more or less widely, gives a random amplitude to every wave vector; each
+// frame those 262,000 waves are advanced in time and turned into heights and sideways (Gerstner) shifts by inverse FFTs
+// on the GPU (four tiles of different sizes side by side in one half-float texture, so all four share the same 16
+// passes); slopes and stretch come from neighbouring texels. Each tile is read where its own waves moved the water from,
+// so the long waves never smear the short ones into streaks. Where the sideways shifts fold the surface (the Jacobian
+// dips) foam is injected and then fades. Slopes too small to see in a pixel are kept as roughness (LEAN mapping). Sun glitter is counted, not smeared: each
+// patch of water about a pixel wide holds a known number of tiny facets, and a Poisson draw (anchored to the moving
+// water, re-rolled a few times a second) decides how many of them happen to point the sun at the eye, so near water
+// shows rare bright points and far water a dense shimmer. Foam has a thickness: thick where fresh, thinning into a veil
+// with round holes, combed into long lines in a gale. The boat's motion is the long waves summed at one point.
+const PARAMS = { wind: 10, chop: 1.15, sun: 20 };
 
 export default function (stage) {
   const canvas = document.createElement('canvas');
@@ -127,8 +132,18 @@ export default function (stage) {
   const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const N = 256, LOGN = 8, G = 9.81, TREP = 200;              // FFT size; the whole sea repeats exactly every 200 s
+  const N = 256, G = 9.81, TREP = 200;              // FFT size; the whole sea repeats exactly every 200 s
   const CASC = [{ L: 509, lo: 0, hi: 0.44 }, { L: 87, lo: 0.44, hi: 2.9 }, { L: 13.3, lo: 2.9, hi: 12.5 }, { L: 3.07, lo: 12.5, hi: 1e9 }];
+  const NC = CASC.length;
+
+  // ---------------------------------------------------------------- the weather, from the wind
+  const clamp = (x, a, b) =&gt; Math.max(a, Math.min(b, x)), mix = (a, b, t) =&gt; a + (b - a) * t;
+  const ss = (a, b, x) =&gt; { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const U10 = clamp(PARAMS.wind, 2, 20);
+  const WX = clamp((U10 - 3) / 15, 0, 1);            // 0 light air .. 1 gale
+  const CV = ss(0.18, 0.85, WX);                     // cloud cover: none, fair-weather cumulus, a closed grey deck
+  const SV = 1 - ss(0.32, 0.8, WX);                  // how much of the sun gets through
+  const FOAM = ss(0.14, 0.42, WX);                   // whitecaps start in a moderate breeze
 
   // ---------------------------------------------------------------- GLSL
   const HEAD = `#version 300 es
@@ -139,52 +154,52 @@ export default function (stage) {
   const VQ = `#version 300 es
   in vec2 p; uniform float Z; void main() { gl_Position = vec4(p, Z, 1); }`;
 
-  // every wave vector advanced in time: h(k,t) = h0(k) e^{iwt} + conj(h0(-k)) e^{-iwt}, then the spectra of
-  // the eight real fields we need, packed two to a complex number
+  // every wave vector of all four tiles advanced in time: h(k,t) = h0(k) e^{iwt} + conj(h0(-k)) e^{-iwt}, then the
+  // spectra of the sideways shifts (packed as one complex number) and of the height
   const FS_SPEC = HEAD + `
-  uniform sampler2D H0; uniform float L, TT;
-  layout(location = 0) out vec4 o0; layout(location = 1) out vec4 o1;
+  uniform sampler2D H0; uniform vec4 LS; uniform float TT;
+  out vec4 o0;
   void main() {
-    ivec2 p = ivec2(gl_FragCoord.xy); int n = textureSize(H0, 0).x;
-    vec2 k = 6.2831853 * vec2(p.x &lt; n / 2 ? p.x : p.x - n, p.y &lt; n / 2 ? p.y : p.y - n) / L;
+    ivec2 p = ivec2(gl_FragCoord.xy); const int n = ${N};
+    int c = p.x / n; ivec2 lp = ivec2(p.x - c * n, p.y);
+    float L = c == 0 ? LS.x : c == 1 ? LS.y : c == 2 ? LS.z : LS.w;
+    vec2 k = 6.2831853 * vec2(lp.x &lt; n / 2 ? lp.x : lp.x - n, lp.y &lt; n / 2 ? lp.y : lp.y - n) / L;
     float kl = length(k);
-    if (kl &lt; 1e-6) { o0 = vec4(0); o1 = vec4(0); return; }
+    if (kl &lt; 1e-6) { o0 = vec4(0); return; }
     float q = floor(sqrt(9.81 * kl) * ${TREP.toFixed(1)} / 6.2831853 + .5);     // w quantised: the sea loops exactly
     float ph = 6.2831853 * fract(q * TT / ${TREP.toFixed(1)});
     vec4 h = texelFetch(H0, p, 0); vec2 e = vec2(cos(ph), sin(ph));
     vec2 ht = cm(h.xy, e) + cm(h.zw, vec2(e.x, -e.y)), iht = ci(ht), u = k / kl;
-    vec2 Dx = -u.x * iht, Dz = -u.y * iht, Dxz = u.x * k.y * ht;
-    vec2 hx = k.x * iht, hz = k.y * iht, Dxx = u.x * k.x * ht, Dzz = u.y * k.y * ht;
-    o0 = vec4(Dx + ci(Dz), ht + ci(Dxz));
-    o1 = vec4(hx + ci(hz), Dxx + ci(Dzz));
+    o0 = vec4(-u.x * iht + ci(-u.y * iht), ht);
   }`;
-  // one radix-2 Stockham pass of the inverse FFT, along rows (HZ = 1) or columns
+  // one radix-2 Stockham pass of the inverse FFT, along rows (HZ = 1, inside each tile) or columns
   const FS_FFT = HEAD + `
-  uniform sampler2D A, B; uniform int S, HZ;
-  layout(location = 0) out vec4 o0; layout(location = 1) out vec4 o1;
+  uniform sampler2D A; uniform int S, HZ;
+  out vec4 o0;
   void main() {
-    ivec2 p = ivec2(gl_FragCoord.xy); int n = textureSize(A, 0).x;
-    int i = HZ == 1 ? p.x : p.y, hs = S / 2, e = (i / S) * hs + i % hs;
-    ivec2 pe = HZ == 1 ? ivec2(e, p.y) : ivec2(p.x, e), po = pe + (HZ == 1 ? ivec2(n / 2, 0) : ivec2(0, n / 2));
+    ivec2 p = ivec2(gl_FragCoord.xy); const int n = ${N};
+    int i = HZ == 1 ? p.x % n : p.y, b0 = HZ == 1 ? p.x - i : 0, hs = S / 2, e = (i / S) * hs + i % hs;
+    ivec2 pe = HZ == 1 ? ivec2(b0 + e, p.y) : ivec2(p.x, e), po = pe + (HZ == 1 ? ivec2(n / 2, 0) : ivec2(0, n / 2));
     float a = 6.2831853 * float(i % S) / float(S); vec2 w = vec2(cos(a), sin(a));
     vec4 x = texelFetch(A, pe, 0), y = texelFetch(A, po, 0);
     o0 = vec4(x.xy + cm(w, y.xy), x.zw + cm(w, y.zw));
-    x = texelFetch(B, pe, 0); y = texelFetch(B, po, 0);
-    o1 = vec4(x.xy + cm(w, y.xy), x.zw + cm(w, y.zw));
   }`;
-  // unpack into displacement, slopes and stretch; foam is injected where the surface folds and fades over seconds
+  // unpack one tile: displacement, then slopes and stretch by central differences; foam is injected where the surface
+  // folds (the Jacobian dips) and fades over seconds
   const FS_ASM = HEAD + `
-  uniform sampler2D A, B, MP; uniform float CH, DT, FI, FT;
+  uniform sampler2D A, MP; uniform int OFF; uniform float CH, DT, FI, FT, FD, DX;
   layout(location = 0) out vec4 oD; layout(location = 1) out vec4 oG; layout(location = 2) out vec4 oM;
+  vec3 at(ivec2 q) { q = (q + ${N}) % ${N}; return texelFetch(A, q + ivec2(OFF, 0), 0).xyz; }     // (Dx, Dz, height)
   void main() {
     ivec2 p = ivec2(gl_FragCoord.xy);
-    vec4 a = texelFetch(A, p, 0), b = texelFetch(B, p, 0);        // a = (Dx, Dz, Dy, Dxz)  b = (hx, hz, Dxx, Dzz)
-    oD = vec4(a.x * CH, a.z, a.y * CH, a.w * CH);
-    oG = vec4(b.x, b.y, b.z * CH, b.w * CH);
+    vec3 c = at(p), xp = at(p + ivec2(1, 0)), xm = at(p - ivec2(1, 0)), zp = at(p + ivec2(0, 1)), zm = at(p - ivec2(0, 1));
+    vec3 gx = (xp - xm) / (2. * DX), gz = (zp - zm) / (2. * DX);
+    oD = vec4(c.x * CH, c.z, c.y * CH, gz.x * CH);
+    oG = vec4(gx.z, gz.z, gx.x * CH, gz.y * CH);
     float J = (1. + oG.z) * (1. + oG.w) - oD.w * oD.w;
     float f = texelFetch(MP, p, 0).z;
-    f = f * exp(-DT * .2) + FI * DT * 6. * clamp((FT - J) * 6., 0., 1.);
-    oM = vec4(b.x * b.x, b.y * b.y, min(f, 1.6), J);
+    f = f * exp(-DT * FD) + FI * DT * 4.5 * clamp((FT - J) * 6., 0., 1.);
+    oM = vec4(gx.z * gx.z, gz.z * gz.z, min(f, 1.6), J);
   }`;
 
   // the sky: single scattering through a real atmosphere (Rayleigh, Mie haze and ozone), stored by azimuth and the
@@ -192,12 +207,11 @@ export default function (stage) {
   const ATMO = `
   const float RE = 6360e3, RA = 6420e3, PI = 3.14159265;
   const vec3 BR = vec3(5.802e-6, 13.558e-6, 33.1e-6), BO = vec3(.65e-6, 1.881e-6, .085e-6);
-  const float BMS = 5e-6, BME = 5.6e-6;
-  uniform vec3 SD, SC; uniform float SUNI;
+  uniform vec3 SD, SC, SKT; uniform float SUNI, HZM;
   float sph(vec3 o, vec3 d, float r) { float b = dot(o, d), c = dot(o, o) - r * r, h = b * b - c; return h &lt; 0. ? -1. : -b + sqrt(h); }
   float sphN(vec3 o, vec3 d, float r) { float b = dot(o, d), c = dot(o, o) - r * r, h = b * b - c; return h &lt; 0. ? -1. : -b - sqrt(h); }
   vec3 dens(float a) { return vec3(exp(-a / 8000.), exp(-a / 1100.), max(0., 1. - abs(a - 25000.) / 15000.)); }
-  vec3 ext(vec3 d) { return BR * d.x + BME * d.y + BO * d.z; }
+  vec3 ext(vec3 d) { return BR * d.x + 5.6e-6 * HZM * d.y + BO * d.z; }
   vec3 transTop(vec3 o, vec3 d) {
     if (sphN(o, d, RE) &gt; 0.) return vec3(0);
     float t = sph(o, d, RA); vec3 od = vec3(0);
@@ -213,34 +227,38 @@ export default function (stage) {
       od += dn * .5; vec3 T = exp(-ext(od)) * transTop(q, SD); od += dn * .5;
       sR += T * dn.x; sM += T * dn.y;
     }
-    float mu = dot(rd, SD), g = .84;
+    float mu = dot(rd, SD), g = .8;
     float pR = 3. / (16. * PI) * (1. + mu * mu), pM = (1. - g * g) / (4. * PI * pow(1. + g * g - 2. * g * mu, 1.5));
-    return SUNI * (sR * BR * pR + sM * BMS * pM);
+    vec3 ms = SUNI * BR * 1500. * max(SD.y + .1, 0.) * (1. - .3 * rd.y);  // light scattered more than once: blue, even
+    return (SUNI * (sR * BR * pR + sM * 5e-6 * HZM * pM) + ms) * SKT;
   }
   vec2 lutUV(vec3 r) { return vec2(fract(atan(r.z, r.x) / 6.2831853), sqrt(clamp(asin(clamp(r.y, 0., 1.)) / 1.5707963, 0., 1.))); }
   vec3 lutDir(vec2 uv) { float az = uv.x * 6.2831853, el = uv.y * uv.y * 1.5707963; return vec3(cos(az) * cos(el), sin(el), sin(az) * cos(el)); }
   `;
   const CLOUDS = `
-  uniform float CT;
+  uniform float CT, CV;
   float hsh(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
   float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
     return mix(mix(hsh(i), hsh(i + vec2(1, 0)), f.x), mix(hsh(i + vec2(0, 1)), hsh(i + 1.), f.x), f.y); }
   float fbm(vec2 p, int oc) { float s = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
     for (int i = 0; i &lt; 7; i++) { if (i &gt;= oc) break; s += a * vn(p); p = m * p; a *= .5; } return s; }
-  // an overcast deck of stratocumulus a kilometre and a half up, lumpy underneath and stretched by the wind; it hides
-  // the sun, which only shows as a pale, brighter patch where the deck is thinner
+  // clouds a kilometre and a half up: none in light air, then fair-weather heaps, then a closed deck. The deck is an
+  // even, slightly warm grey, a little darker where it is thick; the hidden sun only shows as a brighter patch
   vec4 clouds(vec3 rd, int oc) {
-    if (rd.y &lt; .004) return vec4(0);
+    if (rd.y &lt; .003 || CV &lt; .005) return vec4(0);
     float t = 1500. / rd.y; vec2 p = rd.xz * t;
-    vec2 q = vec2(p.x * .00034 + CT * .006, p.y * .0005 - CT * .0025);
-    float cov = .2, d = fbm(q, oc), ds = fbm(q + SD.xz * .12 / max(length(SD.xz), 1e-3), max(oc - 2, 2));
-    float a = smoothstep(cov, cov + .3, d) * (.9 + .1 * smoothstep(.3, .7, d)) * exp(-t / 140000.);
+    vec2 q = p * .00042 + vec2(CT * .0045, -CT * .0021);
+    float d = fbm(q, oc), th = mix(.8, -.25, CV);
+    float a = smoothstep(th, th + .2 + .25 * CV, d) * exp(-t / 150000.);
     if (a &lt; .001) return vec4(0);
-    float mu = dot(rd, SD), thick = smoothstep(cov, cov + .35, d);
-    float lit = clamp(.5 + (d - ds) * 3., 0., 1.);
-    vec3 amb = vec3(.021, .023, .027) * SUNI * (.62 + .38 * lit) * (1. - .45 * smoothstep(.45, .9, d));
-    vec3 sun = mix(SC, vec3(dot(SC, vec3(.33))), .6) * SUNI * .5 * pow(max(mu, 0.), 10.) * (1. - thick * .75) * (.4 + .6 * lit);
-    vec3 c = amb + sun;
+    vec2 so = SD.xz / max(length(SD.xz), 1e-3) * .11;
+    float ds = fbm(q + so, max(oc - 2, 2)), lit = clamp(.5 + (d - ds) * 3., 0., 1.);
+    float mu = dot(rd, SD), thick = smoothstep(th + .1, th + .7, d);
+    float mot = (fbm(q * .35 + 3.1, 3) - .5) * exp(-t / 30000.);      // the deck: broad, soft mottling, evening out with distance
+    vec3 deck = vec3(1., .965, .925) * .056 * SUNI * (1. + .55 * mot) * (1. - .2 * thick * exp(-t / 30000.));
+    vec3 heap = (SC * SUNI * .07 * (.35 + .65 * lit) + vec3(.6, .65, .75) * SUNI * .02) * (1. - .35 * thick);
+    vec3 c = mix(heap, deck, smoothstep(.45, .95, CV));
+    c += SC * SUNI * .5 * pow(max(mu, 0.), 12.) * (1. - .7 * thick) * (.4 + .6 * lit);
     return vec4(c * a, a);
   }
   `;
@@ -254,102 +272,149 @@ export default function (stage) {
 
   // the sea: a grid laid over the screen, cast onto the curved sea surface and displaced
   const VS_SEA = HEAD + `
-  in vec2 g; uniform vec3 CP, CF, CR, CU; uniform float FOC, ASP, SY0, SY1, CELL, DIP, L0, L1;
-  uniform sampler2D D0, D1; out vec2 vX; out vec3 vP;
+  in vec2 g; uniform vec3 CP, CF, CR, CU; uniform float FOC, ASP, SY0, SY1, CELL, DIP, L0, L1, GH;
+  uniform sampler2D D0, D1; out vec2 vX, vX1; out vec3 vP;
   const float RE = 6.371e6, NEAR = .3, FAR = 3e4;
   void main() {
     // dense on screen, coarse in a wide margin around it, so a big wave near the camera never opens a gap
     float u = g.x * 2. - 1., au = abs(u), sx = sign(u) * (au &lt; .88 ? au / .88 * .5 : .5 + (au - .88) / .12 * .7) * ASP;
     float w = 1. - g.y, sy = w &lt; .86 ? mix(SY1, -.5, w / .86) : mix(-.5, SY0, (w - .86) / .14);
     vec3 rd = normalize(CF * FOC + CR * sx + CU * sy);
-    float e = max(-rd.y, DIP), hr = 2. * CP.y / RE, d = RE * (e - sqrt(max(e * e - hr, 0.)));
+    // steep rays are laid on a plane just a metre under the lens, so even when the boat sits low on a crest the waves
+    // right below still reach the bottom of the frame; rays toward the horizon use the true height
+    float e = max(-rd.y, DIP), hr = 2. * mix(GH, min(GH, 1.), smoothstep(.12, .45, e)) / RE, d = RE * (e - sqrt(max(e * e - hr, 0.)));
     vec2 x = CP.xz + normalize(rd.xz) * d;
     float foot = d * CELL / max(e, .003);
-    vec3 D = textureLod(D0, x / L0, max(0., log2(foot * ${N}. / L0))).xyz + textureLod(D1, x / L1, max(0., log2(foot * ${N}. / L1))).xyz;
+    vec3 Da = textureLod(D0, x / L0, max(0., log2(foot * ${N}. / L0))).xyz, D = Da + textureLod(D1, x / L1, max(0., log2(foot * ${N}. / L1))).xyz;
+    D.xz *= smoothstep(.5, 7., d);                   // right under the boat the sideways shifts would pull the grid away
     vec3 P = vec3(x.x + D.x, D.y - d * d / (2. * RE), x.y + D.z);
-    vX = x; vP = P;
+    P.y = mix(P.y, min(P.y, CP.y - .6), smoothstep(9., 3., d));   // a crest right at the boat never rises past the lens
+    vX = x; vX1 = x + Da.xz; vP = P;
     vec3 q = P - CP, v = vec3(dot(q, CR), dot(q, CU), dot(q, CF));
     gl_Position = vec4(v.x * FOC * 2. / ASP, v.y * FOC * 2., v.z * (FAR + NEAR) / (FAR - NEAR) - 2. * FAR * NEAR / (FAR - NEAR), v.z);
   }`;
   const FS_SEA = HEAD + ATMO + `
-  in vec2 vX; in vec3 vP; out vec4 o;
-  uniform sampler2D D0, D1, D2, G0, G1, G2, G3, M0, M1, M2, M3, LA, LC; uniform vec3 CP; uniform float L0, L1, L2, L3, T; uniform vec2 WD;
+  in vec2 vX, vX1; in vec3 vP; out vec4 o;
+  uniform sampler2D D0, D1, D2, G0, G1, G2, G3, M0, M1, M2, M3, LA, LC; uniform vec3 CP, BODY; uniform float L0, L1, L2, L3, T;
+  uniform vec2 WD; uniform float SV, CV, FI, CAP, HD, HS, KG, GK, WX;
   float hsh(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
   float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
     return mix(mix(hsh(i), hsh(i + vec2(1, 0)), f.x), mix(hsh(i + vec2(0, 1)), hsh(i + 1.), f.x), f.y); }
-  float rid(vec2 p) { return 1. - abs(2. * vn(p) - 1.); }
+  // sea foam is a lace: thin white walls between bubbles of every size (the second-nearest minus the nearest cell point)
+  vec2 lace(vec2 p) {
+    vec2 i = floor(p), f = fract(p); float d1 = 8., d2 = 8.;
+    for (int y = -1; y &lt;= 1; y++) for (int x = -1; x &lt;= 1; x++) {
+      vec2 o = vec2(x, y), r = o + vec2(hsh(i + o), hsh(i + o + 17.3)) * .9 + .05 - f; float d = dot(r, r);
+      if (d &lt; d1) { d2 = d1; d1 = d; } else if (d &lt; d2) d2 = d;
+    }
+    return vec2(sqrt(d1), sqrt(d2) - sqrt(d1));
+  }
   vec3 skyC(vec3 r, float lod) { r.y = abs(r.y); return textureLod(LC, lutUV(r), lod).rgb; }
   float lam(float c, float s) { float a = c / (s * sqrt(2. * max(1. - c * c, 1e-5))); return a &lt; 1.6 ? (1. - 1.259 * a + .396 * a * a) / (3.535 * a + 2.181 * a * a) : 0.; }
+  float gpdf(vec2 z, vec2 v) { return exp(-.5 * (z.x * z.x / v.x + z.y * z.y / v.y)) / (6.2831853 * sqrt(v.x * v.y)); }
+  // how many of the facets in a patch point the sun at the eye: a Poisson draw with the expected count
+  float pois(float l, float u) {
+    if (l &gt; 9.) return max(0., floor(l + sqrt(l) * 3.46 * (u - .5) + .5));
+    float p = exp(-l), c = p, k = 0.;
+    for (int i = 0; i &lt; 20; i++) { if (u &lt; c) break; k += 1.; p *= l / k; c += p; }
+    return k;
+  }
+  // the glitter: patches about a pixel across (two sizes, blended), fixed to the moving water and re-rolled a few
+  // times a second; the result averages to the smooth slope density but arrives as separate points of light
+  float glint(vec2 x, float cs, float pdf) {
+    float l = log2(max(cs, 2e-4)), l0 = floor(l), fr = l - l0, g = 0.;
+    for (int i = 0; i &lt; 2; i++) {
+      float c = exp2(l0 + float(i)), ar = c * c * GK;
+      vec2 id = floor(x / c);
+      float ph = hsh(id + vec2(l0 * 3.17 + float(i) * 7.7, 1.3));
+      float u = hsh(id * .917 + vec2(floor(T * 6. + ph * 6.) * 1.618, c * 13.1 + 4.2));
+      g += (i == 0 ? 1. - fr : fr) * pois(ar * pdf, u) / ar;
+    }
+    return g;
+  }
   void main() {
     vec2 x = vX;
-    vec4 g0 = texture(G0, x / L0), g1 = texture(G1, x / L1), g2 = texture(G2, x / L2), g3 = texture(G3, x / L3);
-    vec4 m0 = texture(M0, x / L0), m1 = texture(M1, x / L1), m2 = texture(M2, x / L2), m3 = texture(M3, x / L3);
-    vec4 d0 = texture(D0, x / L0), d1 = texture(D1, x / L1), d2 = texture(D2, x / L2);
+    vec2 dx = dFdx(x), dy = dFdy(x);
+    float fy = length(fwidth(x)), cs = min(length(dx), length(dy));      // derivatives outside any branch
+    // each tile is read where its own waves moved this bit of water from, not where the bigger waves did: so the long
+    // waves' push and pull does not smear the shorter ones into streaks
+    vec2 xe = vP.xz, x1 = vX1;
+    vec4 g0 = texture(G0, x / L0), g1 = texture(G1, x1 / L1), g2 = texture(G2, xe / L2), g3 = texture(G3, xe / L3);
+    vec4 m0 = texture(M0, x / L0), m1 = texture(M1, x1 / L1), m2 = texture(M2, xe / L2), m3 = texture(M3, xe / L3);
+    vec4 d0 = texture(D0, x / L0), d1 = texture(D1, x1 / L1), d2 = texture(D2, xe / L2);
     vec2 jj = 1. + g0.zw + g1.zw + g2.zw + g3.zw;
     vec2 s = (g0.xy + g1.xy + g2.xy + g3.xy) / max(jj, vec2(.3));
-    vec2 vr = max(m0.xy - g0.xy * g0.xy, 0.) + max(m1.xy - g1.xy * g1.xy, 0.) + max(m2.xy - g2.xy * g2.xy, 0.) + max(m3.xy - g3.xy * g3.xy, 0.) + .0025;
+    vec2 vr = max(m0.xy - g0.xy * g0.xy, 0.) + max(m1.xy - g1.xy * g1.xy, 0.) + max(m2.xy - g2.xy * g2.xy, 0.) + max(m3.xy - g3.xy * g3.xy, 0.) + CAP;
     vec3 n = normalize(vec3(-s.x, 1., -s.y));
     vec3 V = CP - vP; float dist = length(V); V /= dist;
     float nv = max(dot(n, V), .02);
-    float F = .02 + .98 * pow(1. - nv, 5.);
-    // the sky in the water, blurred by the slopes too small to resolve here
+    // the sky in the water, blurred by the slopes too small to resolve here; on rough water many of the small facets
+    // face the eye more squarely than the mean surface, so less of the sky comes back at a glancing view
     vec3 R = reflect(-V, n);
     float sg = sqrt(.5 * (vr.x + vr.y));
-    vec3 refl = skyC(R, clamp(log2(2.2 * sg * 512. / 6.2831853), 0., 7.));
-    // the sun: a Gaussian slope distribution (resolved normal plus unresolved spread) with Smith shadowing
+    float F = .02 + .98 * pow(1. - min(nv + 1.5 * sg, 1.), 5.);
+    vec3 refl = skyC(R, clamp(log2(2.2 * sg * 512. / 6.2831853), 0., 7.)) * mix(vec3(1), vec3(.86, .96, 1.08), CV);
+    // the sun: a Gaussian slope distribution (resolved normal plus unresolved spread) with Smith shadowing; in sunshine
+    // it is counted out as glitter, under cloud it is the veiled sun's soft sheen
     vec3 Hh = normalize(SD + V);
     vec2 zh = n.xz / n.y - Hh.xz / Hh.y;
-    float pdf = exp(-.5 * (zh.x * zh.x / vr.x + zh.y * zh.y / vr.y)) / (6.2831853 * sqrt(vr.x * vr.y));
-    float D = pdf / pow(Hh.y, 4.);
     vec2 vd = normalize(V.xz + 1e-6), ld = normalize(SD.xz + 1e-6);
     float sv = sqrt(dot(vd * vd, vr)), sl = sqrt(dot(ld * ld, vr));
     float Gs = 1. / (1. + lam(max(V.y, .01), sv) + lam(max(SD.y, .01), sl));
     float Fh = .02 + .98 * pow(1. - max(dot(V, Hh), 0.), 5.);
-    vec3 spec = SC * SUNI * .035 * Fh * D * Gs / (4. * nv) * step(0., SD.y);
-    // light from inside the water: a dark sea, and thin crests in front of the sun lit green from behind
-    vec3 amb = textureLod(LA, vec2(.5, .6), 6.).rgb;
+    float bs = Fh * Gs / (4. * nv * pow(Hh.y, 4.)) * step(0., SD.y);
+    float gl = SV &gt; .01 ? glint(x, cs, .86 * gpdf(zh, vr) + .14 * gpdf(zh, vr * 9.)) : 0.;     // with a few steep facets anywhere
+    vec3 spec = SC * SUNI * bs * (SV * KG * gl + (1. - SV) * .03 * gpdf(zh, vr + .02));
+    // light from inside the water: deep blue in sunshine, dark slate under cloud, and thin crests lit through
+    vec3 amb = textureLod(LC, vec2(.5, .5), 7.).rgb;
     float hgt = d0.y + d1.y;
     float Jt = jj.x * jj.y - pow(d0.w + d1.w + d2.w, 2.);
-    // big-wave shape only: the glow follows the swell's crest line, not every ripple
     vec2 j01 = 1. + g0.zw + g1.zw, s01 = (g0.xy + g1.xy) / max(j01, vec2(.3));
     float J01 = j01.x * j01.y - pow(d0.w + d1.w, 2.);
     float back = pow(clamp(dot(normalize(-V.xz), ld), 0., 1.), 16.);
     float face = clamp(dot(-s01, -ld) * 6., 0., 1.);
-    float thin = smoothstep(.15, 1.2, hgt) * smoothstep(1.02, .7, J01);
-    vec3 body = vec3(.006, .024, .026) * (amb * 2.5 + SC * SUNI * .004);   // dark slate blue-green
-    vec3 sss = vec3(.15, .75, .45) * SC * SUNI * .25 * back * face * thin;
+    float thin = smoothstep(.12 * HS, .55 * HS, hgt) * smoothstep(1.05, .7, J01) * smoothstep(.08, .35, length(s01));
+    vec3 body = BODY * (amb * 2.5 + SC * SUNI * .004 * SV);
+    vec3 sss = vec3(.1, .5, .38) * thin * (SC * SUNI * .25 * back * face * SV + amb * 3. * (1. - SV));
     vec3 col = refl * F + (body + sss) * (1. - F) + spec;
-    // foam: whitecaps folded into the texture, broken up by a lacy pattern
-    float fm = .6 * m0.z + .85 * m1.z + smoothstep(.6, .2, Jt) * 1.2;
-    // foam is torn into streaks along the wind, with holes that open as it thins
-    float fy = length(fwidth(x));                         // derivatives must be taken outside the branch
-    if (fm &gt; .025) {
-      // fresh foam is solid white; as it thins only the ridges of a wind-streaked, warped noise survive, as filaments
-      vec2 y = vec2(dot(x, WD), dot(x, vec2(-WD.y, WD.x)));
-      vec2 yw = y + vec2(vn(y * .6), vn(y * .6 + 5.2)) * 1.6;
-      float r = rid(yw * vec2(.32, 1.)) * .5 + rid(yw * vec2(.85, 2.5) + 4.) * .3 + rid(yw * vec2(2.3, 6.2) + 9.) * .2;
-      float bub = vn(y * vec2(5., 8.)) * .6 + vn(y * 17.) * .4;
-      float a = clamp(fm, 0., 1.15), q = r + .22 * bub, e = fy * 3.2 + .045;
-      float th = 1.02 - a * .55;
-      float cov = mix(smoothstep(th - e, th + e, q), clamp(a * .55, 0., 1.), smoothstep(.15, .45, e)) * smoothstep(.03, .15, a);
-      cov *= .72 + .28 * smoothstep(.2, .9, r + .3 * bub - .25 * a);   // even dense foam is churned, never a flat sheet
-      float lit = .55 + .45 * max(dot(n, SD) * 3. + .4, 0.);
-      vec3 foamC = vec3(.92, .94, .96) * (amb * 2.1 * (.8 + .2 * n.y) + SC * SUNI * .045 * lit) * (.62 + .5 * smoothstep(th, th + .45, q)) * (.85 + .15 * vn(y * 7.));
-      col = mix(col, foamC, cov * (.5 + .42 * smoothstep(.25, 1., a)));
+    // foam: whitecaps where the surface folds now, and older foam that the folding left behind, fading and streaking
+    float fm = FI * (.3 * m0.z + .9 * m1.z + smoothstep(.55, .12, Jt) * 1.1);
+    fm = 1.25 * (1. - exp(-1.2 * fm));
+    // in a gale old foam is combed into long thin lines down the wind
+    vec2 wq = vec2(dot(x1, WD) * .025, dot(x1, vec2(-WD.y, WD.x)) * .3); wq.y += 1.5 * vn(wq * vec2(1., .15) + 3.);
+    float sk = FI * WX * WX * smoothstep(.86, .97, 1. - abs(2. * vn(wq) - 1.)) * smoothstep(.3, .6, vn(wq * vec2(2.5, .4) + 9.));
+    fm = max(fm, .6 * sk * clamp(1.5 - fy * 3., 0., 1.));
+    if (fm &gt; .02) {
+      float a = clamp(fm, 0., 1.2);
+      vec2 y = vec2(dot(x1, WD), dot(x1, vec2(-WD.y, WD.x)));                    // along the wind, across it
+      vec2 yw = y + vec2(vn(y * .35), vn(y * .35 + 5.2)) * 2.2;                     // warped
+      // foam has a thickness: thick and bright where it is fresh, thinning at ragged edges into a veil the water shows
+      // through, torn into streaks downwind; as it ages, small round holes open between the bubbles
+      float st = vn(yw * vec2(.5, 2.)) * .42 + vn(yw * vec2(1.4, 4.6) + 3.) * .28 + vn(yw * vec2(3.9, 10.) + 9.) * .18 + vn(yw * vec2(10., 23.) + 1.) * .12;
+      float th = 1.02 - .66 * a, e = .05 + fy * 2.;
+      float tau = smoothstep(th - e, th + e * .6, st) * smoothstep(.02, .12, a);
+      vec2 lc = lace(yw * vec2(9., 13.) + 7.1);
+      float rh = .36 * smoothstep(1.1, .3, a), aa = clamp(1.3 - fy * 18., 0., 1.);
+      tau *= 1. - .5 * smoothstep(rh, rh - .14, lc.x) * aa;
+      float lit = .55 + .45 * max(dot(n, SD) * 3. + .4, 0.), bub = vn(yw * vec2(16., 34.));
+      vec3 foamC = vec3(.93, .95, .97) * (amb * 2.3 * (.8 + .2 * n.y) + SC * SUNI * .045 * lit * (.3 + .7 * SV)) * (.72 + .28 * tau) * (.86 + .14 * mix(.5, bub, aa));
+      vec3 veil = col * .55 + foamC * .35 + vec3(.0, .012, .01) * amb * 4.;          // thin foam over the water: pale and a little green
+      col = mix(col, mix(veil, foamC, smoothstep(.25, .8, tau)), smoothstep(0., .35, tau) * .94);
     }
-    // haze toward the horizon
-    vec3 hz = textureLod(LA, lutUV(vec3(-V.x, .012, -V.z)), 0.).rgb;
-    float tr = exp(-dist / 6000.);   // a misty horizon
+    // haze toward the horizon (spray and mist in a gale)
+    vec3 hz = textureLod(LC, lutUV(vec3(-V.x, .01, -V.z)), 1.).rgb;
+    float tr = exp(-dist / HD);
     col = col * tr + hz * (1. - tr);
     o = vec4(col, 1);
   }`;
   const FS_BACK = HEAD + ATMO + CLOUDS + `
-  uniform sampler2D LA; uniform vec3 CF, CR, CU; uniform float FOC; uniform vec2 R; out vec4 o;
+  uniform sampler2D LA; uniform vec3 CF, CR, CU; uniform float FOC, SV; uniform vec2 R; out vec4 o;
   void main() {
     vec2 sp = (gl_FragCoord.xy / R - .5) * vec2(R.x / R.y, 1.);
     vec3 rd = normalize(CF * FOC + CR * sp.x + CU * sp.y);
     vec3 c = textureLod(LA, lutUV(rd), 0.).rgb;
-    // (no sun disc: the deck hides it; it shows only as the brighter patch the clouds scatter forward)
+    float a = acos(clamp(dot(rd, SD), -1., 1.)) / .0047;              // the sun's disc, when it is out
+    c += SC * SUNI * SV * (smoothstep(1.15, .85, a) * 900. + 1.5 * exp(-a * .25));
     vec4 k = clouds(rd, 6);
     c = c * (1. - k.a) + k.rgb;
     o = vec4(c, 1);
@@ -361,7 +426,7 @@ export default function (stage) {
     vec2 uv = gl_FragCoord.xy * TX * 2.; vec2 h = TX;
     vec3 c = texture(S, uv).rgb * 4. + texture(S, uv + vec2(-h.x, -h.y)).rgb + texture(S, uv + vec2(h.x, -h.y)).rgb + texture(S, uv + vec2(-h.x, h.y)).rgb + texture(S, uv + h).rgb;
     c /= 8.;
-    if (TH &gt; 0.) c = max(c - TH, 0.);
+    if (TH &gt; 0.) c = min(max(c - TH, 0.), vec3(60.));
     o = vec4(c, 1);
   }`;
   const FS_UP = HEAD + `
@@ -373,26 +438,29 @@ export default function (stage) {
     o = vec4(c / 12., 1);
   }`;
   const FS_COMP = HEAD + `
-  uniform sampler2D S, B; uniform vec2 R; uniform float EX; out vec4 o;
+  uniform sampler2D S, B; uniform vec2 R; uniform float EX, DS; out vec4 o;
   vec3 aces(vec3 x) { return clamp((x * (2.51 * x + .03)) / (x * (2.43 * x + .59) + .14), 0., 1.); }
   float hsh(vec2 p) { vec3 q = fract(p.xyx * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
   void main() {
     vec2 uv = gl_FragCoord.xy / R;
-    vec3 c = texture(S, uv).rgb + texture(B, uv).rgb * .06;
+    vec3 c = texture(S, uv).rgb + texture(B, uv).rgb * .05;
     c = aces(c * EX);
-    c = mix(c, vec3(dot(c, vec3(.3, .59, .11))), .22);   // an overcast day: colours a little muted
-    c *= 1. - .2 * pow(length(uv - .5) * 1.2, 2.5);
+    c = mix(c, vec3(dot(c, vec3(.3, .59, .11))), DS);   // an overcast day: colours a little muted
+    c *= 1. - .16 * pow(length(uv - .5) * 1.2, 2.5);
     o = vec4(pow(c, vec3(1. / 2.2)) + (hsh(gl_FragCoord.xy) - .5) / 255., 1);
   }`;
 
   // ---------------------------------------------------------------- GL helpers
   const shader = (type, src) =&gt; { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const programs = [];
   const program = (vs, fs) =&gt; {
-    const p = gl.createProgram(); gl.attachShader(p, shader(gl.VERTEX_SHADER, vs)); gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
+    const p = gl.createProgram(), a = shader(gl.VERTEX_SHADER, vs), b = shader(gl.FRAGMENT_SHADER, fs);
+    gl.attachShader(p, a); gl.attachShader(p, b);
     gl.bindAttribLocation(p, 0, vs === VQ ? 'p' : 'g'); gl.linkProgram(p);
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    gl.deleteShader(a); gl.deleteShader(b); programs.push(p);
     const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
-    for (let i = 0; i &lt; n; i++) { const a = gl.getActiveUniform(p, i), nm = a.name.replace(/\[0\]$/, ''); u[nm] = gl.getUniformLocation(p, a.name); }
+    for (let i = 0; i &lt; n; i++) { const ai = gl.getActiveUniform(p, i), nm = ai.name.replace(/\[0\]$/, ''); u[nm] = gl.getUniformLocation(p, ai.name); }
     return { p, u };
   };
   const P = {
@@ -415,7 +483,7 @@ export default function (stage) {
     gl.drawBuffers(texs.map((_, i) =&gt; gl.COLOR_ATTACHMENT0 + i));
     return f;
   };
-  const textures = [], fbos = [], rbs = [];
+  const textures = [], fbos = [];
   const T = (...a) =&gt; { const t = tex(...a); textures.push(t); return t; };
   const F = (...a) =&gt; { const f = fbo(...a); fbos.push(f); return f; };
 
@@ -428,51 +496,72 @@ export default function (stage) {
   let seed = 0x2f6b9a1;
   const rnd = () =&gt; { seed |= 0; seed = seed + 0x6d2b79f5 | 0; let t = Math.imul(seed ^ seed &gt;&gt;&gt; 15, 1 | seed); t = t + Math.imul(t ^ t &gt;&gt;&gt; 7, 61 | t) ^ t; return ((t ^ t &gt;&gt;&gt; 14) &gt;&gt;&gt; 0) / 4294967296; };
   const gauss = () =&gt; { const u = Math.max(1e-9, rnd()), v = rnd(); return [Math.sqrt(-2 * Math.log(u)) * Math.cos(6.2831853 * v), Math.sqrt(-2 * Math.log(u)) * Math.sin(6.2831853 * v)]; };
-  const U10 = Math.max(5, Math.min(13, PARAMS.wind)), FETCH = 150e3;
+  // light air has blown over a short fetch (a young, short sea); a gale over a long one
+  const FETCH = 12e3 + 70e3 * WX * WX;
   const wp = 22 * Math.cbrt(G * G / (U10 * FETCH)), alpha = 0.076 * Math.pow(U10 * U10 / (FETCH * G), 0.22);
   const jonswap = (w, wpk, al, gam) =&gt; { const sg = w &lt;= wpk ? 0.07 : 0.09, r = Math.exp(-((w - wpk) * (w - wpk)) / (2 * sg * sg * wpk * wpk)); return al * G * G / w ** 5 * Math.exp(-1.25 * (wpk / w) ** 4) * gam ** r; };
-  // the wind blows toward the camera and a little to the right, and the whole sea follows it: the wind sea keeps to a
-  // narrow fan round the wind (long crests, nothing running upwind) and a long swell rolls in almost the same way
-  const camYaw = 0, windDir = Math.PI / 2 - 0.42, swellDir = windDir + 0.14;
-  const sp = Math.max(2, 11.5 * Math.pow(U10 * wp / G, -2.5));
+  // the wind blows toward the camera and a little to the right. In light air the little waves run every which way; as it
+  // freshens they keep to a narrower fan round the wind, and a long swell rolls in from almost the same way
+  const windDir = Math.PI / 2 - 0.42, swellDir = windDir + 0.14;
+  const sp = Math.max(2, 11.5 * Math.pow(U10 * wp / G, -2.5)), sMin = 0.8 + 1.2 * WX, sK = 0.35 + 0.65 * WX;
   const swellWp = 2 * Math.PI / 10;
-  // the swell's level: scaled so its significant height is about one and a half metres (more in stronger wind)
   let m0 = 0; for (let w = 0.2; w &lt; 4; w += 0.002) m0 += jonswap(w, swellWp, 1, 6) * 0.002;
-  const swellAl = (Math.min(2, 0.6 + U10 * 0.08) / 4) ** 2 / m0;
-  const SEA = 2.1;                                  // a sea that has blown for a while: the wind sea's energy x2.1 (height x1.45)
+  const swellAl = ((Math.min(2, 0.6 + U10 * 0.08) / 4) ** 2 / m0) * ss(0.25, 0.8, WX);
+  const SEA = 1.25;
   const spread = (th, s) =&gt; Math.sqrt(s + 0.25) / (2 * Math.sqrt(Math.PI)) * Math.pow(Math.abs(Math.cos(th / 2)), 2 * s);
   const angDiff = (a, b) =&gt; { let d = a - b; while (d &gt; Math.PI) d -= 2 * Math.PI; while (d &lt; -Math.PI) d += 2 * Math.PI; return d; };
   const E = (kx, kz) =&gt; {
     const k = Math.hypot(kx, kz), w = Math.sqrt(G * k), dwdk = G / (2 * w), th = Math.atan2(kz, kx);
-    const s = w &lt; wp ? sp * Math.pow(w / wp, 5) : sp * Math.pow(w / wp, -2.5);
-    const wind = SEA * jonswap(w, wp, alpha, 3.3) * spread(angDiff(th, windDir), Math.max(5, s));   // a narrow fan: long crests, all downwind
-    const swell = jonswap(w, swellWp, swellAl, 6) * spread(angDiff(th, swellDir), 24);
+    const s = (w &lt; wp ? sp * Math.pow(w / wp, 5) : sp * Math.pow(w / wp, -2.5)) * sK;
+    const wind = SEA * jonswap(w, wp, alpha, 3.3) * spread(angDiff(th, windDir), Math.max(sMin, s));
+    const swell = swellAl &gt; 0 ? jonswap(w, swellWp, swellAl, 6) * spread(angDiff(th, swellDir), 24) : 0;
     return (wind + swell) * dwdk / k * Math.exp(-(k * k) / 32000);
   };
-    const h0tex = CASC.map(c =&gt; {
-    const dk = 2 * Math.PI / c.L, amp = new Float32Array(N * N * 2), out = new Float32Array(N * N * 4);
+  // all four tiles side by side in one texture; the boat's motion keeps the long waves' amplitudes
+  const h0 = new Float32Array(NC * N * N * 4), boat = [];
+  let m2h = 0;
+  CASC.forEach((c, ci) =&gt; {
+    const dk = 2 * Math.PI / c.L, amp = new Float32Array(N * N * 2);
     for (let j = 0; j &lt; N; j++) for (let i = 0; i &lt; N; i++) {
       const nx = i &lt; N / 2 ? i : i - N, nz = j &lt; N / 2 ? j : j - N, kx = nx * dk, kz = nz * dk, k = Math.hypot(kx, kz);
       const [a, b] = gauss();
       if (k &lt; 1e-9 || k &lt; c.lo || k &gt;= c.hi || nx === -N / 2 || nz === -N / 2) continue;
       const e = E(kx, kz), A = Math.sqrt(e * dk * dk) / 2;
       amp[(j * N + i) * 2] = a * A; amp[(j * N + i) * 2 + 1] = b * A;
+      m2h += e * dk * dk;
     }
     for (let j = 0; j &lt; N; j++) for (let i = 0; i &lt; N; i++) {
-      const o = (j * N + i) * 4, m = ((N - j) % N * N + (N - i) % N) * 2;
-      out[o] = amp[(j * N + i) * 2]; out[o + 1] = amp[(j * N + i) * 2 + 1]; out[o + 2] = amp[m]; out[o + 3] = -amp[m + 1];
+      const s = (j * N + i) * 2, m = ((N - j) % N * N + (N - i) % N) * 2, o = (j * NC * N + ci * N + i) * 4;
+      h0[o] = amp[s]; h0[o + 1] = amp[s + 1]; h0[o + 2] = amp[m]; h0[o + 3] = -amp[m + 1];
+      const nx = i &lt; N / 2 ? i : i - N, nz = j &lt; N / 2 ? j : j - N, kx = nx * dk, kz = nz * dk, k = Math.hypot(kx, kz);
+      const wB = Math.exp(-((k * 3.2) ** 2));                    // a boat about eight metres long: it rides the long waves only
+      if (ci &lt; 2 &amp;&amp; k &gt; 0 &amp;&amp; wB &gt; 0.02 &amp;&amp; (amp[s] || amp[s + 1])) {
+        const q = Math.floor(Math.sqrt(G * k) * TREP / (2 * Math.PI) + 0.5), dl = -c.L / (2 * N);   // texel centres sit half a texel off
+        const pc = Math.cos((kx + kz) * dl), ps = Math.sin((kx + kz) * dl);
+        boat.push(kx, kz, q, h0[o] * wB, h0[o + 1] * wB, h0[o + 2] * wB, h0[o + 3] * wB, pc, ps);
+      }
     }
-    const t = T(N, N, gl.RGBA32F); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, N, N, gl.RGBA, gl.FLOAT, out);
-    return t;
   });
+  const HS = 4 * Math.sqrt(m2h);                             // significant wave height
+  const boatAt = tt =&gt; {
+    let h = 0, sx = 0, sz = 0;
+    for (let i = 0; i &lt; boat.length; i += 9) {
+      const ph = 2 * Math.PI * ((boat[i + 2] * tt / TREP) % 1), c = Math.cos(ph), s = Math.sin(ph);
+      const re0 = boat[i + 3] * c - boat[i + 4] * s + boat[i + 5] * c + boat[i + 6] * s, im0 = boat[i + 3] * s + boat[i + 4] * c - boat[i + 5] * s + boat[i + 6] * c;
+      const re = re0 * boat[i + 7] - im0 * boat[i + 8], im = re0 * boat[i + 8] + im0 * boat[i + 7];
+      h += re; sx -= boat[i] * im; sz -= boat[i + 1] * im;
+    }
+    return [h, sx, sz];
+  };
+  const h0tex = T(NC * N, N, gl.RGBA32F); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, NC * N, N, gl.RGBA, gl.FLOAT, h0);
 
-  const ping = [0, 1].map(() =&gt; { const a = T(N, N, gl.RGBA32F), b = T(N, N, gl.RGBA32F); return { a, b, f: F([a, b]) }; });
+  const ping = [0, 1].map(() =&gt; { const a = T(NC * N, N, gl.RGBA16F);   // half floats are plenty here, at half the cost
+  return { a, f: F([a]) }; });
   const casc = CASC.map(() =&gt; {
-    const opt = { filter: gl.LINEAR, wrapS: gl.REPEAT, mips: LOGN + 1 };
+    const opt = { filter: gl.LINEAR, wrapS: gl.REPEAT, mips: Math.log2(N) + 1 };
     const d = T(N, N, gl.RGBA16F, opt), g = T(N, N, gl.RGBA16F, opt), m = [T(N, N, gl.RGBA16F, opt), T(N, N, gl.RGBA16F, opt)];
     return { d, g, m, f: [F([d, g, m[0]]), F([d, g, m[1]])], w: 0 };
   });
-  // clear the foam
   casc.forEach(c =&gt; c.f.forEach(f =&gt; { gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.clearBufferfv(gl.COLOR, 2, [0, 0, 0, 0]); }));
 
   const LW = 384, LH = 192;
@@ -484,32 +573,44 @@ export default function (stage) {
   const bindTex = (u, unit, t) =&gt; { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.uniform1i(u, unit); };
   const quad = () =&gt; { gl.bindVertexArray(quadVAO); gl.drawArrays(gl.TRIANGLES, 0, 3); };
 
+  const CH = clamp(PARAMS.chop, 0.6, 1.9);
   function simulate(tt, dt, foamOn) {
-    gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND); gl.viewport(0, 0, N, N);
-    CASC.forEach((C, ci) =&gt; {
-      let u = use(P.spec); gl.bindFramebuffer(gl.FRAMEBUFFER, ping[0].f);
-      bindTex(u.H0, 0, h0tex[ci]); gl.uniform1f(u.L, C.L); gl.uniform1f(u.TT, tt); gl.uniform1f(u.Z, 0); quad();
-      u = use(P.fft); gl.uniform1f(u.Z, 0); let cur = 0;
-      for (let hz = 1; hz &gt;= 0; hz--) for (let s = 2; s &lt;= N; s *= 2) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, ping[1 - cur].f);
-        bindTex(u.A, 0, ping[cur].a); bindTex(u.B, 1, ping[cur].b); gl.uniform1i(u.S, s); gl.uniform1i(u.HZ, hz); quad();
-        cur = 1 - cur;
-      }
-      const c = casc[ci], w = 1 - c.w;
-      u = use(P.asm); gl.bindFramebuffer(gl.FRAMEBUFFER, c.f[w]);
-      bindTex(u.A, 0, ping[cur].a); bindTex(u.B, 1, ping[cur].b); bindTex(u.MP, 2, c.m[c.w]);
-      gl.uniform1f(u.CH, Math.max(0.6, Math.min(1.9, PARAMS.chop))); gl.uniform1f(u.DT, dt); gl.uniform1f(u.FI, ci &gt;= 2 ? 0 : foamOn); gl.uniform1f(u.FT, ci === 0 ? 0.71 : 0.755); gl.uniform1f(u.Z, 0); quad();
+    gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND); gl.viewport(0, 0, NC * N, N);
+    let u = use(P.spec); gl.bindFramebuffer(gl.FRAMEBUFFER, ping[0].f);
+    bindTex(u.H0, 0, h0tex); gl.uniform4f(u.LS, CASC[0].L, CASC[1].L, CASC[2].L, CASC[3].L); gl.uniform1f(u.TT, tt); gl.uniform1f(u.Z, 0); quad();
+    u = use(P.fft); gl.uniform1f(u.Z, 0); let cur = 0;
+    for (let hz = 1; hz &gt;= 0; hz--) for (let s = 2; s &lt;= N; s *= 2) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, ping[1 - cur].f);
+      bindTex(u.A, 0, ping[cur].a); gl.uniform1i(u.S, s); gl.uniform1i(u.HZ, hz); quad();
+      cur = 1 - cur;
+    }
+    u = use(P.asm); gl.viewport(0, 0, N, N);
+    gl.uniform1f(u.CH, CH); gl.uniform1f(u.DT, dt); gl.uniform1f(u.FD, 0.22); gl.uniform1f(u.Z, 0);
+    bindTex(u.A, 0, ping[cur].a);
+    casc.forEach((c, ci) =&gt; {
+      const w = 1 - c.w;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, c.f[w]); bindTex(u.MP, 2, c.m[c.w]);
+      gl.uniform1i(u.OFF, ci * N); gl.uniform1f(u.DX, CASC[ci].L / N); gl.uniform1f(u.FI, ci &gt;= 2 ? 0 : foamOn); gl.uniform1f(u.FT, ci === 0 ? 0.6 + 0.11 * WX : 0.64 + 0.115 * WX); quad();
       c.w = w;
     });
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     casc.forEach(c =&gt; { for (const t of [c.d, c.g, c.m[c.w]]) { gl.bindTexture(gl.TEXTURE_2D, t); gl.generateMipmap(gl.TEXTURE_2D); } });
   }
 
-  // ---------------------------------------------------------------- the camera and the sun
-  const FOC = 1.45, PITCH = 0.085, CAMH = 4.5;
-  const cam = { p: [0, CAMH, 0], f: [0, -Math.sin(PITCH), -Math.cos(PITCH)], r: [1, 0, 0], u: [0, Math.cos(PITCH), -Math.sin(PITCH)] };
-  const DIP = Math.sqrt(2 * CAMH / 6.371e6);
-  const RE = 6360e3, RA = 6420e3;
+  // ---------------------------------------------------------------- the camera (on a boat) and the sun
+  const FOC = 1.45, CAMH = 2.8 - 0.3 * WX, PITCH0 = 0.165 - 0.04 * WX;
+  const cam = { p: [0, CAMH, 0], f: [0, 0, -1], r: [1, 0, 0], u: [0, 1, 0], pitch: PITCH0, roll: 0, dip: 0 };
+  const placeCam = tt =&gt; {
+    const [h, sx, sz] = boatAt(tt % TREP);
+    const y = CAMH + h, p = PITCH0 + 0.5 * Math.atan(-sz), rl = 0.4 * Math.atan(sx);
+    const f0 = [0, -Math.sin(p), -Math.cos(p)], u0 = [0, Math.cos(p), -Math.sin(p)], r0 = [1, 0, 0];
+    const c = Math.cos(rl), s = Math.sin(rl);
+    cam.p = [0, y, 0]; cam.f = f0; cam.r = r0.map((v, i) =&gt; v * c + u0[i] * s); cam.u = u0.map((v, i) =&gt; v * c - r0[i] * s);
+    cam.pitch = p; cam.roll = rl; cam.dip = Math.sqrt(2 * Math.max(y, 0.5) / 6.371e6);
+  };
+  const RE = 6360e3, RA = 6420e3, HZM = mix(0.2, 2.2, WX);
+  // a clear day's sky graded to the photographs: a clean pale blue down to the horizon
+  const SKT = [0.86, 1.0, 1.18].map(v =&gt; mix(v, 1, ss(0, 0.7, CV)));
   const sunTrans = (sd) =&gt; {
     const o = [0, RE + 8, 0], b = o[1] * sd[1], c = o[1] * o[1] - RA * RA, t = -b + Math.sqrt(b * b - c);
     let r = 0, m = 0, oz = 0; const n = 48;
@@ -518,19 +619,19 @@ export default function (stage) {
       r += Math.exp(-a / 8000) * t / n; m += Math.exp(-a / 1100) * t / n; oz += Math.max(0, 1 - Math.abs(a - 25000) / 15000) * t / n;
     }
     const BR = [5.802e-6, 13.558e-6, 33.1e-6], BO = [0.65e-6, 1.881e-6, 0.085e-6];
-    return BR.map((br, i) =&gt; Math.exp(-(br * r + 5.6e-6 * m + BO[i] * oz)));
+    return BR.map((br, i) =&gt; Math.exp(-(br * r + 5.6e-6 * HZM * m + BO[i] * oz)));
   };
 
   // ---------------------------------------------------------------- render targets that follow the canvas size
-  let W = 1, H = 1, scene = null, depthRB = null, sceneF = null, bloom = [], grid = null;
+  let W = 1, H = 1, scene = null, depthRB = null, sceneF = null, bloom = [];
   const seaVAO = gl.createVertexArray(), gridBuf = gl.createBuffer(), idxBuf = gl.createBuffer();
-  let idxCount = 0, SY0 = -0.6, SY1 = 0.2, CELL = 0.002;
+  let idxCount = 0, SY0 = -2.4, CELL = 0.002, SYMAX = 0.3;
   const freeTargets = () =&gt; {
     if (scene) { gl.deleteTexture(scene); gl.deleteRenderbuffer(depthRB); gl.deleteFramebuffer(sceneF); }
     bloom.forEach(b =&gt; { gl.deleteTexture(b.t); gl.deleteFramebuffer(b.f); }); bloom = [];
   };
   const resize = () =&gt; {
-    const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(820000 / (w * h))));
+    const w = stage.clientWidth || 1, h = stage.clientHeight || 1, d = Math.min(devicePixelRatio, 2, Math.max(0.5, Math.sqrt(700000 / (w * h))));
     W = canvas.width = Math.max(1, (w * d) | 0); H = canvas.height = Math.max(1, (h * d) | 0);
     freeTargets();
     scene = tex(W, H, gl.RGBA16F, { filter: gl.LINEAR });
@@ -538,11 +639,11 @@ export default function (stage) {
     sceneF = fbo([scene], depthRB);
     let bw = W, bh = H;
     for (let i = 0; i &lt; 6; i++) { bw = Math.max(1, bw &gt;&gt; 1); bh = Math.max(1, bh &gt;&gt; 1); const t = tex(bw, bh, gl.RGBA16F, { filter: gl.LINEAR }); bloom.push({ t, f: fbo([t]), w: bw, h: bh }); }
-    // the sea grid: about one vertex every 3 pixels, from below the frame up to just past the horizon
-    const horizon = FOC * Math.tan(PITCH - DIP);
-    SY0 = -1.3; SY1 = horizon + 0.02;
-    const GX = Math.ceil(W / 0.88 / 3), GY = Math.ceil((SY1 + 0.5) * H / 0.86 / 3);
-    CELL = (SY1 + 0.5) / (GY * 0.86) / FOC;
+    // the sea grid: about one vertex every 3 pixels, from below the frame to past the highest the horizon can sit
+    // (the boat pitches and rolls); the top of the grid is set each frame, just above the horizon
+    SYMAX = FOC * Math.tan(PITCH0 + 0.12) + 0.5 * (W / H) * Math.tan(0.12) + 0.04;
+    const GX = Math.ceil(W / 0.88 / 3), GY = Math.ceil((SYMAX + 0.5) * H / 0.86 / 3);
+    CELL = (SYMAX + 0.5) / (GY * 0.86) / FOC;
     const v = new Float32Array((GX + 1) * (GY + 1) * 2);
     for (let j = 0, k = 0; j &lt;= GY; j++) for (let i = 0; i &lt;= GX; i++) { v[k++] = i / GX; v[k++] = j / GY; }
     const idx = new Uint32Array(GX * GY * 6);
@@ -564,24 +665,27 @@ export default function (stage) {
   const onMove = e =&gt; { const b = canvas.getBoundingClientRect(); px = (e.clientX - b.left) / b.width; py = (e.clientY - b.top) / b.height; lastMove = performance.now(); held = e.pointerType === 'mouse'; };
   const onLeave = () =&gt; { held = false; };
   canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onMove); canvas.addEventListener('pointerleave', onLeave);
-  const base = { az: -Math.PI / 2, el: Math.max(1, Math.min(10, PARAMS.sun)) * Math.PI / 180 };
-  const sun = { az: base.az + 0.16 * Math.min(1, W / H / 1.6), el: base.el, va: 0, ve: 0 };
+  // at rest the sun stands up and off to the left in sunshine; under cloud its bright patch sits a little left of centre
+  const base = { az: -Math.PI / 2 - mix(0.58, 0.22, ss(0.3, 0.9, WX)), el: clamp(PARAMS.sun, 2, 50) * Math.PI / 180 };
+  const sun = { az: base.az, el: base.el, va: 0, ve: 0 };
   let lutKey = '', drawnKey = '';
 
   // ---------------------------------------------------------------- frame
   let raf, last = performance.now(), t = 37;
-  for (let i = 0; i &lt; 120; i++) simulate((t - 4 + i / 30) % TREP, 1 / 30, 1);   // four seconds of foam history
+  for (let i = 0; i &lt; 120; i++) simulate((t - 4 + i / 30) % TREP, 1 / 30, FOAM);   // four seconds of foam history
   function frame(now) {
     const dt = Math.min(1 / 30, Math.max(0, (now - last) / 1000)); last = now;
     if (!reduce) t += dt;
-    const live = held || now - lastMove &lt; 1800;
-    const az0 = base.az + 0.16 * Math.min(1, W / H / 1.6);
-    const tAz = live ? az0 - 0.16 + (px - 0.5) * 0.9 * Math.min(1.4, W / H) : az0, tEl = live ? Math.max(0.006, Math.min(0.3, 0.012 + (0.62 - py) * 0.42)) : base.el;
+    placeCam(t);
+    const live = held || now - lastMove &lt; 1800, asp = Math.min(1.6, W / H);
+    const tAz = live ? -Math.PI / 2 + (px - 0.5) * 0.62 * asp : base.az;
+    const tEl = live ? clamp(0.012 + (0.62 - py) * 0.5, 0.006, 0.6) : base.el;
     for (let i = 0; i &lt; 4; i++) {
       const h = dt / 4;
       sun.va += (36 * (tAz - sun.az) - 12 * sun.va) * h; sun.az += sun.va * h;
       sun.ve += (36 * (tEl - sun.el) - 12 * sun.ve) * h; sun.el += sun.ve * h;
     }
+    if (reduce) { sun.az = tAz; sun.el = tEl; }
     const SD = [Math.cos(sun.az) * Math.cos(sun.el), Math.sin(sun.el), Math.sin(sun.az) * Math.cos(sun.el)];
     const tr = sunTrans(SD), SUNI = 16;
 
@@ -589,14 +693,15 @@ export default function (stage) {
     const stillKey = SD.map(v =&gt; v.toFixed(5)).join() + W + 'x' + H;
     if (reduce &amp;&amp; stillKey === drawnKey) { raf = requestAnimationFrame(frame); return; }
     drawnKey = stillKey;
-    if (!reduce || !simulate.done) { simulate(t % TREP, reduce ? 0 : dt, 1); simulate.done = true; }
+    if (!reduce || !simulate.done) { simulate(t % TREP, reduce ? 0 : dt, FOAM); simulate.done = true; }
 
     // the sky lookup, redrawn when the sun has moved or the clouds have drifted a little
     const key = SD.map(v =&gt; v.toFixed(4)).join() + '|' + Math.floor(t * 4);
     if (key !== lutKey) {
       lutKey = key;
       const u = use(P.lut); gl.bindFramebuffer(gl.FRAMEBUFFER, lutF); gl.viewport(0, 0, LW, LH);
-      gl.uniform2f(u.RES, LW, LH); gl.uniform3fv(u.SD, SD); gl.uniform3fv(u.SC, tr); gl.uniform1f(u.SUNI, SUNI); gl.uniform1f(u.CT, t); gl.uniform1f(u.Z, 0); quad();
+      gl.uniform2f(u.RES, LW, LH); gl.uniform3fv(u.SD, SD); gl.uniform3fv(u.SC, tr); gl.uniform1f(u.SUNI, SUNI); gl.uniform1f(u.HZM, HZM); gl.uniform3fv(u.SKT, SKT);
+      gl.uniform1f(u.CT, t); gl.uniform1f(u.CV, CV); gl.uniform1f(u.Z, 0); quad();
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       for (const tx of [lutA, lutC]) { gl.bindTexture(gl.TEXTURE_2D, tx); gl.generateMipmap(gl.TEXTURE_2D); }
     }
@@ -605,11 +710,17 @@ export default function (stage) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneF); gl.viewport(0, 0, W, H);
     gl.clearColor(0, 0, 0, 1); gl.clearDepth(1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LESS); gl.depthMask(true);
+    const SY1 = Math.min(SYMAX, FOC * Math.tan(cam.pitch - cam.dip) + 0.5 * (W / H) * Math.abs(Math.tan(cam.roll)) + 0.03);
     let u = use(P.sea);
     gl.uniform3fv(u.CP, cam.p); gl.uniform3fv(u.CF, cam.f); gl.uniform3fv(u.CR, cam.r); gl.uniform3fv(u.CU, cam.u);
-    gl.uniform1f(u.FOC, FOC); gl.uniform1f(u.ASP, W / H); gl.uniform1f(u.SY0, SY0); gl.uniform1f(u.SY1, SY1); gl.uniform1f(u.CELL, CELL); gl.uniform1f(u.DIP, DIP);
+    gl.uniform1f(u.FOC, FOC); gl.uniform1f(u.ASP, W / H); gl.uniform1f(u.SY0, SY0); gl.uniform1f(u.SY1, SY1); gl.uniform1f(u.CELL, CELL);
+    gl.uniform1f(u.DIP, cam.dip); gl.uniform1f(u.GH, Math.max(cam.p[1], 0.5));
     gl.uniform1f(u.L0, CASC[0].L); gl.uniform1f(u.L1, CASC[1].L); gl.uniform1f(u.L2, CASC[2].L); gl.uniform1f(u.L3, CASC[3].L); gl.uniform1f(u.T, t);
-    gl.uniform3fv(u.SD, SD); gl.uniform3fv(u.SC, tr); gl.uniform1f(u.SUNI, SUNI); gl.uniform2f(u.WD, Math.cos(windDir), Math.sin(windDir));
+    gl.uniform3fv(u.SD, SD); gl.uniform3fv(u.SC, tr); gl.uniform1f(u.SUNI, SUNI); gl.uniform1f(u.HZM, HZM); gl.uniform3fv(u.SKT, SKT); gl.uniform2f(u.WD, Math.cos(windDir), Math.sin(windDir));
+    gl.uniform1f(u.SV, SV); gl.uniform1f(u.CV, CV); gl.uniform1f(u.FI, FOAM); gl.uniform1f(u.WX, WX); gl.uniform1f(u.HS, Math.max(HS, 0.2));
+    gl.uniform1f(u.CAP, 0.004 + 0.0022 * U10); gl.uniform1f(u.HD, mix(26000, 2600, WX * WX)); gl.uniform1f(u.KG, 0.22); gl.uniform1f(u.GK, 12);
+    const bc = [[0.004, 0.024, 0.062], [0.004, 0.022, 0.06], [0.004, 0.024, 0.056]], bi = WX &lt; 0.5 ? 0 : 1, bt = WX &lt; 0.5 ? WX * 2 : WX * 2 - 1;
+    gl.uniform3fv(u.BODY, bc[bi].map((v, i) =&gt; mix(v, bc[bi + 1][i], bt)));
     bindTex(u.D0, 0, casc[0].d); bindTex(u.D1, 1, casc[1].d); bindTex(u.D2, 10, casc[2].d);
     bindTex(u.G0, 2, casc[0].g); bindTex(u.G1, 3, casc[1].g); bindTex(u.G2, 4, casc[2].g); bindTex(u.G3, 11, casc[3].g); bindTex(u.M3, 12, casc[3].m[casc[3].w]);
     bindTex(u.M0, 5, casc[0].m[casc[0].w]); bindTex(u.M1, 6, casc[1].m[casc[1].w]); bindTex(u.M2, 7, casc[2].m[casc[2].w]);
@@ -618,7 +729,7 @@ export default function (stage) {
     gl.depthFunc(gl.LEQUAL); gl.depthMask(false);
     u = use(P.back);
     gl.uniform3fv(u.CF, cam.f); gl.uniform3fv(u.CR, cam.r); gl.uniform3fv(u.CU, cam.u); gl.uniform1f(u.FOC, FOC); gl.uniform2f(u.R, W, H);
-    gl.uniform3fv(u.SD, SD); gl.uniform3fv(u.SC, tr); gl.uniform1f(u.SUNI, SUNI); gl.uniform1f(u.CT, t); gl.uniform1f(u.Z, 0.999999);
+    gl.uniform3fv(u.SD, SD); gl.uniform3fv(u.SC, tr); gl.uniform1f(u.SUNI, SUNI); gl.uniform1f(u.HZM, HZM); gl.uniform3fv(u.SKT, SKT); gl.uniform1f(u.CT, t); gl.uniform1f(u.CV, CV); gl.uniform1f(u.SV, SV); gl.uniform1f(u.Z, 0.999999);
     bindTex(u.LA, 0, lutA); quad();
     gl.disable(gl.DEPTH_TEST); gl.depthMask(true);
 
@@ -639,13 +750,15 @@ export default function (stage) {
     }
     gl.disable(gl.BLEND);
     u = use(P.comp); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
-    bindTex(u.S, 0, scene); bindTex(u.B, 1, bloom[0].t); gl.uniform2f(u.R, W, H); gl.uniform1f(u.EX, 0.56); gl.uniform1f(u.Z, 0); quad();
+    bindTex(u.S, 0, scene); bindTex(u.B, 1, bloom[0].t); gl.uniform2f(u.R, W, H); gl.uniform1f(u.EX, mix(0.5, 0.56, WX)); gl.uniform1f(u.DS, 0.1 * CV); gl.uniform1f(u.Z, 0); quad();
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
   return () =&gt; {
     cancelAnimationFrame(raf); ro.disconnect();
     canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onMove); canvas.removeEventListener('pointerleave', onLeave);
+    freeTargets(); textures.forEach(t =&gt; gl.deleteTexture(t)); fbos.forEach(f =&gt; gl.deleteFramebuffer(f)); programs.forEach(p =&gt; gl.deleteProgram(p));
+    [quadBuf, gridBuf, idxBuf].forEach(b =&gt; gl.deleteBuffer(b)); [quadVAO, seaVAO].forEach(v =&gt; gl.deleteVertexArray(v));
     gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
   };
 }
