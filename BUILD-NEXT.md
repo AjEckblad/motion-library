@@ -1,3 +1,15 @@
+# Resume here (2026-11-15 night): security pass SHIPPED (1038f1c); nothing in progress
+
+- Every page has a Content-Security-Policy meta (index.html and stage.html by hand, compare.html and fx/ via
+  build-static's STATIC_CSP): only the site's own scripts run; stage.html adds blob: (tuned effects) and its two inline
+  scripts by sha256. check.mjs 96/96 (+4 CSP checks), motion-check 30/30; a sweep of all 223 effects, plain and tuned
+  (446 loads), hit no blocks. Live and confirmed with curl.
+- GitHub: ruleset "Protect main" (no force-push, no deletion); secret scanning + push protection were already on.
+- Waits on AJ: 2FA on npm (most important: npx runs his code on other machines) and on GitHub; npm shows his Gmail
+  as maintainer email (`npm view motion-library maintainers`); changing the npm account email fixes future versions.
+  Still waiting from before: `cd cli && npm login && npm publish`.
+- AJ's personal site moved to its own project, ~/Downloads/aj-site (own CLAUDE.md, agents, tools, security rules).
+
 # Resume here (2026-11-15 afternoon): AJ's 10-item batch SHIPPED; nothing in progress
 
 Shipped in the commit after 4d051bf (check 92/92, motion-check 30/30, 223 effects):
