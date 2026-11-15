@@ -24,6 +24,10 @@ Pages from main). The site is in English, 中文, Español and Français.
   `sitemap.xml` and `js/versions.js` are generated too.
 - `js/` app (front page hero in js/hero.js + js/front.js, detail view, creatures in js/critters.js), `css/app.css`,
   `fonts/`, `posters/` (webp per effect, plus the hero's poster).
+- Security: index.html, stage.html and the generated pages carry a Content-Security-Policy meta tag. Only the site's
+  own scripts run (stage.html also allows blob: for tuned effects and lists its two inline scripts by sha256 hash).
+  Editing an inline script in stage.html changes its hash; check.mjs fails and prints the hash to put in. Never load
+  scripts, fonts or styles from another site. main is protected on GitHub: no force-push, no deleting it.
 - `cli/`: the npm package (`npx motion-library add <id>`). `cli/anims` is built by `cd cli && node build.mjs`
   (gitignored). AJ publishes it to npm.
 

@@ -24,6 +24,9 @@ const KIND_SHORT = { dom: 'DOM', canvas: 'Canvas', webgl: 'WebGL' };
 // sentence-case a clause after a colon, but keep acronyms and names (SDF, CMYK, Voronoi)
 const lowerFirst = t => /^[A-Z](?![A-Z0-9])/.test(t) && !/^I\b/.test(t) && !/^(Voronoi|Truchet|Julia|Mandelbrot|Langton|Conway|Lissajous|Chladni|Kelvin|Roche|Verlet|Bézier|Perlin|Worley|Möbius|Escher|Barnsley|Sierpinski|Heighway|Clifford|Brian|Doom|Bauhaus|Memphis|Gielis)/.test(t) ? t[0].toLowerCase() + t.slice(1) : t;
 const json = o => JSON.stringify(o, null, 1).replace(/</g, '\\u003c');
+// Content-Security-Policy for the generated static pages: nothing runs but the site's own files (they have no scripts at
+// all besides JSON-LD, which is data). index.html and stage.html carry their own policies, written by hand.
+const STATIC_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
 const write = (rel, text) => { fs.mkdirSync(path.dirname(path.join(ROOT, rel)), { recursive: true }); fs.writeFileSync(path.join(ROOT, rel), text); };
 // a short content hash per effect file and per poster: the site adds it to their URLs (?v=), so a browser that kept an
 // old copy fetches the new one as soon as an effect or its poster changes (GitHub Pages lets browsers cache for 10 min)
@@ -83,6 +86,7 @@ for (const f of fx) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="${STATIC_CSP}">
 <title>${esc(a.title)}: ${esc(a.trick)} · Motion Library</title>
 <meta name="description" content="${esc(f.tldr)}">
 ${SITE ? `<link rel="canonical" href="${esc(abs(f.page))}">\n` : ''}<meta name="theme-color" content="#0c0c0e">
@@ -234,6 +238,7 @@ write('compare.html', `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="${STATIC_CSP}">
 <title>Motion Library vs Magic UI, Aceternity UI, React Bits, Animata and fx-lab</title>
 <meta name="description" content="How Motion Library compares with Magic UI, Aceternity UI, React Bits, Animata and fx-lab: framework, install, tuning, price, licence and size, from each project’s own pages (checked ${CHECKED}).">
 ${SITE ? `<link rel="canonical" href="${esc(abs('compare.html'))}">\n` : ''}<meta name="theme-color" content="#0c0c0e">

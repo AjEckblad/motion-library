@@ -12,13 +12,17 @@ const { server, base } = await serve();
 const browser = await launch();
 const results = [];
 const check = (name, ok, info = '') => { results.push([ok, name, info]); console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${info ? '  · ' + info : ''}`); };
+const cspBlocks = new Set();   // anything the Content-Security-Policy blocked, on any page or frame during the whole run
 
 async function newPage(opts = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'], ...opts });
   const page = await ctx.newPage();
   page.errors = [];
   page.on('pageerror', e => page.errors.push(e.message));
-  page.on('console', m => { if (m.type() === 'error' && !m.text().includes('Failed to load resource')) page.errors.push(m.text()); });
+  page.on('console', m => {
+    if (m.text().includes('Content Security Policy') && !page.expectCsp) cspBlocks.add(m.text().slice(0, 200));
+    if (m.type() === 'error' && !m.text().includes('Failed to load resource')) page.errors.push(m.text());
+  });
   return page;
 }
 
@@ -422,6 +426,33 @@ for (const id of ['letter-rise', 'curl-flow', 'liquid-metal']) {
   }
   check('llms.txt and the page footer point at the GitHub repo', (await (await fetch(`${base}/llms.txt`)).text()).includes('github.com/AjEckblad/motion-library') && fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('href="https://github.com/AjEckblad/motion-library"'));
   await nj.context().close();
+}
+
+// Content-Security-Policy: every page lets only the site's own scripts run, so nothing injected can run.
+{
+  const crypto = await import('node:crypto');
+  const metaOf = rel => (fs.readFileSync(path.join(ROOT, rel), 'utf8').match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/) || [])[1] || '';
+  const fx1 = fs.readdirSync(path.join(ROOT, 'fx')).find(f => f.endsWith('.html'));
+  const pages = ['index.html', 'stage.html', 'compare.html', `fx/${fx1}`];
+  const missing = pages.filter(p => !/script-src 'self'/.test(metaOf(p)) || !/object-src 'none'/.test(metaOf(p)));
+  check('every page carries a Content-Security-Policy that limits scripts to the site', missing.length === 0, missing.join(', '));
+  // an edited inline script in stage.html changes its hash; the stage then stops running until the hash is updated
+  const stage = fs.readFileSync(path.join(ROOT, 'stage.html'), 'utf8'), policy = metaOf('stage.html');
+  const unlisted = [...stage.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m => `'sha256-${crypto.createHash('sha256').update(m[1], 'utf8').digest('base64')}'`).filter(h => !policy.includes(h));
+  check("stage.html's policy lists the hash of each of its inline scripts", unlisted.length === 0, unlisted.length ? `put ${unlisted.join(' ')} in its script-src` : '');
+  const cp = await newPage(); cp.expectCsp = true;
+  const blocked = [];
+  for (const url of [`${base}/index.html`, `${base}/stage.html?src=anims/flow/clifford-attractor.js&mode=detail`]) {
+    await cp.goto(url); await cp.waitForTimeout(400);
+    blocked.push(await cp.evaluate(() => new Promise(res => {
+      document.addEventListener('securitypolicyviolation', () => res(window.__injected !== 1), { once: true });
+      const s = document.createElement('script'); s.textContent = 'window.__injected = 1'; document.head.append(s);
+      setTimeout(() => res(false), 1000);
+    })));
+  }
+  check('the policy refuses to run a script injected into the page (front page and stage)', blocked.every(Boolean), JSON.stringify(blocked));
+  await cp.context().close();
+  check('nothing the site itself loads was blocked by its Content-Security-Policy', cspBlocks.size === 0, [...cspBlocks].slice(0, 3).join(' | '));
 }
 
 const failed = results.filter(r => !r[0]).length;

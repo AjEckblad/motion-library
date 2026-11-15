@@ -14,6 +14,18 @@
         "value": "mona sans",
         "createdAt": "2026-11-12T08:59:06.495Z",
         "reason": "lead (Claude): Mona Sans is the font inside the demo pieces (anims/*, e.g. the printed sheet in paper-fold, used before this edit), not the site's UI type system (IBM Plex)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "instrument sans",
+        "createdAt": "2026-11-15T11:49:02.823Z",
+        "reason": "lead decision: the site's type system since the redesign AJ asked for (commit 07b93cd, live), recorded in DESIGN.md"
+      },
+      {
+        "rule": "overused-font",
+        "value": "instrument serif",
+        "createdAt": "2026-11-15T11:49:02.847Z",
+        "reason": "lead decision: accent italic in the front headline since the redesign (commit 07b93cd, live), recorded in DESIGN.md"
       }
     ]
   }
