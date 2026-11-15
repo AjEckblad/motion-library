@@ -28,6 +28,21 @@ export function createFront() {
   root.querySelector('#front-cap').replaceChildren(name, ` · ${t(CAPTION)}`);
   media.setAttribute('aria-label', t('A live Clifford attractor: move the pointer over it to reshape it'));
 
+  /* the scroll cue under the hero: it glides to the first category (its href does the same without the script), and
+     fades out once the page has scrolled */
+  const more = root.querySelector('#front-more');
+  if (more) {
+    more.querySelector('span').textContent = t('Learn more');
+    more.addEventListener('click', e => {
+      const sec = document.querySelector('#grid .cat-sec'); if (!sec) return;
+      e.preventDefault();
+      const bar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 60;
+      scrollTo({ top: sec.getBoundingClientRect().top + scrollY - bar - 12, behavior: reduce.matches ? 'instant' : 'smooth' });
+    });
+    const fade = () => more.classList.toggle('gone', scrollY > 40);
+    addEventListener('scroll', fade, { passive: true }); fade();
+  }
+
   /* the live stage */
   let frame = null, inView = false, busy = new Set(), loaded = false, freeT = 0;
   // mode=hero: no click-to-open relay (a click here steers the attractor); HERO_PARAMS sets its point count

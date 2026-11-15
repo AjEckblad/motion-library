@@ -114,6 +114,7 @@ const S = { zh: {
   "Free and open source": "免费开源",
   "A live Clifford attractor: move the pointer over it to reshape it": "实时运行的 Clifford 吸引子：把指针移到上面，它会随之变形",
   "Browse all {n}": "浏览全部 {n} 个",
+  "Learn more": "了解更多",
 },
 es: {
   "Pause": "Pausar",
@@ -180,6 +181,7 @@ es: {
   "Free and open source": "Gratis y de código abierto",
   "A live Clifford attractor: move the pointer over it to reshape it": "Un atractor de Clifford en vivo: mueve el puntero sobre él para cambiar su forma",
   "Browse all {n}": "Explorar los {n}",
+  "Learn more": "Saber más",
 },
 fr: {
   "Pause": "Pause",
@@ -246,6 +248,7 @@ fr: {
   "Free and open source": "Gratuit et open source",
   "A live Clifford attractor: move the pointer over it to reshape it": "Un attracteur de Clifford en direct : passez le pointeur dessus pour le remodeler",
   "Browse all {n}": "Parcourir les {n}",
+  "Learn more": "En savoir plus",
 } };
 export const t = s => S[lang]?.[s] || s;
 export const catName = c => CATS[lang]?.[c.id] || c.name;
